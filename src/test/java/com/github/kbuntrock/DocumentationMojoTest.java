@@ -3,25 +3,23 @@ package com.github.kbuntrock;
 
 import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.plugin.testing.WithoutMojo;
-
 import org.junit.Rule;
-import static org.junit.Assert.*;
 import org.junit.Test;
+
 import java.io.File;
 
-public class DocumentationMojoTest
-{
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+public class DocumentationMojoTest {
     @Rule
-    public MojoRule rule = new MojoRule()
-    {
+    public MojoRule rule = new MojoRule() {
         @Override
-        protected void before() throws Throwable 
-        {
+        protected void before() throws Throwable {
         }
 
         @Override
-        protected void after()
-        {
+        protected void after() {
         }
     };
 
@@ -29,32 +27,33 @@ public class DocumentationMojoTest
      * @throws Exception if any
      */
     @Test
-    public void testSomething()
-            throws Exception
-    {
-        File pom = new File( "target/test-classes/project-to-test/" );
-        assertNotNull( pom );
-        assertTrue( pom.exists() );
+    public void testSomething() throws Exception {
+        // Not ideal because we can't execute it without a previous run of the test phase.
+        // But since this project is located in the test-resources, we don't want to create generated files in the project
+        File pom = new File("target/test-classes/project-to-test/");
+        assertNotNull(pom);
+        assertTrue(pom.exists());
 
-        DocumentationMojo documentationMojo = (DocumentationMojo) rule.lookupConfiguredMojo( pom, "documentation" );
+        DocumentationMojo documentationMojo = (DocumentationMojo) rule.lookupConfiguredMojo(pom, "documentation");
         assertNotNull(documentationMojo);
         documentationMojo.execute();
 
-        File outputDirectory = ( File ) rule.getVariableValueFromObject(documentationMojo, "outputDirectory" );
-        assertNotNull( outputDirectory );
-        assertTrue( outputDirectory.exists() );
+        File outputDirectory = (File) rule.getVariableValueFromObject(documentationMojo, "outputDirectory");
+        assertNotNull(outputDirectory);
+        assertTrue(outputDirectory.exists());
 
-        File touch = new File( outputDirectory, "touch.txt" );
-        assertTrue( touch.exists() );
+        File touch = new File(outputDirectory, "touch.txt");
+        assertTrue(touch.exists());
 
     }
 
-    /** Do not need the MojoRule. */
+    /**
+     * Do not need the MojoRule.
+     */
     @WithoutMojo
     @Test
-    public void testSomethingWhichDoesNotNeedTheMojoAndProbablyShouldBeExtractedIntoANewClassOfItsOwn()
-    {
-        assertTrue( true );
+    public void testSomethingWhichDoesNotNeedTheMojoAndProbablyShouldBeExtractedIntoANewClassOfItsOwn() {
+        assertTrue(true);
     }
 
 }
