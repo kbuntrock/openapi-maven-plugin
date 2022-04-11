@@ -43,6 +43,8 @@
     <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
     <javax.validation-api.version>2.0.1.Final</javax.validation-api.version>
     <reflections.version>0.10.2</reflections.version>
+    <jackson-dataformat-yaml.version>2.13.2</jackson-dataformat-yaml.version>
+    <jackson-databind.version>2.13.2.2</jackson-databind.version>
   </properties>
 
   <dependencies>
@@ -111,6 +113,17 @@
       <artifactId>reflections</artifactId>
       <version>${reflections.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+      <version>${jackson-dataformat-yaml.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson-databind.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -122,12 +135,17 @@
         </plugin>
         <!-- see http://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_maven-plugin_packaging -->
         <plugin>
-          <artifactId>maven-resources-plugin</artifactId>
+          <artifactId>maven-tags-plugin</artifactId>
           <version>3.0.2</version>
         </plugin>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.8.0</version>
+          <configuration>
+            <compilerArgs>
+              <arg>-parameters</arg>
+            </compilerArgs>
+          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-plugin-plugin</artifactId>
