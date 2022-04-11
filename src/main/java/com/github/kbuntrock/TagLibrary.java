@@ -43,7 +43,7 @@ public class TagLibrary {
                         schemaObjects.add(endpoint.getResponseObject().getArrayItemDataObject());
                         inspectObject(endpoint.getResponseObject().getArrayItemDataObject().getJavaType());
                     }
-                    // TODO : gérer les nested arrays
+                    // TODO : Handle nested arrays
                 }
             }
 
@@ -56,7 +56,7 @@ public class TagLibrary {
                         schemaObjects.add(parameterObject.getArrayItemDataObject());
                         inspectObject(parameterObject.getArrayItemDataObject().getJavaType());
                     }
-                    // TODO : gérer les nested arrays
+                    // TODO : Handle nested arrays
                 }
             }
         }
@@ -82,7 +82,7 @@ public class TagLibrary {
                 if(OpenApiDataType.OBJECT == dataObject.getArrayItemDataObject().getOpenApiType()){
                     schemaObjects.add((dataObject.getArrayItemDataObject()));
                     inspectObject(dataObject.getArrayItemDataObject().getJavaType());
-                    // TODO : gérer les nested arrays
+                    // TODO : Handle nested arrays
                 }
             }
         }
