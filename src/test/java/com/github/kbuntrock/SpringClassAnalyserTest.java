@@ -1,11 +1,7 @@
 package com.github.kbuntrock;
 
-import com.github.kbuntrock.model.DataObject;
 import com.github.kbuntrock.model.Tag;
 import com.github.kbuntrock.resources.endpoint.AccountController;
-import com.github.kbuntrock.yaml.Component;
-import com.github.kbuntrock.yaml.ComponentSchema;
-import com.github.kbuntrock.yaml.Property;
 import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.plugin.MojoFailureException;
 import org.junit.Test;
@@ -15,8 +11,8 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
 
 public class SpringClassAnalyserTest {
 
@@ -32,7 +28,6 @@ public class SpringClassAnalyserTest {
 
         System.out.println();
     }
-
 
 
     @Test

@@ -91,6 +91,8 @@ public class SpringClassAnalyser {
                 paramObj.setLocation(ParameterLocation.PATH);
                 paramObj.setRequired(pathAnnotation.required());
                 if (!StringUtils.isEmpty(pathAnnotation.value())) {
+                    paramObj.setName(pathAnnotation.value());
+                } else if(!StringUtils.isEmpty(pathAnnotation.name())) {
                     paramObj.setName(pathAnnotation.name());
                 }
             }
@@ -101,6 +103,8 @@ public class SpringClassAnalyser {
                 paramObj.setLocation(ParameterLocation.QUERY);
                 paramObj.setRequired(queryAnnotation.required());
                 if (!StringUtils.isEmpty(queryAnnotation.value())) {
+                    paramObj.setName(queryAnnotation.value());
+                } else if (!StringUtils.isEmpty(queryAnnotation.name())) {
                     paramObj.setName(queryAnnotation.name());
                 }
             }

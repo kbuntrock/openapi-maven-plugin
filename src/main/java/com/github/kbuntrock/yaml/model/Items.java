@@ -1,11 +1,13 @@
-package com.github.kbuntrock.yaml;
+package com.github.kbuntrock.yaml.model;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Items {
 
-    private Map<String, String> items = new HashMap<>();
+    private Map<String, String> items = new LinkedHashMap<>();
+
+    // TODO : manque le format
 
     public Items(String type) {
         this.items.put("type", type);

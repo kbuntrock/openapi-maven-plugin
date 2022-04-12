@@ -48,12 +48,12 @@ public class SpringResourceParser {
             Set<Class<?>> classes = reflections.getTypesAnnotatedWith(RequestMapping.class, true);
             SpringClassAnalyser springClassAnalyser = new SpringClassAnalyser();
             logger.info("subclasses");
-            List<Tag> tags = new ArrayList<>();
+            List<Tag> tagElements = new ArrayList<>();
             for (Class clazz : classes) {
                 logger.info(clazz.getSimpleName());
                 Optional<Tag> optTag = springClassAnalyser.getTagFromClass(clazz);
                 if(optTag.isPresent()) {
-                    tags.add(optTag.get());
+                    tagElements.add(optTag.get());
                 }
             }
         }

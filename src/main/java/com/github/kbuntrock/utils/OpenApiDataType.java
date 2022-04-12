@@ -1,13 +1,18 @@
 package com.github.kbuntrock.utils;
 
+import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
 public enum OpenApiDataType {
 
     STRING("string"),
-    BYTES("string", OpenApiDataFormat.BYTE),
-    BINARY("string", OpenApiDataFormat.BINARY),
+    STRING_BINARY("string", OpenApiDataFormat.BINARY),
+    STRING_DATE("string", OpenApiDataFormat.DATE),
+    STRING_DATE_TIME("string", OpenApiDataFormat.DATE_TIME),
     BOOLEAN("boolean"),
     INTEGER_32("integer", OpenApiDataFormat.INT32),
     INTEGER_64("integer", OpenApiDataFormat.INT64),
@@ -37,7 +42,7 @@ public enum OpenApiDataType {
     }
 
     public static OpenApiDataType fromJavaType(Class<?> type) {
-        if(Boolean.class == type || Boolean.TYPE == type){
+        if (Boolean.class == type || Boolean.TYPE == type) {
             return BOOLEAN;
         } else if (Integer.class == type || Integer.TYPE == type) {
             return INTEGER_32;
@@ -49,9 +54,16 @@ public enum OpenApiDataType {
             return NUMBER_DOUBLE;
         } else if (String.class == type) {
             return STRING;
+        } else if (LocalDateTime.class == type) {
+            return STRING_DATE_TIME;
+        } else if (LocalDate.class == type) {
+            return STRING_DATE;
+        } else if(MultipartFile.class == type) {
+            return STRING_BINARY;
         } else if (type.isArray() || List.class == type || Set.class == type) {
             return ARRAY;
         }
         return OBJECT;
     }
+
 }

@@ -1,9 +1,9 @@
-package com.github.kbuntrock.yaml;
+package com.github.kbuntrock.yaml.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRawValue;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -17,6 +17,8 @@ public class Property {
     private String format;
     private Boolean uniqueItems;
     private Map<String, String> items;
+    @JsonIgnore
+    private boolean required;
 
     public String getName() {
         return name;
@@ -72,5 +74,13 @@ public class Property {
 
     public void setFormat(String format) {
         this.format = format;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
     }
 }

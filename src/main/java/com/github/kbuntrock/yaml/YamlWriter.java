@@ -2,11 +2,20 @@ package com.github.kbuntrock.yaml;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.github.kbuntrock.TagLibrary;
 import com.github.kbuntrock.model.DataObject;
+import com.github.kbuntrock.model.Endpoint;
+import com.github.kbuntrock.model.ParameterObject;
+import com.github.kbuntrock.model.Tag;
 import com.github.kbuntrock.utils.OpenApiDataFormat;
 import com.github.kbuntrock.utils.OpenApiDataType;
+import com.github.kbuntrock.utils.ParameterLocation;
+import com.github.kbuntrock.yaml.model.*;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.File;
 import java.io.IOException;
@@ -20,26 +29,110 @@ public enum YamlWriter {
 
     private final ObjectMapper om;
 
+    private Log logger = new SystemStreamLog();
+
     private YamlWriter() {
-        om = new ObjectMapper(new YAMLFactory());
+        om = new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
     }
 
     public void write(File file, TagLibrary tagLibrary) throws IOException {
-        Component component = createComponent(tagLibrary);
-        om.writeValue(file, component);
+        Specification specification = new Specification();
+        Info info = new Info();
+        info.setTitre("Mon titre");
+        info.setVersion("Ma version");
+        specification.setInfo(info);
+
+        specification.setTags(tagLibrary.getTags().stream().map(x -> new TagElement(x.getName())).collect(Collectors.toList()));
+
+        specification.setPaths(createPaths(tagLibrary));
+
+        specification.getComponents().put("schemas", createSchemas(tagLibrary));
+
+        om.writeValue(file, specification);
     }
 
-    private Component createComponent(TagLibrary library) {
+    private Map<String, Path> createPaths(TagLibrary tagLibrary) {
+        Map<String, Path> paths = new LinkedHashMap<>();
+
+        for (Tag tag : tagLibrary.getTags()) {
+            for (Endpoint endpoint : tag.getEndpoints()) {
+                Path path = paths.computeIfAbsent(endpoint.getPath(), k -> new Path());
+                Operation operation = path.getOperations()
+                        .compute(endpoint.getOperation().name().toLowerCase(Locale.ENGLISH), (k, v) -> new Operation());
+                operation.getTags().add(new TagElement(tag.getName()));
+                operation.setOperationId(endpoint.getName());
+                // All parameters which are not in the body
+                for (ParameterObject parameter : endpoint.getParameters().stream()
+                        .filter(x -> ParameterLocation.BODY != x.getLocation()).collect(Collectors.toList())) {
+                    ParameterElement parameterElement = new ParameterElement();
+                    parameterElement.setName(parameter.getName());
+                    parameterElement.setIn(parameter.getLocation().toString().toLowerCase(Locale.ENGLISH));
+                    parameterElement.setRequired(parameter.isRequired());
+                    Property schema = new Property();
+                    schema.setType(parameter.getOpenApiType().getValue());
+                    OpenApiDataFormat format = parameter.getOpenApiType().getFormat();
+                    if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
+                        schema.setFormat(format.getValue());
+                    }
+                    // array in query or path parameters are not supported
+                    if (OpenApiDataType.ARRAY == parameter.getOpenApiType()) {
+                        logger.warn("Array types in path or query parameter are not allowed : "
+                                + endpoint.getPath() + " - " + endpoint.getOperation());
+                    }
+                    parameterElement.setSchema(schema);
+                    operation.getParameters().add(parameterElement);
+                }
+
+                // There can be only one body
+                List<ParameterObject> bodies = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation()).collect(Collectors.toList());
+                if (bodies.size() > 1) {
+                    logger.warn("More than one body is not allowed : "
+                            + endpoint.getPath() + " - " + endpoint.getOperation());
+                }
+                if (!bodies.isEmpty()) {
+                    ParameterObject body = bodies.get(0);
+                    RequestBody requestBody = new RequestBody();
+                    operation.setRequestBody(requestBody);
+                    RequestBodyContent requestBodyContent = new RequestBodyContent();
+                    requestBody.getContent().put("*/*", requestBodyContent);
+                    //requestBodyContent.getSchema().put("type", body.getOpenApiType().getValue());
+                    if (OpenApiDataType.OBJECT == body.getOpenApiType()) {
+                        requestBodyContent.getSchema().put("$ref", "#/components/schemas/" + body.getJavaType().getSimpleName());
+                    } else {
+                        requestBodyContent.getSchema().put("type", body.getOpenApiType().getValue());
+                        if(OpenApiDataType.ARRAY != body.getOpenApiType()){
+                            OpenApiDataFormat format = body.getOpenApiType().getFormat();
+                            if(OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format){
+                                requestBodyContent.getSchema().put("format", format.getValue());
+                            }
+                        } else if(OpenApiDataType.ARRAY == body.getOpenApiType()) {
+                            OpenApiDataType itemType = body.getArrayItemDataObject().getOpenApiType();
+                            Map<String, String> itemsMap = new LinkedHashMap<>();
+                            itemsMap.put("type", itemType.getValue());
+                            if(OpenApiDataFormat.NONE != itemType.getFormat() && OpenApiDataFormat.UNKNOWN != itemType.getFormat()){
+                                itemsMap.put("format", itemType.getFormat().getValue());
+                            }
+                            requestBodyContent.getSchema().put("items", itemsMap);
+                        }
+                    }
+
+
+                }
+
+            }
+        }
+        return paths;
+    }
+
+    private Map<String, Schema> createSchemas(TagLibrary library) {
         List<DataObject> ordered = library.getSchemaObjects().stream()
                 .sorted(Comparator.comparing(p -> p.getJavaType().getSimpleName())).collect(Collectors.toList());
 
-        Component component = new Component();
         // LinkedHashMap to keep alphabetical order
-        Map<String, ComponentSchema> schemas = new LinkedHashMap<>();
-        component.setSchemas(schemas);
+        Map<String, Schema> schemas = new LinkedHashMap<>();
         for (DataObject dataObject : ordered) {
-            ComponentSchema schema = new ComponentSchema();
-            component.getSchemas().put(dataObject.getJavaType().getSimpleName(), schema);
+            Schema schema = new Schema();
+            schemas.put(dataObject.getJavaType().getSimpleName(), schema);
             schema.setType(dataObject.getOpenApiType().getValue());
             // LinkedHashMap to keep the order of the class
             Map<String, Property> properties = new LinkedHashMap<>();
@@ -51,18 +144,20 @@ public enum YamlWriter {
                 OpenApiDataType openApiDataType = OpenApiDataType.fromJavaType(field.getType());
                 property.setType(openApiDataType.getValue());
                 OpenApiDataFormat format = openApiDataType.getFormat();
-                if(OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format){
+                if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
                     property.setFormat(format.getValue());
                 }
 
-                if(OpenApiDataType.ARRAY == openApiDataType){
-                   extractArrayType(field, property);
+                if (OpenApiDataType.ARRAY == openApiDataType) {
+                    extractArrayType(field, property);
                 }
                 extractConstraints(field, property);
                 properties.put(property.getName(), property);
             }
+            schema.setRequired(schema.getProperties().values().stream()
+                    .filter(Property::isRequired).map(Property::getName).collect(Collectors.toList()));
         }
-        return component;
+        return schemas;
     }
 
     private static List<Field> getAllFields(List<Field> fields, Class<?> type) {
@@ -77,7 +172,7 @@ public enum YamlWriter {
     private void extractArrayType(Field field, Property property) {
         property.setUniqueItems(true);
         DataObject item = new DataObject();
-        if(field.getType().isArray()) {
+        if (field.getType().isArray()) {
             item.setJavaType(field.getType(), null);
         } else {
             item.setJavaType(field.getType(), ((ParameterizedType) field.getGenericType()));
@@ -89,11 +184,16 @@ public enum YamlWriter {
 
     private void extractConstraints(Field field, Property property) {
         Size size = field.getAnnotation(Size.class);
-        if(size != null) {
+        if (size != null) {
             property.setMinLength(size.min());
-            if(size.max() != Integer.MAX_VALUE) {
+            if (size.max() != Integer.MAX_VALUE) {
                 property.setMaxLength(size.max());
             }
+        }
+
+        NotNull notNull = field.getAnnotation(NotNull.class);
+        if (notNull != null) {
+            property.setRequired(true);
         }
     }
 }

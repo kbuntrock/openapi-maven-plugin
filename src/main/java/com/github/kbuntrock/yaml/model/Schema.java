@@ -1,4 +1,4 @@
-package com.github.kbuntrock.yaml;
+package com.github.kbuntrock.yaml.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ComponentSchema {
+public class Schema {
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<String> required;
     private String type;
     private Map<String, Property> properties;
