@@ -6,11 +6,16 @@ import com.github.kbuntrock.model.Endpoint;
 import com.github.kbuntrock.model.Tag;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Operation {
 
-    private List<TagElement> tags = new ArrayList<>();
+    @JsonIgnore
+    private String name;
+
+    private List<String> tags = new ArrayList<>();
 
     private String operationId;
 
@@ -20,11 +25,22 @@ public class Operation {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private RequestBody requestBody;
 
-    public List<TagElement> getTags() {
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public Map<Object, Response> responses = new LinkedHashMap<>();
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<String> getTags() {
         return tags;
     }
 
-    public void setTags(List<TagElement> tags) {
+    public void setTags(List<String> tags) {
         this.tags = tags;
     }
 
@@ -46,5 +62,9 @@ public class Operation {
 
     public void setRequestBody(RequestBody requestBody) {
         this.requestBody = requestBody;
+    }
+
+    public Map<Object, Response> getResponses() {
+        return responses;
     }
 }

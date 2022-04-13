@@ -1,6 +1,7 @@
 package com.github.kbuntrock;
 
 
+import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -57,7 +58,7 @@ public class DocumentationMojo extends AbstractMojo {
         if (apiConfigurations == null || apiConfigurations.isEmpty()) {
             throw new MojoFailureException("At least one api configuration element should be configured");
         }
-        for(ApiConfiguration apiConfiguration : apiConfigurations) {
+        for (ApiConfiguration apiConfiguration : apiConfigurations) {
             if (apiConfiguration.getLocations() == null || apiConfiguration.getLocations().isEmpty()) {
                 throw new MojoFailureException("At least one location element should be configured");
             }
@@ -66,16 +67,23 @@ public class DocumentationMojo extends AbstractMojo {
 
     private void scanProjectResources() throws MojoFailureException, MojoExecutionException {
 
-        getLog().info("BEGINNING");
         createProjectDependenciesClassLoader();
 
-        for(ApiConfiguration apiConfiguration : apiConfigurations){
-            SpringResourceParser springResourceParser = new SpringResourceParser(getLog(), projectClassLoader, apiConfiguration.getLocations());
-            springResourceParser.findRestControllers();
+        for (ApiConfiguration apiConfiguration : apiConfigurations) {
+            SpringResourceParser springResourceParser = new SpringResourceParser(projectClassLoader, apiConfiguration.getLocations());
+            getLog().info("Prepare to scan");
+            TagLibrary tagLibrary = springResourceParser.scanRestControllers();
+            getLog().info("Scan done");
+            String filePath = outputDirectory + "\\" + apiConfiguration.getFilename();
+            getLog().info("Prepared to write");
+            try {
+                YamlWriter.INSTANCE.write(new File(filePath), tagLibrary);
+                getLog().info("written");
+            } catch (IOException e) {
+                throw new MojoFailureException("Cannot write file " + filePath);
+            }
         }
 
-
-        getLog().info("END");
     }
 
     /**
@@ -92,11 +100,12 @@ public class DocumentationMojo extends AbstractMojo {
             }
 
             URL[] urlsForClassLoader = pathUrls.toArray(new URL[pathUrls.size()]);
-            getLog().info("urls for URLClassLoader: " + Arrays.asList(urlsForClassLoader));
+            getLog().debug("urls for URLClassLoader: " + Arrays.asList(urlsForClassLoader));
 
             // We need to define parent classloader which is the parent of the plugin classloader, in order to not mix up
             // the project and the plugin classes.
-            projectClassLoader = new URLClassLoader(urlsForClassLoader, DocumentationMojo.class.getClassLoader().getParent());
+//            projectClassLoader = new URLClassLoader(urlsForClassLoader, DocumentationMojo.class.getClassLoader().getParent());
+            projectClassLoader = new URLClassLoader(urlsForClassLoader, DocumentationMojo.class.getClassLoader());
         } catch (DependencyResolutionRequiredException | MalformedURLException ex) {
             throw new MojoExecutionException("Cannot create project dependencies classloader", ex);
         }

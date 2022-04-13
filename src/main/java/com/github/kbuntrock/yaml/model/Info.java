@@ -2,15 +2,15 @@ package com.github.kbuntrock.yaml.model;
 
 public class Info {
 
-    private String titre;
+    private String title;
     private String version;
 
-    public String getTitre() {
-        return titre;
+    public String getTitle() {
+        return title;
     }
 
-    public void setTitre(String titre) {
-        this.titre = titre;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getVersion() {

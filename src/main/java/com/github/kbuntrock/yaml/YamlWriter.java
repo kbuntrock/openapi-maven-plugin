@@ -38,9 +38,13 @@ public enum YamlWriter {
     public void write(File file, TagLibrary tagLibrary) throws IOException {
         Specification specification = new Specification();
         Info info = new Info();
-        info.setTitre("Mon titre");
+        info.setTitle("Mon titre");
         info.setVersion("Ma version");
         specification.setInfo(info);
+
+        var server = new Server();
+        server.setUrl("/");
+        specification.getServers().add(server);
 
         specification.setTags(tagLibrary.getTags().stream().map(x -> new TagElement(x.getName())).collect(Collectors.toList()));
 
@@ -51,16 +55,21 @@ public enum YamlWriter {
         om.writeValue(file, specification);
     }
 
-    private Map<String, Path> createPaths(TagLibrary tagLibrary) {
-        Map<String, Path> paths = new LinkedHashMap<>();
+    private Map<String, Map<String, Operation>> createPaths(TagLibrary tagLibrary) {
+        Map<String, Map<String, Operation>> paths = new LinkedHashMap<>();
 
         for (Tag tag : tagLibrary.getTags()) {
             for (Endpoint endpoint : tag.getEndpoints()) {
-                Path path = paths.computeIfAbsent(endpoint.getPath(), k -> new Path());
-                Operation operation = path.getOperations()
+                Map<String, Operation> pathOperations = paths.computeIfAbsent(endpoint.getPath(), k -> new LinkedHashMap<>());
+                Operation operation = pathOperations
                         .compute(endpoint.getOperation().name().toLowerCase(Locale.ENGLISH), (k, v) -> new Operation());
-                operation.getTags().add(new TagElement(tag.getName()));
+                operation.getTags().add(tag.getName());
                 operation.setOperationId(endpoint.getName());
+
+                // -------------------------
+                // ----- PARAMETERS part----
+                // -------------------------
+
                 // All parameters which are not in the body
                 for (ParameterObject parameter : endpoint.getParameters().stream()
                         .filter(x -> ParameterLocation.BODY != x.getLocation()).collect(Collectors.toList())) {
@@ -93,31 +102,21 @@ public enum YamlWriter {
                     ParameterObject body = bodies.get(0);
                     RequestBody requestBody = new RequestBody();
                     operation.setRequestBody(requestBody);
-                    RequestBodyContent requestBodyContent = new RequestBodyContent();
+                    Content requestBodyContent = Content.fromDataObject(body);
                     requestBody.getContent().put("*/*", requestBodyContent);
-                    //requestBodyContent.getSchema().put("type", body.getOpenApiType().getValue());
-                    if (OpenApiDataType.OBJECT == body.getOpenApiType()) {
-                        requestBodyContent.getSchema().put("$ref", "#/components/schemas/" + body.getJavaType().getSimpleName());
-                    } else {
-                        requestBodyContent.getSchema().put("type", body.getOpenApiType().getValue());
-                        if(OpenApiDataType.ARRAY != body.getOpenApiType()){
-                            OpenApiDataFormat format = body.getOpenApiType().getFormat();
-                            if(OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format){
-                                requestBodyContent.getSchema().put("format", format.getValue());
-                            }
-                        } else if(OpenApiDataType.ARRAY == body.getOpenApiType()) {
-                            OpenApiDataType itemType = body.getArrayItemDataObject().getOpenApiType();
-                            Map<String, String> itemsMap = new LinkedHashMap<>();
-                            itemsMap.put("type", itemType.getValue());
-                            if(OpenApiDataFormat.NONE != itemType.getFormat() && OpenApiDataFormat.UNKNOWN != itemType.getFormat()){
-                                itemsMap.put("format", itemType.getFormat().getValue());
-                            }
-                            requestBodyContent.getSchema().put("items", itemsMap);
-                        }
-                    }
-
-
                 }
+
+                // -------------------------
+                // ----- RESPONSE part----
+                // -------------------------
+
+                Response response = new Response();
+                response.setCode(endpoint.getResponseCode());
+                if(endpoint.getResponseObject() != null) {
+                    Content responseContent = Content.fromDataObject(endpoint.getResponseObject());
+                    response.getContent().put("*/*", responseContent);
+                }
+                operation.getResponses().put(response.getCode(), response);
 
             }
         }

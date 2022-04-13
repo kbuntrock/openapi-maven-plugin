@@ -1,21 +1,27 @@
 package com.github.kbuntrock.yaml.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({"openapi", "info", "servers","tags", "paths", "components" })
 public class Specification {
 
     private String openapi = "3.0.3";
 
     private Info info;
 
-    private List<TagElement> tagElements;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private List<Server> servers = new ArrayList<>();
 
-    private Map<String, Path> paths;
+    private List<TagElement> tags;
+
+    private Map<String, Map<String, Operation>> paths;
 
     private Map<String, Object> components = new HashMap<>();
 
@@ -35,11 +41,23 @@ public class Specification {
         this.info = info;
     }
 
-    public Map<String, Path> getPaths() {
+    public List<Server> getServers() {
+        return servers;
+    }
+
+    public List<TagElement> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<TagElement> tags) {
+        this.tags = tags;
+    }
+
+    public Map<String, Map<String, Operation>> getPaths() {
         return paths;
     }
 
-    public void setPaths(Map<String, Path> paths) {
+    public void setPaths(Map<String, Map<String, Operation>> paths) {
         this.paths = paths;
     }
 
@@ -51,11 +69,4 @@ public class Specification {
         this.components = components;
     }
 
-    public List<TagElement> getTags() {
-        return tagElements;
-    }
-
-    public void setTags(List<TagElement> tagElements) {
-        this.tagElements = tagElements;
-    }
 }

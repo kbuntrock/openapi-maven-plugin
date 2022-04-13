@@ -13,6 +13,7 @@ public class Endpoint {
 
     private List<ParameterObject> parameters;
 
+    private Integer responseCode;
     private DataObject responseObject;
 
     public String getPath() {
@@ -47,6 +48,14 @@ public class Endpoint {
         this.parameters = parameters;
     }
 
+    public Integer getResponseCode() {
+        return responseCode;
+    }
+
+    public void setResponseCode(Integer responseCode) {
+        this.responseCode = responseCode;
+    }
+
     public DataObject getResponseObject() {
         return responseObject;
     }
@@ -55,11 +64,4 @@ public class Endpoint {
         this.responseObject = responseObject;
     }
 
-    @Override
-    public String toString() {
-        return "Endpoint{" +
-                "path='" + path + '\'' +
-                ", operation=" + operation +
-                '}';
-    }
 }
