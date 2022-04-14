@@ -19,7 +19,10 @@ public class TagLibrary {
     private List<Tag> tags = new ArrayList<>();
     private Set<DataObject> schemaObjects = new HashSet<>();
 
-    public TagLibrary() {
+    private final ClassLoader projectClassLoader;
+
+    public TagLibrary(ClassLoader projectClassLoader) {
+        this.projectClassLoader = projectClassLoader;
     }
 
     public void addTag(Tag tag) throws MojoFailureException {
@@ -69,15 +72,15 @@ public class TagLibrary {
             OpenApiDataType dataType = OpenApiDataType.fromJavaType(fieldType);
             if(OpenApiDataType.OBJECT == dataType) {
                 DataObject dataObject = new DataObject();
-                dataObject.setJavaType(fieldType, null);
+                dataObject.setJavaType(fieldType, null, projectClassLoader);
                 schemaObjects.add(dataObject);
                 inspectObject(dataObject.getJavaType());
             } else if(OpenApiDataType.ARRAY == dataType) {
                 DataObject dataObject = new DataObject();
                 if(fieldType.isArray()) {
-                    dataObject.setJavaType(fieldType, null);
+                    dataObject.setJavaType(fieldType, null, projectClassLoader);
                 } else {
-                    dataObject.setJavaType(fieldType, ((ParameterizedType) field.getGenericType()));
+                    dataObject.setJavaType(fieldType, ((ParameterizedType) field.getGenericType()), projectClassLoader);
                 }
                 if(OpenApiDataType.OBJECT == dataObject.getArrayItemDataObject().getOpenApiType()){
                     schemaObjects.add((dataObject.getArrayItemDataObject()));

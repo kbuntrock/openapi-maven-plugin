@@ -1,6 +1,7 @@
 package com.github.kbuntrock;
 
 import com.github.kbuntrock.model.Tag;
+import com.github.kbuntrock.yaml.Logger;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
@@ -16,7 +17,7 @@ import java.util.Set;
 
 public class SpringResourceParser {
 
-    private Log logger = new SystemStreamLog();
+    private Log logger = Logger.INSTANCE.getLogger();
 
     private final List<String> apiLocations;
 
@@ -28,9 +29,9 @@ public class SpringResourceParser {
     }
 
     public TagLibrary scanRestControllers() throws MojoFailureException {
-        TagLibrary library = new TagLibrary();
+        TagLibrary library = new TagLibrary(projectClassLoader);
         for (String apiLocation : apiLocations) {
-            logger.info("scanning : " + apiLocation);
+            logger.info("Scanning : " + apiLocation);
 
             Reflections reflections = new Reflections(new ConfigurationBuilder()
                     .addClassLoaders(projectClassLoader)
@@ -40,10 +41,8 @@ public class SpringResourceParser {
 
             // Find directly or inheritedly annotated by RequestMapping classes.
             Set<Class<?>> classes = reflections.getTypesAnnotatedWith(RequestMapping.class, true);
-            SpringClassAnalyser springClassAnalyser = new SpringClassAnalyser();
-            logger.info("subclasses");
+            SpringClassAnalyser springClassAnalyser = new SpringClassAnalyser(projectClassLoader);
             for (Class clazz : classes) {
-                logger.info(clazz.getSimpleName());
                 Optional<Tag> optTag = springClassAnalyser.getTagFromClass(clazz);
                 if(optTag.isPresent()) {
                     library.addTag(optTag.get());

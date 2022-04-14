@@ -2,7 +2,6 @@ package com.github.kbuntrock.resources.endpoint;
 
 import com.github.kbuntrock.resources.Constants;
 import com.github.kbuntrock.resources.dto.*;
-import io.swagger.annotations.Api;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RequestMapping(Constants.BASE_API + "/account")
-@Api(tags = "account")
 public interface AccountController {
 
     /**

@@ -2,7 +2,7 @@ package com.github.kbuntrock;
 
 import org.apache.maven.plugins.annotations.Parameter;
 
-import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ApiConfiguration {
@@ -13,8 +13,14 @@ public class ApiConfiguration {
     @Parameter(required = true)
     private List<String> locations;
 
-    @Parameter(defaultValue = "openapi.yaml", required = true)
-    private File filename;
+    @Parameter
+    private String filename = "openapi.yml";
+
+    /**
+     * List of strings which should be removed from the tags names
+     */
+    @Parameter(required = false)
+    private List<String> tagRemovableStrings = new ArrayList<>();
 
     public List<String> getLocations() {
         return locations;
@@ -24,11 +30,19 @@ public class ApiConfiguration {
         this.locations = locations;
     }
 
-    public File getFilename() {
+    public String getFilename() {
         return filename;
     }
 
-    public void setFilename(File filename) {
+    public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    public List<String> getTagRemovableStrings() {
+        return tagRemovableStrings;
+    }
+
+    public void setTagRemovableStrings(List<String> tagRemovableStrings) {
+        this.tagRemovableStrings = tagRemovableStrings;
     }
 }

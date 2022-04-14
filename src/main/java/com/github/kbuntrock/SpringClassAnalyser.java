@@ -2,10 +2,10 @@ package com.github.kbuntrock;
 
 import com.github.kbuntrock.model.*;
 import com.github.kbuntrock.utils.ParameterLocation;
+import com.github.kbuntrock.yaml.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,35 +13,29 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 public class SpringClassAnalyser {
 
-    private Log logger = new SystemStreamLog();
+    private Log logger = Logger.INSTANCE.getLogger();
+
+    private final ClassLoader projectClassLoader;
+
+    public SpringClassAnalyser(ClassLoader projectClassLoader) {
+        this.projectClassLoader = projectClassLoader;
+    }
 
     public Optional<Tag> getTagFromClass(Class<?> clazz) throws MojoFailureException {
         Tag tag = new Tag(clazz.getSimpleName());
-        logger.info("tag start : " + tag.getName());
+        logger.debug("Parsing tag : " + tag.getName());
         String basePath = "";
         RequestMapping classRequestMapping = clazz.getAnnotation(RequestMapping.class);
 
-        logger.info("Looking for : " + RequestMapping.class.getCanonicalName());
-        for (Annotation annotation : clazz.getAnnotations()) {
-            logger.info("annotation : " + annotation.annotationType().getCanonicalName());
-        }
-
-        logger.info("classRequestMapping_ ? " + clazz.getAnnotations()[0]);
-        logger.info("classRequestMapping_ ?? " + clazz.getAnnotations()[0].getClass().getCanonicalName());
-        logger.info("classRequestMapping ? " + classRequestMapping);
-        logger.info("classRequestMapping_2 ? " + classRequestMapping.name());
-        logger.info("classRequestMapping_3 ? " + classRequestMapping.value().length);
-        if (classRequestMapping.value().length > 0) {
+        if (classRequestMapping.value() != null && classRequestMapping.value().length > 0) {
             basePath = classRequestMapping.value()[0];
         }
 
-        logger.info("classRequestMapping processing");
         parseEndpoints(tag, basePath, clazz);
 
         if (tag.getEndpoints().isEmpty()) {
@@ -53,7 +47,7 @@ public class SpringClassAnalyser {
 
     }
 
-    private void parseEndpoints(Tag tag, String basePath, Class clazz) throws MojoFailureException {
+    private void parseEndpoints(Tag tag, String basePath, Class<?> clazz) throws MojoFailureException {
         Method[] methods = clazz.getMethods();
         for (Method method : methods) {
             Annotation[] annotations = method.getAnnotations();
@@ -70,10 +64,14 @@ public class SpringClassAnalyser {
                     if (optEndpoint.isPresent()) {
                         Endpoint endpoint = optEndpoint.get();
                         endpoint.setName(method.getName());
+                        logger.debug("Parsing endpoint : " + endpoint.getName());
                         endpoint.setParameters(readParameters(method));
+                        logger.debug("Parsing endpoint : " + endpoint.getName() + " - parameters read");
                         endpoint.setResponseObject(readResponseObject(method));
+                        logger.debug("Parsing endpoint : " + endpoint.getName() + " - response read");
                         endpoint.setResponseCode(readResponseCode(method));
                         tag.addEndpoint(endpoint);
+                        logger.debug("Parsing endpoint : " + endpoint.getName() + " - the end");
                     }
                 }
 
@@ -81,7 +79,7 @@ public class SpringClassAnalyser {
         }
     }
 
-    private static List<ParameterObject> readParameters(Method method) {
+    private List<ParameterObject> readParameters(Method method) {
         List<ParameterObject> parameters = new ArrayList<>();
 
         for (Parameter parameter : method.getParameters()) {
@@ -98,7 +96,7 @@ public class SpringClassAnalyser {
                 parameterizedType = (ParameterizedType) genericReturnType;
             }
 
-            paramObj.setJavaType(parameter.getType(), parameterizedType);
+            paramObj.setJavaType(parameter.getType(), parameterizedType, projectClassLoader);
 
             // Detect if is a path variable
             PathVariable pathAnnotation = parameter.getAnnotation(PathVariable.class);
@@ -146,7 +144,7 @@ public class SpringClassAnalyser {
         return responseStatus.value().value();
     }
 
-    private static DataObject readResponseObject(Method method) {
+    private DataObject readResponseObject(Method method) {
         Class<?> returnType = method.getReturnType();
         if (Void.class == returnType || Void.TYPE == returnType) {
             return null;
@@ -157,7 +155,8 @@ public class SpringClassAnalyser {
         if (genericReturnType instanceof ParameterizedType) {
             parameterizedType = (ParameterizedType) genericReturnType;
         }
-        dataObject.setJavaType(returnType, parameterizedType);
+        dataObject.setJavaType(returnType, parameterizedType, projectClassLoader);
+        logger.debug(dataObject.toString());
         return dataObject;
     }
 

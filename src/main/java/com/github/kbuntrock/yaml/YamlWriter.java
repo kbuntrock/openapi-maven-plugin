@@ -3,6 +3,7 @@ package com.github.kbuntrock.yaml;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.github.kbuntrock.ApiConfiguration;
 import com.github.kbuntrock.TagLibrary;
 import com.github.kbuntrock.model.DataObject;
 import com.github.kbuntrock.model.Endpoint;
@@ -13,7 +14,7 @@ import com.github.kbuntrock.utils.OpenApiDataType;
 import com.github.kbuntrock.utils.ParameterLocation;
 import com.github.kbuntrock.yaml.model.*;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugin.logging.SystemStreamLog;
+import org.apache.maven.project.MavenProject;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -24,29 +25,37 @@ import java.lang.reflect.ParameterizedType;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public enum YamlWriter {
-    INSTANCE;
+public class YamlWriter {
 
-    private final ObjectMapper om;
+    private static final ObjectMapper om = new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
 
-    private Log logger = new SystemStreamLog();
+    private Log logger = Logger.INSTANCE.getLogger();
 
-    private YamlWriter() {
-        om = new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
+    private ClassLoader projectClassLoader;
+
+    private ApiConfiguration apiConfiguration;
+
+    private MavenProject mavenProject;
+
+    public YamlWriter(final ClassLoader projectClassLoader, final MavenProject mavenProject, final ApiConfiguration apiConfiguration) {
+        this.projectClassLoader = projectClassLoader;
+        this.apiConfiguration = apiConfiguration;
+        this.mavenProject = mavenProject;
     }
 
     public void write(File file, TagLibrary tagLibrary) throws IOException {
         Specification specification = new Specification();
         Info info = new Info();
-        info.setTitle("Mon titre");
-        info.setVersion("Ma version");
+        info.setTitle(mavenProject.getName());
+        info.setVersion(mavenProject.getVersion());
         specification.setInfo(info);
 
         var server = new Server();
         server.setUrl("/");
         specification.getServers().add(server);
 
-        specification.setTags(tagLibrary.getTags().stream().map(x -> new TagElement(x.getName())).collect(Collectors.toList()));
+        specification.setTags(tagLibrary.getTags().stream()
+                .map(x -> new TagElement(x.computeConfiguredName(apiConfiguration))).collect(Collectors.toList()));
 
         specification.setPaths(createPaths(tagLibrary));
 
@@ -63,7 +72,7 @@ public enum YamlWriter {
                 Map<String, Operation> pathOperations = paths.computeIfAbsent(endpoint.getPath(), k -> new LinkedHashMap<>());
                 Operation operation = pathOperations
                         .compute(endpoint.getOperation().name().toLowerCase(Locale.ENGLISH), (k, v) -> new Operation());
-                operation.getTags().add(tag.getName());
+                operation.getTags().add(tag.computeConfiguredName(apiConfiguration));
                 operation.setOperationId(endpoint.getName());
 
                 // -------------------------
@@ -112,7 +121,7 @@ public enum YamlWriter {
 
                 Response response = new Response();
                 response.setCode(endpoint.getResponseCode());
-                if(endpoint.getResponseObject() != null) {
+                if (endpoint.getResponseObject() != null) {
                     Content responseContent = Content.fromDataObject(endpoint.getResponseObject());
                     response.getContent().put("*/*", responseContent);
                 }
@@ -172,9 +181,9 @@ public enum YamlWriter {
         property.setUniqueItems(true);
         DataObject item = new DataObject();
         if (field.getType().isArray()) {
-            item.setJavaType(field.getType(), null);
+            item.setJavaType(field.getType(), null, projectClassLoader);
         } else {
-            item.setJavaType(field.getType(), ((ParameterizedType) field.getGenericType()));
+            item.setJavaType(field.getType(), ((ParameterizedType) field.getGenericType()), projectClassLoader);
         }
         Map<String, String> items = new LinkedHashMap<>();
         items.put("type", item.getArrayItemDataObject().getOpenApiType().getValue());

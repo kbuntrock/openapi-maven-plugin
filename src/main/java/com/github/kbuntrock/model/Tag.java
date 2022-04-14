@@ -1,5 +1,7 @@
 package com.github.kbuntrock.model;
 
+import com.github.kbuntrock.ApiConfiguration;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +18,14 @@ public class Tag {
 
     public String getName() {
         return name;
+    }
+
+    public String computeConfiguredName(ApiConfiguration apiConfiguration) {
+        String configuredName = getName();
+        for (String toRemove : apiConfiguration.getTagRemovableStrings()) {
+            configuredName = configuredName.replace(toRemove, "");
+        }
+        return configuredName;
     }
 
     public void setName(String name) {

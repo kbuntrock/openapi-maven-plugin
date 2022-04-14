@@ -1,6 +1,7 @@
 package com.github.kbuntrock;
 
 
+import com.github.kbuntrock.yaml.Logger;
 import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
@@ -21,6 +22,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Goal which touches a timestamp file.
@@ -47,6 +49,8 @@ public class DocumentationMojo extends AbstractMojo {
     private ClassLoader projectClassLoader;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
+        Logger.INSTANCE.setLogger(getLog());
+
         touchExecute();
 
         validateConfiguration();
@@ -67,18 +71,21 @@ public class DocumentationMojo extends AbstractMojo {
 
     private void scanProjectResources() throws MojoFailureException, MojoExecutionException {
 
-        createProjectDependenciesClassLoader();
+        projectClassLoader = createProjectDependenciesClassLoader();
 
         for (ApiConfiguration apiConfiguration : apiConfigurations) {
             SpringResourceParser springResourceParser = new SpringResourceParser(projectClassLoader, apiConfiguration.getLocations());
-            getLog().info("Prepare to scan");
+            getLog().debug("Prepare to scan");
             TagLibrary tagLibrary = springResourceParser.scanRestControllers();
-            getLog().info("Scan done");
+            getLog().debug("Scan done");
             String filePath = outputDirectory + "\\" + apiConfiguration.getFilename();
-            getLog().info("Prepared to write");
+            getLog().debug("Prepared to write : " + filePath);
             try {
-                YamlWriter.INSTANCE.write(new File(filePath), tagLibrary);
-                getLog().info("written");
+                new YamlWriter(projectClassLoader, project, apiConfiguration).write(new File(filePath), tagLibrary);
+
+                int nbTagsGenerated = tagLibrary.getTags().size();
+                int nbOperationsGenerated = tagLibrary.getTags().stream().map(t -> t.getEndpoints().size()).collect(Collectors.summingInt(Integer::intValue));
+                getLog().info(apiConfiguration.getFilename() + " : " +nbTagsGenerated + " tags and " + nbOperationsGenerated + " operations generated.");
             } catch (IOException e) {
                 throw new MojoFailureException("Cannot write file " + filePath);
             }
@@ -92,12 +99,16 @@ public class DocumentationMojo extends AbstractMojo {
      * @return the classloader to use
      * @throws MojoExecutionException
      */
-    private void createProjectDependenciesClassLoader() throws MojoExecutionException {
+    private ClassLoader createProjectDependenciesClassLoader() throws MojoExecutionException {
         try {
             List<URL> pathUrls = new ArrayList<>();
-            for (String mavenCompilePath : project.getCompileClasspathElements()) {
-                pathUrls.add(new File(mavenCompilePath).toURI().toURL());
+            for (String compileClasspathElements : project.getCompileClasspathElements()) {
+                pathUrls.add(new File(compileClasspathElements).toURI().toURL());
             }
+            for (String runtimeClasspathElement : project.getRuntimeClasspathElements()) {
+                pathUrls.add(new File(runtimeClasspathElement).toURI().toURL());
+            }
+
 
             URL[] urlsForClassLoader = pathUrls.toArray(new URL[pathUrls.size()]);
             getLog().debug("urls for URLClassLoader: " + Arrays.asList(urlsForClassLoader));
@@ -105,7 +116,7 @@ public class DocumentationMojo extends AbstractMojo {
             // We need to define parent classloader which is the parent of the plugin classloader, in order to not mix up
             // the project and the plugin classes.
 //            projectClassLoader = new URLClassLoader(urlsForClassLoader, DocumentationMojo.class.getClassLoader().getParent());
-            projectClassLoader = new URLClassLoader(urlsForClassLoader, DocumentationMojo.class.getClassLoader());
+            return new URLClassLoader(urlsForClassLoader, DocumentationMojo.class.getClassLoader());
         } catch (DependencyResolutionRequiredException | MalformedURLException ex) {
             throw new MojoExecutionException("Cannot create project dependencies classloader", ex);
         }
