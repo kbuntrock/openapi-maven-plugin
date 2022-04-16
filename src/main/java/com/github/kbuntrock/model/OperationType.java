@@ -1,6 +1,6 @@
 package com.github.kbuntrock.model;
 
-public enum Operation {
+public enum OperationType {
     GET,
     POST,
     PUT,

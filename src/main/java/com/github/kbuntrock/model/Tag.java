@@ -1,6 +1,7 @@
 package com.github.kbuntrock.model;
 
-import com.github.kbuntrock.ApiConfiguration;
+import com.github.kbuntrock.configuration.ApiConfiguration;
+import com.github.kbuntrock.configuration.Substitution;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,8 @@ public class Tag {
 
     private List<Endpoint> endpoints = new ArrayList<>();
 
+    private String computedName;
+
     public Tag(String name) {
         this.name = name;
     }
@@ -21,11 +24,13 @@ public class Tag {
     }
 
     public String computeConfiguredName(ApiConfiguration apiConfiguration) {
-        String configuredName = getName();
-        for (String toRemove : apiConfiguration.getTagRemovableStrings()) {
-            configuredName = configuredName.replace(toRemove, "");
+        if (computedName == null) {
+            computedName = getName();
+            for (Substitution substitution : apiConfiguration.getTag().getSubstitutions()) {
+                computedName = computedName.replaceAll(substitution.getRegex(), substitution.getSubstitute());
+            }
         }
-        return configuredName;
+        return computedName;
     }
 
     public void setName(String name) {

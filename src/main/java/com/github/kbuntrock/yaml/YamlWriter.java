@@ -3,7 +3,7 @@ package com.github.kbuntrock.yaml;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
-import com.github.kbuntrock.ApiConfiguration;
+import com.github.kbuntrock.configuration.ApiConfiguration;
 import com.github.kbuntrock.TagLibrary;
 import com.github.kbuntrock.model.DataObject;
 import com.github.kbuntrock.model.Endpoint;
@@ -68,12 +68,19 @@ public class YamlWriter {
         Map<String, Map<String, Operation>> paths = new LinkedHashMap<>();
 
         for (Tag tag : tagLibrary.getTags()) {
-            for (Endpoint endpoint : tag.getEndpoints()) {
-                Map<String, Operation> pathOperations = paths.computeIfAbsent(endpoint.getPath(), k -> new LinkedHashMap<>());
-                Operation operation = pathOperations
-                        .compute(endpoint.getOperation().name().toLowerCase(Locale.ENGLISH), (k, v) -> new Operation());
+
+            // List of operations, which will be sorted before storing them by path. In order to keep a deterministic generation.
+            List<Operation> operations = new ArrayList<>();
+
+            for (Endpoint endpoint : tag.getEndpoints().stream().sorted(Comparator.comparing(Endpoint::getPath)).collect(Collectors.toList())) {
+                paths.computeIfAbsent(endpoint.getPath(), k -> new LinkedHashMap<>());
+
+                Operation operation = new Operation();
+                operations.add(operation);
+                operation.setName(endpoint.getType().name());
+                operation.setPath(endpoint.getPath());
                 operation.getTags().add(tag.computeConfiguredName(apiConfiguration));
-                operation.setOperationId(endpoint.getName());
+                operation.setOperationId(endpoint.computeConfiguredName(apiConfiguration));
 
                 // -------------------------
                 // ----- PARAMETERS part----
@@ -95,7 +102,7 @@ public class YamlWriter {
                     // array in query or path parameters are not supported
                     if (OpenApiDataType.ARRAY == parameter.getOpenApiType()) {
                         logger.warn("Array types in path or query parameter are not allowed : "
-                                + endpoint.getPath() + " - " + endpoint.getOperation());
+                                + endpoint.getPath() + " - " + endpoint.getType());
                     }
                     parameterElement.setSchema(schema);
                     operation.getParameters().add(parameterElement);
@@ -105,7 +112,7 @@ public class YamlWriter {
                 List<ParameterObject> bodies = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation()).collect(Collectors.toList());
                 if (bodies.size() > 1) {
                     logger.warn("More than one body is not allowed : "
-                            + endpoint.getPath() + " - " + endpoint.getOperation());
+                            + endpoint.getPath() + " - " + endpoint.getType());
                 }
                 if (!bodies.isEmpty()) {
                     ParameterObject body = bodies.get(0);
@@ -128,6 +135,14 @@ public class YamlWriter {
                 operation.getResponses().put(response.getCode(), response);
 
             }
+
+            // We now order operations by types :
+            operations = operations.stream().sorted(Comparator.comparing(Operation::getName)).collect(Collectors.toList());
+            // And map them to their path
+            for(Operation operation : operations){
+                paths.get(operation.getPath()).put(operation.getName().toLowerCase(), operation);
+            }
+
         }
         return paths;
     }

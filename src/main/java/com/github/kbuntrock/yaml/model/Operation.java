@@ -15,6 +15,9 @@ public class Operation {
     @JsonIgnore
     private String name;
 
+    @JsonIgnore
+    private String path;
+
     private List<String> tags = new ArrayList<>();
 
     private String operationId;
@@ -34,6 +37,14 @@ public class Operation {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public List<String> getTags() {

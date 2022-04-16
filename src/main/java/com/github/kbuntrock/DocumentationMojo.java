@@ -1,17 +1,16 @@
 package com.github.kbuntrock;
 
 
+import com.github.kbuntrock.configuration.ApiConfiguration;
 import com.github.kbuntrock.yaml.Logger;
 import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectHelper;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -35,7 +34,7 @@ public class DocumentationMojo extends AbstractMojo {
      * A list of api configurations
      */
     @Parameter(required = true)
-    private List<ApiConfiguration> apiConfigurations;
+    private List<ApiConfiguration> apis;
 
     /**
      * Location of the file.
@@ -45,6 +44,9 @@ public class DocumentationMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     MavenProject project;
+
+    @Component
+    private MavenProjectHelper projectHelper;
 
     private ClassLoader projectClassLoader;
 
@@ -59,10 +61,10 @@ public class DocumentationMojo extends AbstractMojo {
     }
 
     private void validateConfiguration() throws MojoFailureException {
-        if (apiConfigurations == null || apiConfigurations.isEmpty()) {
+        if (apis == null || apis.isEmpty()) {
             throw new MojoFailureException("At least one api configuration element should be configured");
         }
-        for (ApiConfiguration apiConfiguration : apiConfigurations) {
+        for (ApiConfiguration apiConfiguration : apis) {
             if (apiConfiguration.getLocations() == null || apiConfiguration.getLocations().isEmpty()) {
                 throw new MojoFailureException("At least one location element should be configured");
             }
@@ -73,7 +75,7 @@ public class DocumentationMojo extends AbstractMojo {
 
         projectClassLoader = createProjectDependenciesClassLoader();
 
-        for (ApiConfiguration apiConfiguration : apiConfigurations) {
+        for (ApiConfiguration apiConfiguration : apis) {
             SpringResourceParser springResourceParser = new SpringResourceParser(projectClassLoader, apiConfiguration.getLocations());
             getLog().debug("Prepare to scan");
             TagLibrary tagLibrary = springResourceParser.scanRestControllers();

@@ -1,4 +1,4 @@
-package com.github.kbuntrock;
+package com.github.kbuntrock.configuration;
 
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -16,11 +16,11 @@ public class ApiConfiguration {
     @Parameter
     private String filename = "openapi.yml";
 
-    /**
-     * List of strings which should be removed from the tags names
-     */
     @Parameter(required = false)
-    private List<String> tagRemovableStrings = new ArrayList<>();
+    private Tag tag = new Tag();
+
+    @Parameter(required = false)
+    private Operation operation = new Operation();
 
     public List<String> getLocations() {
         return locations;
@@ -38,11 +38,19 @@ public class ApiConfiguration {
         this.filename = filename;
     }
 
-    public List<String> getTagRemovableStrings() {
-        return tagRemovableStrings;
+    public Tag getTag() {
+        return tag;
     }
 
-    public void setTagRemovableStrings(List<String> tagRemovableStrings) {
-        this.tagRemovableStrings = tagRemovableStrings;
+    public void setTag(Tag tag) {
+        this.tag = tag;
+    }
+
+    public Operation getOperation() {
+        return operation;
+    }
+
+    public void setOperation(Operation operation) {
+        this.operation = operation;
     }
 }

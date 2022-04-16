@@ -1,15 +1,19 @@
 package com.github.kbuntrock.model;
 
-import java.util.ArrayList;
+import com.github.kbuntrock.configuration.ApiConfiguration;
+import com.github.kbuntrock.configuration.Substitution;
+
 import java.util.List;
 
 public class Endpoint {
 
     private String path;
 
-    private Operation operation;
+    private OperationType type;
 
     private String name;
+
+    private String computedName;
 
     private List<ParameterObject> parameters;
 
@@ -24,16 +28,26 @@ public class Endpoint {
         this.path = path;
     }
 
-    public Operation getOperation() {
-        return operation;
+    public OperationType getType() {
+        return type;
     }
 
-    public void setOperation(Operation operation) {
-        this.operation = operation;
+    public void setType(OperationType type) {
+        this.type = type;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String computeConfiguredName(ApiConfiguration apiConfiguration) {
+        if (computedName == null) {
+            computedName = getName();
+            for (Substitution substitution : apiConfiguration.getOperation().getSubstitutionsByType(getType().toString().toLowerCase())) {
+                computedName = computedName.replaceAll(substitution.getRegex(), substitution.getSubstitute());
+            }
+        }
+        return computedName;
     }
 
     public void setName(String name) {

@@ -1,5 +1,6 @@
 package com.github.kbuntrock;
 
+import com.github.kbuntrock.configuration.ApiConfiguration;
 import com.github.kbuntrock.model.Tag;
 import com.github.kbuntrock.resources.endpoint.AccountController;
 import com.github.kbuntrock.yaml.YamlWriter;

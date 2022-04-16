@@ -161,12 +161,12 @@ public class SpringClassAnalyser {
     }
 
     private static Optional<Endpoint> readRequestMapping(String basePath, RequestMapping requestMapping, Annotation realAnnotation) throws MojoFailureException {
-        Optional<Operation> operation = requestMappingToOperation(requestMapping);
+        Optional<OperationType> operation = requestMappingToOperation(requestMapping);
         if (operation.isEmpty()) {
             return Optional.empty();
         }
         Endpoint endpoint = new Endpoint();
-        endpoint.setOperation(operation.get());
+        endpoint.setType(operation.get());
         endpoint.setPath(readEndpointPath(basePath, realAnnotation));
         return Optional.of(endpoint);
     }
@@ -201,28 +201,28 @@ public class SpringClassAnalyser {
 
     }
 
-    private static Optional<Operation> requestMappingToOperation(RequestMapping requestMapping) {
+    private static Optional<OperationType> requestMappingToOperation(RequestMapping requestMapping) {
         if (requestMapping.method().length < 1) {
             return Optional.empty();
         }
 
         switch (requestMapping.method()[0]) {
             case GET:
-                return Optional.of(Operation.GET);
+                return Optional.of(OperationType.GET);
             case PUT:
-                return Optional.of(Operation.PUT);
+                return Optional.of(OperationType.PUT);
             case HEAD:
-                return Optional.of(Operation.HEAD);
+                return Optional.of(OperationType.HEAD);
             case POST:
-                return Optional.of(Operation.POST);
+                return Optional.of(OperationType.POST);
             case PATCH:
-                return Optional.of(Operation.PATCH);
+                return Optional.of(OperationType.PATCH);
             case DELETE:
-                return Optional.of(Operation.DELETE);
+                return Optional.of(OperationType.DELETE);
             case TRACE:
-                return Optional.of(Operation.TRACE);
+                return Optional.of(OperationType.TRACE);
             case OPTIONS:
-                return Optional.of(Operation.OPTIONS);
+                return Optional.of(OperationType.OPTIONS);
             default:
                 throw new RuntimeException("RequestMethod unknow : " + requestMapping.method()[0].name());
         }
