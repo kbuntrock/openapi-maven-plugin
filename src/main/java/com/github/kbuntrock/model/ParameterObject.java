@@ -7,6 +7,8 @@ public class ParameterObject extends DataObject {
     private String name;
     private boolean required;
     private ParameterLocation location;
+    // Set only if it is a "body" parameter : json, xml, plain text, ...
+    private String format;
 
     public String getName() {
         return name;
@@ -30,5 +32,13 @@ public class ParameterObject extends DataObject {
 
     public void setLocation(ParameterLocation location) {
         this.location = location;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
     }
 }

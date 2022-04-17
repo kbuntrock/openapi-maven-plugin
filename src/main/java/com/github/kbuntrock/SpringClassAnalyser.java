@@ -70,6 +70,7 @@ public class SpringClassAnalyser {
                         endpoint.setResponseObject(readResponseObject(method));
                         logger.debug("Parsing endpoint : " + endpoint.getName() + " - response read");
                         endpoint.setResponseCode(readResponseCode(method));
+                        setConsumeProduceProperties(endpoint, realAnnotation);
                         tag.addEndpoint(endpoint);
                         logger.debug("Parsing endpoint : " + endpoint.getName() + " - the end");
                     }
@@ -169,6 +170,41 @@ public class SpringClassAnalyser {
         endpoint.setType(operation.get());
         endpoint.setPath(readEndpointPath(basePath, realAnnotation));
         return Optional.of(endpoint);
+    }
+
+    /**
+     * Set the consume and produce properties of an endpoint
+     *
+     * @param endpoint       the endpoint object to set
+     * @param pathAnnotation An instance of RequestMapping or a subclass of RequestMapping
+     */
+    private static void setConsumeProduceProperties(Endpoint endpoint, Annotation pathAnnotation) throws MojoFailureException {
+        Method methodConsumes = null;
+        Method methodProduces = null;
+        try {
+            methodConsumes = pathAnnotation.annotationType().getMethod("consumes");
+            methodProduces = pathAnnotation.annotationType().getMethod("produces");
+        } catch (NoSuchMethodException e) {
+            throw new MojoFailureException("Method 'consumes' or 'produces' not found for " + pathAnnotation.getClass().getSimpleName());
+        }
+        try {
+            Optional<ParameterObject> parameter = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation()).findAny();
+            if (parameter.isPresent()) {
+                String[] consumes = (String[]) methodConsumes.invoke(pathAnnotation);
+                if (consumes != null && consumes.length > 0) {
+                    parameter.get().setFormat(consumes[0]);
+                }
+            }
+            if (endpoint.getResponseObject() != null) {
+                String[] produces = (String[]) methodProduces.invoke(pathAnnotation);
+                if (produces != null && produces.length > 0) {
+                    endpoint.setResponseFormat(produces[0]);
+                }
+            }
+
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new MojoFailureException("Method 'consumes' or 'produces' cannot be invoked for " + pathAnnotation.annotationType().getSimpleName());
+        }
     }
 
     private static String readEndpointPath(String basePath, Annotation realAnnotation) throws MojoFailureException {

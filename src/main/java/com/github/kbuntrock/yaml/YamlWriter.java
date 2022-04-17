@@ -119,7 +119,12 @@ public class YamlWriter {
                     RequestBody requestBody = new RequestBody();
                     operation.setRequestBody(requestBody);
                     Content requestBodyContent = Content.fromDataObject(body);
-                    requestBody.getContent().put("*/*", requestBodyContent);
+                    if(body.getFormat() != null){
+                        requestBody.getContent().put(body.getFormat(), requestBodyContent);
+                    } else {
+                        requestBody.getContent().put("*/*", requestBodyContent);
+                    }
+
                 }
 
                 // -------------------------
@@ -130,7 +135,12 @@ public class YamlWriter {
                 response.setCode(endpoint.getResponseCode());
                 if (endpoint.getResponseObject() != null) {
                     Content responseContent = Content.fromDataObject(endpoint.getResponseObject());
-                    response.getContent().put("*/*", responseContent);
+                    if(endpoint.getResponseFormat() != null){
+                        response.getContent().put(endpoint.getResponseFormat(), responseContent);
+                    } else {
+                        response.getContent().put("*/*", responseContent);
+                    }
+
                 }
                 operation.getResponses().put(response.getCode(), response);
 

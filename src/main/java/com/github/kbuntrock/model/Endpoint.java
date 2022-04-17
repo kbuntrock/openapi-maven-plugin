@@ -19,6 +19,7 @@ public class Endpoint {
 
     private Integer responseCode;
     private DataObject responseObject;
+    private String responseFormat;
 
     public String getPath() {
         return path;
@@ -78,4 +79,11 @@ public class Endpoint {
         this.responseObject = responseObject;
     }
 
+    public String getResponseFormat() {
+        return responseFormat;
+    }
+
+    public void setResponseFormat(String responseFormat) {
+        this.responseFormat = responseFormat;
+    }
 }

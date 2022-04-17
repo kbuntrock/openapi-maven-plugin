@@ -14,13 +14,16 @@ public class ApiConfiguration {
     private List<String> locations;
 
     @Parameter
-    private String filename = "openapi.yml";
+    private String filename = "openapi";
 
-    @Parameter(required = false)
+    @Parameter
     private Tag tag = new Tag();
 
-    @Parameter(required = false)
+    @Parameter
     private Operation operation = new Operation();
+
+    @Parameter
+    private boolean attachArtifact;
 
     public List<String> getLocations() {
         return locations;
@@ -52,5 +55,13 @@ public class ApiConfiguration {
 
     public void setOperation(Operation operation) {
         this.operation = operation;
+    }
+
+    public boolean isAttachArtifact() {
+        return attachArtifact;
+    }
+
+    public void setAttachArtifact(boolean attachArtifact) {
+        this.attachArtifact = attachArtifact;
     }
 }

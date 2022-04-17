@@ -4,11 +4,11 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 public class Substitution {
 
-    @Parameter(required = false)
+    @Parameter
     private String type;
     @Parameter(required = true)
     private String regex;
-    @Parameter(required = false)
+    @Parameter
     private String substitute = "";
 
     public String getType() {

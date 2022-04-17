@@ -53,8 +53,6 @@ public class DocumentationMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         Logger.INSTANCE.setLogger(getLog());
 
-        touchExecute();
-
         validateConfiguration();
 
         scanProjectResources();
@@ -80,14 +78,19 @@ public class DocumentationMojo extends AbstractMojo {
             getLog().debug("Prepare to scan");
             TagLibrary tagLibrary = springResourceParser.scanRestControllers();
             getLog().debug("Scan done");
-            String filePath = outputDirectory + "\\" + apiConfiguration.getFilename();
+            String filePath = outputDirectory + "\\" + apiConfiguration.getFilename() + ".yml";
             getLog().debug("Prepared to write : " + filePath);
             try {
+                File generatedFile = new File(filePath);
                 new YamlWriter(projectClassLoader, project, apiConfiguration).write(new File(filePath), tagLibrary);
+
+                if (apiConfiguration.isAttachArtifact()) {
+                    projectHelper.attachArtifact(project, "yml", apiConfiguration.getFilename(), generatedFile);
+                }
 
                 int nbTagsGenerated = tagLibrary.getTags().size();
                 int nbOperationsGenerated = tagLibrary.getTags().stream().map(t -> t.getEndpoints().size()).collect(Collectors.summingInt(Integer::intValue));
-                getLog().info(apiConfiguration.getFilename() + " : " +nbTagsGenerated + " tags and " + nbOperationsGenerated + " operations generated.");
+                getLog().info(apiConfiguration.getFilename() + " : " + nbTagsGenerated + " tags and " + nbOperationsGenerated + " operations generated.");
             } catch (IOException e) {
                 throw new MojoFailureException("Cannot write file " + filePath);
             }
@@ -123,33 +126,6 @@ public class DocumentationMojo extends AbstractMojo {
             throw new MojoExecutionException("Cannot create project dependencies classloader", ex);
         }
 
-    }
-
-    private void touchExecute() throws MojoExecutionException {
-        File f = outputDirectory;
-
-        if (!f.exists()) {
-            f.mkdirs();
-        }
-
-        File touch = new File(f, "touch.txt");
-
-        FileWriter w = null;
-        try {
-            w = new FileWriter(touch);
-
-            w.write("touch.txt");
-        } catch (IOException e) {
-            throw new MojoExecutionException("Error creating file " + touch, e);
-        } finally {
-            if (w != null) {
-                try {
-                    w.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
-        }
     }
 
 }

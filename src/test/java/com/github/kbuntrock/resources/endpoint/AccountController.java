@@ -3,6 +3,7 @@ package com.github.kbuntrock.resources.endpoint;
 import com.github.kbuntrock.resources.Constants;
 import com.github.kbuntrock.resources.dto.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +36,7 @@ public interface AccountController {
      * @return the current user.
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the user couldn't be returned.
      */
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     AccountDto getAccount();
 
     /**
@@ -44,7 +45,7 @@ public interface AccountController {
      * @param accountDto the current user information.
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the user login wasn't found.
      */
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     void saveAccount(@RequestBody AccountDto accountDto);
 
     /**

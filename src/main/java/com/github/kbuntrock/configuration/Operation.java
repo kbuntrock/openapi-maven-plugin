@@ -10,8 +10,8 @@ import java.util.Map;
 
 public class Operation {
 
-    @Parameter(required = false)
-    private List<Substitution> substitutions;
+    @Parameter
+    private List<Substitution> substitutions = new ArrayList<>();
 
     private Map<String, List<Substitution>> substitutionsMap;
 

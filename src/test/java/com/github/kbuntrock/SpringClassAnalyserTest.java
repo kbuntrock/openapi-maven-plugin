@@ -31,7 +31,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
         library.addTag(tag.get());
 
         ApiConfiguration apiConfiguration = new ApiConfiguration();
-        new YamlWriter(projectClassLoader, mavenProject, apiConfiguration).write(new File("D:\\Dvpt\\openapi-maven-plugin\\target\\component.yaml"), library);
+        new YamlWriter(projectClassLoader, mavenProject, apiConfiguration).write(new File("D:\\Dvpt\\openapi-maven-plugin\\target\\component.yml"), library);
 
         System.out.println();
     }

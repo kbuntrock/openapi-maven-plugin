@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Tag {
 
-    @Parameter(required = false)
+    @Parameter
     private List<Substitution> substitutions = new ArrayList<>();
 
     public List<Substitution> getSubstitutions() {
