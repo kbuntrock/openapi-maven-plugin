@@ -13,6 +13,7 @@ The `executions` phase cannot be set before 'compile'.
 # Configuration for `api`
 
 | **name** | **description** |
+|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `locations` **required**| Classes representing a REST controller (via ```@RequestMapping``` and children annotations) or packages containing those classes can be configured here. Each item must be located inside a <location> tag. |
 | `filename` | Generated filename of the documentation. **Must not** contain the file extention. Default is `openapi` |
 | `tag` | Configuration of a tag element in the generated document. |
@@ -22,11 +23,13 @@ The `executions` phase cannot be set before 'compile'.
 # Configuration for `tag`
 
 | **name** | **description** |
+|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `substitutions` | List of `substitution` elements. A tag is based on the java class name. A substitution allows to modify the name of the tag. See the substition section |
 
 # Configuration for `operation`
 
 | **name** | **description** |
+|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `substitutions` | List of `substitution` elements. A operation is based on the java method name. A substitution allows to modify the id of the operation. See the substition section |
 
 # Configuration for `substitution`
@@ -34,6 +37,7 @@ The `executions` phase cannot be set before 'compile'.
 Substitutions can be chained. The order of execution is the one defined in the configuration.
 
 | **name** | **description** |
+|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `regex` **required** | A java regex to find for replacement |
 | `substitute` | The string to substitute. Default is an empty string. |
 | `type` | Only avalaible for operations. If set, limit the substitution to a precise type of operation (get, post, delete, ...) |
