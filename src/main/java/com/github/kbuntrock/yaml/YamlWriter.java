@@ -51,7 +51,7 @@ public class YamlWriter {
         specification.setInfo(info);
 
         var server = new Server();
-        server.setUrl("/");
+        server.setUrl("");
         specification.getServers().add(server);
 
         specification.setTags(tagLibrary.getTags().stream()
@@ -121,7 +121,9 @@ public class YamlWriter {
                     Content requestBodyContent = Content.fromDataObject(body);
                     if(body.getFormat() != null){
                         requestBody.getContent().put(body.getFormat(), requestBodyContent);
-                    } else {
+                    } else if(apiConfiguration.getOperation().getDefaultConsumes() != null) {
+                        requestBody.getContent().put(apiConfiguration.getOperation().getDefaultConsumes(), requestBodyContent);
+                    }else {
                         requestBody.getContent().put("*/*", requestBodyContent);
                     }
 
@@ -137,6 +139,8 @@ public class YamlWriter {
                     Content responseContent = Content.fromDataObject(endpoint.getResponseObject());
                     if(endpoint.getResponseFormat() != null){
                         response.getContent().put(endpoint.getResponseFormat(), responseContent);
+                    } else if(apiConfiguration.getOperation().getDefaultProduces() != null) {
+                        response.getContent().put(apiConfiguration.getOperation().getDefaultProduces(), responseContent);
                     } else {
                         response.getContent().put("*/*", responseContent);
                     }
