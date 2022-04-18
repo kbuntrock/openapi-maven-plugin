@@ -1,38 +1,35 @@
-# openapi-maven-plugin
-Convert annotated SpringMVC classes to an openapi 3.0.3 specification
+# Openapi maven plugin
+
+This plugin generate an openapi 3.0.3 specification based on the SpringMVC annotations present in the project. Unlike other plugins, no application is launched in order to generate the specification. 
+While doing so, even simple annotated interfaces without implementations are enough to generate a documentation, easing the tooling of the project. The plugin is also able to read the javadoc and pass it to the openapi documentation. 
 
 # How to use it
 
 Import the plugin in your project by adding following configuration in your `plugins` block:
 
 ```xml
-<build>
-  <plugins>
-    <plugin>
-	  <groupId>com.github.kbuntrock</groupId>
-	  <artifactId>openapi-maven-plugin</artifactId>
-	  <version>${openapi-maven-plugin.version}</version>
-	  <executions>
-	    <execution>
-		  <id>documentation</id>
-		  <goals>
-		    <goal>documentation</goal>
-		  </goals>
+<plugin>
+	<groupId>com.github.kbuntrock</groupId>
+	<artifactId>openapi-maven-plugin</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<executions>
+		<execution>
+			<goals>
+				<goal>documentation</goal>
+			</goals>
 		</execution>
-	  </executions>
-	  <configuration>
-	    <apis>
-		  <api>
-		    <locations>
-			  <location>my.rest.controller.package</location>
-			</locations>
-			<attachArtifact>true</attachArtifact>
-		  </api>
+	</executions>
+	<configuration>
+		<apis>
+			<api>
+				<locations>
+					<location>fr.otter.crew.web.api.endpoint</location>
+				</locations>
+				<attachArtifact>true</attachArtifact>
+			</api>
 		</apis>
-	  </configuration>
-	</plugin>
-  </plugins>
-</build>
+	</configuration>
+</plugin>
 ```
 
 The `executions` phase cannot be set before 'compile'.
