@@ -11,7 +11,7 @@ Import the plugin in your project by adding following configuration in your `plu
 <plugin>
 	<groupId>com.github.kbuntrock</groupId>
 	<artifactId>openapi-maven-plugin</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>${openapi-maven-plugin.version}</version>
 	<executions>
 		<execution>
 			<goals>
@@ -32,7 +32,7 @@ Import the plugin in your project by adding following configuration in your `plu
 </plugin>
 ```
 
-The `executions` phase cannot be set before 'compile'.
+The `execution` phase cannot be set before 'compile'.
 
 # Configuration for `configuration`
 
