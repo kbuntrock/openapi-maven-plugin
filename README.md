@@ -1,7 +1,9 @@
 # Openapi maven plugin
 
 This plugin generate an openapi 3.0.3 specification based on the SpringMVC annotations present in the project. Unlike other plugins, no application is launched in order to generate the specification. 
-While doing so, even simple annotated interfaces without implementations are enough to generate a documentation, easing the tooling of the project. The plugin is also able to read the javadoc and pass it to the openapi documentation. 
+While doing so, even simple annotated interfaces without implementations are enough to generate a documentation, easing the tooling of the project. 
+
+The plugin is also able to read the javadoc and pass it to the openapi documentation. 
 
 # How to use it
 
