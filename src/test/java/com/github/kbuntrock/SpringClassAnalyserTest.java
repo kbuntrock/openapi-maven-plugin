@@ -36,17 +36,4 @@ public class SpringClassAnalyserTest extends AbstractTest {
         System.out.println();
     }
 
-
-    @Test
-    public void test() throws NoSuchFieldException {
-
-        Field field = MaClass.class.getField("monChamp");
-        Type type = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-        System.out.println("");
-
-    }
-
-    public class MaClass {
-        public List<String> monChamp;
-    }
 }

@@ -1,0 +1,9 @@
+export interface {{typeName}} {
+{{#properties}}
+{{{tsComments}}}{{{identifier}}}{{^required}}?{{/required}}: {{{type}}};
+{{/properties}}
+{{#additionalPropertiesType}}
+
+  [key: string]: {{{.}}};
+{{/additionalPropertiesType}}
+}
