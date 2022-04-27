@@ -1,5 +1,6 @@
 package fr.github.kbuntrock.sample.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import fr.github.kbuntrock.sample.Constants;
 
 import javax.validation.constraints.Email;
@@ -12,7 +13,8 @@ import java.util.Set;
 /**
  * A DTO representing a user, with his authorities.
  */
-public class AdminUserDto {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class UserDto {
 
     private Long id;
 
@@ -47,9 +49,9 @@ public class AdminUserDto {
 
     private Instant lastModifiedDate;
 
-    private Set<String> authorities;
+    private Set<Authority> authorities;
 
-    public AdminUserDto() {
+    public UserDto() {
         // Empty constructor needed for Jackson.
     }
 
@@ -149,12 +151,11 @@ public class AdminUserDto {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public Set<String> getAuthorities() {
+    public Set<Authority> getAuthorities() {
         return authorities;
     }
 
-    public void setAuthorities(Set<String> authorities) {
+    public void setAuthorities(Set<Authority> authorities) {
         this.authorities = authorities;
     }
-
 }

@@ -1,6 +1,8 @@
 package com.github.kbuntrock.yaml.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 import java.util.Map;
@@ -11,7 +13,11 @@ public class Schema {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<String> required;
     private String type;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Map<String, Property> properties;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @JsonProperty("enum")
+    private List<String> enumValues;
 
     public List<String> getRequired() {
         return required;
@@ -35,5 +41,13 @@ public class Schema {
 
     public void setProperties(Map<String, Property> properties) {
         this.properties = properties;
+    }
+
+    public List<String> getEnumValues() {
+        return enumValues;
+    }
+
+    public void setEnumValues(List<String> enumValues) {
+        this.enumValues = enumValues;
     }
 }

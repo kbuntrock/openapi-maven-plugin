@@ -21,22 +21,22 @@ public class Content {
         }
         Content content = new Content();
 
-        if (OpenApiDataType.OBJECT == dataObject.getOpenApiType()) {
+        if (OpenApiDataType.OBJECT == dataObject.getOpenApiType() || dataObject.getJavaType().isEnum()) {
             content.getSchema().put("$ref", "#/components/schemas/" + dataObject.getJavaType().getSimpleName());
         } else {
             content.getSchema().put("type", dataObject.getOpenApiType().getValue());
-            if(OpenApiDataType.ARRAY != dataObject.getOpenApiType()){
+            if (OpenApiDataType.ARRAY != dataObject.getOpenApiType()) {
                 OpenApiDataFormat format = dataObject.getOpenApiType().getFormat();
-                if(OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format){
+                if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
                     content.getSchema().put("format", format.getValue());
                 }
-            } else if(OpenApiDataType.ARRAY == dataObject.getOpenApiType()) {
+            } else if (OpenApiDataType.ARRAY == dataObject.getOpenApiType()) {
                 OpenApiDataType itemType = dataObject.getArrayItemDataObject().getOpenApiType();
                 Map<String, String> itemsMap = new LinkedHashMap<>();
-                itemsMap.put("type", itemType.getValue());
-                if(OpenApiDataFormat.NONE != itemType.getFormat() && OpenApiDataFormat.UNKNOWN != itemType.getFormat()){
+                if (OpenApiDataFormat.NONE != itemType.getFormat() && OpenApiDataFormat.UNKNOWN != itemType.getFormat()) {
+                    itemsMap.put("type", itemType.getValue());
                     itemsMap.put("format", itemType.getFormat().getValue());
-                } else if (OpenApiDataType.OBJECT == itemType) {
+                } else if (OpenApiDataType.OBJECT == itemType || dataObject.getArrayItemDataObject().getJavaType().isEnum()) {
                     itemsMap.put("$ref", "#/components/schemas/" + dataObject.getArrayItemDataObject().getJavaType().getSimpleName());
                 }
                 content.getSchema().put("items", itemsMap);

@@ -1,0 +1,20 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="REST-generation" type="Application" factoryName="Application">
+    <option name="ALTERNATIVE_JRE_PATH" value="11" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <option name="MAIN_CLASS_NAME" value="com.github.kbuntrock.sample.SampleBackendApplication" />
+    <module name="openapi-plugin-sample-backend" />
+    <method v="2">
+      <option name="Maven.BeforeRunTask" enabled="true" file="D:\Dvpt\openapi-maven-plugin\sample\sample-api/pom.xml" goal="compile" />
+      <option name="NpmBeforeRunTask" enabled="true">
+        <package-json value="$PROJECT_DIR$/sample-frontend/package.json" />
+        <command value="run" />
+        <scripts>
+          <script value="rest-gen" />
+        </scripts>
+        <node-interpreter value="project" />
+        <envs />
+      </option>
+    </method>
+  </configuration>
+</component>

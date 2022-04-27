@@ -71,7 +71,8 @@
               "browserTarget": "sample-frontend:build:production"
             },
             "development": {
-              "browserTarget": "sample-frontend:build:development"
+              "browserTarget": "sample-frontend:build:development",
+              "proxyConfig": "src/proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

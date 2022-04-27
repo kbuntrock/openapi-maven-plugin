@@ -62,6 +62,8 @@ public enum OpenApiDataType {
             return STRING_BINARY;
         } else if (type.isArray() || List.class == type || Set.class == type) {
             return ARRAY;
+        } else if(type.isEnum()) {
+            return STRING;
         }
         return OBJECT;
     }

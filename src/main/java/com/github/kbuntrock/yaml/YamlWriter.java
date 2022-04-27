@@ -3,8 +3,8 @@ package com.github.kbuntrock.yaml;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
-import com.github.kbuntrock.configuration.ApiConfiguration;
 import com.github.kbuntrock.TagLibrary;
+import com.github.kbuntrock.configuration.ApiConfiguration;
 import com.github.kbuntrock.model.DataObject;
 import com.github.kbuntrock.model.Endpoint;
 import com.github.kbuntrock.model.ParameterObject;
@@ -12,6 +12,7 @@ import com.github.kbuntrock.model.Tag;
 import com.github.kbuntrock.utils.OpenApiDataFormat;
 import com.github.kbuntrock.utils.OpenApiDataType;
 import com.github.kbuntrock.utils.ParameterLocation;
+import com.github.kbuntrock.utils.ReflexionUtils;
 import com.github.kbuntrock.yaml.model.*;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
@@ -94,11 +95,16 @@ public class YamlWriter {
                     parameterElement.setIn(parameter.getLocation().toString().toLowerCase(Locale.ENGLISH));
                     parameterElement.setRequired(parameter.isRequired());
                     Property schema = new Property();
-                    schema.setType(parameter.getOpenApiType().getValue());
-                    OpenApiDataFormat format = parameter.getOpenApiType().getFormat();
-                    if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
-                        schema.setFormat(format.getValue());
+                    if (parameter.getJavaType().isEnum()) {
+                        schema.setReference("#/components/schemas/" + parameter.getJavaType().getSimpleName());
+                    } else {
+                        schema.setType(parameter.getOpenApiType().getValue());
+                        OpenApiDataFormat format = parameter.getOpenApiType().getFormat();
+                        if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
+                            schema.setFormat(format.getValue());
+                        }
                     }
+
                     // array in query or path parameters are not supported
                     if (OpenApiDataType.ARRAY == parameter.getOpenApiType()) {
                         logger.warn("Array types in path or query parameter are not allowed : "
@@ -119,11 +125,11 @@ public class YamlWriter {
                     RequestBody requestBody = new RequestBody();
                     operation.setRequestBody(requestBody);
                     Content requestBodyContent = Content.fromDataObject(body);
-                    if(body.getFormat() != null){
+                    if (body.getFormat() != null) {
                         requestBody.getContent().put(body.getFormat(), requestBodyContent);
-                    } else if(apiConfiguration.getOperation().getDefaultConsumes() != null) {
+                    } else if (apiConfiguration.getOperation().getDefaultConsumes() != null) {
                         requestBody.getContent().put(apiConfiguration.getOperation().getDefaultConsumes(), requestBodyContent);
-                    }else {
+                    } else {
                         requestBody.getContent().put("*/*", requestBodyContent);
                     }
 
@@ -137,9 +143,9 @@ public class YamlWriter {
                 response.setCode(endpoint.getResponseCode());
                 if (endpoint.getResponseObject() != null) {
                     Content responseContent = Content.fromDataObject(endpoint.getResponseObject());
-                    if(endpoint.getResponseFormat() != null){
+                    if (endpoint.getResponseFormat() != null) {
                         response.getContent().put(endpoint.getResponseFormat(), responseContent);
-                    } else if(apiConfiguration.getOperation().getDefaultProduces() != null) {
+                    } else if (apiConfiguration.getOperation().getDefaultProduces() != null) {
                         response.getContent().put(apiConfiguration.getOperation().getDefaultProduces(), responseContent);
                     } else {
                         response.getContent().put("*/*", responseContent);
@@ -153,7 +159,7 @@ public class YamlWriter {
             // We now order operations by types :
             operations = operations.stream().sorted(Comparator.comparing(Operation::getName)).collect(Collectors.toList());
             // And map them to their path
-            for(Operation operation : operations){
+            for (Operation operation : operations) {
                 paths.get(operation.getPath()).put(operation.getName().toLowerCase(), operation);
             }
 
@@ -171,39 +177,42 @@ public class YamlWriter {
             Schema schema = new Schema();
             schemas.put(dataObject.getJavaType().getSimpleName(), schema);
             schema.setType(dataObject.getOpenApiType().getValue());
+
             // LinkedHashMap to keep the order of the class
             Map<String, Property> properties = new LinkedHashMap<>();
             schema.setProperties(properties);
 
-            for (Field field : getAllFields(new ArrayList<>(), dataObject.getJavaType())) {
-                Property property = new Property();
-                property.setName(field.getName());
-                OpenApiDataType openApiDataType = OpenApiDataType.fromJavaType(field.getType());
-                property.setType(openApiDataType.getValue());
-                OpenApiDataFormat format = openApiDataType.getFormat();
-                if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
-                    property.setFormat(format.getValue());
-                }
+            List<Field> fields = ReflexionUtils.getAllFields(new ArrayList<>(), dataObject.getJavaType());
+            if (!fields.isEmpty() && !dataObject.getJavaType().isEnum()) {
 
-                if (OpenApiDataType.ARRAY == openApiDataType) {
-                    extractArrayType(field, property);
+                for (Field field : fields) {
+                    Property property = new Property();
+                    property.setName(field.getName());
+                    OpenApiDataType openApiDataType = OpenApiDataType.fromJavaType(field.getType());
+                    property.setType(openApiDataType.getValue());
+                    OpenApiDataFormat format = openApiDataType.getFormat();
+                    if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
+                        property.setFormat(format.getValue());
+                    }
+
+                    if (OpenApiDataType.ARRAY == openApiDataType) {
+                        extractArrayType(field, property);
+                    }
+                    extractConstraints(field, property);
+                    properties.put(property.getName(), property);
+
                 }
-                extractConstraints(field, property);
-                properties.put(property.getName(), property);
             }
+
+            List<String> enumItemValues = dataObject.getEnumItemValues();
+            if (enumItemValues != null && !enumItemValues.isEmpty()) {
+                schema.setEnumValues(enumItemValues);
+            }
+
             schema.setRequired(schema.getProperties().values().stream()
                     .filter(Property::isRequired).map(Property::getName).collect(Collectors.toList()));
         }
         return schemas;
-    }
-
-    private static List<Field> getAllFields(List<Field> fields, Class<?> type) {
-        if (type.getSuperclass() != null) {
-            getAllFields(fields, type.getSuperclass());
-        }
-        fields.addAll(Arrays.asList(type.getDeclaredFields()));
-
-        return fields;
     }
 
     private void extractArrayType(Field field, Property property) {
@@ -215,7 +224,11 @@ public class YamlWriter {
             item.setJavaType(field.getType(), ((ParameterizedType) field.getGenericType()), projectClassLoader);
         }
         Map<String, String> items = new LinkedHashMap<>();
-        items.put("type", item.getArrayItemDataObject().getOpenApiType().getValue());
+        if (item.getArrayItemDataObject().getJavaType().isEnum() || item.getArrayItemDataObject().getOpenApiType() == OpenApiDataType.OBJECT) {
+            items.put("$ref", "#/components/schemas/" + item.getArrayItemDataObject().getJavaType().getSimpleName());
+        } else {
+            items.put("type", item.getArrayItemDataObject().getOpenApiType().getValue());
+        }
         property.setItems(items);
     }
 

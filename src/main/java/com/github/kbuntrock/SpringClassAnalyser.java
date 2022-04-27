@@ -34,6 +34,8 @@ public class SpringClassAnalyser {
 
         if (classRequestMapping.value() != null && classRequestMapping.value().length > 0) {
             basePath = classRequestMapping.value()[0];
+        } else if(classRequestMapping.path() != null && classRequestMapping.path().length > 0) {
+            basePath = classRequestMapping.path()[0];
         }
 
         parseEndpoints(tag, basePath, clazz);
@@ -130,7 +132,10 @@ public class SpringClassAnalyser {
                 paramObj.setRequired(requestBodyAnnotation.required());
             }
 
-            parameters.add(paramObj);
+            if(paramObj.getLocation() != null) {
+                parameters.add(paramObj);
+            }
+
         }
         return parameters;
     }

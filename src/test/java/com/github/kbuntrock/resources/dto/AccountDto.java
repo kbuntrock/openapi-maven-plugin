@@ -41,7 +41,7 @@ public class AccountDto {
     private String langKey;
 
     @NotNull
-    private Set<String> authorities;
+    private Set<Authority> authorities;
 
     public AccountDto() {
         // Empty constructor needed for Jackson.
@@ -103,11 +103,11 @@ public class AccountDto {
         this.langKey = langKey;
     }
 
-    public Set<String> getAuthorities() {
+    public Set<Authority> getAuthorities() {
         return authorities;
     }
 
-    public void setAuthorities(Set<String> authorities) {
+    public void setAuthorities(Set<Authority> authorities) {
         this.authorities = authorities;
     }
 }

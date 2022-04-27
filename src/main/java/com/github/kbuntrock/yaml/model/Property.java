@@ -1,8 +1,6 @@
 package com.github.kbuntrock.yaml.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.annotation.*;
 
 import java.util.Map;
 
@@ -19,6 +17,8 @@ public class Property {
     private Map<String, String> items;
     @JsonIgnore
     private boolean required;
+    @JsonProperty("$ref")
+    private String reference;
 
     public String getName() {
         return name;
@@ -82,5 +82,13 @@ public class Property {
 
     public void setRequired(boolean required) {
         this.required = required;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public void setReference(String reference) {
+        this.reference = reference;
     }
 }

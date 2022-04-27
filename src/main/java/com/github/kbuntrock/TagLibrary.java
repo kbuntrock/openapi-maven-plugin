@@ -5,6 +5,7 @@ import com.github.kbuntrock.model.Endpoint;
 import com.github.kbuntrock.model.ParameterObject;
 import com.github.kbuntrock.model.Tag;
 import com.github.kbuntrock.utils.OpenApiDataType;
+import com.github.kbuntrock.utils.ReflexionUtils;
 import org.apache.maven.plugin.MojoFailureException;
 
 import java.lang.reflect.Field;
@@ -32,32 +33,37 @@ public class TagLibrary {
         } catch (ClassNotFoundException e) {
             throw new MojoFailureException("Class not found for mapping", e);
         }
-        System.out.println();
     }
 
     private void mapTagObjects(Tag tag) throws ClassNotFoundException {
         for (Endpoint endpoint : tag.getEndpoints()) {
             if(endpoint.getResponseObject()!= null){
-                if (OpenApiDataType.OBJECT == endpoint.getResponseObject().getOpenApiType()) {
-                    schemaObjects.add(endpoint.getResponseObject());
-                    inspectObject(endpoint.getResponseObject().getJavaType());
+                if (OpenApiDataType.OBJECT == endpoint.getResponseObject().getOpenApiType() || endpoint.getResponseObject().getJavaType().isEnum()) {
+                    if(schemaObjects.add(endpoint.getResponseObject())) {
+                        inspectObject(endpoint.getResponseObject().getJavaType());
+                    }
                 } else if(OpenApiDataType.ARRAY == endpoint.getResponseObject().getOpenApiType()) {
-                    if(OpenApiDataType.OBJECT == endpoint.getResponseObject().getArrayItemDataObject().getOpenApiType()) {
-                        schemaObjects.add(endpoint.getResponseObject().getArrayItemDataObject());
-                        inspectObject(endpoint.getResponseObject().getArrayItemDataObject().getJavaType());
+                    if(OpenApiDataType.OBJECT == endpoint.getResponseObject().getArrayItemDataObject().getOpenApiType() ||
+                            endpoint.getResponseObject().getArrayItemDataObject().getJavaType().isEnum()) {
+                        if(schemaObjects.add(endpoint.getResponseObject().getArrayItemDataObject())) {
+                            inspectObject(endpoint.getResponseObject().getArrayItemDataObject().getJavaType());
+                        }
                     }
                     // TODO : Handle nested arrays
                 }
             }
 
             for (ParameterObject parameterObject : endpoint.getParameters()) {
-                if (OpenApiDataType.OBJECT == parameterObject.getOpenApiType()) {
-                    schemaObjects.add(parameterObject);
-                    inspectObject(parameterObject.getJavaType());
+                if (OpenApiDataType.OBJECT == parameterObject.getOpenApiType() || parameterObject.getJavaType().isEnum()) {
+                    if(schemaObjects.add(parameterObject)) {
+                        inspectObject(parameterObject.getJavaType());
+                    }
                 } else if(OpenApiDataType.ARRAY == parameterObject.getOpenApiType()){
-                    if(OpenApiDataType.OBJECT == parameterObject.getArrayItemDataObject().getOpenApiType()) {
-                        schemaObjects.add(parameterObject.getArrayItemDataObject());
-                        inspectObject(parameterObject.getArrayItemDataObject().getJavaType());
+                    if(OpenApiDataType.OBJECT == parameterObject.getArrayItemDataObject().getOpenApiType()
+                        || parameterObject.getArrayItemDataObject().getJavaType().isEnum()) {
+                        if(schemaObjects.add(parameterObject.getArrayItemDataObject())) {
+                            inspectObject(parameterObject.getArrayItemDataObject().getJavaType());
+                        }
                     }
                     // TODO : Handle nested arrays
                 }
@@ -66,15 +72,21 @@ public class TagLibrary {
     }
 
     private void inspectObject(Class<?> clazz) throws ClassNotFoundException {
-        Field[] fields = clazz.getFields();
+        if(clazz.isEnum()) {
+           return;
+        }
+        List<Field> fields = ReflexionUtils.getAllFields(new ArrayList<>(), clazz);
         for (Field field : fields) {
             Class<?> fieldType = field.getType();
             OpenApiDataType dataType = OpenApiDataType.fromJavaType(fieldType);
-            if(OpenApiDataType.OBJECT == dataType) {
+            if(OpenApiDataType.OBJECT == dataType || fieldType.isEnum()) {
                 DataObject dataObject = new DataObject();
                 dataObject.setJavaType(fieldType, null, projectClassLoader);
-                schemaObjects.add(dataObject);
-                inspectObject(dataObject.getJavaType());
+                if(schemaObjects.add(dataObject)){
+                    // Inspect the object if it is not already known
+                    inspectObject(dataObject.getJavaType());
+                }
+
             } else if(OpenApiDataType.ARRAY == dataType) {
                 DataObject dataObject = new DataObject();
                 if(fieldType.isArray()) {
@@ -82,9 +94,10 @@ public class TagLibrary {
                 } else {
                     dataObject.setJavaType(fieldType, ((ParameterizedType) field.getGenericType()), projectClassLoader);
                 }
-                if(OpenApiDataType.OBJECT == dataObject.getArrayItemDataObject().getOpenApiType()){
-                    schemaObjects.add((dataObject.getArrayItemDataObject()));
-                    inspectObject(dataObject.getArrayItemDataObject().getJavaType());
+                if(dataObject.getArrayItemDataObject().getJavaType().isEnum() || OpenApiDataType.OBJECT == dataObject.getArrayItemDataObject().getOpenApiType()){
+                    if(schemaObjects.add((dataObject.getArrayItemDataObject()))) {
+                        inspectObject(dataObject.getArrayItemDataObject().getJavaType());
+                    }
                     // TODO : Handle nested arrays
                 }
             }

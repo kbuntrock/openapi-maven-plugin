@@ -3,6 +3,7 @@ package com.github.kbuntrock;
 import com.github.kbuntrock.configuration.ApiConfiguration;
 import com.github.kbuntrock.model.Tag;
 import com.github.kbuntrock.resources.endpoint.AccountController;
+import com.github.kbuntrock.resources.endpoint.enumeration.*;
 import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
@@ -10,10 +11,6 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.List;
 import java.util.Optional;
 
 public class SpringClassAnalyserTest extends AbstractTest {
