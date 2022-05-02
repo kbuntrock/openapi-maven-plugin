@@ -2,7 +2,6 @@ package com.github.kbuntrock.configuration;
 
 import com.github.kbuntrock.model.OperationType;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.springframework.http.MediaType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,29 +11,7 @@ import java.util.Map;
 public class Operation {
 
     @Parameter
-    private String defaultConsumes = MediaType.APPLICATION_JSON_VALUE;
-
-    @Parameter
-    private String defaultProduces = MediaType.APPLICATION_JSON_VALUE;
-
-    @Parameter
     private List<Substitution> substitutions = new ArrayList<>();
-
-    public String getDefaultConsumes() {
-        return defaultConsumes;
-    }
-
-    public void setDefaultConsumes(String defaultConsumes) {
-        this.defaultConsumes = defaultConsumes;
-    }
-
-    public String getDefaultProduces() {
-        return defaultProduces;
-    }
-
-    public void setDefaultProduces(String defaultProduces) {
-        this.defaultProduces = defaultProduces;
-    }
 
     private Map<String, List<Substitution>> substitutionsMap;
 

@@ -2,7 +2,6 @@ package com.github.kbuntrock.configuration;
 
 import org.apache.maven.plugins.annotations.Parameter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ApiConfiguration {
@@ -24,6 +23,9 @@ public class ApiConfiguration {
 
     @Parameter
     private boolean attachArtifact;
+
+    @Parameter
+    private boolean defaultProduceConsumeGuessing;
 
     public List<String> getLocations() {
         return locations;
@@ -63,5 +65,13 @@ public class ApiConfiguration {
 
     public void setAttachArtifact(boolean attachArtifact) {
         this.attachArtifact = attachArtifact;
+    }
+
+    public boolean isDefaultProduceConsumeGuessing() {
+        return defaultProduceConsumeGuessing;
+    }
+
+    public void setDefaultProduceConsumeGuessing(boolean defaultProduceConsumeGuessing) {
+        this.defaultProduceConsumeGuessing = defaultProduceConsumeGuessing;
     }
 }

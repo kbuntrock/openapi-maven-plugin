@@ -13,8 +13,18 @@ import java.util.Set;
 public class UserControllerImpl implements UserController {
 
     @Override
-    public List<String> getAllAuthorities() {
+    public List<String> getAllUsernames() {
         return List.of("tata", "yoyo");
+    }
+
+    @Override
+    public int getNbUsers() {
+        return 24;
+    }
+
+    @Override
+    public List<Integer> getNumberList() {
+        return List.of(4, 899, 7, 100, 0, 5);
     }
 
     @Override

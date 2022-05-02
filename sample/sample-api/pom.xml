@@ -68,6 +68,7 @@
                                 <location>fr.github.kbuntrock.sample.enpoint</location>
                             </locations>
                             <attachArtifact>true</attachArtifact>
+                            <defaultProduceConsumeGuessing>true</defaultProduceConsumeGuessing>
                         </api>
                     </apis>
                 </configuration>

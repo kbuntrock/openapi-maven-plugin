@@ -12,8 +12,14 @@ import java.util.List;
 @RequestMapping(path = Constants.BASE_PATH + "/user")
 public interface UserController {
 
-    @GetMapping("/availables-authorities")
-    List<String> getAllAuthorities();
+    @GetMapping("/users")
+    List<String> getAllUsernames();
+
+    @GetMapping("/nb-users")
+    int getNbUsers();
+
+    @GetMapping("/number-list")
+    List<Integer> getNumberList();
 
     @PutMapping("/update")
     UserDto updateUser(@RequestBody UserDto userDto);

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { Authority, UserDto } from './generated/models';
+import { Authority } from './generated/models/authority';
+import { UserDto } from './generated/models/user-dto';
 import { EnumPlaytestControllerService, UserControllerService } from './generated/services';
 
 @Component({
@@ -15,13 +16,71 @@ export class AppComponent {
 
   result: string[] = ["Awaiting webservice request"];
 
+  compteur: number = 0;
+
   constructor(private readonly userControllerService: UserControllerService, 
     private readonly enumPlaytestControllerService: EnumPlaytestControllerService) {
 
   }
 
   public async callWebservice() {
-    this.displayResponse(await this.enumPlaytestControllerService.setAuthorityAsQueryParam({authority: Authority.UpdateUser}));
+
+    switch(this.compteur) {
+      case 0: {
+        this.displayResponse(await this.enumPlaytestControllerService.getAuthorityWrapper());
+        break; 
+      } 
+      case 1: {   
+        this.displayResponse(await this.enumPlaytestControllerService.getAuthorities());
+        break; 
+      }
+      case 2: {   
+        this.displayResponse(await this.enumPlaytestControllerService.getAuthority());
+        break; 
+      }
+      case 3: {   
+        this.displayResponse(await this.enumPlaytestControllerService.setAuthorityWrapper(
+          {
+            body: {
+              authority: 'ACCESS_APP',
+              authorityList: ['READ_USER', 'UPDATE_USER']
+            }
+          }));
+        break; 
+      }
+      case 4: {   
+        this.displayResponse(await this.enumPlaytestControllerService.setAuthorityList({body: ['READ_USER', 'UPDATE_USER']}));
+        break; 
+      }
+      case 5: {  
+        this.displayResponse(await this.enumPlaytestControllerService.setAuthorityAsPathParam({authority: 'UPDATE_USER'})); 
+        break; 
+      }
+      case 6: { 
+        this.displayResponse(await this.enumPlaytestControllerService.setAuthorityAsQueryParam({authority: 'READ_USER'}));  
+        break; 
+      }
+      case 7: {   
+        this.displayResponse(await this.userControllerService.updateUser({body: this.createUser()}));  
+        break; 
+      }
+      case 8: {   
+        this.displayResponse(await this.userControllerService.getAllUsernames());  
+        break; 
+      }
+      case 9: {   
+        this.displayResponse(await this.userControllerService.getNbUsers()); 
+        break; 
+      }
+      case 10: {   
+        this.displayResponse(await this.userControllerService.getNumberList()); 
+        break; 
+      }
+      case 11: {   
+        break; 
+      }
+    }
+    this.compteur++;
   }
 
   private createUser(): UserDto {
@@ -36,15 +95,10 @@ export class AppComponent {
     if(response) {
       const r = JSON.stringify(response);
       const nbSlice = r.length / this.NB_CHARACTERS;
-      console.info('nbSlices : '+nbSlice);
-      console.info('r.length : '+r.length);
       let firstIndex = 0;
       for (let i = 0; i < nbSlice; i++) {
         this.result[i] = r.slice(firstIndex, firstIndex + this.NB_CHARACTERS);
-        console.info('test : ');
-        console.info(this.result[i] );
         firstIndex += this.NB_CHARACTERS;
-        console.info(firstIndex);
       }
       if(firstIndex < r.length - 1) {
         this.result[nbSlice] = r.slice(firstIndex);

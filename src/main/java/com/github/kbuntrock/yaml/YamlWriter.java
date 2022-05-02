@@ -9,10 +9,7 @@ import com.github.kbuntrock.model.DataObject;
 import com.github.kbuntrock.model.Endpoint;
 import com.github.kbuntrock.model.ParameterObject;
 import com.github.kbuntrock.model.Tag;
-import com.github.kbuntrock.utils.OpenApiDataFormat;
-import com.github.kbuntrock.utils.OpenApiDataType;
-import com.github.kbuntrock.utils.ParameterLocation;
-import com.github.kbuntrock.utils.ReflexionUtils;
+import com.github.kbuntrock.utils.*;
 import com.github.kbuntrock.yaml.model.*;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
@@ -127,8 +124,8 @@ public class YamlWriter {
                     Content requestBodyContent = Content.fromDataObject(body);
                     if (body.getFormat() != null) {
                         requestBody.getContent().put(body.getFormat(), requestBodyContent);
-                    } else if (apiConfiguration.getOperation().getDefaultConsumes() != null) {
-                        requestBody.getContent().put(apiConfiguration.getOperation().getDefaultConsumes(), requestBodyContent);
+                    } else if (apiConfiguration.isDefaultProduceConsumeGuessing()) {
+                        requestBody.getContent().put(ProduceConsumeUtils.getDefaultValue(body), requestBodyContent);
                     } else {
                         requestBody.getContent().put("*/*", requestBodyContent);
                     }
@@ -145,8 +142,8 @@ public class YamlWriter {
                     Content responseContent = Content.fromDataObject(endpoint.getResponseObject());
                     if (endpoint.getResponseFormat() != null) {
                         response.getContent().put(endpoint.getResponseFormat(), responseContent);
-                    } else if (apiConfiguration.getOperation().getDefaultProduces() != null) {
-                        response.getContent().put(apiConfiguration.getOperation().getDefaultProduces(), responseContent);
+                    } else if (apiConfiguration.isDefaultProduceConsumeGuessing()) {
+                        response.getContent().put(ProduceConsumeUtils.getDefaultValue(endpoint.getResponseObject()), responseContent);
                     } else {
                         response.getContent().put("*/*", responseContent);
                     }
