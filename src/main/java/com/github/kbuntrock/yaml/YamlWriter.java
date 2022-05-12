@@ -13,6 +13,7 @@ import com.github.kbuntrock.utils.*;
 import com.github.kbuntrock.yaml.model.*;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -112,7 +113,8 @@ public class YamlWriter {
                 }
 
                 // There can be only one body
-                List<ParameterObject> bodies = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation()).collect(Collectors.toList());
+                List<ParameterObject> bodies = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation())
+                        .collect(Collectors.toList());
                 if (bodies.size() > 1) {
                     logger.warn("More than one body is not allowed : "
                             + endpoint.getPath() + " - " + endpoint.getType());

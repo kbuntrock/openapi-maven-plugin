@@ -6,6 +6,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -29,9 +30,47 @@ public class DataObject {
      * All the value's names if this data object represent a java enum
      */
     private List<String> enumItemValues;
+    /**
+     * Array of two elements in case of a map object :
+     * index 0 : the key type
+     * index 1 : the value type
+     */
+    private DataObject[] mapKeyValueDataObjects = new DataObject[2];
 
     public Class<?> getJavaType() {
         return javaType;
+    }
+
+    /**
+     *
+     * @return true if this DataObject is a map
+     */
+    public boolean isMap() {
+        return mapKeyValueDataObjects[0] != null;
+    }
+
+    /**
+     *
+     * @return true if this DataObject is an enum
+     */
+    public boolean isEnum() {
+        return javaType.isEnum();
+    }
+
+    /**
+     *
+     * @return true if the object should be considered as a "reference object", in order to get its own schema section
+     */
+    public boolean isPureObject() {
+        return (OpenApiDataType.OBJECT == openApiType && !isMap()) || isEnum();
+    }
+
+    /**
+     *
+     * @return true if the object is an array
+     */
+    public boolean isArray() {
+        return OpenApiDataType.ARRAY == openApiType;
     }
 
     public void setJavaType(Class<?> javaType, ParameterizedType parameterizedType, ClassLoader projectClassLoader) {
@@ -57,6 +96,26 @@ public class DataObject {
                     throw new RuntimeException("Class not found for " + listType.getTypeName());
                 }
             }
+        } else if (javaType.isAssignableFrom(Map.class)) {
+            DataObject key = new DataObject();
+            DataObject value = new DataObject();
+            Class<?> keyTypeClass = null;
+            try {
+                keyTypeClass = Class.forName(parameterizedType.getActualTypeArguments()[0].getTypeName(), true, projectClassLoader);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Class not found for map key : " + parameterizedType.getActualTypeArguments()[0].getTypeName());
+            }
+            Class<?> valueTypeClass = null;
+            try {
+                valueTypeClass = Class.forName(parameterizedType.getActualTypeArguments()[1].getTypeName(), true, projectClassLoader);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Class not found for map value " + parameterizedType.getActualTypeArguments()[1].getTypeName());
+            }
+            key.setJavaType(keyTypeClass, null, projectClassLoader);
+            value.setJavaType(valueTypeClass, null, projectClassLoader);
+
+            mapKeyValueDataObjects[0] = key;
+            mapKeyValueDataObjects[1] = value;
         }
     }
 
@@ -70,6 +129,14 @@ public class DataObject {
 
     public List<String> getEnumItemValues() {
         return enumItemValues;
+    }
+
+    public DataObject getMapKeyType() {
+        return mapKeyValueDataObjects[0];
+    }
+
+    public DataObject getMapValueType() {
+        return mapKeyValueDataObjects[1];
     }
 
     @Override

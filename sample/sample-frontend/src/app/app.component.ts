@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Authority } from './generated/models/authority';
 import { UserDto } from './generated/models/user-dto';
-import { EnumPlaytestControllerService, UserControllerService } from './generated/services';
+import { EnumPlaytestControllerService, MapPlaytestControllerService, UserControllerService } from './generated/services';
 
 @Component({
   selector: 'app-root',
@@ -19,7 +19,8 @@ export class AppComponent {
   compteur: number = 0;
 
   constructor(private readonly userControllerService: UserControllerService, 
-    private readonly enumPlaytestControllerService: EnumPlaytestControllerService) {
+    private readonly enumPlaytestControllerService: EnumPlaytestControllerService,
+    private readonly mapPlaytestControllerService: MapPlaytestControllerService) {
 
   }
 
@@ -77,11 +78,57 @@ export class AppComponent {
         break; 
       }
       case 11: {   
+        this.displayResponse(await this.mapPlaytestControllerService.getMapString()); 
+        break; 
+      }
+      case 12: { 
+        this.displayResponse(await this.mapPlaytestControllerService.getMapUsers());   
+        break; 
+      }
+      case 13: {   
+        this.displayResponse(await this.mapPlaytestControllerService.postMapInt({
+          body: {
+            22:'Okidoki',
+            23: 'alright'
+          }
+        }));   
+        break; 
+      }
+      case 14: {   
+        this.displayResponse(await this.mapPlaytestControllerService.postMapAccount({
+          body: {
+            '22': this.createUser(),
+            '23': this.createUser()
+          }
+        })); 
+        break; 
+      }
+      case 15: {   
         break; 
       }
     }
     this.compteur++;
   }
+
+  public async sendFiles(eventTarget: EventTarget | null) {
+    if(eventTarget) {
+      const fileList: FileList | null = (eventTarget as HTMLInputElement).files;
+      if(fileList && fileList.length > 0) {
+        const files: File[] = [];
+        for(let i = 0; i < fileList.length; i++) {
+          const file = fileList.item(i);
+          if(file !== null) {
+            files.push(file);
+            
+          } 
+        }
+        this.displayResponse(await this.userControllerService.uploadFiles({body: {
+          files
+        }})); 
+      }
+     
+    }
+  } 
 
   private createUser(): UserDto {
     const user: UserDto = {

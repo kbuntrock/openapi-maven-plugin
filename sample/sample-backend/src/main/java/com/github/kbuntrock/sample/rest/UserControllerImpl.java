@@ -4,8 +4,10 @@ import fr.github.kbuntrock.sample.dto.Authority;
 import fr.github.kbuntrock.sample.dto.UserDto;
 import fr.github.kbuntrock.sample.enpoint.UserController;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -36,5 +38,14 @@ public class UserControllerImpl implements UserController {
         userDto.setImageUrl("http://monimage.klee.fr");
 
         return userDto;
+    }
+
+    @Override
+    public List<String> uploadFiles(MultipartFile[] multipartFile) {
+        List<String> filenames = new ArrayList<>();
+        for(MultipartFile file : multipartFile){
+            filenames.add(file.getOriginalFilename());
+        }
+        return filenames;
     }
 }

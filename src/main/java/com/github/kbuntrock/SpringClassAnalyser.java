@@ -1,6 +1,7 @@
 package com.github.kbuntrock;
 
 import com.github.kbuntrock.model.*;
+import com.github.kbuntrock.utils.OpenApiDataType;
 import com.github.kbuntrock.utils.ParameterLocation;
 import com.github.kbuntrock.yaml.Logger;
 import org.apache.commons.lang3.StringUtils;
@@ -8,6 +9,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.annotation.Annotation;
@@ -34,7 +36,7 @@ public class SpringClassAnalyser {
 
         if (classRequestMapping.value() != null && classRequestMapping.value().length > 0) {
             basePath = classRequestMapping.value()[0];
-        } else if(classRequestMapping.path() != null && classRequestMapping.path().length > 0) {
+        } else if (classRequestMapping.path() != null && classRequestMapping.path().length > 0) {
             basePath = classRequestMapping.path()[0];
         }
 
@@ -116,8 +118,16 @@ public class SpringClassAnalyser {
             // Detect if is a query variable
             RequestParam queryAnnotation = parameter.getAnnotation(RequestParam.class);
             if (queryAnnotation != null) {
-                paramObj.setLocation(ParameterLocation.QUERY);
+                boolean isMultipartFile = MultipartFile.class == paramObj.getJavaType() ||
+                        (OpenApiDataType.ARRAY == paramObj.getOpenApiType() && MultipartFile.class == paramObj.getArrayItemDataObject().getJavaType());
+                if (isMultipartFile) {
+                    // MultipartFile parameters are considered as a requestBody)
+                    paramObj.setLocation(ParameterLocation.BODY);
+                } else {
+                    paramObj.setLocation(ParameterLocation.QUERY);
+                }
                 paramObj.setRequired(queryAnnotation.required());
+
                 if (!StringUtils.isEmpty(queryAnnotation.value())) {
                     paramObj.setName(queryAnnotation.value());
                 } else if (!StringUtils.isEmpty(queryAnnotation.name())) {
@@ -132,7 +142,7 @@ public class SpringClassAnalyser {
                 paramObj.setRequired(requestBodyAnnotation.required());
             }
 
-            if(paramObj.getLocation() != null) {
+            if (paramObj.getLocation() != null) {
                 parameters.add(paramObj);
             }
 

@@ -51,6 +51,9 @@
     <pre *ngFor="let r of result">{{ r }}</pre>
   </div>
 
+  <h2></h2>
+  <h2>File Upload</h2>
+  <input type="file" multiple (change)="sendFiles($event.target)">
    
 
 <router-outlet></router-outlet>

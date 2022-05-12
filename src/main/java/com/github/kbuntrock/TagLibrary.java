@@ -10,10 +10,7 @@ import org.apache.maven.plugin.MojoFailureException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class TagLibrary {
 
@@ -37,14 +34,20 @@ public class TagLibrary {
 
     private void mapTagObjects(Tag tag) throws ClassNotFoundException {
         for (Endpoint endpoint : tag.getEndpoints()) {
-            if(endpoint.getResponseObject()!= null){
-                if (OpenApiDataType.OBJECT == endpoint.getResponseObject().getOpenApiType() || endpoint.getResponseObject().getJavaType().isEnum()) {
+            if(endpoint.getResponseObject() != null){
+                if (endpoint.getResponseObject().isPureObject()) {
                     if(schemaObjects.add(endpoint.getResponseObject())) {
                         inspectObject(endpoint.getResponseObject().getJavaType());
                     }
+                } else if(endpoint.getResponseObject().isMap()) {
+                    if(endpoint.getResponseObject().getMapKeyType().isPureObject() && schemaObjects.add(endpoint.getResponseObject().getMapKeyType())) {
+                        inspectObject(endpoint.getResponseObject().getMapKeyType().getJavaType());
+                    }
+                    if(endpoint.getResponseObject().getMapValueType().isPureObject() && schemaObjects.add(endpoint.getResponseObject().getMapValueType())) {
+                        inspectObject(endpoint.getResponseObject().getMapValueType().getJavaType());
+                    }
                 } else if(OpenApiDataType.ARRAY == endpoint.getResponseObject().getOpenApiType()) {
-                    if(OpenApiDataType.OBJECT == endpoint.getResponseObject().getArrayItemDataObject().getOpenApiType() ||
-                            endpoint.getResponseObject().getArrayItemDataObject().getJavaType().isEnum()) {
+                    if(endpoint.getResponseObject().getArrayItemDataObject().isPureObject()) {
                         if(schemaObjects.add(endpoint.getResponseObject().getArrayItemDataObject())) {
                             inspectObject(endpoint.getResponseObject().getArrayItemDataObject().getJavaType());
                         }
@@ -54,13 +57,19 @@ public class TagLibrary {
             }
 
             for (ParameterObject parameterObject : endpoint.getParameters()) {
-                if (OpenApiDataType.OBJECT == parameterObject.getOpenApiType() || parameterObject.getJavaType().isEnum()) {
+                if (parameterObject.isPureObject()) {
                     if(schemaObjects.add(parameterObject)) {
                         inspectObject(parameterObject.getJavaType());
                     }
+                } else if(parameterObject.isMap()) {
+                    if(parameterObject.getMapKeyType().isPureObject() && schemaObjects.add(parameterObject.getMapKeyType())) {
+                        inspectObject(parameterObject.getMapKeyType().getJavaType());
+                    }
+                    if(parameterObject.getMapValueType().isPureObject() && schemaObjects.add(parameterObject.getMapValueType())) {
+                        inspectObject(parameterObject.getMapValueType().getJavaType());
+                    }
                 } else if(OpenApiDataType.ARRAY == parameterObject.getOpenApiType()){
-                    if(OpenApiDataType.OBJECT == parameterObject.getArrayItemDataObject().getOpenApiType()
-                        || parameterObject.getArrayItemDataObject().getJavaType().isEnum()) {
+                    if(parameterObject.getArrayItemDataObject().isPureObject()) {
                         if(schemaObjects.add(parameterObject.getArrayItemDataObject())) {
                             inspectObject(parameterObject.getArrayItemDataObject().getJavaType());
                         }
@@ -79,7 +88,7 @@ public class TagLibrary {
         for (Field field : fields) {
             Class<?> fieldType = field.getType();
             OpenApiDataType dataType = OpenApiDataType.fromJavaType(fieldType);
-            if(OpenApiDataType.OBJECT == dataType || fieldType.isEnum()) {
+            if((OpenApiDataType.OBJECT == dataType && !clazz.isAssignableFrom(Map.class)) || fieldType.isEnum()) {
                 DataObject dataObject = new DataObject();
                 dataObject.setJavaType(fieldType, null, projectClassLoader);
                 if(schemaObjects.add(dataObject)){
