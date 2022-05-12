@@ -80,11 +80,11 @@ public class TagLibrary {
         }
     }
 
-    private void inspectObject(Class<?> clazz) throws ClassNotFoundException {
+    private void inspectObject(Class<?> clazz) {
         if(clazz.isEnum()) {
            return;
         }
-        List<Field> fields = ReflexionUtils.getAllFields(new ArrayList<>(), clazz);
+        List<Field> fields = ReflexionUtils.getAllNonStaticFields(new ArrayList<>(), clazz);
         for (Field field : fields) {
             Class<?> fieldType = field.getType();
             OpenApiDataType dataType = OpenApiDataType.fromJavaType(fieldType);

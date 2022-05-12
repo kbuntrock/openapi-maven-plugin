@@ -181,7 +181,7 @@ public class YamlWriter {
             Map<String, Property> properties = new LinkedHashMap<>();
             schema.setProperties(properties);
 
-            List<Field> fields = ReflexionUtils.getAllFields(new ArrayList<>(), dataObject.getJavaType());
+            List<Field> fields = ReflexionUtils.getAllNonStaticFields(new ArrayList<>(), dataObject.getJavaType());
             if (!fields.isEmpty() && !dataObject.getJavaType().isEnum()) {
 
                 for (Field field : fields) {

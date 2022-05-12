@@ -11,6 +11,12 @@ import java.util.Set;
  */
 public class AccountDto {
 
+    /**
+     * Dummy static strings
+     */
+    private static final Long RESERVED_SYSTEM_USER_ID = 0L;
+    public static final Long NO_USER_ID = -1L;
+
     @NotNull
     @NotBlank
     @Pattern(regexp = Constants.LOGIN_REGEX)
