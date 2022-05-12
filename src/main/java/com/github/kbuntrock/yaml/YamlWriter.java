@@ -28,13 +28,13 @@ public class YamlWriter {
 
     private static final ObjectMapper om = new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
 
-    private Log logger = Logger.INSTANCE.getLogger();
+    private final Log logger = Logger.INSTANCE.getLogger();
 
-    private ClassLoader projectClassLoader;
+    private final ClassLoader projectClassLoader;
 
-    private ApiConfiguration apiConfiguration;
+    private final ApiConfiguration apiConfiguration;
 
-    private MavenProject mavenProject;
+    private final MavenProject mavenProject;
 
     public YamlWriter(final ClassLoader projectClassLoader, final MavenProject mavenProject, final ApiConfiguration apiConfiguration) {
         this.projectClassLoader = projectClassLoader;

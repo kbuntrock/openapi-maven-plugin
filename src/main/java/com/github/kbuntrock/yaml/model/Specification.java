@@ -17,7 +17,7 @@ public class Specification {
     private Info info;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private List<Server> servers = new ArrayList<>();
+    private final List<Server> servers = new ArrayList<>();
 
     private List<TagElement> tags;
 

@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class Content {
 
-    private Map<String, Object> schema = new LinkedHashMap<>();
+    private final Map<String, Object> schema = new LinkedHashMap<>();
 
     public Map<String, Object> getSchema() {
         return schema;

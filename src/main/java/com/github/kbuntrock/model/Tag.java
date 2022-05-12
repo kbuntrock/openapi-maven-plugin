@@ -11,7 +11,7 @@ public class Tag {
 
     private String name;
 
-    private List<Endpoint> endpoints = new ArrayList<>();
+    private final List<Endpoint> endpoints = new ArrayList<>();
 
     private String computedName;
 

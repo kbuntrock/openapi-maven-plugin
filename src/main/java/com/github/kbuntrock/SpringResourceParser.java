@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class SpringResourceParser {
 
-    private Log logger = Logger.INSTANCE.getLogger();
+    private final Log logger = Logger.INSTANCE.getLogger();
 
     private final List<String> apiLocations;
 

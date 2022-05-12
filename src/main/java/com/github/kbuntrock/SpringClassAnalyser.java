@@ -20,7 +20,7 @@ import java.util.Optional;
 
 public class SpringClassAnalyser {
 
-    private Log logger = Logger.INSTANCE.getLogger();
+    private final Log logger = Logger.INSTANCE.getLogger();
 
     private final ClassLoader projectClassLoader;
 

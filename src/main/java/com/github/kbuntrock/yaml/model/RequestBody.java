@@ -8,7 +8,7 @@ import java.util.Map;
 public class RequestBody {
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private Map<String, Content> content = new LinkedHashMap<>();
+    private final Map<String, Content> content = new LinkedHashMap<>();
 
     public Map<String, Content> getContent() {
         return content;

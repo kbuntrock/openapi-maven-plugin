@@ -23,7 +23,7 @@ public class Operation {
     private String operationId;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private List<ParameterElement> parameters = new ArrayList<>();
+    private final List<ParameterElement> parameters = new ArrayList<>();
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private RequestBody requestBody;

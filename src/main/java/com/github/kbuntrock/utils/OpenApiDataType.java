@@ -21,14 +21,14 @@ public enum OpenApiDataType {
     ARRAY("array", OpenApiDataFormat.UNKNOWN),
     OBJECT("object", OpenApiDataFormat.UNKNOWN);
 
-    private String value;
-    private OpenApiDataFormat format;
+    private final String value;
+    private final OpenApiDataFormat format;
 
-    private OpenApiDataType(String openapiName) {
+    OpenApiDataType(String openapiName) {
         this(openapiName, OpenApiDataFormat.NONE);
     }
 
-    private OpenApiDataType(String value, OpenApiDataFormat format) {
+    OpenApiDataType(String value, OpenApiDataFormat format) {
         this.value = value;
         this.format = format;
     }

@@ -18,7 +18,7 @@ public class Response {
     private Object code;
     private String description;
 
-    private Map<String, Content> content = new LinkedHashMap<>();
+    private final Map<String, Content> content = new LinkedHashMap<>();
 
     public Response() {
     }

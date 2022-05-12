@@ -14,8 +14,8 @@ import java.util.*;
 
 public class TagLibrary {
 
-    private List<Tag> tags = new ArrayList<>();
-    private Set<DataObject> schemaObjects = new HashSet<>();
+    private final List<Tag> tags = new ArrayList<>();
+    private final Set<DataObject> schemaObjects = new HashSet<>();
 
     private final ClassLoader projectClassLoader;
 

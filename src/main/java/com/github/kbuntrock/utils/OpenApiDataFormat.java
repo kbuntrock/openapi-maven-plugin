@@ -14,7 +14,7 @@ public enum OpenApiDataFormat {
     UUID("uuid"),
     UNKNOWN("unknow_format");
 
-    private String value;
+    private final String value;
 
     OpenApiDataFormat(String value) {
         this.value = value;

@@ -35,7 +35,7 @@ public class DataObject {
      * index 0 : the key type
      * index 1 : the value type
      */
-    private DataObject[] mapKeyValueDataObjects = new DataObject[2];
+    private final DataObject[] mapKeyValueDataObjects = new DataObject[2];
 
     public Class<?> getJavaType() {
         return javaType;
