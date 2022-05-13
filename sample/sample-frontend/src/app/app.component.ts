@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
 import { UserGroupDto } from './generated/models';
 import { UserDto } from './generated/models/user-dto';
-import { EnumPlaytestControllerService, MapPlaytestControllerService, UserControllerService } from './generated/services';
+import { EnumPlaytestControllerService, MapPlaytestControllerService, TimeControllerService, UserControllerService } from './generated/services';
+import * as dayjs from 'dayjs';
+import { Dayjs } from 'dayjs';
+import * as customParseFormat from 'dayjs/plugin/customParseFormat';
+import * as utc from 'dayjs/plugin/utc';
 
 @Component({
   selector: 'app-root',
@@ -16,12 +20,13 @@ export class AppComponent {
 
   result: string[] = ["Awaiting webservice request"];
 
-  compteur: number = 0;
+  compteur: number = 18;
 
   constructor(private readonly userControllerService: UserControllerService, 
     private readonly enumPlaytestControllerService: EnumPlaytestControllerService,
-    private readonly mapPlaytestControllerService: MapPlaytestControllerService) {
-
+    private readonly mapPlaytestControllerService: MapPlaytestControllerService,
+    private readonly timeControllerService: TimeControllerService) {
+      dayjs.extend(utc);
   }
 
   public async callWebservice() {
@@ -117,15 +122,36 @@ export class AppComponent {
         break; 
       }
       case 17: {   
+        this.displayResponse(await this.timeControllerService.getTimeDto());
         break; 
       }
       case 18: {   
+        this.displayResponse(await this.timeControllerService.getCurrentDate());
         break; 
       }
       case 19: {   
+        this.displayResponse(await this.timeControllerService.getCurrentDateTime());
         break; 
       }
       case 20: {   
+        this.displayResponse(await this.timeControllerService.getCurrentInstant());
+        break; 
+      }
+      case 21: {  
+        console.info(dayjs.utc());
+        console.info(dayjs.utc().format('DD/MM/YYYY'));
+        this.displayResponse(await this.timeControllerService.setCurrentDate({date: dayjs.utc().format('DD/MM/YYYY')})); 
+        break; 
+      }
+      case 22: {   
+        this.displayResponse(await this.timeControllerService.setCurrentDateTime({dateTime: dayjs.utc().format('DD/MM/YYYY-HH:mm:ss')})); 
+        break; 
+      }
+      case 23: {  
+        this.displayResponse(await this.timeControllerService.setCurrentInstant({instant: dayjs.utc().toISOString()})); 
+        break; 
+      }
+      case 24: {   
         break; 
       }
     }

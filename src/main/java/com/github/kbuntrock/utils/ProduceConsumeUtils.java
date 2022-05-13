@@ -11,8 +11,7 @@ public class ProduceConsumeUtils {
         if(dataObject.getJavaType().isEnum()) {
             // java enums are considered as a string in openapi type
             return MediaType.APPLICATION_JSON_VALUE;
-        } else if(OpenApiDataType.STRING == dataObject.getOpenApiType() || OpenApiDataType.STRING_DATE == dataObject.getOpenApiType()
-         || OpenApiDataType.STRING_DATE_TIME == dataObject.getOpenApiType()) {
+        } else if(OpenApiDataType.STRING == dataObject.getOpenApiType()) {
             return MediaType.TEXT_PLAIN_VALUE;
         } else {
             return MediaType.APPLICATION_JSON_VALUE;

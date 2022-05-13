@@ -2,6 +2,7 @@ package com.github.kbuntrock.utils;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -54,7 +55,7 @@ public enum OpenApiDataType {
             return NUMBER_DOUBLE;
         } else if (String.class == type) {
             return STRING;
-        } else if (LocalDateTime.class == type) {
+        } else if (LocalDateTime.class == type || Instant.class == type) {
             return STRING_DATE_TIME;
         } else if (LocalDate.class == type) {
             return STRING_DATE;
