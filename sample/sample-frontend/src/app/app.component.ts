@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Authority } from './generated/models/authority';
+import { UserGroupDto } from './generated/models';
 import { UserDto } from './generated/models/user-dto';
 import { EnumPlaytestControllerService, MapPlaytestControllerService, UserControllerService } from './generated/services';
 
@@ -104,6 +104,28 @@ export class AppComponent {
         break; 
       }
       case 15: {   
+        this.displayResponse(await this.userControllerService.getUsergroupById({id: 1}));
+        break; 
+      }
+      case 16: {   
+        const userGroup: UserGroupDto = {};
+        const subGroup: UserGroupDto = {};
+        subGroup.members = [this.createUser(), this.createUser()];
+        userGroup.leader = this.createUser();
+        userGroup.subgroups = [subGroup];
+        this.displayResponse(await this.userControllerService.setUsergroup({body: userGroup}));
+        break; 
+      }
+      case 17: {   
+        break; 
+      }
+      case 18: {   
+        break; 
+      }
+      case 19: {   
+        break; 
+      }
+      case 20: {   
         break; 
       }
     }

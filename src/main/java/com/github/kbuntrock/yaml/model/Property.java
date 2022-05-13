@@ -19,6 +19,7 @@ public class Property {
     private boolean required;
     @JsonProperty("$ref")
     private String reference;
+    private Property additionalProperties;
 
     public String getName() {
         return name;
@@ -90,5 +91,13 @@ public class Property {
 
     public void setReference(String reference) {
         this.reference = reference;
+    }
+
+    public Property getAdditionalProperties() {
+        return additionalProperties;
+    }
+
+    public void setAdditionalProperties(Property additionalProperties) {
+        this.additionalProperties = additionalProperties;
     }
 }

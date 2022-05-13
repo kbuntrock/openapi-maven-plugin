@@ -2,6 +2,7 @@ package fr.github.kbuntrock.sample.enpoint;
 
 import fr.github.kbuntrock.sample.Constants;
 import fr.github.kbuntrock.sample.dto.UserDto;
+import fr.github.kbuntrock.sample.dto.UserGroupDto;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,4 +27,10 @@ public interface UserController {
 
     @PostMapping(path = "/upload-files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     List<String> uploadFiles(@RequestParam(name = "files") MultipartFile[] files);
+
+    @GetMapping("/usergroup/{id}")
+    UserGroupDto getUsergroupById(@PathVariable(value = "id") Long id);
+
+    @PostMapping("/usergroup")
+    String setUsergroup(@RequestBody UserGroupDto usergroup);
 }

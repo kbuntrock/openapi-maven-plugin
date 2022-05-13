@@ -88,7 +88,16 @@ public class TagLibrary {
         for (Field field : fields) {
             Class<?> fieldType = field.getType();
             OpenApiDataType dataType = OpenApiDataType.fromJavaType(fieldType);
-            if((OpenApiDataType.OBJECT == dataType && !clazz.isAssignableFrom(Map.class)) || fieldType.isEnum()) {
+            if(field.getType().isAssignableFrom(Map.class)) {
+                DataObject dataObject = new DataObject();
+                dataObject.setJavaType(fieldType, ((ParameterizedType) field.getGenericType()), projectClassLoader);
+                if(dataObject.getMapValueType().isEnum() || OpenApiDataType.OBJECT == dataObject.getMapValueType().getOpenApiType()){
+                    if(schemaObjects.add((dataObject.getMapValueType()))) {
+                        inspectObject(dataObject.getMapValueType().getJavaType());
+                    }
+                }
+
+            } else if(OpenApiDataType.OBJECT == dataType || fieldType.isEnum()) {
                 DataObject dataObject = new DataObject();
                 dataObject.setJavaType(fieldType, null, projectClassLoader);
                 if(schemaObjects.add(dataObject)){

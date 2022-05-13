@@ -1,13 +1,16 @@
-package com.github.kbuntrock.resources.dto;
+package fr.github.kbuntrock.sample.dto;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;
 import java.util.Map;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserGroupDto {
 
-    private AccountDto leader;
+    private UserDto leader;
 
-    private List<AccountDto> members;
+    private List<UserDto> members;
 
     private UserGroupDto mainSubgroup;
 
@@ -15,19 +18,19 @@ public class UserGroupDto {
 
     private Map<Long, UserGroupDto> affiliatedGroups;
 
-    public AccountDto getLeader() {
+    public UserDto getLeader() {
         return leader;
     }
 
-    public void setLeader(AccountDto leader) {
+    public void setLeader(UserDto leader) {
         this.leader = leader;
     }
 
-    public List<AccountDto> getMembers() {
+    public List<UserDto> getMembers() {
         return members;
     }
 
-    public void setMembers(List<AccountDto> members) {
+    public void setMembers(List<UserDto> members) {
         this.members = members;
     }
 

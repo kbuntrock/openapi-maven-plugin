@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -188,15 +189,22 @@ public class YamlWriter {
                     Property property = new Property();
                     property.setName(field.getName());
                     OpenApiDataType openApiDataType = OpenApiDataType.fromJavaType(field.getType());
-                    property.setType(openApiDataType.getValue());
-                    OpenApiDataFormat format = openApiDataType.getFormat();
-                    if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
-                        property.setFormat(format.getValue());
+                    if(field.getType().isAssignableFrom(Map.class)) {
+                        property.setType(openApiDataType.getValue());
+                        property.setAdditionalProperties(extractMapValueType(field));
+                    } else if(OpenApiDataType.OBJECT == openApiDataType) {
+                        property.setReference("#/components/schemas/" + field.getType().getSimpleName());
+                    } else {
+                        property.setType(openApiDataType.getValue());
+                        OpenApiDataFormat format = openApiDataType.getFormat();
+                        if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
+                            property.setFormat(format.getValue());
+                        }
+                        if (OpenApiDataType.ARRAY == openApiDataType) {
+                            extractArrayType(field, property);
+                        }
                     }
 
-                    if (OpenApiDataType.ARRAY == openApiDataType) {
-                        extractArrayType(field, property);
-                    }
                     extractConstraints(field, property);
                     properties.put(property.getName(), property);
 
@@ -212,6 +220,22 @@ public class YamlWriter {
                     .filter(Property::isRequired).map(Property::getName).collect(Collectors.toList()));
         }
         return schemas;
+    }
+
+    private Property extractMapValueType(Field field) {
+        Property additionalProperty = new Property();
+        DataObject dataObject = new DataObject();
+        dataObject.setJavaType(field.getType(),  ((ParameterizedType) field.getGenericType()), projectClassLoader);
+        if(dataObject.getMapValueType().isPureObject()) {
+            additionalProperty.setReference("#/components/schemas/" + dataObject.getMapValueType().getJavaType().getSimpleName());
+        } else {
+            additionalProperty.setType(dataObject.getMapValueType().getOpenApiType().getValue());
+            OpenApiDataFormat format = dataObject.getMapValueType().getOpenApiType().getFormat();
+            if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
+                additionalProperty.setFormat(format.getValue());
+            }
+        }
+        return additionalProperty;
     }
 
     private void extractArrayType(Field field, Property property) {
