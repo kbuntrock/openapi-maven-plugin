@@ -3,7 +3,7 @@ package com.github.kbuntrock;
 import com.github.kbuntrock.model.*;
 import com.github.kbuntrock.utils.OpenApiDataType;
 import com.github.kbuntrock.utils.ParameterLocation;
-import com.github.kbuntrock.yaml.Logger;
+import com.github.kbuntrock.utils.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;

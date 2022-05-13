@@ -1,6 +1,6 @@
 package com.github.kbuntrock;
 
-import com.github.kbuntrock.yaml.Logger;
+import com.github.kbuntrock.utils.Logger;
 import org.apache.maven.plugin.logging.Log;
 import org.junit.Before;
 

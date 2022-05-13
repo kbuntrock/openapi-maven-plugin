@@ -2,7 +2,7 @@ package com.github.kbuntrock;
 
 
 import com.github.kbuntrock.configuration.ApiConfiguration;
-import com.github.kbuntrock.yaml.Logger;
+import com.github.kbuntrock.utils.Logger;
 import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
@@ -13,7 +13,6 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;

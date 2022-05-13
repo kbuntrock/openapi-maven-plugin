@@ -1,4 +1,4 @@
-package com.github.kbuntrock.yaml;
+package com.github.kbuntrock.utils;
 
 import org.apache.maven.plugin.logging.Log;
 

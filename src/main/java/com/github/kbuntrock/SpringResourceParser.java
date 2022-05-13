@@ -1,10 +1,9 @@
 package com.github.kbuntrock;
 
 import com.github.kbuntrock.model.Tag;
-import com.github.kbuntrock.yaml.Logger;
+import com.github.kbuntrock.utils.Logger;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
