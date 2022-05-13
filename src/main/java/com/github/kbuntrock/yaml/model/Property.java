@@ -1,6 +1,7 @@
 package com.github.kbuntrock.yaml.model;
 
 import com.fasterxml.jackson.annotation.*;
+import com.github.kbuntrock.utils.OpenApiConstants;
 
 import java.util.Map;
 
@@ -17,7 +18,7 @@ public class Property {
     private Map<String, String> items;
     @JsonIgnore
     private boolean required;
-    @JsonProperty("$ref")
+    @JsonProperty(OpenApiConstants.OBJECT_REFERENCE_DECLARATION)
     private String reference;
     private Property additionalProperties;
 

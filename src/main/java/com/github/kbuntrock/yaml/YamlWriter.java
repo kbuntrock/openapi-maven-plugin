@@ -93,7 +93,7 @@ public class YamlWriter {
                     parameterElement.setRequired(parameter.isRequired());
                     Property schema = new Property();
                     if (parameter.getJavaType().isEnum()) {
-                        schema.setReference("#/components/schemas/" + parameter.getJavaType().getSimpleName());
+                        schema.setReference(OpenApiConstants.OBJECT_REFERENCE_PREFIX + parameter.getJavaType().getSimpleName());
                     } else {
                         schema.setType(parameter.getOpenApiType().getValue());
                         OpenApiDataFormat format = parameter.getOpenApiType().getFormat();
@@ -191,7 +191,7 @@ public class YamlWriter {
                         property.setType(openApiDataType.getValue());
                         property.setAdditionalProperties(extractMapValueType(field));
                     } else if(OpenApiDataType.OBJECT == openApiDataType) {
-                        property.setReference("#/components/schemas/" + field.getType().getSimpleName());
+                        property.setReference(OpenApiConstants.OBJECT_REFERENCE_PREFIX + field.getType().getSimpleName());
                     } else {
                         property.setType(openApiDataType.getValue());
                         OpenApiDataFormat format = openApiDataType.getFormat();
@@ -225,7 +225,7 @@ public class YamlWriter {
         DataObject dataObject = new DataObject();
         dataObject.setJavaType(field.getType(),  ((ParameterizedType) field.getGenericType()), projectClassLoader);
         if(dataObject.getMapValueType().isPureObject()) {
-            additionalProperty.setReference("#/components/schemas/" + dataObject.getMapValueType().getJavaType().getSimpleName());
+            additionalProperty.setReference(OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getMapValueType().getJavaType().getSimpleName());
         } else {
             additionalProperty.setType(dataObject.getMapValueType().getOpenApiType().getValue());
             OpenApiDataFormat format = dataObject.getMapValueType().getOpenApiType().getFormat();
@@ -246,9 +246,9 @@ public class YamlWriter {
         }
         Map<String, String> items = new LinkedHashMap<>();
         if (item.getArrayItemDataObject().getJavaType().isEnum() || item.getArrayItemDataObject().getOpenApiType() == OpenApiDataType.OBJECT) {
-            items.put("$ref", "#/components/schemas/" + item.getArrayItemDataObject().getJavaType().getSimpleName());
+            items.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, OpenApiConstants.OBJECT_REFERENCE_PREFIX + item.getArrayItemDataObject().getJavaType().getSimpleName());
         } else {
-            items.put("type", item.getArrayItemDataObject().getOpenApiType().getValue());
+            items.put(OpenApiConstants.TYPE, item.getArrayItemDataObject().getOpenApiType().getValue());
         }
         property.setItems(items);
     }

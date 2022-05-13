@@ -1,5 +1,7 @@
 package com.github.kbuntrock.yaml.model;
 
+import com.github.kbuntrock.utils.OpenApiConstants;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -7,10 +9,8 @@ public class Items {
 
     private Map<String, String> items = new LinkedHashMap<>();
 
-    // TODO : manque le format
-
     public Items(String type) {
-        this.items.put("type", type);
+        this.items.put(OpenApiConstants.TYPE, type);
     }
 
     public Map<String, String> getItems() {
