@@ -29,7 +29,7 @@ public class SpringClassAnalyser {
     }
 
     public Optional<Tag> getTagFromClass(Class<?> clazz) throws MojoFailureException {
-        Tag tag = new Tag(clazz.getSimpleName());
+        Tag tag = new Tag(clazz);
         logger.debug("Parsing tag : " + tag.getName());
         String basePath = "";
         RequestMapping classRequestMapping = clazz.getAnnotation(RequestMapping.class);

@@ -5,6 +5,7 @@ import com.github.kbuntrock.utils.Logger;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.reflections.Reflections;
+import org.reflections.scanners.Scanners;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
@@ -35,8 +36,14 @@ public class SpringResourceParser {
             Reflections reflections = new Reflections(new ConfigurationBuilder()
                     .addClassLoaders(projectClassLoader)
                     .addUrls(ClasspathHelper.forClassLoader(projectClassLoader))
+//                    .setScanners(Scanners.SubTypes,
+//                            Scanners.TypesAnnotated,
+//                            Scanners.FieldsAnnotated,
+//                            Scanners.MethodsAnnotated,
+//                            Scanners.MethodsParameter,
+//                            Scanners.MethodsReturn,
+//                            Scanners.MethodsSignature)
                     .filterInputsBy( new FilterBuilder().includePackage(apiLocation)));
-
 
             // Find directly or inheritedly annotated by RequestMapping classes.
             Set<Class<?>> classes = reflections.getTypesAnnotatedWith(RequestMapping.class, true);

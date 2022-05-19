@@ -10,13 +10,15 @@ import java.util.stream.Collectors;
 public class Tag {
 
     private String name;
+    private Class<?> clazz;
 
     private final List<Endpoint> endpoints = new ArrayList<>();
 
     private String computedName;
 
-    public Tag(String name) {
-        this.name = name;
+    public Tag(Class<?> clazz) {
+        this.name = clazz.getSimpleName();
+        this.clazz = clazz;
     }
 
     public String getName() {
