@@ -2,6 +2,8 @@ package com.github.kbuntrock.model;
 
 import com.github.kbuntrock.utils.ParameterLocation;
 
+import java.lang.reflect.ParameterizedType;
+
 public class ParameterObject extends DataObject {
 
     private String name;
@@ -40,5 +42,9 @@ public class ParameterObject extends DataObject {
 
     public void setFormat(String format) {
         this.format = format;
+    }
+
+    public ParameterObject(Class<?> javaType, ParameterizedType parameterizedType) {
+        super(javaType, parameterizedType);
     }
 }

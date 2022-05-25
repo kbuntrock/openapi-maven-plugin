@@ -1,5 +1,7 @@
 package com.github.kbuntrock.utils;
 
+import com.github.kbuntrock.model.DataObject;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -10,6 +12,14 @@ public final class ReflexionUtils {
 
     private ReflexionUtils() {
     }
+
+//    public static List<Field> getAllNonStaticFields(List<Field> fields, DataObject dataObject) {
+//
+//        fields.addAll(Arrays.asList(type.getDeclaredFields()).stream()
+//                .filter(x -> !Modifier.isStatic(x.getModifiers())).collect(Collectors.toList()));
+//
+//        return fields;
+//    }
 
     public static List<Field> getAllNonStaticFields(List<Field> fields, Class<?> type) {
         if (type.getSuperclass() != null) {

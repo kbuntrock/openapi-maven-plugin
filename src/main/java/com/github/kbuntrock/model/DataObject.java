@@ -1,13 +1,11 @@
 package com.github.kbuntrock.model;
 
 import com.github.kbuntrock.utils.OpenApiDataType;
+import com.github.kbuntrock.utils.ReflectionsUtils;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Represent a type whith all the needed informations to insert it into the openapi specification
@@ -17,7 +15,11 @@ public class DataObject {
     /**
      * The original java class
      */
-    private Class<?> javaType;
+    private Class<?> javaClass;
+    /**
+     * The original java type
+     */
+    private Type javaType;
     /**
      * The corresponding openapi type
      */
@@ -36,13 +38,24 @@ public class DataObject {
      * index 1 : the value type
      */
     private final DataObject[] mapKeyValueDataObjects = new DataObject[2];
+    /**
+     * True if this object is generically typed
+     */
+    private boolean genericallyTyped;
+    /**
+     * Map the generic name of a type to the class of the use case.
+     */
+    private Map<String, Class<?>> genericNameToClassMap;
 
-    public Class<?> getJavaType() {
+    public Class<?> getJavaClass() {
+        return javaClass;
+    }
+
+    public Type getJavaType() {
         return javaType;
     }
 
     /**
-     *
      * @return true if this DataObject is a map
      */
     public boolean isMap() {
@@ -50,15 +63,13 @@ public class DataObject {
     }
 
     /**
-     *
      * @return true if this DataObject is an enum
      */
     public boolean isEnum() {
-        return javaType.isEnum();
+        return javaClass.isEnum();
     }
 
     /**
-     *
      * @return true if the object should be considered as a "reference object", in order to get its own schema section
      */
     public boolean isPureObject() {
@@ -66,57 +77,69 @@ public class DataObject {
     }
 
     /**
-     *
      * @return true if the object is an array
      */
     public boolean isArray() {
         return OpenApiDataType.ARRAY == openApiType;
     }
 
-    public void setJavaType(Class<?> javaType, ParameterizedType parameterizedType, ClassLoader projectClassLoader) {
+    public DataObject(Class<?> javaClass, Type javaType) {
         this.javaType = javaType;
-        this.openApiType = OpenApiDataType.fromJavaType(javaType);
-        if (javaType.isEnum()) {
-            Object[] values = javaType.getEnumConstants();
-            this.enumItemValues = new ArrayList<>();
-            for (Object value : values) {
-                this.enumItemValues.add(value.toString());
-            }
+        if (javaType instanceof ParameterizedType) {
+            initialize(javaClass, (ParameterizedType) javaType);
+        } else {
+            initialize(javaClass, null);
+        }
+    }
 
-        } else if (OpenApiDataType.ARRAY == this.openApiType) {
-            arrayItemDataObject = new DataObject();
-            if (javaType.isArray()) {
-                arrayItemDataObject.setJavaType(javaType.getComponentType(), null, projectClassLoader);
-            } else {
-                Type listType = parameterizedType.getActualTypeArguments()[0];
-                try {
-                    Class<?> listTypeClass = Class.forName(listType.getTypeName(), true, projectClassLoader);
-                    arrayItemDataObject.setJavaType(listTypeClass, null, projectClassLoader);
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException("Class not found for " + listType.getTypeName());
+    public DataObject(Class<?> javaClass, ParameterizedType parameterizedType) {
+        initialize(javaClass, parameterizedType);
+    }
+
+    private void initialize(Class<?> javaClass, ParameterizedType parameterizedType) {
+
+        try {
+            this.javaClass = javaClass;
+            this.openApiType = OpenApiDataType.fromJavaClass(javaClass);
+            this.genericallyTyped = parameterizedType != null;
+            if (this.genericallyTyped) {
+                this.genericNameToClassMap = new HashMap<>();
+                for (int i = 0; i < parameterizedType.getActualTypeArguments().length; i++) {
+                    this.genericNameToClassMap.put(this.javaClass.getTypeParameters()[i].getTypeName(),
+                            Class.forName(parameterizedType.getActualTypeArguments()[i].getTypeName(), true, ReflectionsUtils.getProjectClassLoader()));
                 }
             }
-        } else if (javaType.isAssignableFrom(Map.class)) {
-            DataObject key = new DataObject();
-            DataObject value = new DataObject();
-            Class<?> keyTypeClass = null;
-            try {
-                keyTypeClass = Class.forName(parameterizedType.getActualTypeArguments()[0].getTypeName(), true, projectClassLoader);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Class not found for map key : " + parameterizedType.getActualTypeArguments()[0].getTypeName());
-            }
-            Class<?> valueTypeClass = null;
-            try {
-                valueTypeClass = Class.forName(parameterizedType.getActualTypeArguments()[1].getTypeName(), true, projectClassLoader);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Class not found for map value " + parameterizedType.getActualTypeArguments()[1].getTypeName());
-            }
-            key.setJavaType(keyTypeClass, null, projectClassLoader);
-            value.setJavaType(valueTypeClass, null, projectClassLoader);
+            if (javaClass.isEnum()) {
+                Object[] values = javaClass.getEnumConstants();
+                this.enumItemValues = new ArrayList<>();
+                for (Object value : values) {
+                    this.enumItemValues.add(value.toString());
+                }
 
-            mapKeyValueDataObjects[0] = key;
-            mapKeyValueDataObjects[1] = value;
+            } else if (OpenApiDataType.ARRAY == this.openApiType) {
+
+                if (javaClass.isArray()) {
+                    arrayItemDataObject = new DataObject(javaClass.getComponentType(), null);
+                } else {
+                    Type listType = parameterizedType.getActualTypeArguments()[0];
+                    Class<?> listTypeClass = Class.forName(listType.getTypeName(), true, ReflectionsUtils.getProjectClassLoader());
+                    arrayItemDataObject = new DataObject(listTypeClass, null);
+                }
+            } else if (javaClass != Object.class && javaClass.isAssignableFrom(Map.class)) {
+                Class<?> keyTypeClass = Class.forName(parameterizedType.getActualTypeArguments()[0].getTypeName(), true, ReflectionsUtils.getProjectClassLoader());
+                Class<?> valueTypeClass = Class.forName(parameterizedType.getActualTypeArguments()[1].getTypeName(), true, ReflectionsUtils.getProjectClassLoader());
+
+                DataObject key = new DataObject(keyTypeClass, null);
+                DataObject value = new DataObject(valueTypeClass, null);
+
+                mapKeyValueDataObjects[0] = key;
+                mapKeyValueDataObjects[1] = value;
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Class not found in DataObject instanciation", e);
         }
+
+
     }
 
     public OpenApiDataType getOpenApiType() {
@@ -139,24 +162,31 @@ public class DataObject {
         return mapKeyValueDataObjects[1];
     }
 
+    public boolean isGenericallyTyped() {
+        return genericallyTyped;
+    }
+
+    public Map<String, Class<?>> getGenericNameToClassMap() {
+        return genericNameToClassMap;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DataObject that = (DataObject) o;
-        return Objects.equals(javaType, that.javaType);
+        return Objects.equals(javaClass, that.javaClass);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(javaType);
+        return Objects.hash(javaClass);
     }
 
     @Override
     public String toString() {
         return "DataObject{" +
-                "javaType=" + javaType.getSimpleName() +
-                ", openApiType=" + openApiType +
+                "openApiType=" + openApiType +
                 ", arrayItemDataObject=" + arrayItemDataObject +
                 '}';
     }

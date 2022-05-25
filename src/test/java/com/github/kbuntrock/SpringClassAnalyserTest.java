@@ -7,9 +7,12 @@ import com.github.kbuntrock.resources.endpoint.AccountController;
 import com.github.kbuntrock.resources.endpoint.generic.GenericityController;
 import com.github.kbuntrock.resources.endpoint.nesting.NestingController;
 import com.github.kbuntrock.resources.endpoint.time.TimeController;
+import com.github.kbuntrock.utils.ReflectionsUtils;
 import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -19,13 +22,29 @@ import java.util.Optional;
 
 public class SpringClassAnalyserTest extends AbstractTest {
 
-    @Test
-    public void parsingGenerics() throws MojoFailureException {
+    @BeforeClass
+    public static void initTest() {
+        ReflectionsUtils.initiateTestMode();
+    }
 
-        List<String> apiLocations = List.of("com.github.kbuntrock.resources.endpoint.generic.GenericityController");
-        ClassLoader projectClassLoader = AccountController.class.getClassLoader();
-        SpringResourceParser parser = new SpringResourceParser(projectClassLoader, apiLocations);
-        parser.scanRestControllers();
+    @Test
+    public void parsingGenerics() throws MojoFailureException, IOException {
+
+        ReflectionsUtils.initiateTestMode();
+        List<String> apiLocations = List.of("com.github.kbuntrock.resources.endpoint");
+        ClassLoader projectClassLoader = GenericityController.class.getClassLoader();
+        SpringResourceParser parser = new SpringResourceParser(projectClassLoader, apiLocations, true);
+        TagLibrary tagLibrary = parser.scanRestControllers();
+
+        MavenProject mavenProject = new MavenProject();
+        mavenProject.setName("Big parsing");
+        mavenProject.setVersion("1.0.0");
+
+        ApiConfiguration apiConfiguration = new ApiConfiguration();
+        new YamlWriter(projectClassLoader, mavenProject, apiConfiguration).write(
+                new File("D:\\Dvpt\\openapi-maven-plugin\\target\\component.yml"),
+                tagLibrary);
+
     }
 
 

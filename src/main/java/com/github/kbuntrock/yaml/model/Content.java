@@ -23,8 +23,8 @@ public class Content {
 
         Content content = fromDataObject((DataObject) parameterObject);
 
-        boolean isMultipartFile = MultipartFile.class == parameterObject.getJavaType() ||
-                (OpenApiDataType.ARRAY == parameterObject.getOpenApiType() && MultipartFile.class == parameterObject.getArrayItemDataObject().getJavaType());
+        boolean isMultipartFile = MultipartFile.class == parameterObject.getJavaClass() ||
+                (OpenApiDataType.ARRAY == parameterObject.getOpenApiType() && MultipartFile.class == parameterObject.getArrayItemDataObject().getJavaClass());
         if(isMultipartFile && parameterObject != null) {
             // the MultipartFile must be named in the body.
             Content multipartContent = new Content();
@@ -50,7 +50,7 @@ public class Content {
             Map<String, Object> additionalProperties = new LinkedHashMap<>();
             content.getSchema().put("additionalProperties", additionalProperties);
             if(dataObject.getMapValueType().isPureObject()) {
-                additionalProperties.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getMapValueType().getJavaType().getSimpleName());
+                additionalProperties.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getMapValueType().getJavaClass().getSimpleName());
             } else {
                 additionalProperties.put(OpenApiConstants.TYPE, dataObject.getMapValueType().getOpenApiType().getValue());
                 OpenApiDataFormat format = dataObject.getMapValueType().getOpenApiType().getFormat();
@@ -60,8 +60,10 @@ public class Content {
 
             }
         }
-        else if (OpenApiDataType.OBJECT == dataObject.getOpenApiType() || dataObject.isEnum()) {
-            content.getSchema().put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getJavaType().getSimpleName());
+        else if (dataObject.isEnum() || (dataObject.isPureObject() && !dataObject.isGenericallyTyped())) {
+            content.getSchema().put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getJavaClass().getSimpleName());
+        } else if(dataObject.isPureObject() && dataObject.isGenericallyTyped()){
+            content.getSchema().put("toto", new Schema(dataObject));
         } else {
             content.getSchema().put(OpenApiConstants.TYPE, dataObject.getOpenApiType().getValue());
             if (OpenApiDataType.ARRAY != dataObject.getOpenApiType()) {
@@ -75,8 +77,8 @@ public class Content {
                 if (OpenApiDataFormat.NONE != itemType.getFormat() && OpenApiDataFormat.UNKNOWN != itemType.getFormat()) {
                     itemsMap.put(OpenApiConstants.TYPE, itemType.getValue());
                     itemsMap.put("format", itemType.getFormat().getValue());
-                } else if (OpenApiDataType.OBJECT == itemType || dataObject.getArrayItemDataObject().getJavaType().isEnum()) {
-                    itemsMap.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getArrayItemDataObject().getJavaType().getSimpleName());
+                } else if (OpenApiDataType.OBJECT == itemType || dataObject.getArrayItemDataObject().getJavaClass().isEnum()) {
+                    itemsMap.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getArrayItemDataObject().getJavaClass().getSimpleName());
                 }
                 content.getSchema().put("items", itemsMap);
             }

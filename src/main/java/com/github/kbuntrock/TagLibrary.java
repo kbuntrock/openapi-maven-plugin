@@ -34,87 +34,90 @@ public class TagLibrary {
 
     private void mapTagObjects(Tag tag) throws ClassNotFoundException {
         for (Endpoint endpoint : tag.getEndpoints()) {
-            if(endpoint.getResponseObject() != null){
-                if (endpoint.getResponseObject().isPureObject()) {
-                    if(schemaObjects.add(endpoint.getResponseObject())) {
-                        inspectObject(endpoint.getResponseObject().getJavaType());
+            if (endpoint.getResponseObject() != null) {
+                DataObject responseObject = endpoint.getResponseObject();
+                // Generically typed objects are never written in the schema section
+                if (responseObject.isPureObject() && !responseObject.isGenericallyTyped()) {
+                    if (schemaObjects.add(responseObject)) {
+                        inspectObject(responseObject.getJavaClass());
                     }
-                } else if(endpoint.getResponseObject().isMap()) {
-                    if(endpoint.getResponseObject().getMapKeyType().isPureObject() && schemaObjects.add(endpoint.getResponseObject().getMapKeyType())) {
-                        inspectObject(endpoint.getResponseObject().getMapKeyType().getJavaType());
+                } else if (responseObject.isMap()) {
+                    if (responseObject.getMapKeyType().isPureObject() && !responseObject.getMapKeyType().isGenericallyTyped()
+                            && schemaObjects.add(responseObject.getMapKeyType())) {
+                        inspectObject(responseObject.getMapKeyType().getJavaClass());
                     }
-                    if(endpoint.getResponseObject().getMapValueType().isPureObject() && schemaObjects.add(endpoint.getResponseObject().getMapValueType())) {
-                        inspectObject(endpoint.getResponseObject().getMapValueType().getJavaType());
+                    if (responseObject.getMapValueType().isPureObject() && !responseObject.getMapValueType().isGenericallyTyped()
+                            && schemaObjects.add(responseObject.getMapValueType())) {
+                        inspectObject(responseObject.getMapValueType().getJavaClass());
                     }
-                } else if(OpenApiDataType.ARRAY == endpoint.getResponseObject().getOpenApiType()) {
-                    if(endpoint.getResponseObject().getArrayItemDataObject().isPureObject()) {
-                        if(schemaObjects.add(endpoint.getResponseObject().getArrayItemDataObject())) {
-                            inspectObject(endpoint.getResponseObject().getArrayItemDataObject().getJavaType());
+                } else if (OpenApiDataType.ARRAY == responseObject.getOpenApiType()) {
+                    if (responseObject.getArrayItemDataObject().isPureObject() && !responseObject.getArrayItemDataObject().isGenericallyTyped()) {
+                        if (schemaObjects.add(responseObject.getArrayItemDataObject())) {
+                            inspectObject(responseObject.getArrayItemDataObject().getJavaClass());
                         }
                     }
-                    // TODO : Handle nested arrays
                 }
             }
 
             for (ParameterObject parameterObject : endpoint.getParameters()) {
-                if (parameterObject.isPureObject()) {
-                    if(schemaObjects.add(parameterObject)) {
-                        inspectObject(parameterObject.getJavaType());
+                if (parameterObject.isPureObject() && !parameterObject.isGenericallyTyped()) {
+                    if (schemaObjects.add(parameterObject)) {
+                        inspectObject(parameterObject.getJavaClass());
                     }
-                } else if(parameterObject.isMap()) {
-                    if(parameterObject.getMapKeyType().isPureObject() && schemaObjects.add(parameterObject.getMapKeyType())) {
-                        inspectObject(parameterObject.getMapKeyType().getJavaType());
+                } else if (parameterObject.isMap()) {
+                    if (parameterObject.getMapKeyType().isPureObject() && !parameterObject.getMapKeyType().isGenericallyTyped()
+                            && schemaObjects.add(parameterObject.getMapKeyType())) {
+                        inspectObject(parameterObject.getMapKeyType().getJavaClass());
                     }
-                    if(parameterObject.getMapValueType().isPureObject() && schemaObjects.add(parameterObject.getMapValueType())) {
-                        inspectObject(parameterObject.getMapValueType().getJavaType());
+                    if (parameterObject.getMapValueType().isPureObject() && !parameterObject.getMapValueType().isGenericallyTyped()
+                            && schemaObjects.add(parameterObject.getMapValueType())) {
+                        inspectObject(parameterObject.getMapValueType().getJavaClass());
                     }
-                } else if(OpenApiDataType.ARRAY == parameterObject.getOpenApiType()){
-                    if(parameterObject.getArrayItemDataObject().isPureObject()) {
-                        if(schemaObjects.add(parameterObject.getArrayItemDataObject())) {
-                            inspectObject(parameterObject.getArrayItemDataObject().getJavaType());
+                } else if (OpenApiDataType.ARRAY == parameterObject.getOpenApiType()) {
+                    if (parameterObject.getArrayItemDataObject().isPureObject() && !parameterObject.getArrayItemDataObject().isGenericallyTyped()) {
+                        if (schemaObjects.add(parameterObject.getArrayItemDataObject())) {
+                            inspectObject(parameterObject.getArrayItemDataObject().getJavaClass());
                         }
                     }
-                    // TODO : Handle nested arrays
                 }
             }
         }
     }
 
     private void inspectObject(Class<?> clazz) {
-        if(clazz.isEnum()) {
-           return;
+        if (clazz.isEnum()) {
+            return;
         }
         List<Field> fields = ReflexionUtils.getAllNonStaticFields(new ArrayList<>(), clazz);
         for (Field field : fields) {
             Class<?> fieldType = field.getType();
-            OpenApiDataType dataType = OpenApiDataType.fromJavaType(fieldType);
-            if(field.getType().isAssignableFrom(Map.class)) {
-                DataObject dataObject = new DataObject();
-                dataObject.setJavaType(fieldType, ((ParameterizedType) field.getGenericType()), projectClassLoader);
-                if(dataObject.getMapValueType().isEnum() || OpenApiDataType.OBJECT == dataObject.getMapValueType().getOpenApiType()){
-                    if(schemaObjects.add((dataObject.getMapValueType()))) {
-                        inspectObject(dataObject.getMapValueType().getJavaType());
+            OpenApiDataType dataType = OpenApiDataType.fromJavaClass(fieldType);
+            if (field.getType().isAssignableFrom(Map.class)) {
+                DataObject dataObject = new DataObject(fieldType, ((ParameterizedType) field.getGenericType()));
+                if (dataObject.getMapValueType().isEnum() || OpenApiDataType.OBJECT == dataObject.getMapValueType().getOpenApiType()) {
+                    if (schemaObjects.add((dataObject.getMapValueType()))) {
+                        inspectObject(dataObject.getMapValueType().getJavaClass());
                     }
                 }
 
-            } else if(OpenApiDataType.OBJECT == dataType || fieldType.isEnum()) {
-                DataObject dataObject = new DataObject();
-                dataObject.setJavaType(fieldType, null, projectClassLoader);
-                if(schemaObjects.add(dataObject)){
+            } else if (OpenApiDataType.OBJECT == dataType || fieldType.isEnum()) {
+                DataObject dataObject = new DataObject(fieldType, null);
+                if (schemaObjects.add(dataObject)) {
                     // Inspect the object if it is not already known
-                    inspectObject(dataObject.getJavaType());
+                    inspectObject(dataObject.getJavaClass());
                 }
 
-            } else if(OpenApiDataType.ARRAY == dataType) {
-                DataObject dataObject = new DataObject();
-                if(fieldType.isArray()) {
-                    dataObject.setJavaType(fieldType, null, projectClassLoader);
+            } else if (OpenApiDataType.ARRAY == dataType) {
+                DataObject dataObject;
+                if (fieldType.isArray()) {
+                    dataObject = new DataObject(fieldType, null);
                 } else {
-                    dataObject.setJavaType(fieldType, ((ParameterizedType) field.getGenericType()), projectClassLoader);
+                    dataObject = new DataObject(fieldType, ((ParameterizedType) field.getGenericType()));
                 }
-                if(dataObject.getArrayItemDataObject().getJavaType().isEnum() || OpenApiDataType.OBJECT == dataObject.getArrayItemDataObject().getOpenApiType()){
-                    if(schemaObjects.add((dataObject.getArrayItemDataObject()))) {
-                        inspectObject(dataObject.getArrayItemDataObject().getJavaType());
+                if (dataObject.getArrayItemDataObject().getJavaClass().isEnum()
+                                || OpenApiDataType.OBJECT == dataObject.getArrayItemDataObject().getOpenApiType()) {
+                    if (schemaObjects.add((dataObject.getArrayItemDataObject()))) {
+                        inspectObject(dataObject.getArrayItemDataObject().getJavaClass());
                     }
                     // TODO : Handle nested arrays
                 }

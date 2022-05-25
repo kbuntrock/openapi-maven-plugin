@@ -42,28 +42,28 @@ public enum OpenApiDataType {
         return format;
     }
 
-    public static OpenApiDataType fromJavaType(Class<?> type) {
-        if (Boolean.class == type || Boolean.TYPE == type) {
+    public static OpenApiDataType fromJavaClass(Class<?> clazz) {
+        if (Boolean.class == clazz || Boolean.TYPE == clazz) {
             return BOOLEAN;
-        } else if (Integer.class == type || Integer.TYPE == type) {
+        } else if (Integer.class == clazz || Integer.TYPE == clazz) {
             return INTEGER_32;
-        } else if (Long.class == type || Long.TYPE == type) {
+        } else if (Long.class == clazz || Long.TYPE == clazz) {
             return INTEGER_64;
-        } else if (Float.class == type || Float.TYPE == type) {
+        } else if (Float.class == clazz || Float.TYPE == clazz) {
             return NUMBER_FLOAT;
-        } else if (Double.class == type || Double.TYPE == type) {
+        } else if (Double.class == clazz || Double.TYPE == clazz) {
             return NUMBER_DOUBLE;
-        } else if (String.class == type) {
+        } else if (String.class == clazz) {
             return STRING;
-        } else if (LocalDateTime.class == type || Instant.class == type) {
+        } else if (LocalDateTime.class == clazz || Instant.class == clazz) {
             return STRING_DATE_TIME;
-        } else if (LocalDate.class == type) {
+        } else if (LocalDate.class == clazz) {
             return STRING_DATE;
-        } else if(MultipartFile.class == type) {
+        } else if(MultipartFile.class == clazz) {
             return STRING_BINARY;
-        } else if (type.isArray() || List.class == type || Set.class == type) {
+        } else if (clazz.isArray() || List.class == clazz || Set.class == clazz) {
             return ARRAY;
-        } else if(type.isEnum()) {
+        } else if(clazz.isEnum()) {
             return STRING;
         }
         return OBJECT;

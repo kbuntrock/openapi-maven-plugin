@@ -52,19 +52,15 @@ public class SpringClassAnalyser {
     }
 
     private void parseEndpoints(Tag tag, String basePath, Class<?> clazz) throws MojoFailureException {
+
         Method[] methods = clazz.getMethods();
         for (Method method : methods) {
             Annotation[] annotations = method.getAnnotations();
             for (Annotation annotation : annotations) {
-                RequestMapping requestMapping = null;
-                Annotation realAnnotation = annotation;
-                if (annotation.annotationType() == RequestMapping.class) {
-                    requestMapping = (RequestMapping) annotation;
-                } else if (annotation.annotationType().getAnnotation(RequestMapping.class) != null) {
-                    requestMapping = annotation.annotationType().getAnnotation(RequestMapping.class);
-                }
-                if (requestMapping != null) {
-                    Optional<Endpoint> optEndpoint = readRequestMapping(basePath, requestMapping, realAnnotation);
+
+                Optional<RequestMapping> requestMapping = getRequestMappingAnnotation(annotation);
+                if (requestMapping.isPresent()) {
+                    Optional<Endpoint> optEndpoint = readRequestMapping(basePath, requestMapping.get(), annotation);
                     if (optEndpoint.isPresent()) {
                         Endpoint endpoint = optEndpoint.get();
                         endpoint.setName(method.getName());
@@ -74,7 +70,7 @@ public class SpringClassAnalyser {
                         endpoint.setResponseObject(readResponseObject(method));
                         logger.debug("Parsing endpoint : " + endpoint.getName() + " - response read");
                         endpoint.setResponseCode(readResponseCode(method));
-                        setConsumeProduceProperties(endpoint, realAnnotation);
+                        setConsumeProduceProperties(endpoint, annotation);
                         tag.addEndpoint(endpoint);
                         logger.debug("Parsing endpoint : " + endpoint.getName() + " - the end");
                     }
@@ -82,6 +78,21 @@ public class SpringClassAnalyser {
 
             }
         }
+    }
+
+    /**
+     * The annotation given in parameter can be a "subtype" annotation of RequestMapping (GetMapping, PostMapping, ...)
+     * @param annotation
+     * @return an Optional<RequestMapping>
+     */
+    private Optional<RequestMapping> getRequestMappingAnnotation(Annotation annotation) {
+        RequestMapping requestMapping = null;
+        if (annotation.annotationType() == RequestMapping.class) {
+            requestMapping = (RequestMapping) annotation;
+        } else if (annotation.annotationType().getAnnotation(RequestMapping.class) != null) {
+            requestMapping = annotation.annotationType().getAnnotation(RequestMapping.class);
+        }
+        return Optional.ofNullable(requestMapping);
     }
 
     private List<ParameterObject> readParameters(Method method) {
@@ -92,16 +103,14 @@ public class SpringClassAnalyser {
                 continue;
             }
 
-            ParameterObject paramObj = new ParameterObject();
-            paramObj.setName(parameter.getName());
-
             ParameterizedType parameterizedType = null;
             Type genericReturnType = parameter.getParameterizedType();
             if (genericReturnType instanceof ParameterizedType) {
                 parameterizedType = (ParameterizedType) genericReturnType;
             }
 
-            paramObj.setJavaType(parameter.getType(), parameterizedType, projectClassLoader);
+            ParameterObject paramObj = new ParameterObject(parameter.getType(), parameterizedType);
+            paramObj.setName(parameter.getName());
 
             // Detect if is a path variable
             PathVariable pathAnnotation = parameter.getAnnotation(PathVariable.class);
@@ -118,8 +127,8 @@ public class SpringClassAnalyser {
             // Detect if is a query variable
             RequestParam queryAnnotation = parameter.getAnnotation(RequestParam.class);
             if (queryAnnotation != null) {
-                boolean isMultipartFile = MultipartFile.class == paramObj.getJavaType() ||
-                        (OpenApiDataType.ARRAY == paramObj.getOpenApiType() && MultipartFile.class == paramObj.getArrayItemDataObject().getJavaType());
+                boolean isMultipartFile = MultipartFile.class == paramObj.getJavaClass() ||
+                        (OpenApiDataType.ARRAY == paramObj.getOpenApiType() && MultipartFile.class == paramObj.getArrayItemDataObject().getJavaClass());
                 if (isMultipartFile) {
                     // MultipartFile parameters are considered as a requestBody)
                     paramObj.setLocation(ParameterLocation.BODY);
@@ -165,13 +174,8 @@ public class SpringClassAnalyser {
         if (Void.class == returnType || Void.TYPE == returnType) {
             return null;
         }
-        DataObject dataObject = new DataObject();
-        ParameterizedType parameterizedType = null;
         Type genericReturnType = method.getGenericReturnType();
-        if (genericReturnType instanceof ParameterizedType) {
-            parameterizedType = (ParameterizedType) genericReturnType;
-        }
-        dataObject.setJavaType(returnType, parameterizedType, projectClassLoader);
+        DataObject dataObject = new DataObject(returnType, genericReturnType);
         logger.debug(dataObject.toString());
         return dataObject;
     }

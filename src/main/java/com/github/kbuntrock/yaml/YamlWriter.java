@@ -57,7 +57,7 @@ public class YamlWriter {
 
         specification.setPaths(createPaths(tagLibrary));
 
-        specification.getComponents().put("schemas", createSchemas(tagLibrary));
+        specification.getComponents().put("schemas", createSchemaSection(tagLibrary));
 
         om.writeValue(file, specification);
     }
@@ -92,8 +92,8 @@ public class YamlWriter {
                     parameterElement.setIn(parameter.getLocation().toString().toLowerCase(Locale.ENGLISH));
                     parameterElement.setRequired(parameter.isRequired());
                     Property schema = new Property();
-                    if (parameter.getJavaType().isEnum()) {
-                        schema.setReference(OpenApiConstants.OBJECT_REFERENCE_PREFIX + parameter.getJavaType().getSimpleName());
+                    if (parameter.getJavaClass().isEnum()) {
+                        schema.setReference(OpenApiConstants.OBJECT_REFERENCE_PREFIX + parameter.getJavaClass().getSimpleName());
                     } else {
                         schema.setType(parameter.getOpenApiType().getValue());
                         OpenApiDataFormat format = parameter.getOpenApiType().getFormat();
@@ -165,107 +165,17 @@ public class YamlWriter {
         return paths;
     }
 
-    private Map<String, Schema> createSchemas(TagLibrary library) {
+    private Map<String, Schema> createSchemaSection(TagLibrary library) {
         List<DataObject> ordered = library.getSchemaObjects().stream()
-                .sorted(Comparator.comparing(p -> p.getJavaType().getSimpleName())).collect(Collectors.toList());
+                .sorted(Comparator.comparing(p -> p.getJavaClass().getSimpleName())).collect(Collectors.toList());
 
         // LinkedHashMap to keep alphabetical order
         Map<String, Schema> schemas = new LinkedHashMap<>();
         for (DataObject dataObject : ordered) {
-            Schema schema = new Schema();
-            schemas.put(dataObject.getJavaType().getSimpleName(), schema);
-            schema.setType(dataObject.getOpenApiType().getValue());
-
-            // LinkedHashMap to keep the order of the class
-            Map<String, Property> properties = new LinkedHashMap<>();
-            schema.setProperties(properties);
-
-            List<Field> fields = ReflexionUtils.getAllNonStaticFields(new ArrayList<>(), dataObject.getJavaType());
-            if (!fields.isEmpty() && !dataObject.getJavaType().isEnum()) {
-
-                for (Field field : fields) {
-                    Property property = new Property();
-                    property.setName(field.getName());
-                    OpenApiDataType openApiDataType = OpenApiDataType.fromJavaType(field.getType());
-                    if(field.getType().isAssignableFrom(Map.class)) {
-                        property.setType(openApiDataType.getValue());
-                        property.setAdditionalProperties(extractMapValueType(field));
-                    } else if(OpenApiDataType.OBJECT == openApiDataType) {
-                        property.setReference(OpenApiConstants.OBJECT_REFERENCE_PREFIX + field.getType().getSimpleName());
-                    } else {
-                        property.setType(openApiDataType.getValue());
-                        OpenApiDataFormat format = openApiDataType.getFormat();
-                        if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
-                            property.setFormat(format.getValue());
-                        }
-                        if (OpenApiDataType.ARRAY == openApiDataType) {
-                            extractArrayType(field, property);
-                        }
-                    }
-
-                    extractConstraints(field, property);
-                    properties.put(property.getName(), property);
-
-                }
-            }
-
-            List<String> enumItemValues = dataObject.getEnumItemValues();
-            if (enumItemValues != null && !enumItemValues.isEmpty()) {
-                schema.setEnumValues(enumItemValues);
-            }
-
-            schema.setRequired(schema.getProperties().values().stream()
-                    .filter(Property::isRequired).map(Property::getName).collect(Collectors.toList()));
+            Schema schema = new Schema(dataObject);
+            schemas.put(dataObject.getJavaClass().getSimpleName(), schema);
         }
         return schemas;
-    }
-
-    private Property extractMapValueType(Field field) {
-        Property additionalProperty = new Property();
-        DataObject dataObject = new DataObject();
-        dataObject.setJavaType(field.getType(),  ((ParameterizedType) field.getGenericType()), projectClassLoader);
-        if(dataObject.getMapValueType().isPureObject()) {
-            additionalProperty.setReference(OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getMapValueType().getJavaType().getSimpleName());
-        } else {
-            additionalProperty.setType(dataObject.getMapValueType().getOpenApiType().getValue());
-            OpenApiDataFormat format = dataObject.getMapValueType().getOpenApiType().getFormat();
-            if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
-                additionalProperty.setFormat(format.getValue());
-            }
-        }
-        return additionalProperty;
-    }
-
-    private void extractArrayType(Field field, Property property) {
-        property.setUniqueItems(true);
-        DataObject item = new DataObject();
-        if (field.getType().isArray()) {
-            item.setJavaType(field.getType(), null, projectClassLoader);
-        } else {
-            item.setJavaType(field.getType(), ((ParameterizedType) field.getGenericType()), projectClassLoader);
-        }
-        Map<String, String> items = new LinkedHashMap<>();
-        if (item.getArrayItemDataObject().getJavaType().isEnum() || item.getArrayItemDataObject().getOpenApiType() == OpenApiDataType.OBJECT) {
-            items.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, OpenApiConstants.OBJECT_REFERENCE_PREFIX + item.getArrayItemDataObject().getJavaType().getSimpleName());
-        } else {
-            items.put(OpenApiConstants.TYPE, item.getArrayItemDataObject().getOpenApiType().getValue());
-        }
-        property.setItems(items);
-    }
-
-    private void extractConstraints(Field field, Property property) {
-        Size size = field.getAnnotation(Size.class);
-        if (size != null) {
-            property.setMinLength(size.min());
-            if (size.max() != Integer.MAX_VALUE) {
-                property.setMaxLength(size.max());
-            }
-        }
-
-        NotNull notNull = field.getAnnotation(NotNull.class);
-        if (notNull != null) {
-            property.setRequired(true);
-        }
     }
 }
 
