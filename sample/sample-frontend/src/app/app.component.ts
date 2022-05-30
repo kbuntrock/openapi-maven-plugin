@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { UserGroupDto } from './generated/models';
 import { UserDto } from './generated/models/user-dto';
-import { EnumPlaytestControllerService, MapPlaytestControllerService, TimeControllerService, UserControllerService } from './generated/services';
+import { EnumPlaytestControllerService, GenericControllerService, MapPlaytestControllerService, TimeControllerService, UserControllerService } from './generated/services';
 import * as dayjs from 'dayjs';
 import { Dayjs } from 'dayjs';
 import * as customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -20,12 +20,13 @@ export class AppComponent {
 
   result: string[] = ["Awaiting webservice request"];
 
-  compteur: number = 18;
+  compteur: number = 0;
 
   constructor(private readonly userControllerService: UserControllerService, 
     private readonly enumPlaytestControllerService: EnumPlaytestControllerService,
     private readonly mapPlaytestControllerService: MapPlaytestControllerService,
-    private readonly timeControllerService: TimeControllerService) {
+    private readonly timeControllerService: TimeControllerService,
+    private readonly genericControllerService: GenericControllerService) {
       dayjs.extend(utc);
   }
 
@@ -152,6 +153,28 @@ export class AppComponent {
         break; 
       }
       case 24: {   
+        this.displayResponse(await this.genericControllerService.setAccountPage({
+          body: {
+            content: [this.createUser(), this.createUser()],
+            hasNext: false,
+            totalElements: 2,
+            totalPages: 1
+          }
+        })); 
+        break; 
+      } case 25: {   
+        this.displayResponse(await this.genericControllerService.setTimePage({
+          body: {
+            content: [ {
+              date: dayjs.utc().format('YYYY-MM-DD')
+            }, {
+              dateTime: dayjs.utc().toISOString()
+            }],
+            hasNext: false,
+            totalElements: 2,
+            totalPages: 1
+          }
+        })); 
         break; 
       }
     }

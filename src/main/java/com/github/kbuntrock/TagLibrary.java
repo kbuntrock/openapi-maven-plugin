@@ -10,6 +10,7 @@ import org.apache.maven.plugin.MojoFailureException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 
 public class TagLibrary {
@@ -41,6 +42,14 @@ public class TagLibrary {
                     if (schemaObjects.add(responseObject)) {
                         inspectObject(responseObject.getJavaClass());
                     }
+                } else if (responseObject.isPureObject() && responseObject.isGenericallyTyped()) {
+                    // Eventually analyse instead the generic types
+                    for (Map.Entry<String, Class<?>> entry : responseObject.getGenericNameToClassMap().entrySet()) {
+                        DataObject genericObject = new DataObject(entry.getValue(), entry.getValue());
+                        if (schemaObjects.add(genericObject)) {
+                            inspectObject(genericObject.getJavaClass());
+                        }
+                    }
                 } else if (responseObject.isMap()) {
                     if (responseObject.getMapKeyType().isPureObject() && !responseObject.getMapKeyType().isGenericallyTyped()
                             && schemaObjects.add(responseObject.getMapKeyType())) {
@@ -63,6 +72,14 @@ public class TagLibrary {
                 if (parameterObject.isPureObject() && !parameterObject.isGenericallyTyped()) {
                     if (schemaObjects.add(parameterObject)) {
                         inspectObject(parameterObject.getJavaClass());
+                    }
+                } else if (parameterObject.isPureObject() && parameterObject.isGenericallyTyped()) {
+                    // Eventually analyse instead the generic types
+                    for (Map.Entry<String, Class<?>> entry : parameterObject.getGenericNameToClassMap().entrySet()) {
+                        DataObject genericObject = new DataObject(entry.getValue(), entry.getValue());
+                        if (schemaObjects.add(genericObject)) {
+                            inspectObject(genericObject.getJavaClass());
+                        }
                     }
                 } else if (parameterObject.isMap()) {
                     if (parameterObject.getMapKeyType().isPureObject() && !parameterObject.getMapKeyType().isGenericallyTyped()
@@ -115,7 +132,7 @@ public class TagLibrary {
                     dataObject = new DataObject(fieldType, ((ParameterizedType) field.getGenericType()));
                 }
                 if (dataObject.getArrayItemDataObject().getJavaClass().isEnum()
-                                || OpenApiDataType.OBJECT == dataObject.getArrayItemDataObject().getOpenApiType()) {
+                        || OpenApiDataType.OBJECT == dataObject.getArrayItemDataObject().getOpenApiType()) {
                     if (schemaObjects.add((dataObject.getArrayItemDataObject()))) {
                         inspectObject(dataObject.getArrayItemDataObject().getJavaClass());
                     }

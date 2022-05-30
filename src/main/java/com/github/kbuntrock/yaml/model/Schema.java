@@ -1,5 +1,6 @@
 package com.github.kbuntrock.yaml.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.kbuntrock.model.DataObject;
@@ -9,10 +10,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -20,58 +18,123 @@ public class Schema {
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<String> required;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String type;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private String format;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Map<String, Property> properties;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     @JsonProperty("enum")
     private List<String> enumValues;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    Map<String, Object> additionalProperties;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @JsonProperty(OpenApiConstants.OBJECT_REFERENCE_DECLARATION)
+    private String reference;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private Map<String, String> items;
+
+    /**
+     * If true, we cannot reference the main object (we are using this object is the "schemas" section).
+     */
+    @JsonIgnore
+    private boolean mainReference = false;
+
 
     public Schema() {
     }
 
     public Schema(DataObject dataObject) {
-        type = dataObject.getOpenApiType().getValue();
+        this(dataObject, false);
+    }
 
-        // LinkedHashMap to keep the order of the class
-        properties = new LinkedHashMap<>();
+    public Schema(DataObject dataObject, boolean mainReference) {
 
-        List<Field> fields = ReflexionUtils.getAllNonStaticFields(new ArrayList<>(), dataObject.getJavaClass());
-        if (!fields.isEmpty() && !dataObject.getJavaClass().isEnum()) {
+        this.mainReference = mainReference;
 
-            for (Field field : fields) {
-                Property property = new Property();
-                property.setName(field.getName());
-                OpenApiDataType openApiDataType = OpenApiDataType.fromJavaClass(field.getType());
-                if (field.getType().isAssignableFrom(Map.class)) {
-                    property.setType(openApiDataType.getValue());
-                    property.setAdditionalProperties(extractMapValueType(field));
-                } else if (OpenApiDataType.OBJECT == openApiDataType) {
-                    property.setReference(OpenApiConstants.OBJECT_REFERENCE_PREFIX + field.getType().getSimpleName());
-                } else {
-                    property.setType(openApiDataType.getValue());
-                    OpenApiDataFormat format = openApiDataType.getFormat();
-                    if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
-                        property.setFormat(format.getValue());
-                    }
-                    if (OpenApiDataType.ARRAY == openApiDataType) {
-                        extractArrayType(field, property, dataObject);
-                    }
+        if (dataObject == null) {
+            return;
+        }
+        if (dataObject.isMap()) {
+            type = dataObject.getOpenApiType().getValue();
+            additionalProperties = new LinkedHashMap<>();
+            if (dataObject.getMapValueType().isPureObject()) {
+                additionalProperties.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getMapValueType().getJavaClass().getSimpleName());
+            } else {
+                additionalProperties.put(OpenApiConstants.TYPE, dataObject.getMapValueType().getOpenApiType().getValue());
+                OpenApiDataFormat format = dataObject.getMapValueType().getOpenApiType().getFormat();
+                if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
+                    additionalProperties.put(OpenApiConstants.FORMAT, format.getValue());
                 }
-
-                extractConstraints(field, property);
-                properties.put(property.getName(), property);
-
             }
-        }
+        } else if (!mainReference && (dataObject.isEnum() || (dataObject.isPureObject() && !dataObject.isGenericallyTyped()))) {
+            reference = OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getJavaClass().getSimpleName();
+        } else if(OpenApiDataType.ARRAY == dataObject.getOpenApiType()) {
 
-        List<String> enumItemValues = dataObject.getEnumItemValues();
-        if (enumItemValues != null && !enumItemValues.isEmpty()) {
-            enumValues = enumItemValues;
-        }
+            type = dataObject.getOpenApiType().getValue();
+            OpenApiDataType itemType = dataObject.getArrayItemDataObject().getOpenApiType();
+            items = new LinkedHashMap<>();
+            if (OpenApiDataFormat.NONE != itemType.getFormat() && OpenApiDataFormat.UNKNOWN != itemType.getFormat()) {
+                items.put(OpenApiConstants.TYPE, itemType.getValue());
+                items.put(OpenApiConstants.FORMAT, itemType.getFormat().getValue());
+            } else if (dataObject.getArrayItemDataObject().isPureObject() || dataObject.getArrayItemDataObject().isEnum()) {
+                items.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getArrayItemDataObject().getJavaClass().getSimpleName());
+            }
 
-        required = properties.values().stream()
-                .filter(Property::isRequired).map(Property::getName).collect(Collectors.toList());
+        } else if(!dataObject.isPureObject()) {
+            type = dataObject.getOpenApiType().getValue();
+            OpenApiDataFormat openApiDataFormat = dataObject.getOpenApiType().getFormat();
+            if (OpenApiDataFormat.NONE != openApiDataFormat && OpenApiDataFormat.UNKNOWN != openApiDataFormat) {
+                this.format = openApiDataFormat.getValue();
+            }
+        } else if (dataObject.isPureObject()) {
+
+            type = dataObject.getOpenApiType().getValue();
+
+            // LinkedHashMap to keep the order of the class
+            properties = new LinkedHashMap<>();
+
+            List<Field> fields = ReflexionUtils.getAllNonStaticFields(new ArrayList<>(), dataObject.getJavaClass());
+            if (!fields.isEmpty() && !dataObject.getJavaClass().isEnum()) {
+
+                for (Field field : fields) {
+                    Property property = new Property();
+                    property.setName(field.getName());
+                    OpenApiDataType openApiDataType = OpenApiDataType.fromJavaClass(field.getType());
+                    if (field.getType().isAssignableFrom(Map.class)) {
+                        property.setType(openApiDataType.getValue());
+                        property.setAdditionalProperties(extractMapValueType(field));
+                    } else if (OpenApiDataType.OBJECT == openApiDataType || field.getType().isEnum()) {
+                        property.setReference(OpenApiConstants.OBJECT_REFERENCE_PREFIX + field.getType().getSimpleName());
+                    } else {
+                        property.setType(openApiDataType.getValue());
+                        OpenApiDataFormat format = openApiDataType.getFormat();
+                        if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
+                            property.setFormat(format.getValue());
+                        }
+                        if (OpenApiDataType.ARRAY == openApiDataType) {
+                            extractArrayType(field, property, dataObject);
+                        }
+                    }
+
+                    extractConstraints(field, property);
+                    properties.put(property.getName(), property);
+
+                }
+            }
+
+            List<String> enumItemValues = dataObject.getEnumItemValues();
+            if (enumItemValues != null && !enumItemValues.isEmpty()) {
+                enumValues = enumItemValues;
+            }
+
+            required = properties.values().stream()
+                    .filter(Property::isRequired).map(Property::getName).collect(Collectors.toList());
+
+        } else {
+            // TODO : log impossibilité
+        }
     }
 
     private Property extractMapValueType(Field field) {
@@ -126,6 +189,8 @@ public class Schema {
                 }
             }
             return substitution;
+        } else if(field.getGenericType() instanceof ParameterizedType){
+            return (ParameterizedType) field.getGenericType();
         }
         return null;
     }
@@ -175,5 +240,37 @@ public class Schema {
 
     public void setEnumValues(List<String> enumValues) {
         this.enumValues = enumValues;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+    public Map<String, Object> getAdditionalProperties() {
+        return additionalProperties;
+    }
+
+    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+        this.additionalProperties = additionalProperties;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public void setReference(String reference) {
+        this.reference = reference;
+    }
+
+    public Map<String, String> getItems() {
+        return items;
+    }
+
+    public void setItems(Map<String, String> items) {
+        this.items = items;
     }
 }

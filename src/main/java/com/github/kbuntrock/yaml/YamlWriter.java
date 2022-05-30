@@ -14,12 +14,8 @@ import com.github.kbuntrock.yaml.model.*;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -65,6 +61,8 @@ public class YamlWriter {
     private Map<String, Map<String, Operation>> createPaths(TagLibrary tagLibrary) {
         Map<String, Map<String, Operation>> paths = new LinkedHashMap<>();
 
+        Set<String> operationIds = new HashSet<>();
+
         for (Tag tag : tagLibrary.getTags()) {
 
             // List of operations, which will be sorted before storing them by path. In order to keep a deterministic generation.
@@ -79,6 +77,17 @@ public class YamlWriter {
                 operation.setPath(endpoint.getPath());
                 operation.getTags().add(tag.computeConfiguredName(apiConfiguration));
                 operation.setOperationId(endpoint.computeConfiguredName(apiConfiguration));
+
+                // Warning on paths
+                if (!operation.getPath().startsWith("/")) {
+                    Logger.INSTANCE.getLogger().warn("Operation " + operation.getOperationId()
+                            + " path should start with a \"/\" (" + operation.getPath() + ")");
+                }
+                // Warning on operation Ids
+                if (!operationIds.add(operation.getOperationId())) {
+                    Logger.INSTANCE.getLogger().warn("Operation id \"" +
+                            operation.getOperationId() + "\" (" + tag.getName() + ") should be unique");
+                }
 
                 // -------------------------
                 // ----- PARAMETERS part----
@@ -172,7 +181,7 @@ public class YamlWriter {
         // LinkedHashMap to keep alphabetical order
         Map<String, Schema> schemas = new LinkedHashMap<>();
         for (DataObject dataObject : ordered) {
-            Schema schema = new Schema(dataObject);
+            Schema schema = new Schema(dataObject, true);
             schemas.put(dataObject.getJavaClass().getSimpleName(), schema);
         }
         return schemas;
