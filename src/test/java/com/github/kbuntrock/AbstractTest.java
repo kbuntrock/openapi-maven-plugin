@@ -1,16 +1,18 @@
 package com.github.kbuntrock;
 
+import com.github.kbuntrock.reflection.ReflectionsUtils;
 import com.github.kbuntrock.utils.Logger;
 import org.apache.maven.plugin.logging.Log;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeAll;
 
 public class AbstractTest {
 
     private static final Log testLogger = new TestLogger();
 
-    @Before
-    public void init() {
+    @BeforeAll
+    public static void init() {
         Logger.INSTANCE.setLogger(testLogger);
+        ReflectionsUtils.initiateTestMode();
     }
 
     public static class TestLogger implements Log {

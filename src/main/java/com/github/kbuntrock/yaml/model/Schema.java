@@ -4,12 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.kbuntrock.model.DataObject;
-import com.github.kbuntrock.utils.*;
+import com.github.kbuntrock.reflection.GenericArrayTypeImpl;
+import com.github.kbuntrock.reflection.ParameterizedTypeImpl;
+import com.github.kbuntrock.reflection.ReflectionsUtils;
+import com.github.kbuntrock.utils.OpenApiConstants;
+import com.github.kbuntrock.utils.OpenApiDataFormat;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,14 +68,14 @@ public class Schema {
             type = dataObject.getOpenApiType().getValue();
             additionalProperties = new Schema(dataObject.getMapValueType());
 
-        } else if (dataObject.isArray()) {
+        } else if (dataObject.isOpenApiArray()) {
             type = dataObject.getOpenApiType().getValue();
             items = new Schema(dataObject.getArrayItemDataObject());
 
         } else if (!mainReference && dataObject.isReferenceObject()) {
             reference = OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getJavaClass().getSimpleName();
 
-        } else if (mainReference && dataObject.isReferenceObject()) {
+        } else if ((mainReference && dataObject.isReferenceObject() || dataObject.isGenericallyTypedObject())) {
 
             type = dataObject.getOpenApiType().getValue();
 
@@ -80,25 +86,9 @@ public class Schema {
             if (!fields.isEmpty() && !dataObject.isEnum()) {
 
                 for (Field field : fields) {
-                    Property property = new Property();
-                    property.setName(field.getName());
-                    OpenApiDataType openApiDataType = OpenApiDataType.fromJavaClass(field.getType());
-                    if (Map.class.isAssignableFrom(field.getType())) {
-                        property.setType(openApiDataType.getValue());
-                        property.setAdditionalProperties(extractMapValueType(field));
-                    } else if (OpenApiDataType.OBJECT == openApiDataType || field.getType().isEnum()) {
-                        property.setReference(OpenApiConstants.OBJECT_REFERENCE_PREFIX + field.getType().getSimpleName());
-                    } else {
-                        property.setType(openApiDataType.getValue());
-                        OpenApiDataFormat format = openApiDataType.getFormat();
-                        if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
-                            property.setFormat(format.getValue());
-                        }
-                        if (OpenApiDataType.ARRAY == openApiDataType) {
-                            extractArrayType(field, property, dataObject);
-                        }
-                    }
 
+                    DataObject propertyObject = new DataObject(getContextualType(field, dataObject));
+                    Property property = new Property(propertyObject, false, field.getName());
                     extractConstraints(field, property);
                     properties.put(property.getName(), property);
 
@@ -114,75 +104,84 @@ public class Schema {
                     .filter(Property::isRequired).map(Property::getName).collect(Collectors.toList());
 
 
-        } else if (!dataObject.isReferenceObject()) {
+        } else {
             type = dataObject.getOpenApiType().getValue();
             OpenApiDataFormat openApiDataFormat = dataObject.getOpenApiType().getFormat();
             if (OpenApiDataFormat.NONE != openApiDataFormat && OpenApiDataFormat.UNKNOWN != openApiDataFormat) {
                 this.format = openApiDataFormat.getValue();
             }
-        } else if (dataObject.isReferenceObject()) {
-
-        } else {
-            // TODO : log impossibilité
         }
     }
 
     private Property extractMapValueType(Field field) {
         Property additionalProperty = new Property();
-        DataObject dataObject = new DataObject(field.getType(), ((ParameterizedType) field.getGenericType()));
-        if (dataObject.getMapValueType().isReferenceObject()) {
-            additionalProperty.setReference(OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getMapValueType().getJavaClass().getSimpleName());
-        } else {
-            additionalProperty.setType(dataObject.getMapValueType().getOpenApiType().getValue());
-            OpenApiDataFormat format = dataObject.getMapValueType().getOpenApiType().getFormat();
-            if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
-                additionalProperty.setFormat(format.getValue());
-            }
-        }
+        // TODO : à faire!!!
+//        DataObject dataObject = new DataObject(field.getType(), ((ParameterizedType) field.getGenericType()));
+//        if (dataObject.getMapValueType().isReferenceObject()) {
+//            additionalProperty.setReference(OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getMapValueType().getJavaClass().getSimpleName());
+//        } else {
+//            additionalProperty.setType(dataObject.getMapValueType().getOpenApiType().getValue());
+//            OpenApiDataFormat format = dataObject.getMapValueType().getOpenApiType().getFormat();
+//            if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
+//                additionalProperty.setFormat(format.getValue());
+//            }
+//        }
         return additionalProperty;
     }
 
     private void extractArrayType(Field field, Property property, DataObject source) {
         property.setUniqueItems(true);
-        DataObject item;
-
-        if (field.getType().isArray()) {
-            item = new DataObject(field.getType(), null);
-        } else {
-            item = new DataObject(field.getType(), getContextualParameterizedType(field, source));
-        }
-        Map<String, String> items = new LinkedHashMap<>();
-        if (item.getArrayItemDataObject().getJavaClass().isEnum() || item.getArrayItemDataObject().isReferenceObject()) {
-            items.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, OpenApiConstants.OBJECT_REFERENCE_PREFIX + item.getArrayItemDataObject().getJavaClass().getSimpleName());
-        } else {
-            items.put(OpenApiConstants.TYPE, item.getArrayItemDataObject().getOpenApiType().getValue());
-        }
-        //property.setItems(items);
+//        DataObject item;
+//
+//        if (field.getType().isArray()) {
+//            item = new DataObject(field.getType(), null);
+//        } else {
+//            item = new DataObject(field.getType(), getContextualParameterizedType(field, source));
+//        }
+//        Map<String, String> items = new LinkedHashMap<>();
+//        if (item.getArrayItemDataObject().getJavaClass().isEnum() || item.getArrayItemDataObject().isReferenceObject()) {
+//            items.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, OpenApiConstants.OBJECT_REFERENCE_PREFIX + item.getArrayItemDataObject().getJavaClass().getSimpleName());
+//        } else {
+//            items.put(OpenApiConstants.TYPE, item.getArrayItemDataObject().getOpenApiType().getValue());
+//        }
     }
 
     /**
-     * Get the parameterized Type, or the parameterized contextual one if the default is a generic.
+     * Get the type, or the parameterized contextual one if the default is a generic.
      *
      * @param field  field in the source dataObject
      * @param source source dataObject
-     * @return a ParameterizedType
+     * @return a tyoe
      */
-    private ParameterizedType getContextualParameterizedType(final Field field, final DataObject source) {
-        if (source.isGenericallyTyped() && field.getGenericType() instanceof ParameterizedType) {
+    private Type getContextualType(final Field field, final DataObject source) {
+
+        if (source.isGenericallyTyped()) {
             // It is possible that we will not substitute anything. In that cas, the substitution parameterized type
             // will be equivalent to the source one.
-            ParameterizedTypeImpl substitution = new ParameterizedTypeImpl(((ParameterizedType) field.getGenericType()));
-            for (int i = 0; i < substitution.getActualTypeArguments().length; i++) {
-                if (source.getGenericNameToClassMap().containsKey(substitution.getActualTypeArguments()[i].getTypeName())) {
-                    substitution.getActualTypeArguments()[i] =
-                            source.getGenericNameToClassMap().get(substitution.getActualTypeArguments()[i].getTypeName());
-                }
+            if (field.getGenericType() instanceof ParameterizedType) {
+
+                ParameterizedTypeImpl substitution = new ParameterizedTypeImpl(((ParameterizedType) field.getGenericType()));
+                doContextualSubstitution(substitution, source);
+                return substitution;
+
+            } else if (field.getGenericType() instanceof GenericArrayType && ((GenericArrayType) field.getGenericType()).getGenericComponentType() instanceof ParameterizedType) {
+                ParameterizedTypeImpl substitution = new ParameterizedTypeImpl(
+                        (ParameterizedType) ((GenericArrayType) field.getGenericType()).getGenericComponentType());
+                doContextualSubstitution(substitution, source);
+                GenericArrayType substitionArrayType = new GenericArrayTypeImpl(substitution);
+                return substitionArrayType;
             }
-            return substitution;
-        } else if (field.getGenericType() instanceof ParameterizedType) {
-            return (ParameterizedType) field.getGenericType();
         }
-        return null;
+        return field.getGenericType();
+    }
+
+    private void doContextualSubstitution(ParameterizedTypeImpl substitution, DataObject source) {
+        for (int i = 0; i < substitution.getActualTypeArguments().length; i++) {
+            if (source.getGenericNameToTypeMap().containsKey(substitution.getActualTypeArguments()[i].getTypeName())) {
+                substitution.getActualTypeArguments()[i] =
+                        source.getGenericNameToTypeMap().get(substitution.getActualTypeArguments()[i].getTypeName());
+            }
+        }
     }
 
     private void extractConstraints(Field field, Property property) {

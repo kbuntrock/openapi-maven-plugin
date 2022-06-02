@@ -2,8 +2,10 @@ package com.github.kbuntrock.resources.endpoint.generic;
 
 import com.github.kbuntrock.resources.Constants;
 import com.github.kbuntrock.resources.dto.AccountDto;
-import org.springframework.web.bind.annotation.GetMapping;
+import com.github.kbuntrock.resources.dto.PageDto;
+import com.github.kbuntrock.resources.dto.TimeDto;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -13,8 +15,9 @@ import java.util.Map;
 @RequestMapping(Constants.BASE_API + "/generic")
 public interface GenericityController {
 
-    @GetMapping("/account-page")
-    boolean getAccountsPage(@RequestBody List<Map<Long, List<AccountDto[]>[]>[]> test);
+    // TODO: TypeImpl. Puis Tester avec Parameterized Type Impl
+    @PostMapping("/account-page")
+    PageDto<AccountDto> getAccountsPage(@RequestBody TimeDto timeDto);
 //
 //    @GetMapping("/time-page")
 //    PageDto<TimeDto> getTimePage();

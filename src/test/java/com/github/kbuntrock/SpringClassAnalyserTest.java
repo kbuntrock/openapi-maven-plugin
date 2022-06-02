@@ -3,14 +3,14 @@ package com.github.kbuntrock;
 import com.github.kbuntrock.configuration.ApiConfiguration;
 import com.github.kbuntrock.javadoc.JavadocParser;
 import com.github.kbuntrock.model.Tag;
+import com.github.kbuntrock.reflection.ReflectionsUtils;
 import com.github.kbuntrock.resources.endpoint.AccountController;
 import com.github.kbuntrock.resources.endpoint.generic.GenericityController;
-import com.github.kbuntrock.utils.ReflectionsUtils;
 import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +19,7 @@ import java.util.Optional;
 
 public class SpringClassAnalyserTest extends AbstractTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void initTest() {
         ReflectionsUtils.initiateTestMode();
     }
@@ -30,7 +30,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
         ReflectionsUtils.initiateTestMode();
         List<String> apiLocations = List.of("com.github.kbuntrock.resources.endpoint");
         ClassLoader projectClassLoader = GenericityController.class.getClassLoader();
-        SpringResourceParser parser = new SpringResourceParser(projectClassLoader, apiLocations, true);
+        SpringResourceParser parser = new SpringResourceParser(apiLocations);
         TagLibrary tagLibrary = parser.scanRestControllers();
 
         MavenProject mavenProject = new MavenProject();
@@ -52,7 +52,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
         mavenProject.setName("Mon super projet");
         mavenProject.setVersion("2.5.9-SNAPSHOT");
         ClassLoader projectClassLoader = AccountController.class.getClassLoader();
-        SpringClassAnalyser analyser = new SpringClassAnalyser(projectClassLoader);
+        SpringClassAnalyser analyser = new SpringClassAnalyser();
         Optional<Tag> tag = analyser.getTagFromClass(GenericityController.class);
         TagLibrary library = new TagLibrary();
         library.addTag(tag.get());

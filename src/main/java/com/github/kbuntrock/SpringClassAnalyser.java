@@ -13,7 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,12 +23,6 @@ import java.util.Optional;
 public class SpringClassAnalyser {
 
     private final Log logger = Logger.INSTANCE.getLogger();
-
-    private final ClassLoader projectClassLoader;
-
-    public SpringClassAnalyser(ClassLoader projectClassLoader) {
-        this.projectClassLoader = projectClassLoader;
-    }
 
     /**
      * Create a Tag from a java class containing REST mapping functions
@@ -111,13 +107,7 @@ public class SpringClassAnalyser {
                 continue;
             }
 
-            ParameterizedType parameterizedType = null;
-            Type genericReturnType = parameter.getParameterizedType();
-            if (genericReturnType instanceof ParameterizedType) {
-                parameterizedType = (ParameterizedType) genericReturnType;
-            }
-
-            ParameterObject paramObj = new ParameterObject(parameter.getType(), parameterizedType);
+            ParameterObject paramObj = new ParameterObject(parameter.getParameterizedType());
             paramObj.setName(parameter.getName());
 
             // Detect if is a path variable
@@ -182,8 +172,7 @@ public class SpringClassAnalyser {
         if (Void.class == returnType || Void.TYPE == returnType) {
             return null;
         }
-        Type genericReturnType = method.getGenericReturnType();
-        DataObject dataObject = new DataObject(genericReturnType);
+        DataObject dataObject = new DataObject(method.getGenericReturnType());
         logger.debug(dataObject.toString());
         return dataObject;
     }

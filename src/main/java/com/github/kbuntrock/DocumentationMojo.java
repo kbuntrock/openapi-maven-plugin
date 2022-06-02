@@ -2,8 +2,8 @@ package com.github.kbuntrock;
 
 
 import com.github.kbuntrock.configuration.ApiConfiguration;
+import com.github.kbuntrock.reflection.ReflectionsUtils;
 import com.github.kbuntrock.utils.Logger;
-import com.github.kbuntrock.utils.ReflectionsUtils;
 import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
@@ -75,7 +75,7 @@ public class DocumentationMojo extends AbstractMojo {
         ReflectionsUtils.initiate(projectClassLoader);
 
         for (ApiConfiguration apiConfiguration : apis) {
-            SpringResourceParser springResourceParser = new SpringResourceParser(projectClassLoader, apiConfiguration.getLocations());
+            SpringResourceParser springResourceParser = new SpringResourceParser(apiConfiguration.getLocations());
             getLog().debug("Prepare to scan");
             TagLibrary tagLibrary = springResourceParser.scanRestControllers();
             getLog().debug("Scan done");

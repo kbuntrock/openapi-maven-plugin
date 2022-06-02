@@ -1,4 +1,4 @@
-package com.github.kbuntrock.utils;
+package com.github.kbuntrock.reflection;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -8,9 +8,9 @@ import java.lang.reflect.Type;
  */
 public class ParameterizedTypeImpl implements ParameterizedType {
 
-    Type[] actualTypeArguments;
-    Type rawType;
-    Type ownerType;
+    private Type[] actualTypeArguments;
+    private Type rawType;
+    private Type ownerType;
 
     public ParameterizedTypeImpl(ParameterizedType parameterizedType) {
         this.actualTypeArguments = parameterizedType.getActualTypeArguments();

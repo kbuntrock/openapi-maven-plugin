@@ -4,7 +4,7 @@ import com.github.kbuntrock.model.DataObject;
 import com.github.kbuntrock.model.Endpoint;
 import com.github.kbuntrock.model.ParameterObject;
 import com.github.kbuntrock.model.Tag;
-import com.github.kbuntrock.utils.ReflectionsUtils;
+import com.github.kbuntrock.reflection.ReflectionsUtils;
 import org.apache.maven.plugin.MojoFailureException;
 
 import java.lang.reflect.Field;
@@ -54,7 +54,7 @@ public class TagLibrary {
             // Eventually analyse instead the generic types
             for (Map.Entry<String, Type> entry : dataObject.getGenericNameToTypeMap().entrySet()) {
 
-                DataObject genericObject = DataObject.create(entry.getValue());
+                DataObject genericObject = new DataObject(entry.getValue());
                 exploreDataObject(genericObject);
             }
         } else if (dataObject.isJavaArray()) {
@@ -68,7 +68,7 @@ public class TagLibrary {
         }
         List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), clazz);
         for (Field field : fields) {
-            DataObject dataObject = new DataObject(field.getType(), field.getGenericType());
+            DataObject dataObject = new DataObject(field.getGenericType());
             exploreDataObject(dataObject);
         }
     }

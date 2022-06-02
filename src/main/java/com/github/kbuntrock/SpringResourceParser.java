@@ -1,8 +1,8 @@
 package com.github.kbuntrock;
 
 import com.github.kbuntrock.model.Tag;
+import com.github.kbuntrock.reflection.ReflectionsUtils;
 import com.github.kbuntrock.utils.Logger;
-import com.github.kbuntrock.utils.ReflectionsUtils;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.reflections.Reflections;
@@ -22,18 +22,9 @@ public class SpringResourceParser {
 
     private final List<String> apiLocations;
 
-    private final ClassLoader projectClassLoader;
 
-    private final boolean test;
-
-    public SpringResourceParser(ClassLoader projectClassLoader, List<String> apiLocations) {
-        this(projectClassLoader, apiLocations, false);
-    }
-
-    public SpringResourceParser(ClassLoader projectClassLoader, List<String> apiLocations, boolean test) {
+    public SpringResourceParser(List<String> apiLocations) {
         this.apiLocations = apiLocations;
-        this.projectClassLoader = projectClassLoader;
-        this.test = test;
     }
 
     public TagLibrary scanRestControllers() throws MojoFailureException {
@@ -49,8 +40,8 @@ public class SpringResourceParser {
 
 
             // Find directly or inheritedly annotated by RequestMapping classes.
-            Set<Class<?>> classes = reflections.get(TypesAnnotated.with(RequestMapping.class).asClass(projectClassLoader));
-            SpringClassAnalyser springClassAnalyser = new SpringClassAnalyser(projectClassLoader);
+            Set<Class<?>> classes = reflections.get(TypesAnnotated.with(RequestMapping.class).asClass(ReflectionsUtils.getProjectClassLoader()));
+            SpringClassAnalyser springClassAnalyser = new SpringClassAnalyser();
             for (Class clazz : classes) {
                 Optional<Tag> optTag = springClassAnalyser.getTagFromClass(clazz);
                 if (optTag.isPresent()) {

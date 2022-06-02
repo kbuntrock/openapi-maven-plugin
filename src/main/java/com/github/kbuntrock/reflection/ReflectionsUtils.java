@@ -1,4 +1,4 @@
-package com.github.kbuntrock.utils;
+package com.github.kbuntrock.reflection;
 
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
@@ -34,18 +34,18 @@ public final class ReflectionsUtils {
     }
 
     public static ClassLoader getProjectClassLoader() {
-        if(!initiated) {
+        if (!initiated) {
             throw new RuntimeException("ReflectionsUtils has not been initiated.");
         }
         return ReflectionsUtils.projectClassLoader;
     }
 
     public static ConfigurationBuilder getConfigurationBuilder() {
-        if(!initiated) {
+        if (!initiated) {
             throw new RuntimeException("ReflectionsUtils has not been initiated.");
         }
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-        if(testMode) {
+        if (testMode) {
             configurationBuilder.forPackage("com.github.kbuntrock");
         } else {
             configurationBuilder.addClassLoaders(projectClassLoader)

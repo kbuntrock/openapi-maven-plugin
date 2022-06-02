@@ -2,6 +2,7 @@ package com.github.kbuntrock.yaml.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.github.kbuntrock.model.DataObject;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Property extends Schema {
@@ -13,6 +14,14 @@ public class Property extends Schema {
     private Boolean uniqueItems;
     @JsonIgnore
     private boolean required;
+
+    public Property() {
+    }
+
+    public Property(DataObject dataObject, boolean mainReference, String name) {
+        super(dataObject, mainReference);
+        this.name = name;
+    }
 
     public String getName() {
         return name;

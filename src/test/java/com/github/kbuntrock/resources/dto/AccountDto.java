@@ -4,7 +4,6 @@ package com.github.kbuntrock.resources.dto;
 import com.github.kbuntrock.resources.Constants;
 
 import javax.validation.constraints.*;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -49,8 +48,6 @@ public class AccountDto {
 
     @NotNull
     private Set<Authority> authorities;
-
-    private List<List<PageDto<TimeDto>>> page;
 
     public AccountDto() {
         // Empty constructor needed for Jackson.
@@ -120,11 +117,4 @@ public class AccountDto {
         this.authorities = authorities;
     }
 
-    public List<List<PageDto<TimeDto>>> getPage() {
-        return page;
-    }
-
-    public void setPage(List<List<PageDto<TimeDto>>> page) {
-        this.page = page;
-    }
 }
