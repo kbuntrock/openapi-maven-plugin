@@ -10,30 +10,35 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Schema {
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private List<String> required;
+    protected List<String> required;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private String type;
+    protected String type;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private String format;
+    protected String format;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private Map<String, Property> properties;
+    protected Map<String, Property> properties;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     @JsonProperty("enum")
-    private List<String> enumValues;
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    Map<String, Object> additionalProperties;
+    protected List<String> enumValues;
+    // Used in case of a Map object
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    protected Schema additionalProperties;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     @JsonProperty(OpenApiConstants.OBJECT_REFERENCE_DECLARATION)
-    private String reference;
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private Map<String, String> items;
+    protected String reference;
+    // Used in case of an array object
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    protected Schema items;
 
     /**
      * If true, we cannot reference the main object (we are using this object is the "schemas" section).
@@ -53,56 +58,32 @@ public class Schema {
 
         this.mainReference = mainReference;
 
-        if (dataObject == null) {
-            return;
-        }
         if (dataObject.isMap()) {
             type = dataObject.getOpenApiType().getValue();
-            additionalProperties = new LinkedHashMap<>();
-            if (dataObject.getMapValueType().isPureObject()) {
-                additionalProperties.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getMapValueType().getJavaClass().getSimpleName());
-            } else {
-                additionalProperties.put(OpenApiConstants.TYPE, dataObject.getMapValueType().getOpenApiType().getValue());
-                OpenApiDataFormat format = dataObject.getMapValueType().getOpenApiType().getFormat();
-                if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
-                    additionalProperties.put(OpenApiConstants.FORMAT, format.getValue());
-                }
-            }
-        } else if (!mainReference && (dataObject.isEnum() || (dataObject.isPureObject() && !dataObject.isGenericallyTyped()))) {
+            additionalProperties = new Schema(dataObject.getMapValueType());
+
+        } else if (dataObject.isArray()) {
+            type = dataObject.getOpenApiType().getValue();
+            items = new Schema(dataObject.getArrayItemDataObject());
+
+        } else if (!mainReference && dataObject.isReferenceObject()) {
             reference = OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getJavaClass().getSimpleName();
-        } else if(OpenApiDataType.ARRAY == dataObject.getOpenApiType()) {
 
-            type = dataObject.getOpenApiType().getValue();
-            OpenApiDataType itemType = dataObject.getArrayItemDataObject().getOpenApiType();
-            items = new LinkedHashMap<>();
-            if (OpenApiDataFormat.NONE != itemType.getFormat() && OpenApiDataFormat.UNKNOWN != itemType.getFormat()) {
-                items.put(OpenApiConstants.TYPE, itemType.getValue());
-                items.put(OpenApiConstants.FORMAT, itemType.getFormat().getValue());
-            } else if (dataObject.getArrayItemDataObject().isPureObject() || dataObject.getArrayItemDataObject().isEnum()) {
-                items.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getArrayItemDataObject().getJavaClass().getSimpleName());
-            }
-
-        } else if(!dataObject.isPureObject()) {
-            type = dataObject.getOpenApiType().getValue();
-            OpenApiDataFormat openApiDataFormat = dataObject.getOpenApiType().getFormat();
-            if (OpenApiDataFormat.NONE != openApiDataFormat && OpenApiDataFormat.UNKNOWN != openApiDataFormat) {
-                this.format = openApiDataFormat.getValue();
-            }
-        } else if (dataObject.isPureObject()) {
+        } else if (mainReference && dataObject.isReferenceObject()) {
 
             type = dataObject.getOpenApiType().getValue();
 
             // LinkedHashMap to keep the order of the class
             properties = new LinkedHashMap<>();
 
-            List<Field> fields = ReflexionUtils.getAllNonStaticFields(new ArrayList<>(), dataObject.getJavaClass());
-            if (!fields.isEmpty() && !dataObject.getJavaClass().isEnum()) {
+            List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), dataObject.getJavaClass());
+            if (!fields.isEmpty() && !dataObject.isEnum()) {
 
                 for (Field field : fields) {
                     Property property = new Property();
                     property.setName(field.getName());
                     OpenApiDataType openApiDataType = OpenApiDataType.fromJavaClass(field.getType());
-                    if (field.getType().isAssignableFrom(Map.class)) {
+                    if (Map.class.isAssignableFrom(field.getType())) {
                         property.setType(openApiDataType.getValue());
                         property.setAdditionalProperties(extractMapValueType(field));
                     } else if (OpenApiDataType.OBJECT == openApiDataType || field.getType().isEnum()) {
@@ -132,6 +113,15 @@ public class Schema {
             required = properties.values().stream()
                     .filter(Property::isRequired).map(Property::getName).collect(Collectors.toList());
 
+
+        } else if (!dataObject.isReferenceObject()) {
+            type = dataObject.getOpenApiType().getValue();
+            OpenApiDataFormat openApiDataFormat = dataObject.getOpenApiType().getFormat();
+            if (OpenApiDataFormat.NONE != openApiDataFormat && OpenApiDataFormat.UNKNOWN != openApiDataFormat) {
+                this.format = openApiDataFormat.getValue();
+            }
+        } else if (dataObject.isReferenceObject()) {
+
         } else {
             // TODO : log impossibilité
         }
@@ -140,7 +130,7 @@ public class Schema {
     private Property extractMapValueType(Field field) {
         Property additionalProperty = new Property();
         DataObject dataObject = new DataObject(field.getType(), ((ParameterizedType) field.getGenericType()));
-        if (dataObject.getMapValueType().isPureObject()) {
+        if (dataObject.getMapValueType().isReferenceObject()) {
             additionalProperty.setReference(OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getMapValueType().getJavaClass().getSimpleName());
         } else {
             additionalProperty.setType(dataObject.getMapValueType().getOpenApiType().getValue());
@@ -162,12 +152,12 @@ public class Schema {
             item = new DataObject(field.getType(), getContextualParameterizedType(field, source));
         }
         Map<String, String> items = new LinkedHashMap<>();
-        if (item.getArrayItemDataObject().getJavaClass().isEnum() || item.getArrayItemDataObject().isPureObject()) {
+        if (item.getArrayItemDataObject().getJavaClass().isEnum() || item.getArrayItemDataObject().isReferenceObject()) {
             items.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, OpenApiConstants.OBJECT_REFERENCE_PREFIX + item.getArrayItemDataObject().getJavaClass().getSimpleName());
         } else {
             items.put(OpenApiConstants.TYPE, item.getArrayItemDataObject().getOpenApiType().getValue());
         }
-        property.setItems(items);
+        //property.setItems(items);
     }
 
     /**
@@ -189,7 +179,7 @@ public class Schema {
                 }
             }
             return substitution;
-        } else if(field.getGenericType() instanceof ParameterizedType){
+        } else if (field.getGenericType() instanceof ParameterizedType) {
             return (ParameterizedType) field.getGenericType();
         }
         return null;
@@ -250,11 +240,11 @@ public class Schema {
         this.format = format;
     }
 
-    public Map<String, Object> getAdditionalProperties() {
+    public Schema getAdditionalProperties() {
         return additionalProperties;
     }
 
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(Schema additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -266,11 +256,11 @@ public class Schema {
         this.reference = reference;
     }
 
-    public Map<String, String> getItems() {
+    public Schema getItems() {
         return items;
     }
 
-    public void setItems(Map<String, String> items) {
+    public void setItems(Schema items) {
         this.items = items;
     }
 }

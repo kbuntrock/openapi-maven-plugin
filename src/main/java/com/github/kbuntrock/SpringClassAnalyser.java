@@ -1,9 +1,9 @@
 package com.github.kbuntrock;
 
 import com.github.kbuntrock.model.*;
+import com.github.kbuntrock.utils.Logger;
 import com.github.kbuntrock.utils.OpenApiDataType;
 import com.github.kbuntrock.utils.ParameterLocation;
-import com.github.kbuntrock.utils.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
@@ -28,6 +28,13 @@ public class SpringClassAnalyser {
         this.projectClassLoader = projectClassLoader;
     }
 
+    /**
+     * Create a Tag from a java class containing REST mapping functions
+     *
+     * @param clazz a REST controller class
+     * @return an tag (if there is at least one declared endpoint)
+     * @throws MojoFailureException
+     */
     public Optional<Tag> getTagFromClass(Class<?> clazz) throws MojoFailureException {
         Tag tag = new Tag(clazz);
         logger.debug("Parsing tag : " + tag.getName());
@@ -82,6 +89,7 @@ public class SpringClassAnalyser {
 
     /**
      * The annotation given in parameter can be a "subtype" annotation of RequestMapping (GetMapping, PostMapping, ...)
+     *
      * @param annotation
      * @return an Optional<RequestMapping>
      */
@@ -99,7 +107,7 @@ public class SpringClassAnalyser {
         List<ParameterObject> parameters = new ArrayList<>();
 
         for (Parameter parameter : method.getParameters()) {
-            if (parameter.getType().isAssignableFrom(HttpServletRequest.class)) {
+            if (HttpServletRequest.class.isAssignableFrom(parameter.getType())) {
                 continue;
             }
 
@@ -175,7 +183,7 @@ public class SpringClassAnalyser {
             return null;
         }
         Type genericReturnType = method.getGenericReturnType();
-        DataObject dataObject = new DataObject(returnType, genericReturnType);
+        DataObject dataObject = new DataObject(genericReturnType);
         logger.debug(dataObject.toString());
         return dataObject;
     }

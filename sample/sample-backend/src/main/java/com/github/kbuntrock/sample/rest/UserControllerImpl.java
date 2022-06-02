@@ -78,4 +78,18 @@ public class UserControllerImpl implements UserController {
         return usergroup.getLeader().getEmail() + " with " + usergroup.getSubgroups().size() + " group in the list (" +
                 usergroup.getSubgroups().get(0).getMembers().size() + " members)";
     }
+
+    @Override
+    public List<UserDto> getUserDtos() {
+
+        UserDto user1 = new UserDto();
+        user1.setId(1L);
+        user1.setFirstName("John");
+
+        UserDto user2 = new UserDto();
+        user2.setId(2L);
+        user2.setFirstName("Kev");
+
+        return List.of(user1, user2);
+    }
 }

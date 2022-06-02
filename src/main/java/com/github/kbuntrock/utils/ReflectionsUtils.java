@@ -3,6 +3,13 @@ package com.github.kbuntrock.utils;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public final class ReflectionsUtils {
 
     private static boolean initiated = false;
@@ -45,5 +52,28 @@ public final class ReflectionsUtils {
                     .addUrls(ClasspathHelper.forClassLoader(projectClassLoader));
         }
         return configurationBuilder;
+    }
+
+    public static List<Field> getAllNonStaticFields(List<Field> fields, Class<?> type) {
+        if (type.getSuperclass() != null) {
+            getAllNonStaticFields(fields, type.getSuperclass());
+        }
+        fields.addAll(Arrays.asList(type.getDeclaredFields()).stream()
+                .filter(x -> !Modifier.isStatic(x.getModifiers())).collect(Collectors.toList()));
+
+        return fields;
+    }
+
+    public static List<Field> getAllFields(List<Field> fields, Class<?> type) {
+        if (type.getSuperclass() != null) {
+            getAllFields(fields, type.getSuperclass());
+        }
+        fields.addAll(Arrays.asList(type.getDeclaredFields()));
+
+        return fields;
+    }
+
+    public static String getClassNameFromType(Type type) {
+        return type.toString().replaceAll("class ", "").replaceAll("interface ", "");
     }
 }

@@ -32,4 +32,7 @@ public interface UserController {
 
     @PostMapping("/usergroup")
     String setUsergroup(@RequestBody UserGroupDto usergroup);
+
+    @GetMapping("/user-dtos")
+    List<UserDto> getUserDtos();
 }

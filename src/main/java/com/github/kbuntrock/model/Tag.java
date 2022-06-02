@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * A group of endpoints, found in the same rest controller annotated class
+ */
 public class Tag {
 
     private String name;

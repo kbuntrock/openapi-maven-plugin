@@ -5,13 +5,10 @@ import com.github.kbuntrock.javadoc.JavadocParser;
 import com.github.kbuntrock.model.Tag;
 import com.github.kbuntrock.resources.endpoint.AccountController;
 import com.github.kbuntrock.resources.endpoint.generic.GenericityController;
-import com.github.kbuntrock.resources.endpoint.nesting.NestingController;
-import com.github.kbuntrock.resources.endpoint.time.TimeController;
 import com.github.kbuntrock.utils.ReflectionsUtils;
 import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -57,7 +54,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
         ClassLoader projectClassLoader = AccountController.class.getClassLoader();
         SpringClassAnalyser analyser = new SpringClassAnalyser(projectClassLoader);
         Optional<Tag> tag = analyser.getTagFromClass(GenericityController.class);
-        TagLibrary library = new TagLibrary(projectClassLoader);
+        TagLibrary library = new TagLibrary();
         library.addTag(tag.get());
 
         ApiConfiguration apiConfiguration = new ApiConfiguration();

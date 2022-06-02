@@ -1,26 +1,18 @@
 package com.github.kbuntrock.yaml.model;
 
-import com.fasterxml.jackson.annotation.*;
-import com.github.kbuntrock.utils.OpenApiConstants;
-
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Property {
+public class Property extends Schema {
 
     @JsonIgnore
     private String name;
     private Integer minLength;
     private Integer maxLength;
-    private String type;
-    private String format;
     private Boolean uniqueItems;
-    private Map<String, String> items;
     @JsonIgnore
     private boolean required;
-    @JsonProperty(OpenApiConstants.OBJECT_REFERENCE_DECLARATION)
-    private String reference;
-    private Property additionalProperties;
 
     public String getName() {
         return name;
@@ -30,28 +22,12 @@ public class Property {
         this.name = name;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public Boolean getUniqueItems() {
         return uniqueItems;
     }
 
     public void setUniqueItems(Boolean uniqueItems) {
         this.uniqueItems = uniqueItems;
-    }
-
-    public Map<String, String> getItems() {
-        return items;
-    }
-
-    public void setItems(Map<String, String> items) {
-        this.items = items;
     }
 
     public Integer getMinLength() {
@@ -70,35 +46,11 @@ public class Property {
         this.maxLength = maxLength;
     }
 
-    public String getFormat() {
-        return format;
-    }
-
-    public void setFormat(String format) {
-        this.format = format;
-    }
-
     public boolean isRequired() {
         return required;
     }
 
     public void setRequired(boolean required) {
         this.required = required;
-    }
-
-    public String getReference() {
-        return reference;
-    }
-
-    public void setReference(String reference) {
-        this.reference = reference;
-    }
-
-    public Property getAdditionalProperties() {
-        return additionalProperties;
-    }
-
-    public void setAdditionalProperties(Property additionalProperties) {
-        this.additionalProperties = additionalProperties;
     }
 }

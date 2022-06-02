@@ -6,8 +6,6 @@ import com.github.kbuntrock.utils.ReflectionsUtils;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.reflections.Reflections;
-import org.reflections.scanners.Scanners;
-import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,12 +37,12 @@ public class SpringResourceParser {
     }
 
     public TagLibrary scanRestControllers() throws MojoFailureException {
-        TagLibrary library = new TagLibrary(projectClassLoader);
+        TagLibrary library = new TagLibrary();
         for (String apiLocation : apiLocations) {
             logger.info("Scanning : " + apiLocation);
 
             ConfigurationBuilder configurationBuilder = ReflectionsUtils.getConfigurationBuilder();
-            configurationBuilder.filterInputsBy( new FilterBuilder().includePackage(apiLocation));
+            configurationBuilder.filterInputsBy(new FilterBuilder().includePackage(apiLocation));
             configurationBuilder.setScanners(TypesAnnotated);
 
             Reflections reflections = new Reflections(configurationBuilder);
@@ -55,7 +53,7 @@ public class SpringResourceParser {
             SpringClassAnalyser springClassAnalyser = new SpringClassAnalyser(projectClassLoader);
             for (Class clazz : classes) {
                 Optional<Tag> optTag = springClassAnalyser.getTagFromClass(clazz);
-                if(optTag.isPresent()) {
+                if (optTag.isPresent()) {
                     library.addTag(optTag.get());
                 }
             }

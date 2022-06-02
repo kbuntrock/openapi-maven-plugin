@@ -3,12 +3,13 @@ package com.github.kbuntrock.model;
 import com.github.kbuntrock.utils.OpenApiDataType;
 import com.github.kbuntrock.utils.ReflectionsUtils;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
 /**
- * Represent a type whith all the needed informations to insert it into the openapi specification
+ * Represent a type with all the needed informations to insert it into the openapi specification
  */
 public class DataObject {
 
@@ -47,13 +48,11 @@ public class DataObject {
      */
     private Map<String, Class<?>> genericNameToClassMap;
 
-    public Class<?> getJavaClass() {
-        return javaClass;
-    }
+    /**
+     * The type can be a parametrized type
+     */
+    private Map<String, Type> genericNameToTypeMap;
 
-    public Type getJavaType() {
-        return javaType;
-    }
 
     /**
      * @return true if this DataObject is a map
@@ -72,15 +71,19 @@ public class DataObject {
     /**
      * @return true if the object should be considered as a "reference object", in order to get its own schema section
      */
-    public boolean isPureObject() {
-        return (OpenApiDataType.OBJECT == openApiType && !isMap()) || isEnum();
+    public boolean isReferenceObject() {
+        return isEnum() || (!genericallyTyped && OpenApiDataType.OBJECT == openApiType);
     }
 
     /**
-     * @return true if the object is an array
+     * @return true if the object is an array in the open api way
      */
     public boolean isArray() {
         return OpenApiDataType.ARRAY == openApiType;
+    }
+
+    public boolean isJavaArray() {
+        return arrayItemDataObject != null && !genericallyTyped;
     }
 
     public DataObject(Class<?> javaClass, Type javaType) {
@@ -104,9 +107,19 @@ public class DataObject {
             this.genericallyTyped = parameterizedType != null;
             if (this.genericallyTyped) {
                 this.genericNameToClassMap = new HashMap<>();
+                this.genericNameToTypeMap = new HashMap<>();
+                Class<?> rawJavaClass = javaClass;
+                if (javaClass.isArray()) {
+                    rawJavaClass = Class.forName(ReflectionsUtils.getClassNameFromType(javaClass)
+                                    .replaceFirst("\\[.", "").replaceFirst(";", ""),
+                            true, ReflectionsUtils.getProjectClassLoader());
+                }
+
                 for (int i = 0; i < parameterizedType.getActualTypeArguments().length; i++) {
-                    this.genericNameToClassMap.put(this.javaClass.getTypeParameters()[i].getTypeName(),
-                            Class.forName(parameterizedType.getActualTypeArguments()[i].getTypeName(), true, ReflectionsUtils.getProjectClassLoader()));
+                    this.genericNameToTypeMap.put(rawJavaClass.getTypeParameters()[i].getTypeName(),
+                            parameterizedType.getActualTypeArguments()[i]);
+//                    this.genericNameToClassMap.put(this.javaClass.getTypeParameters()[i].getTypeName(),
+//                            Class.forName(getParametrizedClassName(parameterizedType.getActualTypeArguments()[i]), true, ReflectionsUtils.getProjectClassLoader()));
                 }
             }
             if (javaClass.isEnum()) {
@@ -116,30 +129,115 @@ public class DataObject {
                     this.enumItemValues.add(value.toString());
                 }
 
-            } else if (OpenApiDataType.ARRAY == this.openApiType) {
-
-                if (javaClass.isArray()) {
-                    arrayItemDataObject = new DataObject(javaClass.getComponentType(), null);
-                } else {
-                    Type listType = parameterizedType.getActualTypeArguments()[0];
-                    Class<?> listTypeClass = Class.forName(listType.getTypeName(), true, ReflectionsUtils.getProjectClassLoader());
-                    arrayItemDataObject = new DataObject(listTypeClass, null);
-                }
-            } else if (javaClass != Object.class && javaClass.isAssignableFrom(Map.class)) {
-                Class<?> keyTypeClass = Class.forName(parameterizedType.getActualTypeArguments()[0].getTypeName(), true, ReflectionsUtils.getProjectClassLoader());
-                Class<?> valueTypeClass = Class.forName(parameterizedType.getActualTypeArguments()[1].getTypeName(), true, ReflectionsUtils.getProjectClassLoader());
-
-                DataObject key = new DataObject(keyTypeClass, null);
-                DataObject value = new DataObject(valueTypeClass, null);
-
-                mapKeyValueDataObjects[0] = key;
-                mapKeyValueDataObjects[1] = value;
+            } else if (javaClass.isArray()) {
+                arrayItemDataObject = new DataObject(javaClass.getComponentType(), parameterizedType != null ? parameterizedType : null);
+            } else if (Collection.class.isAssignableFrom(javaClass)) {
+                arrayItemDataObject = create(parameterizedType.getActualTypeArguments()[0]);
+            } else if (Map.class.isAssignableFrom(javaClass)) {
+                mapKeyValueDataObjects[0] = create(parameterizedType.getActualTypeArguments()[0]);
+                mapKeyValueDataObjects[1] = create(parameterizedType.getActualTypeArguments()[1]);
             }
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Class not found in DataObject instanciation", e);
         }
 
+    }
 
+    public DataObject(Type type) {
+        try {
+            this.javaType = type;
+            if (type instanceof ParameterizedType) {
+                // Parameterized types (List, Map, or every custom type)
+
+                this.genericallyTyped = true;
+                ParameterizedType pt = (ParameterizedType) type;
+                javaClass = Class.forName(ReflectionsUtils.getClassNameFromType(pt.getRawType()),
+                        true, ReflectionsUtils.getProjectClassLoader());
+                genericNameToTypeMap = new HashMap<>();
+                for (int i = 0; i < pt.getActualTypeArguments().length; i++) {
+                    this.genericNameToTypeMap.put(javaClass.getTypeParameters()[i].getTypeName(),
+                            pt.getActualTypeArguments()[i]);
+                }
+
+                if (Collection.class.isAssignableFrom(javaClass)) {
+                    arrayItemDataObject = new DataObject(pt.getActualTypeArguments()[0]);
+                } else if (Map.class.isAssignableFrom(javaClass)) {
+                    mapKeyValueDataObjects[0] = new DataObject(pt.getActualTypeArguments()[0]);
+                    mapKeyValueDataObjects[1] = new DataObject(pt.getActualTypeArguments()[1]);
+                }
+
+            } else if (type instanceof GenericArrayType) {
+
+                // Parameterized array
+
+                this.genericallyTyped = true;
+                // See https://stackoverflow.com/questions/15450356/how-to-make-class-forname-return-array-type
+                GenericArrayType gat = (GenericArrayType) type;
+                if (gat.getGenericComponentType() instanceof ParameterizedType) {
+                    genericNameToTypeMap = new HashMap<>();
+                    ParameterizedType gpt = (ParameterizedType) gat.getGenericComponentType();
+                    javaClass = Class.forName("[L" + ReflectionsUtils.getClassNameFromType(gpt.getRawType()) + ";",
+                            true, ReflectionsUtils.getProjectClassLoader());
+                    Class<?> rawJavaClass = Class.forName(ReflectionsUtils.getClassNameFromType(gpt.getRawType()),
+                            true, ReflectionsUtils.getProjectClassLoader());
+                    for (int i = 0; i < gpt.getActualTypeArguments().length; i++) {
+                        this.genericNameToTypeMap.put(rawJavaClass.getTypeParameters()[i].getTypeName(),
+                                gpt.getActualTypeArguments()[i]);
+                    }
+                    this.arrayItemDataObject = new DataObject(gpt);
+
+                } else {
+                    throw new RuntimeException("A GenericArrayType with a non ParameterizedType is not and handled case.");
+                }
+            } else if (type instanceof Class) {
+
+                // Anything simplier ...
+                javaClass = (Class<?>) type;
+            } else {
+                throw new RuntimeException("Type " + type.getTypeName() + " (+" + type.getClass().getSimpleName() + " is not supported yet");
+            }
+
+            this.openApiType = OpenApiDataType.fromJavaClass(javaClass);
+            if (javaClass.isEnum()) {
+                Object[] values = javaClass.getEnumConstants();
+                this.enumItemValues = new ArrayList<>();
+                for (Object value : values) {
+                    this.enumItemValues.add(value.toString());
+                }
+
+            } else if (javaClass.isArray() && !genericallyTyped) {
+                arrayItemDataObject = new DataObject(javaClass.getComponentType());
+            }
+
+        } catch (ClassNotFoundException ex) {
+            throw new RuntimeException("ClassNotFound wrapped", ex);
+        }
+
+    }
+
+    public static DataObject create(Type actualTypeArgument) throws ClassNotFoundException {
+        DataObject value;
+        if (actualTypeArgument instanceof ParameterizedType) {
+            ParameterizedType vpt = (ParameterizedType) actualTypeArgument;
+            value = new DataObject(Class.forName(ReflectionsUtils.getClassNameFromType(vpt.getRawType()),
+                    true, ReflectionsUtils.getProjectClassLoader()), vpt);
+        } else if (actualTypeArgument instanceof GenericArrayType) {
+            // See https://stackoverflow.com/questions/15450356/how-to-make-class-forname-return-array-type
+            GenericArrayType gat = (GenericArrayType) actualTypeArgument;
+            gat.getGenericComponentType();
+            if (gat.getGenericComponentType() instanceof ParameterizedType) {
+                ParameterizedType gpt = (ParameterizedType) gat.getGenericComponentType();
+                value = new DataObject(Class.forName("[L" + ReflectionsUtils.getClassNameFromType(gpt.getRawType()) + ";",
+                        true, ReflectionsUtils.getProjectClassLoader()), gpt);
+            } else {
+                throw new RuntimeException("A GenericArrayType with a non ParameterizedType is not and handled case.");
+            }
+
+        } else {
+            value = new DataObject(Class.forName(ReflectionsUtils.getClassNameFromType(actualTypeArgument),
+                    true, ReflectionsUtils.getProjectClassLoader()), null);
+        }
+        return value;
     }
 
     public OpenApiDataType getOpenApiType() {
@@ -168,6 +266,18 @@ public class DataObject {
 
     public Map<String, Class<?>> getGenericNameToClassMap() {
         return genericNameToClassMap;
+    }
+
+    public Map<String, Type> getGenericNameToTypeMap() {
+        return genericNameToTypeMap;
+    }
+
+    public Class<?> getJavaClass() {
+        return javaClass;
+    }
+
+    public Type getJavaType() {
+        return javaType;
     }
 
     @Override
