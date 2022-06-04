@@ -11,6 +11,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.*;
 
+/**
+ * Keep track of tags and explore them to find every DataObject which should end up in the components/schemas section
+ */
 public class TagLibrary {
 
     private final List<Tag> tags = new ArrayList<>();
@@ -18,11 +21,7 @@ public class TagLibrary {
 
     public void addTag(Tag tag) throws MojoFailureException {
         tags.add(tag);
-        try {
-            exploreTagObjects(tag);
-        } catch (ClassNotFoundException e) {
-            throw new MojoFailureException("Class not found for mapping", e);
-        }
+        exploreTagObjects(tag);
         System.currentTimeMillis();
     }
 
@@ -30,9 +29,8 @@ public class TagLibrary {
      * Analyse all endpoints of a tag (aka a rest controller) to extract all objects which will be written in the schema section : parameters or response.
      *
      * @param tag a rest controller
-     * @throws ClassNotFoundException
      */
-    private void exploreTagObjects(Tag tag) throws ClassNotFoundException {
+    private void exploreTagObjects(Tag tag) {
         for (Endpoint endpoint : tag.getEndpoints()) {
             if (endpoint.getResponseObject() != null) {
                 exploreDataObject(endpoint.getResponseObject());
@@ -44,7 +42,7 @@ public class TagLibrary {
         }
     }
 
-    private void exploreDataObject(final DataObject dataObject) throws ClassNotFoundException {
+    private void exploreDataObject(final DataObject dataObject) {
         // Generically typed objects are never written in the schema section
         if (dataObject.isReferenceObject() && !dataObject.isGenericallyTyped()) {
             if (schemaObjects.add(dataObject)) {
@@ -62,7 +60,7 @@ public class TagLibrary {
         }
     }
 
-    private void inspectObject(Class<?> clazz) throws ClassNotFoundException {
+    private void inspectObject(Class<?> clazz) {
         if (clazz.isEnum()) {
             return;
         }

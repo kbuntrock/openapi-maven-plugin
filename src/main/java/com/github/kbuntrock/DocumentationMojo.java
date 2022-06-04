@@ -53,9 +53,12 @@ public class DocumentationMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         Logger.INSTANCE.setLogger(getLog());
 
-        validateConfiguration();
+        long debut = System.currentTimeMillis();
 
+        validateConfiguration();
         scanProjectResources();
+
+        getLog().info("Openapi generation took " + (System.currentTimeMillis() - debut) + "ms.");
     }
 
     private void validateConfiguration() throws MojoFailureException {

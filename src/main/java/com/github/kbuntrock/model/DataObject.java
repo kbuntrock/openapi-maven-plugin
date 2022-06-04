@@ -133,9 +133,13 @@ public class DataObject {
                                 gpt.getActualTypeArguments()[i]);
                     }
                     this.arrayItemDataObject = new DataObject(gpt);
-
+                } else if (gat.getGenericComponentType() instanceof Class<?>) {
+                    Class<?> clazz = (Class<?>) gat.getGenericComponentType();
+                    javaClass = Class.forName("[L" + ReflectionsUtils.getClassNameFromType(clazz) + ";",
+                            true, ReflectionsUtils.getProjectClassLoader());
+                    this.arrayItemDataObject = new DataObject(clazz);
                 } else {
-                    throw new RuntimeException("A GenericArrayType with a non ParameterizedType is not and handled case.");
+                    throw new RuntimeException("A GenericArrayType with a " + gat.getGenericComponentType().getClass().toString() + " is not and handled case.");
                 }
             } else if (type instanceof Class) {
 

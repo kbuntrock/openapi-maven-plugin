@@ -20,6 +20,9 @@ public class Property extends Schema {
 
     public Property(DataObject dataObject, boolean mainReference, String name) {
         super(dataObject, mainReference);
+        if (dataObject.isOpenApiArray()) {
+            this.setUniqueItems(true);
+        }
         this.name = name;
     }
 

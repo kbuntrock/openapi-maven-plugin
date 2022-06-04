@@ -2,12 +2,9 @@ package com.github.kbuntrock.resources.endpoint.generic;
 
 import com.github.kbuntrock.resources.Constants;
 import com.github.kbuntrock.resources.dto.AccountDto;
-import com.github.kbuntrock.resources.dto.PageDto;
+import com.github.kbuntrock.resources.dto.ArrayDto;
 import com.github.kbuntrock.resources.dto.TimeDto;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +14,10 @@ public interface GenericityController {
 
     // TODO: TypeImpl. Puis Tester avec Parameterized Type Impl
     @PostMapping("/account-page")
-    PageDto<AccountDto> getAccountsPage(@RequestBody TimeDto timeDto);
+    ArrayDto<AccountDto>[] getAccountsPage(@RequestBody TimeDto timeDto);
+
+    @GetMapping("/time-page")
+    ArrayDto<TimeDto> getTimePage();
 //
 //    @GetMapping("/time-page")
 //    PageDto<TimeDto> getTimePage();
@@ -31,7 +31,7 @@ public interface GenericityController {
 //    @GetMapping(path = "/account-map/{perimeterId}", produces = MediaType.APPLICATION_JSON_VALUE)
 //    Map<String, AccountDto[]> getAccountMap(@PathVariable Long perimeterId);
 
-    //@GetMapping(path = "/authority-page-map/{perimeterId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    //    @GetMapping(path = "/authority-page-map/{perimeterId}", produces = MediaType.APPLICATION_JSON_VALUE)
     Map<String, Map<Long, List<List<AccountDto>[]>>>[] getAuthorityPageMap(@PathVariable Long perimeterId);
     //List<Authority> getAuthorityPageMap(@PathVariable Long perimeterId);
 }

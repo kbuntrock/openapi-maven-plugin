@@ -12,10 +12,7 @@ import com.github.kbuntrock.utils.OpenApiDataFormat;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -113,39 +110,6 @@ public class Schema {
         }
     }
 
-    private Property extractMapValueType(Field field) {
-        Property additionalProperty = new Property();
-        // TODO : à faire!!!
-//        DataObject dataObject = new DataObject(field.getType(), ((ParameterizedType) field.getGenericType()));
-//        if (dataObject.getMapValueType().isReferenceObject()) {
-//            additionalProperty.setReference(OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getMapValueType().getJavaClass().getSimpleName());
-//        } else {
-//            additionalProperty.setType(dataObject.getMapValueType().getOpenApiType().getValue());
-//            OpenApiDataFormat format = dataObject.getMapValueType().getOpenApiType().getFormat();
-//            if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
-//                additionalProperty.setFormat(format.getValue());
-//            }
-//        }
-        return additionalProperty;
-    }
-
-    private void extractArrayType(Field field, Property property, DataObject source) {
-        property.setUniqueItems(true);
-//        DataObject item;
-//
-//        if (field.getType().isArray()) {
-//            item = new DataObject(field.getType(), null);
-//        } else {
-//            item = new DataObject(field.getType(), getContextualParameterizedType(field, source));
-//        }
-//        Map<String, String> items = new LinkedHashMap<>();
-//        if (item.getArrayItemDataObject().getJavaClass().isEnum() || item.getArrayItemDataObject().isReferenceObject()) {
-//            items.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, OpenApiConstants.OBJECT_REFERENCE_PREFIX + item.getArrayItemDataObject().getJavaClass().getSimpleName());
-//        } else {
-//            items.put(OpenApiConstants.TYPE, item.getArrayItemDataObject().getOpenApiType().getValue());
-//        }
-    }
-
     /**
      * Get the type, or the parameterized contextual one if the default is a generic.
      *
@@ -164,12 +128,25 @@ public class Schema {
                 doContextualSubstitution(substitution, source);
                 return substitution;
 
-            } else if (field.getGenericType() instanceof GenericArrayType && ((GenericArrayType) field.getGenericType()).getGenericComponentType() instanceof ParameterizedType) {
-                ParameterizedTypeImpl substitution = new ParameterizedTypeImpl(
-                        (ParameterizedType) ((GenericArrayType) field.getGenericType()).getGenericComponentType());
-                doContextualSubstitution(substitution, source);
-                GenericArrayType substitionArrayType = new GenericArrayTypeImpl(substitution);
-                return substitionArrayType;
+            } else if (field.getGenericType() instanceof GenericArrayType) {
+                GenericArrayType genericArrayType = (GenericArrayType) field.getGenericType();
+                if (genericArrayType.getGenericComponentType() instanceof ParameterizedType) {
+                    ParameterizedTypeImpl substitution = new ParameterizedTypeImpl(
+                            (ParameterizedType) genericArrayType.getGenericComponentType());
+                    doContextualSubstitution(substitution, source);
+                    GenericArrayType substitionArrayType = new GenericArrayTypeImpl(substitution);
+                    return substitionArrayType;
+                } else if (genericArrayType.getGenericComponentType() instanceof TypeVariable<?>) {
+                    TypeVariable<?> typeVariable = (TypeVariable<?>) genericArrayType.getGenericComponentType();
+                    if (source.getGenericNameToTypeMap().containsKey(typeVariable.getName())) {
+                        GenericArrayType substitionArrayType = new GenericArrayTypeImpl(source.getGenericNameToTypeMap().get(typeVariable.getName()));
+                        return substitionArrayType;
+                    }
+                } else {
+                    throw new RuntimeException("Type : " + ((GenericArrayType) field.getGenericType()).getGenericComponentType().getClass().toString()
+                            + " not handled in generic array contextual substitution.");
+                }
+
             }
         }
         return field.getGenericType();
