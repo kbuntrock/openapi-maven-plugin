@@ -1,6 +1,7 @@
 package com.github.kbuntrock;
 
 import com.github.kbuntrock.resources.dto.Authority;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -24,14 +25,19 @@ public class ReflectionUtilsTest {
         Field field = ReflectionUtilsTest.class.getDeclaredField("o1");
         Class<?> myClass = field.getType();
         ParameterizedType parameterizedType = ((ParameterizedType) field.getGenericType());
+        Assertions.assertNotNull(parameterizedType);
+        Assertions.assertEquals("interface java.util.List", parameterizedType.getRawType().toString());
 
         Field field2 = ReflectionUtilsTest.class.getDeclaredField("o2");
         Class<?> myClass2 = field2.getType();
         ParameterizedType parameterizedType2 = ((ParameterizedType) field2.getGenericType());
+        Assertions.assertNotNull(parameterizedType2);
+        Assertions.assertEquals("interface java.util.List", parameterizedType2.getRawType().toString());
+        Assertions.assertEquals("class com.github.kbuntrock.resources.dto.Authority", parameterizedType2.getActualTypeArguments()[0].toString());
 
         Field field3 = ReflectionUtilsTest.class.getDeclaredField("o3");
         Class<?> myClass3 = field3.getType();
         Type parameterizedType3 = field3.getGenericType();
-        System.out.println("");
+        Assertions.assertEquals("class com.github.kbuntrock.resources.dto.Authority", parameterizedType3.toString());
     }
 }

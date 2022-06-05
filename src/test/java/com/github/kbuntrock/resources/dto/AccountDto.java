@@ -49,10 +49,6 @@ public class AccountDto {
     @NotNull
     private Set<Authority> authorities;
 
-    private PageDto<AccountDto> pageAccount;
-
-    private ArrayDto<AccountDto> AccountArray;
-
     public AccountDto() {
         // Empty constructor needed for Jackson.
     }
@@ -119,21 +115,5 @@ public class AccountDto {
 
     public void setAuthorities(Set<Authority> authorities) {
         this.authorities = authorities;
-    }
-
-    public PageDto<AccountDto> getPageAccount() {
-        return pageAccount;
-    }
-
-    public void setPageAccount(PageDto<AccountDto> pageAccount) {
-        this.pageAccount = pageAccount;
-    }
-
-    public ArrayDto<AccountDto> getAccountArray() {
-        return AccountArray;
-    }
-
-    public void setAccountArray(ArrayDto<AccountDto> accountArray) {
-        AccountArray = accountArray;
     }
 }
