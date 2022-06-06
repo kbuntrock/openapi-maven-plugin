@@ -1,0 +1,34 @@
+package com.github.kbuntrock.it;
+
+import com.soebes.itf.extension.assertj.MavenExecutionResultAssert;
+import com.soebes.itf.jupiter.extension.MavenGoal;
+import com.soebes.itf.jupiter.extension.MavenJupiterExtension;
+import com.soebes.itf.jupiter.extension.MavenTest;
+import com.soebes.itf.jupiter.maven.MavenExecutionResult;
+import org.junit.jupiter.api.Assertions;
+
+import java.io.File;
+
+import static com.soebes.itf.extension.assertj.MavenITAssertions.assertThat;
+
+/**
+ * @author Kevin Buntrock
+ */
+@MavenJupiterExtension
+public class BasicIT {
+
+    @MavenTest
+    @MavenGoal("install")
+    void nominal_test_case(MavenExecutionResult result) {
+        MavenExecutionResultAssert resultAssert = assertThat(result);
+        resultAssert.isSuccessful().out().info().contains("spec-open-api : 1 tags and 2 operations generated.");
+        File targetBaseDirectory = result.getMavenProjectResult().getTargetProjectDirectory();
+        File generatedFile = new File(targetBaseDirectory, "/target/spec-open-api.yml");
+        Assertions.assertTrue(generatedFile.exists());
+
+        File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory();
+        File generatedArtifactFile = new File(m2Directory, "/com/github/kbuntrock/openapi/it/openapi-basic-it/23.5.2/openapi-basic-it-23.5.2-spec-open-api.yml");
+        Assertions.assertTrue(generatedArtifactFile.exists());
+    }
+
+}

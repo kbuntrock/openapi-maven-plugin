@@ -13,7 +13,7 @@ public class ApiConfiguration {
     private List<String> locations;
 
     @Parameter
-    private String filename = "openapi";
+    private String filename = "spec-open-api";
 
     @Parameter
     private Tag tag = new Tag();

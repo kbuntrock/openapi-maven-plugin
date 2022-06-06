@@ -58,7 +58,7 @@ public class DocumentationMojo extends AbstractMojo {
         validateConfiguration();
         scanProjectResources();
 
-        getLog().info("Openapi generation took " + (System.currentTimeMillis() - debut) + "ms.");
+        getLog().info("Openapi spec generation took " + (System.currentTimeMillis() - debut) + "ms.");
     }
 
     private void validateConfiguration() throws MojoFailureException {

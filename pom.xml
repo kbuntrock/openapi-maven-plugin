@@ -85,6 +85,19 @@
             <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
+        <!-- How to do integrations tests on a maven plugin: https://opensourcelibs.com/lib/maven-it-extension -->
+        <dependency>
+            <groupId>com.soebes.itf.jupiter.extension</groupId>
+            <artifactId>itf-jupiter-extension</artifactId>
+            <version>0.11.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.soebes.itf.jupiter.extension</groupId>
+            <artifactId>itf-assertj</artifactId>
+            <version>0.11.0</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.maven.plugin-testing</groupId>
             <artifactId>maven-plugin-testing-harness</artifactId>
@@ -208,6 +221,45 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>com.soebes.itf.jupiter.extension</groupId>
+                <artifactId>itf-maven-plugin</artifactId>
+                <version>0.11.0</version>
+                <executions>
+                    <execution>
+                        <id>installing</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>install</goal>
+                            <goal>resources-its</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <!--
+                     ! currently needed to run integration tests.
+                    -->
+                    <systemProperties>
+                        <maven.version>${maven.version}</maven.version>
+                        <maven.home>${maven.home}</maven.home>
+                    </systemProperties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 
