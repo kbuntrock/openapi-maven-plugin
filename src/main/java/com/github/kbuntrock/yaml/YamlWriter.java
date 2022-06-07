@@ -51,7 +51,10 @@ public class YamlWriter {
 
         specification.setPaths(createPaths(tagLibrary));
 
-        specification.getComponents().put("schemas", createSchemaSection(tagLibrary));
+        Map<String, Schema> schemaSection = createSchemaSection(tagLibrary);
+        if (!schemaSection.isEmpty()) {
+            specification.getComponents().put("schemas", createSchemaSection(tagLibrary));
+        }
 
         om.writeValue(file, specification);
     }
@@ -165,7 +168,10 @@ public class YamlWriter {
             operations = operations.stream().sorted(Comparator.comparing(Operation::getName)).collect(Collectors.toList());
             // And map them to their path
             for (Operation operation : operations) {
-                paths.get(operation.getPath()).put(operation.getName().toLowerCase(), operation);
+                Operation previousOperation = paths.get(operation.getPath()).put(operation.getName().toLowerCase(), operation);
+                if (previousOperation != null) {
+                    throw new RuntimeException("More than one operation mapped on " + operation.getName() + " : " + operation.getPath() + " in tag " + tag.getName());
+                }
             }
 
         }

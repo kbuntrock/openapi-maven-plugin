@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"openapi", "info", "servers","tags", "paths", "components" })
+@JsonPropertyOrder({"openapi", "info", "servers", "tags", "paths", "components"})
 public class Specification {
 
     private String openapi = "3.0.3";
@@ -19,10 +19,13 @@ public class Specification {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final List<Server> servers = new ArrayList<>();
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<TagElement> tags;
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Map<String, Map<String, Operation>> paths;
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Map<String, Object> components = new HashMap<>();
 
     public String getOpenapi() {

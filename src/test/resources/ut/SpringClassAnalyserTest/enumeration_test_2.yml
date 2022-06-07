@@ -1,0 +1,32 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: TestEnumeration2Controller
+paths:
+  /api/test-enum-2:
+    get:
+      tags:
+        - TestEnumeration2Controller
+      operationId: getAuthorities
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Authority'
+components:
+  schemas:
+    Authority:
+      type: string
+      enum:
+        - READ_USER
+        - WRITE_USER
+        - ACCES_APP

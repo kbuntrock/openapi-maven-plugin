@@ -18,7 +18,8 @@ public class Response {
     private Object code;
     private String description;
 
-    private final Map<String, Content> content = new LinkedHashMap<>();
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private Map<String, Content> content = new LinkedHashMap<>();
 
     public Response() {
     }
@@ -33,8 +34,8 @@ public class Response {
 
     public void setCode(Object code) {
         this.code = code;
-        if(code instanceof Integer){
-            if((Integer) code >= 200 && (Integer) code < 300){
+        if (code instanceof Integer) {
+            if ((Integer) code >= 200 && (Integer) code < 300) {
                 this.description = SUCCESSFUL_OPERATION;
             }
         }

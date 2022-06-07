@@ -1,0 +1,231 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: GenericityTestTwo
+paths:
+  /api/generic/account-map/{perimeterId}:
+    get:
+      tags:
+        - GenericityTestTwo
+      operationId: getAccountMap
+      parameters:
+        - name: perimeterId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/AccountDto'
+  /api/generic/account-page:
+    get:
+      tags:
+        - GenericityTestTwo
+      operationId: getAccountsPage
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    content:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/AccountDto'
+                      uniqueItems: true
+                    hasNext:
+                      type: boolean
+    post:
+      tags:
+        - GenericityTestTwo
+      operationId: setAccountsPage
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: object
+              properties:
+                content:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/AccountDto'
+                  uniqueItems: true
+                hasNext:
+                  type: boolean
+                totalPages:
+                  type: integer
+                  format: int32
+                totalElements:
+                  type: integer
+                  format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/generic/authority-page:
+    get:
+      tags:
+        - GenericityTestTwo
+      operationId: getAuthorityPage
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Authority'
+                    uniqueItems: true
+                  hasNext:
+                    type: boolean
+                  totalPages:
+                    type: integer
+                    format: int32
+                  totalElements:
+                    type: integer
+                    format: int64
+  /api/generic/authority-page-map/{perimeterId}:
+    get:
+      tags:
+        - GenericityTestTwo
+      operationId: getAuthorityPageMap
+      parameters:
+        - name: perimeterId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/AccountDto'
+  /api/generic/time-page:
+    get:
+      tags:
+        - GenericityTestTwo
+      operationId: getTimePage
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TimeDto'
+                    uniqueItems: true
+                  hasNext:
+                    type: boolean
+components:
+  schemas:
+    AccountDto:
+      required:
+        - login
+        - firstName
+        - lastName
+        - email
+        - activated
+        - langKey
+        - authorities
+      type: object
+      properties:
+        login:
+          type: string
+          minLength: 1
+          maxLength: 50
+        firstName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        lastName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        email:
+          type: string
+          minLength: 5
+          maxLength: 254
+        imageUrl:
+          type: string
+          minLength: 0
+          maxLength: 256
+        activated:
+          type: boolean
+        langKey:
+          type: string
+          minLength: 2
+          maxLength: 10
+        authorities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Authority'
+          uniqueItems: true
+    Authority:
+      type: string
+      enum:
+        - READ_USER
+        - WRITE_USER
+        - ACCES_APP
+    TimeDto:
+      type: object
+      properties:
+        instant:
+          type: string
+          format: date-time
+        date:
+          type: string
+          format: date
+        dateTime:
+          type: string
+          format: date-time
