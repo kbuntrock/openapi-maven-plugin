@@ -86,7 +86,7 @@ public class DocumentationMojo extends AbstractMojo {
             getLog().debug("Prepared to write : " + filePath);
             try {
                 File generatedFile = new File(filePath);
-                new YamlWriter(projectClassLoader, project, apiConfiguration).write(new File(filePath), tagLibrary);
+                new YamlWriter(project, apiConfiguration).write(new File(filePath), tagLibrary);
 
                 if (apiConfiguration.isAttachArtifact()) {
                     projectHelper.attachArtifact(project, "yml", apiConfiguration.getFilename(), generatedFile);

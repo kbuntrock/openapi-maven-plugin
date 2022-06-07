@@ -1,0 +1,5 @@
+# Automatically normalize line endings for all text-based files
+# http://git-scm.com/docs/gitattributes#_end_of_line_conversion
+* text=auto
+*.sh		text eol=lf
+**/src/test/resources/it/** text eol=lf

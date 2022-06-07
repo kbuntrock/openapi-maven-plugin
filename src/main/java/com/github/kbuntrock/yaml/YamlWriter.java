@@ -21,18 +21,16 @@ import java.util.stream.Collectors;
 
 public class YamlWriter {
 
-    private static final ObjectMapper om = new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
+    private static final ObjectMapper om = new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
+            .enable(YAMLGenerator.Feature.INDENT_ARRAYS_WITH_INDICATOR));
 
     private final Log logger = Logger.INSTANCE.getLogger();
-
-    private final ClassLoader projectClassLoader;
 
     private final ApiConfiguration apiConfiguration;
 
     private final MavenProject mavenProject;
 
-    public YamlWriter(final ClassLoader projectClassLoader, final MavenProject mavenProject, final ApiConfiguration apiConfiguration) {
-        this.projectClassLoader = projectClassLoader;
+    public YamlWriter(final MavenProject mavenProject, final ApiConfiguration apiConfiguration) {
         this.apiConfiguration = apiConfiguration;
         this.mavenProject = mavenProject;
     }

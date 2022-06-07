@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Used to ease up development
+ *
  * @author Kevin Buntrock
  */
 public class ReflectionUtilsTest {
