@@ -26,8 +26,10 @@ public class BasicIT {
     void nominal_test_case(MavenExecutionResult result) throws IOException {
         MavenExecutionResultAssert resultAssert = assertThat(result);
         resultAssert.isSuccessful().out().info().contains("spec-open-api : 1 tags and 2 operations generated.");
-        File targetBaseDirectory = result.getMavenProjectResult().getTargetProjectDirectory();
-        File generatedFile = new File(targetBaseDirectory, "/target/spec-open-api.yml");
+
+        File target = new File(result.getMavenProjectResult().getTargetProjectDirectory(), "target");
+        File generatedFile = new File(target, "spec-open-api.yml");
+        Assertions.assertTrue(target.exists());
         Assertions.assertTrue(generatedFile.exists());
 
         File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory();

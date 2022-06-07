@@ -1,5 +1,8 @@
 # Openapi maven plugin
 
+[![CircleCI](https://circleci.com/gh/kbuntrock/openapi-maven-plugin/tree/dev.svg?style=shield)](https://circleci.com/gh/kbuntrock/openapi-maven-plugin/tree/dev)
+![GitHub](https://img.shields.io/github/license/kbuntrock/openapi-maven-plugin?color=blue)
+
 This plugin generate an openapi 3.0.3 specification based on the SpringMVC annotations present in the project. Unlike other plugins, no application is launched in order to generate the specification. 
 While doing so, even simple annotated interfaces without implementations are enough to generate a documentation, easing the tooling of the project. 
 

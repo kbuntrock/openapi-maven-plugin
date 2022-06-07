@@ -317,7 +317,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
     }
 
 
-    @Test
+    //@Test
     public void basicParsing() throws MojoFailureException, IOException {
 
         MavenProject mavenProject = new MavenProject();

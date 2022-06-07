@@ -82,11 +82,11 @@ public class DocumentationMojo extends AbstractMojo {
             getLog().debug("Prepare to scan");
             TagLibrary tagLibrary = springResourceParser.scanRestControllers();
             getLog().debug("Scan done");
-            String filePath = outputDirectory + "\\" + apiConfiguration.getFilename() + ".yml";
-            getLog().debug("Prepared to write : " + filePath);
+            File generatedFile = new File(outputDirectory, apiConfiguration.getFilename() + ".yml");
+            getLog().debug("Prepared to write : " + generatedFile.getAbsolutePath());
             try {
-                File generatedFile = new File(filePath);
-                new YamlWriter(project, apiConfiguration).write(new File(filePath), tagLibrary);
+
+                new YamlWriter(project, apiConfiguration).write(generatedFile, tagLibrary);
 
                 if (apiConfiguration.isAttachArtifact()) {
                     projectHelper.attachArtifact(project, "yml", apiConfiguration.getFilename(), generatedFile);
@@ -96,7 +96,7 @@ public class DocumentationMojo extends AbstractMojo {
                 int nbOperationsGenerated = tagLibrary.getTags().stream().map(t -> t.getEndpoints().size()).collect(Collectors.summingInt(Integer::intValue));
                 getLog().info(apiConfiguration.getFilename() + " : " + nbTagsGenerated + " tags and " + nbOperationsGenerated + " operations generated.");
             } catch (IOException e) {
-                throw new MojoFailureException("Cannot write file " + filePath);
+                throw new MojoFailureException("Cannot write file specification file : " + generatedFile.getAbsolutePath());
             }
         }
 
