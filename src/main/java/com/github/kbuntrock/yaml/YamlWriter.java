@@ -42,7 +42,7 @@ public class YamlWriter {
         info.setVersion(mavenProject.getVersion());
         specification.setInfo(info);
 
-        var server = new Server();
+        Server server = new Server();
         server.setUrl("");
         specification.getServers().add(server);
 
