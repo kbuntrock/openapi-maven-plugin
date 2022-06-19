@@ -2,6 +2,8 @@ package com.github.kbuntrock.utils;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -47,11 +49,11 @@ public enum OpenApiDataType {
             return BOOLEAN;
         } else if (Integer.class == clazz || Integer.TYPE == clazz) {
             return INTEGER_32;
-        } else if (Long.class == clazz || Long.TYPE == clazz) {
+        } else if (Long.class == clazz || Long.TYPE == clazz || BigInteger.class == clazz) {
             return INTEGER_64;
         } else if (Float.class == clazz || Float.TYPE == clazz) {
             return NUMBER_FLOAT;
-        } else if (Double.class == clazz || Double.TYPE == clazz) {
+        } else if (Double.class == clazz || Double.TYPE == clazz || BigDecimal.class == clazz) {
             return NUMBER_DOUBLE;
         } else if (String.class == clazz) {
             return STRING;
@@ -59,11 +61,11 @@ public enum OpenApiDataType {
             return STRING_DATE_TIME;
         } else if (LocalDate.class == clazz) {
             return STRING_DATE;
-        } else if(MultipartFile.class == clazz) {
+        } else if (MultipartFile.class == clazz) {
             return STRING_BINARY;
         } else if (clazz.isArray() || List.class == clazz || Set.class == clazz) {
             return ARRAY;
-        } else if(clazz.isEnum()) {
+        } else if (clazz.isEnum()) {
             return STRING;
         }
         return OBJECT;

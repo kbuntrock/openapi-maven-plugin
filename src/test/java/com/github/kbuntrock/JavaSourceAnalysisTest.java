@@ -1,5 +1,6 @@
 package com.github.kbuntrock;
 
+import com.github.kbuntrock.configuration.ApiConfiguration;
 import com.github.kbuntrock.model.DataObject;
 import com.github.kbuntrock.model.Tag;
 import com.github.kbuntrock.resources.dto.AccountDto;
@@ -35,7 +36,9 @@ public class JavaSourceAnalysisTest extends AbstractTest {
     @Test
     public void controllerOne() throws MojoFailureException {
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser();
+        ApiConfiguration apiConfiguration = new ApiConfiguration();
+
+        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
         Optional<Tag> tag = analyser.getTagFromClass(ControllerOne.class);
         TagLibrary library = new TagLibrary();
         library.addTag(tag.get());
@@ -49,7 +52,9 @@ public class JavaSourceAnalysisTest extends AbstractTest {
     @Test
     public void controllerTwo() throws MojoFailureException {
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser();
+        ApiConfiguration apiConfiguration = new ApiConfiguration();
+
+        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
         Optional<Tag> tag = analyser.getTagFromClass(ControllerTwo.class);
         TagLibrary library = new TagLibrary();
         library.addTag(tag.get());
@@ -63,7 +68,9 @@ public class JavaSourceAnalysisTest extends AbstractTest {
     @Test
     public void controllerThree() throws MojoFailureException {
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser();
+        ApiConfiguration apiConfiguration = new ApiConfiguration();
+
+        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
         Optional<Tag> tag = analyser.getTagFromClass(ControllerThree.class);
         TagLibrary library = new TagLibrary();
         library.addTag(tag.get());

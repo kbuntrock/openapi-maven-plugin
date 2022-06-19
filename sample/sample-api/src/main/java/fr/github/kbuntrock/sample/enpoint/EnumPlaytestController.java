@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping(path = Constants.BASE_PATH + "/enum-playtest")
+@RequestMapping(path = "api/enum-playtest")
 public interface EnumPlaytestController {
 
-    @GetMapping("/authority-wrapper")
+    @GetMapping("authority-wrapper")
     EnumWrapper getAuthorityWrapper();
 
     @GetMapping("/authorities")

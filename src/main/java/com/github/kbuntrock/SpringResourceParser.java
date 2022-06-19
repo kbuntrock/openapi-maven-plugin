@@ -1,5 +1,6 @@
 package com.github.kbuntrock;
 
+import com.github.kbuntrock.configuration.ApiConfiguration;
 import com.github.kbuntrock.model.Tag;
 import com.github.kbuntrock.reflection.ReflectionsUtils;
 import com.github.kbuntrock.utils.Logger;
@@ -10,7 +11,6 @@ import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -20,16 +20,15 @@ public class SpringResourceParser {
 
     private final Log logger = Logger.INSTANCE.getLogger();
 
-    private final List<String> apiLocations;
+    private final ApiConfiguration apiConfiguration;
 
-
-    public SpringResourceParser(List<String> apiLocations) {
-        this.apiLocations = apiLocations;
+    public SpringResourceParser(final ApiConfiguration apiConfiguration) {
+        this.apiConfiguration = apiConfiguration;
     }
 
     public TagLibrary scanRestControllers() throws MojoFailureException {
         TagLibrary library = new TagLibrary();
-        for (String apiLocation : apiLocations) {
+        for (String apiLocation : apiConfiguration.getLocations()) {
             logger.info("Scanning : " + apiLocation);
 
             ConfigurationBuilder configurationBuilder = ReflectionsUtils.getConfigurationBuilder();
@@ -41,7 +40,7 @@ public class SpringResourceParser {
 
             // Find directly or inheritedly annotated by RequestMapping classes.
             Set<Class<?>> classes = reflections.get(TypesAnnotated.with(RequestMapping.class).asClass(ReflectionsUtils.getProjectClassLoader()));
-            SpringClassAnalyser springClassAnalyser = new SpringClassAnalyser();
+            SpringClassAnalyser springClassAnalyser = new SpringClassAnalyser(apiConfiguration);
             for (Class clazz : classes) {
                 Optional<Tag> optTag = springClassAnalyser.getTagFromClass(clazz);
                 if (optTag.isPresent()) {

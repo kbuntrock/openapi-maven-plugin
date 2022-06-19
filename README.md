@@ -54,7 +54,9 @@ The `execution` phase cannot be set before 'compile'.
 | `filename` | Generated filename of the documentation. **Must not** contain the file extention. Default is `openapi` |
 | `tag` | Configuration of a tag element in the generated document. |
 | `operation` | Configuration of a operation element in the generated document. |
-| `attachArtifact` | If enabled, the generated documentation will be attached as a maven artifact. The filename is used as a classifier. Default is false. |
+| `attachArtifact` | If enabled, the generated documentation will be attached as a maven artifact. The filename is used as a classifier. Default is true. |
+| `defaultProduceConsumeGuessing` | If a produce or consume value is not defined, try to guess a value depending of the parameter/return type. Default is false. |
+| `springPathEnhancement` | Apply the spring enhancement to path value between a class @RequestMapping and a method @RequestMapping : add a "/" between the two values if there is none and add a "/" at the beginning of the operation path if there is none . Default is true. |
 
 # Configuration for `tag`
 

@@ -1,5 +1,6 @@
 package com.github.kbuntrock;
 
+import com.github.kbuntrock.configuration.ApiConfiguration;
 import com.github.kbuntrock.model.*;
 import com.github.kbuntrock.utils.Logger;
 import com.github.kbuntrock.utils.OpenApiDataType;
@@ -24,6 +25,12 @@ public class SpringClassAnalyser {
 
     private final Log logger = Logger.INSTANCE.getLogger();
 
+    private final ApiConfiguration apiConfiguration;
+
+    public SpringClassAnalyser(ApiConfiguration apiConfiguration) {
+        this.apiConfiguration = apiConfiguration;
+    }
+
     /**
      * Create a Tag from a java class containing REST mapping functions
      *
@@ -37,10 +44,12 @@ public class SpringClassAnalyser {
         String basePath = "";
         RequestMapping classRequestMapping = clazz.getAnnotation(RequestMapping.class);
 
-        if (classRequestMapping.value() != null && classRequestMapping.value().length > 0) {
-            basePath = classRequestMapping.value()[0];
-        } else if (classRequestMapping.path() != null && classRequestMapping.path().length > 0) {
-            basePath = classRequestMapping.path()[0];
+        if (classRequestMapping != null) {
+            if (classRequestMapping.value() != null && classRequestMapping.value().length > 0) {
+                basePath = classRequestMapping.value()[0];
+            } else if (classRequestMapping.path() != null && classRequestMapping.path().length > 0) {
+                basePath = classRequestMapping.path()[0];
+            }
         }
 
         parseEndpoints(tag, basePath, clazz);
@@ -177,9 +186,9 @@ public class SpringClassAnalyser {
         return dataObject;
     }
 
-    private static Optional<Endpoint> readRequestMapping(String basePath, RequestMapping requestMapping, Annotation realAnnotation) throws MojoFailureException {
+    private Optional<Endpoint> readRequestMapping(String basePath, RequestMapping requestMapping, Annotation realAnnotation) throws MojoFailureException {
         Optional<OperationType> operation = requestMappingToOperation(requestMapping);
-        if (operation.isEmpty()) {
+        if (!operation.isPresent()) {
             return Optional.empty();
         }
         Endpoint endpoint = new Endpoint();
@@ -223,7 +232,7 @@ public class SpringClassAnalyser {
         }
     }
 
-    private static String readEndpointPath(String basePath, Annotation realAnnotation) throws MojoFailureException {
+    private String readEndpointPath(String basePath, Annotation realAnnotation) throws MojoFailureException {
         Method methodValue = null;
         Method methodPath = null;
         try {
@@ -233,24 +242,35 @@ public class SpringClassAnalyser {
             throw new MojoFailureException("Method 'value' not found for " + realAnnotation.getClass().getSimpleName());
         }
         if (methodValue == null && methodPath == null) {
-            return basePath;
+            return concatenateBasePathAndMethodPath(basePath, "", apiConfiguration.isSpringPathEnhancement());
         }
         try {
             String[] paths = (String[]) methodPath.invoke(realAnnotation);
             if (paths != null && paths.length > 0) {
-                return basePath + paths[0];
+                return concatenateBasePathAndMethodPath(basePath, paths[0], apiConfiguration.isSpringPathEnhancement());
             }
             String[] values = (String[]) methodValue.invoke(realAnnotation);
             if (values != null && values.length > 0) {
-                return basePath + values[0];
+                return concatenateBasePathAndMethodPath(basePath, values[0], apiConfiguration.isSpringPathEnhancement());
             }
-            return basePath;
+            return concatenateBasePathAndMethodPath(basePath, "", apiConfiguration.isSpringPathEnhancement());
 
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new MojoFailureException("Method value cannot be invoked for " + realAnnotation.annotationType().getSimpleName());
         }
+    }
 
-
+    private static String concatenateBasePathAndMethodPath(String basePath, String methodPath, boolean automaticSeparator) {
+        String result = basePath + methodPath;
+        if (automaticSeparator) {
+            if (!methodPath.isEmpty() && !methodPath.startsWith("/") && !basePath.endsWith("/")) {
+                result = basePath + "/" + methodPath;
+            }
+            if (!result.startsWith("/")) {
+                result = "/" + result;
+            }
+        }
+        return result;
     }
 
     private static Optional<OperationType> requestMappingToOperation(RequestMapping requestMapping) {

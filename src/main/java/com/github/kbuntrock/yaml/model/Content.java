@@ -5,7 +5,7 @@ import com.github.kbuntrock.model.ParameterObject;
 import com.github.kbuntrock.utils.OpenApiDataType;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import java.util.Arrays;
 
 public class Content {
 
@@ -29,7 +29,7 @@ public class Content {
             Content multipartContent = new Content();
             Schema schema = new Schema();
             if (parameterObject.isRequired()) {
-                schema.setRequired(List.of(parameterObject.getName()));
+                schema.setRequired(Arrays.asList(parameterObject.getName()));
                 multipartContent.schema = schema;
             }
             schema.setProperties(content.schema.getProperties());

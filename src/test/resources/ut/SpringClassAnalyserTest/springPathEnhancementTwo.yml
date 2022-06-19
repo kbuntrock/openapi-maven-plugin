@@ -1,0 +1,34 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: SpringPathEnhancementTwoController
+paths:
+  /:
+    get:
+      tags:
+        - SpringPathEnhancementTwoController
+      operationId: getTwo
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+  /one:
+    get:
+      tags:
+        - SpringPathEnhancementTwoController
+      operationId: getOne
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string

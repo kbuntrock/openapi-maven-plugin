@@ -1,10 +1,6 @@
 package com.github.kbuntrock.javadoc;
 
-import com.github.javaparser.StaticJavaParser;
-import com.github.javaparser.ast.CompilationUnit;
-
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,12 +21,10 @@ public class JavadocParser {
     }
 
     public void analyseClass(Class<?> clazz) throws IOException {
-        Path path = Path.of(projectPath, getProjectClassPath(clazz));
-        if(path.toFile().exists()) {
-            CompilationUnit compilationUnit = StaticJavaParser.parse(path);
-        }
-
-        System.out.println("");
+//        Path path = Path.of(projectPath, getProjectClassPath(clazz));
+//        if(path.toFile().exists()) {
+//            CompilationUnit compilationUnit = StaticJavaParser.parse(path);
+//        }
     }
 
     private String[] getProjectClassPath(Class<?> clazz) {
@@ -39,7 +33,7 @@ public class JavadocParser {
         String[] classPathInProject = new String[classPath.length + 3];
         System.arraycopy(classPath, 0, classPathInProject, 3, classPath.length);
         classPathInProject[0] = "src";
-        if(test) {
+        if (test) {
             classPathInProject[1] = "test";
         } else {
             classPathInProject[1] = "main";

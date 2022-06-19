@@ -8,7 +8,7 @@ servers:
 tags:
   - name: FileUploadController
 paths:
-  /api/file-uploadupload-files:
+  /api/file-upload/upload-files:
     post:
       tags:
         - FileUploadController

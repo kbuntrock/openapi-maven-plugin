@@ -78,7 +78,7 @@ public class DocumentationMojo extends AbstractMojo {
         ReflectionsUtils.initiate(projectClassLoader);
 
         for (ApiConfiguration apiConfiguration : apis) {
-            SpringResourceParser springResourceParser = new SpringResourceParser(apiConfiguration.getLocations());
+            SpringResourceParser springResourceParser = new SpringResourceParser(apiConfiguration);
             getLog().debug("Prepare to scan");
             TagLibrary tagLibrary = springResourceParser.scanRestControllers();
             getLog().debug("Scan done");

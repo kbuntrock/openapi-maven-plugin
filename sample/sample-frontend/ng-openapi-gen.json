@@ -1,6 +1,6 @@
 {
 	"$schema": "node_modules/ng-openapi-gen/ng-openapi-gen-schema.json",
-	"input": "../sample-api/target/openapi.yml",
+	"input": "../sample-api/target/spec-open-api.yml",
 	"output": "src/app/generated",
 	"templates": "templates-openapi-gen",
 	"enumStyle": "alias"

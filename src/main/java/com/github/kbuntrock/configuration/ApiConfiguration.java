@@ -22,10 +22,21 @@ public class ApiConfiguration {
     private Operation operation = new Operation();
 
     @Parameter
-    private boolean attachArtifact;
+    private boolean attachArtifact = true;
 
+    /**
+     * If not defined, try to guess a produce / consume value depending of the parameter/return type
+     */
     @Parameter
     private boolean defaultProduceConsumeGuessing;
+
+    /**
+     * Apply the spring enhancement to path value between a class @RequestMapping and a method @RequestMapping :
+     * - add a "/" between the two values if there is none
+     * - add a "/" at the beginning of the operation path if there is none
+     */
+    @Parameter
+    private boolean springPathEnhancement = true;
 
     public List<String> getLocations() {
         return locations;
@@ -73,5 +84,13 @@ public class ApiConfiguration {
 
     public void setDefaultProduceConsumeGuessing(boolean defaultProduceConsumeGuessing) {
         this.defaultProduceConsumeGuessing = defaultProduceConsumeGuessing;
+    }
+
+    public boolean isSpringPathEnhancement() {
+        return springPathEnhancement;
+    }
+
+    public void setSpringPathEnhancement(boolean springPathEnhancement) {
+        this.springPathEnhancement = springPathEnhancement;
     }
 }
