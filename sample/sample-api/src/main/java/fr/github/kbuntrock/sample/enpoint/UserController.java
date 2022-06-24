@@ -24,9 +24,6 @@ public interface UserController {
     @PutMapping("/update")
     UserDto updateUser(@RequestBody UserDto userDto);
 
-    @PostMapping(path = "/upload-files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    List<String> uploadFiles(@RequestParam(name = "files") MultipartFile[] files);
-
     @GetMapping("/usergroup/{id}")
     UserGroupDto getUsergroupById(@PathVariable(value = "id") Long id);
 

@@ -42,15 +42,6 @@ public class UserControllerImpl implements UserController {
     }
 
     @Override
-    public List<String> uploadFiles(MultipartFile[] multipartFile) {
-        List<String> filenames = new ArrayList<>();
-        for (MultipartFile file : multipartFile) {
-            filenames.add(file.getOriginalFilename());
-        }
-        return filenames;
-    }
-
-    @Override
     public UserGroupDto getUsergroupById(Long id) {
         UserGroupDto userGroupDto = new UserGroupDto();
 

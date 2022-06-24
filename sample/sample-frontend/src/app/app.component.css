@@ -290,3 +290,8 @@
       visibility: hidden;
     }
   }
+
+  .upload-mode-card {
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }

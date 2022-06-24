@@ -53,7 +53,35 @@
 
   <h2></h2>
   <h2>File Upload</h2>
-  <input type="file" multiple (change)="sendFiles($event.target)">
+
+  <input type="file" multiple (change)="loadFiles($event.target)">
+
+  <fieldset class="upload-mode-card">
+    <legend>Select an upload mode:</legend>
+
+    <div>
+      <button (click)="sendMultipleFiles()">
+        <span>Multiple</span>
+      </button>
+    </div>
+
+    <div>
+      <button (click)="sendSingleFile()">
+        <span>Single</span>
+      </button>
+    </div>
+
+    <div>
+      <button (click)="sendNonRequiredFiles()">
+        <span>Non required - with files</span>
+      </button>
+      <button (click)="sendNonRequiredFilesWithoutFile()">
+        <span>Non required - no file</span>
+      </button>
+    </div>
+</fieldset>
+
+  
    
 
 <router-outlet></router-outlet>

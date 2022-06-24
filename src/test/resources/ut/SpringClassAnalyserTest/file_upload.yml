@@ -8,17 +8,65 @@ servers:
 tags:
   - name: FileUploadController
 paths:
-  /api/file-upload/upload-files:
+  /api/file-upload/files:
     post:
       tags:
         - FileUploadController
       operationId: uploadFiles
+      parameters:
+        - name: myId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
       requestBody:
         content:
           multipart/form-data:
             schema:
               required:
                 - files
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  uniqueItems: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/file-upload/non-required-files:
+    post:
+      tags:
+        - FileUploadController
+      operationId: uploadNonRequiredFiles
+      parameters:
+        - name: myId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  uniqueItems: true
       responses:
         200:
           description: successful operation
@@ -28,3 +76,33 @@ paths:
                 type: array
                 items:
                   type: string
+  /api/file-upload/single-files:
+    post:
+      tags:
+        - FileUploadController
+      operationId: uploadSingleFile
+      parameters:
+        - name: myId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - file
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string

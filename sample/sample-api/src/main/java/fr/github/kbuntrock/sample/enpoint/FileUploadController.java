@@ -1,6 +1,6 @@
-package com.github.kbuntrock.resources.endpoint.file;
+package fr.github.kbuntrock.sample.enpoint;
 
-import com.github.kbuntrock.resources.Constants;
+import fr.github.kbuntrock.sample.Constants;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,7 +9,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@RequestMapping(path = Constants.BASE_API + "/file-upload")
+/**
+ * @author Kevin Buntrock
+ */
+@RequestMapping(path = Constants.BASE_PATH + "/file-upload")
 public interface FileUploadController {
 
     @PostMapping(path = "/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

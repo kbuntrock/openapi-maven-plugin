@@ -16,6 +16,18 @@ public class Property extends Schema {
     private boolean required;
 
     public Property() {
+        super();
+    }
+
+    public Property(Schema schema) {
+        this.setProperties(schema.getProperties());
+        this.setAdditionalProperties(schema.getAdditionalProperties());
+        this.setItems(schema.getItems());
+        this.setType(schema.getType());
+        this.setFormat(schema.getFormat());
+        this.setRequired(schema.getRequired());
+        this.setReference(schema.getReference());
+        this.setEnumValues(schema.getEnumValues());
     }
 
     public Property(DataObject dataObject, boolean mainReference, String name) {

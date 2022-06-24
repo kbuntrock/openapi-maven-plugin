@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { UserGroupDto } from './generated/models';
 import { UserDto } from './generated/models/user-dto';
-import { EnumPlaytestControllerService, GenericControllerService, MapPlaytestControllerService, TimeControllerService, UserControllerService } from './generated/services';
+import { EnumPlaytestControllerService, FileUploadControllerService, GenericControllerService, MapPlaytestControllerService, TimeControllerService, UserControllerService } from './generated/services';
 import * as dayjs from 'dayjs';
 import { Dayjs } from 'dayjs';
 import * as customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -22,10 +22,15 @@ export class AppComponent {
 
   compteur: number = 0;
 
+  uploadMode = 'multiple';
+
+  filesToUpload: File[] = [];
+
   constructor(private readonly userControllerService: UserControllerService, 
     private readonly enumPlaytestControllerService: EnumPlaytestControllerService,
     private readonly mapPlaytestControllerService: MapPlaytestControllerService,
     private readonly timeControllerService: TimeControllerService,
+    private readonly fileUploadControllerService: FileUploadControllerService,
     private readonly genericControllerService: GenericControllerService) {
       dayjs.extend(utc);
   }
@@ -181,7 +186,8 @@ export class AppComponent {
     this.compteur++;
   }
 
-  public async sendFiles(eventTarget: EventTarget | null) {
+  public loadFiles(eventTarget: EventTarget | null) {
+    this.filesToUpload = [];
     if(eventTarget) {
       const fileList: FileList | null = (eventTarget as HTMLInputElement).files;
       if(fileList && fileList.length > 0) {
@@ -193,13 +199,27 @@ export class AppComponent {
             
           } 
         }
-        this.displayResponse(await this.userControllerService.uploadFiles({body: {
-          files
-        }})); 
+        this.filesToUpload = files;
       }
      
     }
   } 
+
+  public async sendMultipleFiles() {
+    this.displayResponse(await this.fileUploadControllerService.uploadFiles({myId: 1053, body: { files: this.filesToUpload}})); 
+  }
+
+  public async sendSingleFile() {
+    this.displayResponse(await this.fileUploadControllerService.uploadSingleFile({myId: 1053, body: { file: this.filesToUpload[0]}})); 
+  }
+
+  public async sendNonRequiredFiles() {
+    this.displayResponse(await this.fileUploadControllerService.uploadNonRequiredFiles({myId: 1053, body: { files: this.filesToUpload}})); 
+  }
+
+  public async sendNonRequiredFilesWithoutFile() {
+    this.displayResponse(await this.fileUploadControllerService.uploadNonRequiredFiles({myId: 1053})); 
+  }
 
   private createUser(): UserDto {
     const user: UserDto = {
