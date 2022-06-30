@@ -3,8 +3,10 @@ package com.github.kbuntrock.yaml;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.github.javaparser.javadoc.Javadoc;
 import com.github.kbuntrock.TagLibrary;
 import com.github.kbuntrock.configuration.ApiConfiguration;
+import com.github.kbuntrock.javadoc.ClassDocumentation;
 import com.github.kbuntrock.model.DataObject;
 import com.github.kbuntrock.model.Endpoint;
 import com.github.kbuntrock.model.ParameterObject;
@@ -30,9 +32,16 @@ public class YamlWriter {
 
     private final MavenProject mavenProject;
 
+    private Map<String, ClassDocumentation> javadocMap;
+
     public YamlWriter(final MavenProject mavenProject, final ApiConfiguration apiConfiguration) {
+        this(mavenProject, apiConfiguration, null);
+    }
+
+    public YamlWriter(final MavenProject mavenProject, final ApiConfiguration apiConfiguration, final Map<String, ClassDocumentation> javadocMap) {
         this.apiConfiguration = apiConfiguration;
         this.mavenProject = mavenProject;
+        this.javadocMap = javadocMap;
     }
 
     public void write(File file, TagLibrary tagLibrary) throws IOException {
@@ -47,7 +56,13 @@ public class YamlWriter {
         specification.getServers().add(server);
 
         specification.setTags(tagLibrary.getTags().stream()
-                .map(x -> new TagElement(x.computeConfiguredName(apiConfiguration))).collect(Collectors.toList()));
+                .map(x -> {
+                    ClassDocumentation classDocumentation = javadocMap.get(x.getClazz().getCanonicalName());
+                    if (classDocumentation != null && classDocumentation.getJavadoc() != null) {
+                        return new TagElement(x.computeConfiguredName(apiConfiguration), classDocumentation.getJavadoc().getDescription().toText());
+                    }
+                    return new TagElement(x.computeConfiguredName(apiConfiguration), null);
+                }).collect(Collectors.toList()));
 
         specification.setPaths(createPaths(tagLibrary));
 
@@ -66,6 +81,8 @@ public class YamlWriter {
 
         for (Tag tag : tagLibrary.getTags()) {
 
+            ClassDocumentation classDocumentation = javadocMap.get(tag.getClazz().getCanonicalName());
+
             // List of operations, which will be sorted before storing them by path. In order to keep a deterministic generation.
             List<Operation> operations = new ArrayList<>();
 
@@ -78,6 +95,15 @@ public class YamlWriter {
                 operation.setPath(endpoint.getPath());
                 operation.getTags().add(tag.computeConfiguredName(apiConfiguration));
                 operation.setOperationId(endpoint.computeConfiguredName(apiConfiguration));
+
+                // Javadoc to description
+                Javadoc javadoc = null;
+                if (classDocumentation != null) {
+                    javadoc = classDocumentation.getMethodsJavadoc().get(endpoint.getIdentifier());
+                    if (javadoc != null) {
+                        operation.setDescription(javadoc.getDescription().toText());
+                    }
+                }
 
                 // Warning on paths
                 if (!operation.getPath().startsWith("/")) {

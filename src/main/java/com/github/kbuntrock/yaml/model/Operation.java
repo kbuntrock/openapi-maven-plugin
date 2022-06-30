@@ -2,8 +2,6 @@ package com.github.kbuntrock.yaml.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.github.kbuntrock.model.Endpoint;
-import com.github.kbuntrock.model.Tag;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -21,6 +19,9 @@ public class Operation {
     private List<String> tags = new ArrayList<>();
 
     private String operationId;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String description;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final List<ParameterElement> parameters = new ArrayList<>();
@@ -77,5 +78,13 @@ public class Operation {
 
     public Map<Object, Response> getResponses() {
         return responses;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

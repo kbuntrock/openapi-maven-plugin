@@ -2,7 +2,10 @@ package com.github.kbuntrock;
 
 
 import com.github.kbuntrock.configuration.ApiConfiguration;
+import com.github.kbuntrock.javadoc.ClassDocumentation;
+import com.github.kbuntrock.javadoc.JavadocParser;
 import com.github.kbuntrock.reflection.ReflectionsUtils;
+import com.github.kbuntrock.utils.FileUtils;
 import com.github.kbuntrock.utils.Logger;
 import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
@@ -21,6 +24,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +41,12 @@ public class DocumentationMojo extends AbstractMojo {
     private List<ApiConfiguration> apis;
 
     /**
+     * A list of api configurations
+     */
+    @Parameter(required = false)
+    private List<String> javadocScanLocations;
+
+    /**
      * Location of the file.
      */
     @Parameter(defaultValue = "${project.build.directory}", property = "outputDir", required = true)
@@ -50,13 +60,16 @@ public class DocumentationMojo extends AbstractMojo {
 
     private ClassLoader projectClassLoader;
 
+    private Map<String, ClassDocumentation> javadocMap;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         Logger.INSTANCE.setLogger(getLog());
 
         long debut = System.currentTimeMillis();
 
         validateConfiguration();
-        scanProjectResources();
+        this.javadocMap = scanJavadoc();
+        scanProjectResourcesAndWriteSpec();
 
         getLog().info("Openapi spec generation took " + (System.currentTimeMillis() - debut) + "ms.");
     }
@@ -72,7 +85,7 @@ public class DocumentationMojo extends AbstractMojo {
         }
     }
 
-    private void scanProjectResources() throws MojoFailureException, MojoExecutionException {
+    private void scanProjectResourcesAndWriteSpec() throws MojoFailureException, MojoExecutionException {
 
         projectClassLoader = createProjectDependenciesClassLoader();
         ReflectionsUtils.initiate(projectClassLoader);
@@ -131,5 +144,16 @@ public class DocumentationMojo extends AbstractMojo {
         }
 
     }
+
+    private Map<String, ClassDocumentation> scanJavadoc() {
+        List<File> filesToScan = new ArrayList<>();
+        for (String path : javadocScanLocations) {
+            filesToScan.add(FileUtils.toFile(project.getBasedir().getAbsolutePath(), path));
+        }
+        JavadocParser javadocParser = new JavadocParser(filesToScan);
+        javadocParser.scan();
+        return javadocParser.getJavadocMap();
+    }
+
 
 }

@@ -20,8 +20,14 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SpringClassAnalyser {
+
+    private static final Pattern BEGINNING = Pattern.compile("^[a-z\\.]*");
+    private static final Pattern FIRST_GENERIC = Pattern.compile("<[a-z\\.]*");
+    private static final Pattern OTHER_GENERIC = Pattern.compile(",[a-z\\.]*");
 
     private final Log logger = Logger.INSTANCE.getLogger();
 
@@ -83,6 +89,7 @@ public class SpringClassAnalyser {
                         logger.debug("Parsing endpoint : " + endpoint.getName() + " - response read");
                         endpoint.setResponseCode(readResponseCode(method));
                         setConsumeProduceProperties(endpoint, annotation);
+                        endpoint.setIdentifier(createIdentifier(method));
                         tag.addEndpoint(endpoint);
                         logger.debug("Parsing endpoint : " + endpoint.getName() + " - the end");
                     }
@@ -90,6 +97,38 @@ public class SpringClassAnalyser {
 
             }
         }
+    }
+
+    private String createTypeIdentifier(String typeName) {
+
+
+        String returnTypeName = typeName;
+        Matcher matcher = BEGINNING.matcher(returnTypeName);
+        if (matcher.find() && matcher.group().contains(".")) {
+            returnTypeName = returnTypeName.replace(matcher.group(), "");
+        }
+        Matcher matcher2 = FIRST_GENERIC.matcher(returnTypeName);
+        if (matcher2.find() && matcher2.group().contains(".")) {
+            returnTypeName = returnTypeName.replace(matcher2.group(), "<");
+        }
+        Matcher matcher3 = OTHER_GENERIC.matcher(returnTypeName);
+        if (matcher3.find() && matcher3.group().contains(".")) {
+            returnTypeName = returnTypeName.replace(matcher3.group(), ",");
+        }
+
+        return returnTypeName;
+    }
+
+    private String createIdentifier(Method method) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(createTypeIdentifier(method.getGenericReturnType().getTypeName()));
+        sb.append("_");
+        sb.append(method.getName());
+        for (Parameter parameter : method.getParameters()) {
+            sb.append("_");
+            sb.append(createTypeIdentifier(parameter.getParameterizedType().getTypeName()));
+        }
+        return sb.toString();
     }
 
     /**

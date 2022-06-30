@@ -21,6 +21,11 @@ public class Endpoint {
     private DataObject responseObject;
     private String responseFormat;
 
+    /**
+     * Used to identify uniquely a endpoint. Aggregation of the returned type, the name and the parameters types.
+     */
+    private String identifier;
+
     public String getPath() {
         return path;
     }
@@ -85,5 +90,13 @@ public class Endpoint {
 
     public void setResponseFormat(String responseFormat) {
         this.responseFormat = responseFormat;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 }

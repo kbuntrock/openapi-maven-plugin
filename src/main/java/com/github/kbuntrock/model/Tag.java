@@ -50,6 +50,10 @@ public class Tag {
         this.endpoints.add(endpoint);
     }
 
+    public Class<?> getClazz() {
+        return clazz;
+    }
+
     @Override
     public String toString() {
         return "Tag{" +
