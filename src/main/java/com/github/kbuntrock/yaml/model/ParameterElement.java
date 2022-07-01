@@ -1,8 +1,12 @@
 package com.github.kbuntrock.yaml.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 public class ParameterElement {
 
     private String name;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String description;
     private String in;
     private boolean required;
     private Property schema;
@@ -37,5 +41,13 @@ public class ParameterElement {
 
     public void setSchema(Property schema) {
         this.schema = schema;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

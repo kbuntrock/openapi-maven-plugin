@@ -3,6 +3,9 @@ package com.github.kbuntrock.yaml.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.kbuntrock.javadoc.ClassDocumentation;
+import com.github.kbuntrock.javadoc.JavadocMap;
+import com.github.kbuntrock.javadoc.JavadocWrapper;
 import com.github.kbuntrock.model.DataObject;
 import com.github.kbuntrock.reflection.GenericArrayTypeImpl;
 import com.github.kbuntrock.reflection.ParameterizedTypeImpl;
@@ -13,15 +16,14 @@ import com.github.kbuntrock.utils.OpenApiDataFormat;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.lang.reflect.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Schema {
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    protected String description;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     protected List<String> required;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -61,6 +63,18 @@ public class Schema {
 
         this.mainReference = mainReference;
 
+        // Javadoc handling
+        ClassDocumentation classDocumentation = null;
+        if (JavadocMap.INSTANCE.isPresent()) {
+            classDocumentation = JavadocMap.INSTANCE.getJavadocMap().get(dataObject.getJavaClass().getCanonicalName());
+            if (classDocumentation != null && mainReference) {
+                Optional<String> optionalDescription = classDocumentation.getDescription();
+                if (optionalDescription.isPresent()) {
+                    description = optionalDescription.get();
+                }
+            }
+        }
+
         if (dataObject.isMap()) {
             type = dataObject.getOpenApiType().getValue();
             additionalProperties = new Schema(dataObject.getMapValueType());
@@ -88,6 +102,15 @@ public class Schema {
                     Property property = new Property(propertyObject, false, field.getName());
                     extractConstraints(field, property);
                     properties.put(property.getName(), property);
+
+                    // Javadoc handling
+                    if (classDocumentation != null) {
+                        JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(field.getName());
+                        if (javadocWrapper != null) {
+                            Optional<String> desc = javadocWrapper.getDescription();
+                            property.setDescription(desc.get());
+                        }
+                    }
 
                 }
             }
@@ -238,5 +261,13 @@ public class Schema {
 
     public void setItems(Schema items) {
         this.items = items;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

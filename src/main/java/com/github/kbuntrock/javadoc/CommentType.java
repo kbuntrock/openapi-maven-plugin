@@ -27,7 +27,6 @@ public enum CommentType {
         }
         if (node instanceof ClassOrInterfaceDeclaration || node instanceof EnumDeclaration) {
             return CLASS;
-
         }
         if (node instanceof FieldDeclaration) {
             return FIELD;

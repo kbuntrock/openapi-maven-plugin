@@ -53,6 +53,7 @@ public class JavadocParser {
                 logger.warn(LOG_PREFIX + "File " + file.getAbsolutePath() + " is not a directory.");
             } else {
                 try {
+                    logger.info(LOG_PREFIX + "Scanning directory : " + file.getAbsolutePath());
                     exploreDirectory(file);
                 } catch (FileNotFoundException e) {
                     logger.error(LOG_PREFIX + "Cannot read file " + file.getAbsolutePath());
@@ -109,7 +110,7 @@ public class JavadocParser {
                             break;
                         case FIELD:
                             classDocumentation.get().getFieldsJavadoc().put(
-                                    ((FieldDeclaration) comment.getCommentedNode().get()).getVariable(0).getNameAsString(), javadoc);
+                                    ((FieldDeclaration) comment.getCommentedNode().get()).getVariable(0).getNameAsString(), new JavadocWrapper(javadoc));
                             break;
                         case METHOD:
                             MethodDeclaration methodDeclaration = (MethodDeclaration) comment.getCommentedNode().get();
@@ -121,7 +122,7 @@ public class JavadocParser {
                                 sb.append("_");
                                 sb.append(parameter.getType().asString());
                             }
-                            classDocumentation.get().getMethodsJavadoc().put(sb.toString(), javadoc);
+                            classDocumentation.get().getMethodsJavadoc().put(sb.toString(), new JavadocWrapper(javadoc));
                             break;
                     }
                 }
@@ -143,6 +144,18 @@ public class JavadocParser {
             return Optional.of(javadocMap.computeIfAbsent(dec.getFullyQualifiedName().get(),
                     key -> new ClassDocumentation(dec.getFullyQualifiedName().get(), dec.getName().asString())));
         }
+        EnumDeclaration enumDeclaration = null;
+        if (commentedNode instanceof EnumDeclaration) {
+            enumDeclaration = (EnumDeclaration) commentedNode;
+        } else if (commentedNode.hasParentNode() && commentedNode.getParentNode().get() instanceof EnumDeclaration) {
+            enumDeclaration = (EnumDeclaration) commentedNode.getParentNode().get();
+        }
+        if (enumDeclaration != null) {
+            final EnumDeclaration dec = enumDeclaration;
+            return Optional.of(javadocMap.computeIfAbsent(dec.getFullyQualifiedName().get(),
+                    key -> new ClassDocumentation(dec.getFullyQualifiedName().get(), dec.getName().asString())));
+        }
+
         return Optional.empty();
     }
 

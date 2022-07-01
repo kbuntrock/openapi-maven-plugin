@@ -4,15 +4,16 @@ import com.github.javaparser.javadoc.Javadoc;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class ClassDocumentation {
 
     private String completeName;
     private String simpleName;
-    private Javadoc javadoc;
+    private JavadocWrapper javadocWrapper;
 
-    private Map<String, Javadoc> fieldsJavadoc;
-    private Map<String, Javadoc> methodsJavadoc;
+    private Map<String, JavadocWrapper> fieldsJavadoc;
+    private Map<String, JavadocWrapper> methodsJavadoc;
 
     public ClassDocumentation(String completeName, String simpleName) {
         this.completeName = completeName;
@@ -27,26 +28,33 @@ public class ClassDocumentation {
         return simpleName;
     }
 
-    public Javadoc getJavadoc() {
-        return javadoc;
+    public JavadocWrapper getJavadoc() {
+        return javadocWrapper;
     }
 
     public void setJavadoc(Javadoc javadoc) {
-        this.javadoc = javadoc;
+        this.javadocWrapper = new JavadocWrapper(javadoc);
     }
 
-    public Map<String, Javadoc> getFieldsJavadoc() {
+    public Map<String, JavadocWrapper> getFieldsJavadoc() {
         if (fieldsJavadoc == null) {
             fieldsJavadoc = new HashMap<>();
         }
         return fieldsJavadoc;
     }
 
-    public Map<String, Javadoc> getMethodsJavadoc() {
+    public Map<String, JavadocWrapper> getMethodsJavadoc() {
         if (methodsJavadoc == null) {
             methodsJavadoc = new HashMap<>();
         }
         return methodsJavadoc;
+    }
+
+    public Optional<String> getDescription() {
+        if (javadocWrapper != null) {
+            return javadocWrapper.getDescription();
+        }
+        return Optional.empty();
     }
 
 }

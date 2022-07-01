@@ -1,10 +1,11 @@
 package com.github.kbuntrock;
 
 import com.github.kbuntrock.configuration.ApiConfiguration;
+import com.github.kbuntrock.javadoc.JavadocMap;
 import com.github.kbuntrock.javadoc.JavadocParser;
 import com.github.kbuntrock.model.Tag;
 import com.github.kbuntrock.reflection.ReflectionsUtils;
-import com.github.kbuntrock.resources.endpoint.file.FileUploadController;
+import com.github.kbuntrock.resources.endpoint.AccountController;
 import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
@@ -52,15 +53,16 @@ public class JavadocParserTest extends AbstractTest {
 
         JavadocParser javadocParser = new JavadocParser(Arrays.asList(new File("src/test/java/com/github/kbuntrock/resources")));
         javadocParser.scan();
+        JavadocMap.INSTANCE.setJavadocMap(javadocParser.getJavadocMap());
 
         SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(FileUploadController.class);
+        Optional<Tag> tag = analyser.getTagFromClass(AccountController.class);
         TagLibrary library = new TagLibrary();
         library.addTag(tag.get());
 
         File generatedFile = new File("target/toto.yml");
 
-        new YamlWriter(createBasicMavenProject(), apiConfiguration, javadocParser.getJavadocMap()).write(generatedFile, library);
+        new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
 
     }
 

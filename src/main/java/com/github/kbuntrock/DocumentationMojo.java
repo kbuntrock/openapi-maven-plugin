@@ -2,7 +2,8 @@ package com.github.kbuntrock;
 
 
 import com.github.kbuntrock.configuration.ApiConfiguration;
-import com.github.kbuntrock.javadoc.ClassDocumentation;
+import com.github.kbuntrock.configuration.JavadocConfiguration;
+import com.github.kbuntrock.javadoc.JavadocMap;
 import com.github.kbuntrock.javadoc.JavadocParser;
 import com.github.kbuntrock.reflection.ReflectionsUtils;
 import com.github.kbuntrock.utils.FileUtils;
@@ -24,7 +25,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -44,7 +44,7 @@ public class DocumentationMojo extends AbstractMojo {
      * A list of api configurations
      */
     @Parameter(required = false)
-    private List<String> javadocScanLocations;
+    private JavadocConfiguration javadoc;
 
     /**
      * Location of the file.
@@ -60,15 +60,13 @@ public class DocumentationMojo extends AbstractMojo {
 
     private ClassLoader projectClassLoader;
 
-    private Map<String, ClassDocumentation> javadocMap;
-
     public void execute() throws MojoExecutionException, MojoFailureException {
         Logger.INSTANCE.setLogger(getLog());
 
         long debut = System.currentTimeMillis();
 
         validateConfiguration();
-        this.javadocMap = scanJavadoc();
+        scanJavadoc();
         scanProjectResourcesAndWriteSpec();
 
         getLog().info("Openapi spec generation took " + (System.currentTimeMillis() - debut) + "ms.");
@@ -135,9 +133,8 @@ public class DocumentationMojo extends AbstractMojo {
             URL[] urlsForClassLoader = pathUrls.toArray(new URL[pathUrls.size()]);
             getLog().debug("urls for URLClassLoader: " + Arrays.asList(urlsForClassLoader));
 
-            // We need to define parent classloader which is the parent of the plugin classloader, in order to not mix up
+            // We need to define parent classloader which is the plugin classloader, in order to not mix up
             // the project and the plugin classes.
-//            projectClassLoader = new URLClassLoader(urlsForClassLoader, DocumentationMojo.class.getClassLoader().getParent());
             return new URLClassLoader(urlsForClassLoader, DocumentationMojo.class.getClassLoader());
         } catch (DependencyResolutionRequiredException | MalformedURLException ex) {
             throw new MojoExecutionException("Cannot create project dependencies classloader", ex);
@@ -145,14 +142,18 @@ public class DocumentationMojo extends AbstractMojo {
 
     }
 
-    private Map<String, ClassDocumentation> scanJavadoc() {
-        List<File> filesToScan = new ArrayList<>();
-        for (String path : javadocScanLocations) {
-            filesToScan.add(FileUtils.toFile(project.getBasedir().getAbsolutePath(), path));
+    private void scanJavadoc() {
+        if (javadoc != null && javadoc.getScanLocations() != null && !javadoc.getScanLocations().isEmpty()) {
+            long debutJavadoc = System.currentTimeMillis();
+            List<File> filesToScan = new ArrayList<>();
+            for (String path : javadoc.getScanLocations()) {
+                filesToScan.add(FileUtils.toFile(project.getBasedir().getAbsolutePath(), path));
+            }
+            JavadocParser javadocParser = new JavadocParser(filesToScan);
+            javadocParser.scan();
+            JavadocMap.INSTANCE.setJavadocMap(javadocParser.getJavadocMap());
+            getLog().info("Javadoc parsing took " + (System.currentTimeMillis() - debutJavadoc) + "ms.");
         }
-        JavadocParser javadocParser = new JavadocParser(filesToScan);
-        javadocParser.scan();
-        return javadocParser.getJavadocMap();
     }
 
 
