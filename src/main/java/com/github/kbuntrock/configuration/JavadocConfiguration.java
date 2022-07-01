@@ -13,7 +13,7 @@ public class JavadocConfiguration {
     private List<String> scanLocations;
 
     @Parameter(required = false)
-    private String endOfLineReplacement;
+    private String endOfLineReplacement = "<br>";
 
     public List<String> getScanLocations() {
         return scanLocations;

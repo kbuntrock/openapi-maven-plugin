@@ -10,6 +10,8 @@ import java.util.*;
  */
 public class JavadocWrapper {
 
+    private static String endOfLineReplacement = null;
+
     private Javadoc javadoc;
 
     private Map<JavadocBlockTag.Type, List<JavadocBlockTag>> blockTagsByType;
@@ -21,6 +23,10 @@ public class JavadocWrapper {
 
     public Javadoc getJavadoc() {
         return javadoc;
+    }
+
+    public static void setEndOfLineReplacement(String endOfLineReplacement) {
+        JavadocWrapper.endOfLineReplacement = endOfLineReplacement;
     }
 
     public void sort() {
@@ -50,6 +56,9 @@ public class JavadocWrapper {
     public Optional<String> getDescription() {
         if (javadoc.getDescription() != null) {
             String desc = javadoc.getDescription().toText();
+            if (endOfLineReplacement != null) {
+                desc = desc.replaceAll("\n", endOfLineReplacement);
+            }
             if (!desc.isEmpty()) {
                 return Optional.of(desc);
             }

@@ -5,6 +5,7 @@ import com.github.kbuntrock.configuration.ApiConfiguration;
 import com.github.kbuntrock.configuration.JavadocConfiguration;
 import com.github.kbuntrock.javadoc.JavadocMap;
 import com.github.kbuntrock.javadoc.JavadocParser;
+import com.github.kbuntrock.javadoc.JavadocWrapper;
 import com.github.kbuntrock.reflection.ReflectionsUtils;
 import com.github.kbuntrock.utils.FileUtils;
 import com.github.kbuntrock.utils.Logger;
@@ -152,6 +153,9 @@ public class DocumentationMojo extends AbstractMojo {
             JavadocParser javadocParser = new JavadocParser(filesToScan);
             javadocParser.scan();
             JavadocMap.INSTANCE.setJavadocMap(javadocParser.getJavadocMap());
+            if (!javadoc.getEndOfLineReplacement().equals("disabled")) {
+                JavadocWrapper.setEndOfLineReplacement(javadoc.getEndOfLineReplacement());
+            }
             getLog().info("Javadoc parsing took " + (System.currentTimeMillis() - debutJavadoc) + "ms.");
         }
     }
