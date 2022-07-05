@@ -2,7 +2,6 @@ package com.github.kbuntrock;
 
 import com.github.kbuntrock.configuration.ApiConfiguration;
 import com.github.kbuntrock.model.Tag;
-import com.github.kbuntrock.reflection.ReflectionsUtils;
 import com.github.kbuntrock.resources.endpoint.enumeration.*;
 import com.github.kbuntrock.resources.endpoint.error.SameOperationController;
 import com.github.kbuntrock.resources.endpoint.file.FileUploadController;
@@ -17,7 +16,6 @@ import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.DigestUtils;
 
@@ -29,12 +27,6 @@ import java.nio.file.Files;
 import java.util.Optional;
 
 public class SpringClassAnalyserTest extends AbstractTest {
-
-    @BeforeAll
-    public static void initTest() {
-        ReflectionsUtils.initiateTestMode();
-    }
-
 
     private MavenProject createBasicMavenProject() {
         MavenProject mavenProjet = new MavenProject();

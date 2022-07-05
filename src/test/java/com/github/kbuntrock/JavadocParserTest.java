@@ -4,12 +4,10 @@ import com.github.kbuntrock.configuration.ApiConfiguration;
 import com.github.kbuntrock.javadoc.JavadocMap;
 import com.github.kbuntrock.javadoc.JavadocParser;
 import com.github.kbuntrock.model.Tag;
-import com.github.kbuntrock.reflection.ReflectionsUtils;
-import com.github.kbuntrock.resources.endpoint.AccountController;
+import com.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration3Controller;
 import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -19,12 +17,6 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public class JavadocParserTest extends AbstractTest {
-
-    @BeforeAll
-    public static void initTest() {
-        ReflectionsUtils.initiateTestMode();
-    }
-
 
     private MavenProject createBasicMavenProject() {
         MavenProject mavenProjet = new MavenProject();
@@ -56,7 +48,7 @@ public class JavadocParserTest extends AbstractTest {
         JavadocMap.INSTANCE.setJavadocMap(javadocParser.getJavadocMap());
 
         SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(AccountController.class);
+        Optional<Tag> tag = analyser.getTagFromClass(TestEnumeration3Controller.class);
         TagLibrary library = new TagLibrary();
         library.addTag(tag.get());
 
