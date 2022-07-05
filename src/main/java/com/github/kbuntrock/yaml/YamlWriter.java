@@ -201,7 +201,7 @@ public class YamlWriter {
                 // -------------------------
 
                 Response response = new Response();
-                response.setCode(endpoint.getResponseCode());
+                response.setCode(endpoint.getResponseCode(), apiConfiguration.getDefaultSuccessfulOperationDescription());
                 if (endpoint.getResponseObject() != null) {
                     Content responseContent = Content.fromDataObject(endpoint.getResponseObject());
                     if (endpoint.getResponseFormat() != null) {
@@ -211,7 +211,6 @@ public class YamlWriter {
                     } else {
                         response.getContent().put("*/*", responseContent);
                     }
-
                 }
 
                 // Javadoc handling

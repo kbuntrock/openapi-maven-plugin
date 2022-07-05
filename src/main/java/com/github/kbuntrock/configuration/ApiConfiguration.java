@@ -24,6 +24,9 @@ public class ApiConfiguration {
     @Parameter
     private boolean attachArtifact = true;
 
+    @Parameter(required = false)
+    private String defaultSuccessfulOperationDescription = "successful operation";
+
     /**
      * If not defined, try to guess a produce / consume value depending of the parameter/return type
      */
@@ -92,5 +95,13 @@ public class ApiConfiguration {
 
     public void setSpringPathEnhancement(boolean springPathEnhancement) {
         this.springPathEnhancement = springPathEnhancement;
+    }
+
+    public String getDefaultSuccessfulOperationDescription() {
+        return defaultSuccessfulOperationDescription;
+    }
+
+    public void setDefaultSuccessfulOperationDescription(String defaultSuccessfulOperationDescription) {
+        this.defaultSuccessfulOperationDescription = defaultSuccessfulOperationDescription;
     }
 }

@@ -112,6 +112,11 @@ public class JavadocParser {
                             classDocumentation.get().getFieldsJavadoc().put(
                                     ((FieldDeclaration) comment.getCommentedNode().get()).getVariable(0).getNameAsString(), new JavadocWrapper(javadoc));
                             break;
+                        case ENUM_VALUE:
+                            // Save an enum constant as a field
+                            classDocumentation.get().getFieldsJavadoc().put(
+                                    ((EnumConstantDeclaration) comment.getCommentedNode().get()).getNameAsString(), new JavadocWrapper(javadoc));
+                            break;
                         case METHOD:
                             MethodDeclaration methodDeclaration = (MethodDeclaration) comment.getCommentedNode().get();
                             StringBuilder sb = new StringBuilder();

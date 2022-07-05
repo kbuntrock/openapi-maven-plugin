@@ -57,7 +57,7 @@ public class JavadocWrapper {
         if (javadoc.getDescription() != null) {
             String desc = javadoc.getDescription().toText();
             if (endOfLineReplacement != null) {
-                desc = desc.replaceAll("\n", endOfLineReplacement);
+                desc = desc.replaceAll("\\r\\n", endOfLineReplacement).replaceAll("\\n", endOfLineReplacement);
             }
             if (!desc.isEmpty()) {
                 return Optional.of(desc);

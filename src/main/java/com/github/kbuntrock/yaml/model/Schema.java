@@ -118,6 +118,31 @@ public class Schema {
             List<String> enumItemValues = dataObject.getEnumItemValues();
             if (enumItemValues != null && !enumItemValues.isEmpty()) {
                 enumValues = enumItemValues;
+                if (classDocumentation != null) {
+                    StringBuilder sb = new StringBuilder();
+                    if (description != null) {
+                        sb.append(description);
+                        sb.append("\n");
+                    } else {
+                        sb.append(dataObject.getJavaClass().getSimpleName());
+                        sb.append("\n");
+                    }
+                    for (String value : enumItemValues) {
+                        JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(value);
+                        if (javadocWrapper != null) {
+                            Optional<String> desc = javadocWrapper.getDescription();
+                            if (desc.isPresent()) {
+                                sb.append("  * ");
+                                sb.append("`");
+                                sb.append(value);
+                                sb.append("` - ");
+                                sb.append(desc.get());
+                                sb.append("\n");
+                            }
+                        }
+                    }
+                    description = sb.toString();
+                }
             }
 
             required = properties.values().stream()
@@ -270,4 +295,5 @@ public class Schema {
     public void setDescription(String description) {
         this.description = description;
     }
+
 }

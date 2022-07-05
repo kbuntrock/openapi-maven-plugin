@@ -1,10 +1,7 @@
 package com.github.kbuntrock.javadoc;
 
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.EnumDeclaration;
-import com.github.javaparser.ast.body.FieldDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.*;
 
 /**
  * Pertinent comment types for the documentation generation.
@@ -18,6 +15,8 @@ public enum CommentType {
     CLASS,
     // Field comment
     FIELD,
+    // Enumeration value comment
+    ENUM_VALUE,
     // Other comment (constructor, orphan, ...)
     OTHER;
 
@@ -30,6 +29,9 @@ public enum CommentType {
         }
         if (node instanceof FieldDeclaration) {
             return FIELD;
+        }
+        if (node instanceof EnumConstantDeclaration) {
+            return ENUM_VALUE;
         }
         return OTHER;
     }
