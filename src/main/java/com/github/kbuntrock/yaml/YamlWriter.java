@@ -55,6 +55,7 @@ public class YamlWriter {
                     if (JavadocMap.INSTANCE.isPresent()) {
                         ClassDocumentation classDocumentation = JavadocMap.INSTANCE.getJavadocMap().get(x.getClazz().getCanonicalName());
                         if (classDocumentation != null) {
+                            classDocumentation.inheritanceEnhancement(x.getClazz(), ClassDocumentation.EnhancementType.METHODS);
                             Optional<String> description = classDocumentation.getDescription();
                             if (description.isPresent()) {
                                 return new TagElement(x.computeConfiguredName(apiConfiguration), description.get());
@@ -85,6 +86,8 @@ public class YamlWriter {
 
             ClassDocumentation classDocumentation = JavadocMap.INSTANCE.isPresent() ?
                     JavadocMap.INSTANCE.getJavadocMap().get(tag.getClazz().getCanonicalName()) : null;
+            // There is no need to try to enhance with the abstract or interfaces classes the documentation here.
+            // It has already been made when we were writing the tags
 
             // List of operations, which will be sorted before storing them by path. In order to keep a deterministic generation.
             List<Operation> operations = new ArrayList<>();

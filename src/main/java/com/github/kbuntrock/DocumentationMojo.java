@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -61,16 +62,36 @@ public class DocumentationMojo extends AbstractMojo {
 
     private ClassLoader projectClassLoader;
 
+    private boolean testMode = false;
+
+    /**
+     * Execution of the documentation mojo
+     *
+     * @throws MojoExecutionException
+     * @throws MojoFailureException
+     */
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        Logger.INSTANCE.setLogger(getLog());
 
         long debut = System.currentTimeMillis();
 
-        validateConfiguration();
-        scanJavadoc();
-        scanProjectResourcesAndWriteSpec();
+        Logger.INSTANCE.setLogger(getLog());
+
+        // Prepare the class loader
+        projectClassLoader = createProjectDependenciesClassLoader();
+        ReflectionsUtils.initiate(projectClassLoader);
+
+        // Validate the configuration, parse the javadoc, parse the compiled code, and write the documentation.
+        // This is the method to call in unit tests
+        documentProject();
 
         getLog().info("Openapi spec generation took " + (System.currentTimeMillis() - debut) + "ms.");
+    }
+
+    public List<File> documentProject() throws MojoFailureException, MojoExecutionException {
+        validateConfiguration();
+        scanJavadoc();
+        return scanProjectResourcesAndWriteSpec();
     }
 
     private void validateConfiguration() throws MojoFailureException {
@@ -84,19 +105,30 @@ public class DocumentationMojo extends AbstractMojo {
         }
     }
 
-    private void scanProjectResourcesAndWriteSpec() throws MojoFailureException, MojoExecutionException {
+    /**
+     * Scan the project compiled resources and write all the documentations files
+     *
+     * @return the generated files
+     * @throws MojoFailureException
+     * @throws MojoExecutionException
+     */
+    private List<File> scanProjectResourcesAndWriteSpec() throws MojoFailureException, MojoExecutionException {
 
-        projectClassLoader = createProjectDependenciesClassLoader();
-        ReflectionsUtils.initiate(projectClassLoader);
-
+        List<File> generatedFiles = new ArrayList<>();
         for (ApiConfiguration apiConfiguration : apis) {
             SpringResourceParser springResourceParser = new SpringResourceParser(apiConfiguration);
             getLog().debug("Prepare to scan");
             TagLibrary tagLibrary = springResourceParser.scanRestControllers();
             getLog().debug("Scan done");
-            File generatedFile = new File(outputDirectory, apiConfiguration.getFilename() + ".yml");
-            getLog().debug("Prepared to write : " + generatedFile.getAbsolutePath());
+
+            File generatedFile = null;
             try {
+                if (testMode) {
+                    generatedFile = Files.createTempFile(apiConfiguration.getFilename() + "_", ".yml").toFile();
+                } else {
+                    generatedFile = new File(outputDirectory, apiConfiguration.getFilename() + ".yml");
+                }
+                getLog().debug("Prepared to write : " + generatedFile.getAbsolutePath());
 
                 new YamlWriter(project, apiConfiguration).write(generatedFile, tagLibrary);
 
@@ -104,14 +136,16 @@ public class DocumentationMojo extends AbstractMojo {
                     projectHelper.attachArtifact(project, "yml", apiConfiguration.getFilename(), generatedFile);
                 }
 
+                generatedFiles.add(generatedFile);
+
                 int nbTagsGenerated = tagLibrary.getTags().size();
                 int nbOperationsGenerated = tagLibrary.getTags().stream().map(t -> t.getEndpoints().size()).collect(Collectors.summingInt(Integer::intValue));
                 getLog().info(apiConfiguration.getFilename() + " : " + nbTagsGenerated + " tags and " + nbOperationsGenerated + " operations generated.");
             } catch (IOException e) {
-                throw new MojoFailureException("Cannot write file specification file : " + generatedFile.getAbsolutePath());
+                throw new MojoFailureException("Cannot write file specification file : " + (generatedFile == null ? "temporary test file" : generatedFile.getAbsolutePath()));
             }
         }
-
+        return generatedFiles;
     }
 
     /**
@@ -160,5 +194,23 @@ public class DocumentationMojo extends AbstractMojo {
         }
     }
 
+    public List<ApiConfiguration> getApis() {
+        return apis;
+    }
 
+    public void setApis(List<ApiConfiguration> apis) {
+        this.apis = apis;
+    }
+
+    public void setJavadoc(JavadocConfiguration javadoc) {
+        this.javadoc = javadoc;
+    }
+
+    public void setProject(MavenProject project) {
+        this.project = project;
+    }
+
+    public void setTestMode(boolean testMode) {
+        this.testMode = testMode;
+    }
 }

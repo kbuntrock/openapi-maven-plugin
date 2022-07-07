@@ -99,7 +99,7 @@ public class SpringClassAnalyser {
         }
     }
 
-    private String createTypeIdentifier(String typeName) {
+    private static String createTypeIdentifier(String typeName) {
 
 
         String returnTypeName = typeName;
@@ -119,7 +119,7 @@ public class SpringClassAnalyser {
         return returnTypeName;
     }
 
-    private String createIdentifier(Method method) {
+    public static String createIdentifier(Method method) {
         StringBuilder sb = new StringBuilder();
         sb.append(createTypeIdentifier(method.getGenericReturnType().getTypeName()));
         sb.append("_");

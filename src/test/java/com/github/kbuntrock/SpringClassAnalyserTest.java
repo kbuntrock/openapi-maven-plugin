@@ -13,6 +13,7 @@ import com.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementOneCont
 import com.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementTwoController;
 import com.github.kbuntrock.resources.endpoint.time.TimeController;
 import com.github.kbuntrock.yaml.YamlWriter;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.Assertions;
@@ -24,6 +25,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 public class SpringClassAnalyserTest extends AbstractTest {
@@ -35,31 +38,28 @@ public class SpringClassAnalyserTest extends AbstractTest {
         return mavenProjet;
     }
 
+    private DocumentationMojo createBasicMojo(String apiLocation) {
+        DocumentationMojo mojo = new DocumentationMojo();
+        ApiConfiguration apiConfiguration = new ApiConfiguration();
+        apiConfiguration.setAttachArtifact(false);
+        apiConfiguration.setLocations(Arrays.asList(apiLocation));
+        mojo.setTestMode(true);
+        mojo.setApis(Arrays.asList(apiConfiguration));
+        mojo.setProject(createBasicMavenProject());
+        return mojo;
+    }
+
     private File createTestFile() throws IOException {
         return Files.createTempFile("openapi_test_", ".yml").toFile();
     }
 
     @Test
-    public void multiple_genericity() throws MojoFailureException, IOException {
+    public void multiple_genericity() throws MojoFailureException, MojoExecutionException, IOException {
 
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
+        DocumentationMojo mojo = createBasicMojo(GenericityTestOne.class.getCanonicalName());
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(GenericityTestOne.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
-
-        File generatedFile = createTestFile();
-
-        new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
-
-        try (InputStream generatedFileStream = new FileInputStream(generatedFile);
-             InputStream resourceFileStream = this.getClass().getClassLoader().getResourceAsStream("ut/SpringClassAnalyserTest/multiple_genericity.yml")) {
-            String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-            String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-            Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
-        }
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/multiple_genericity.yml", generated.get(0));
     }
 
     @Test

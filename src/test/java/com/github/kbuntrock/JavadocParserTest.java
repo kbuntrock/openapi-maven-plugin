@@ -1,11 +1,14 @@
 package com.github.kbuntrock;
 
 import com.github.kbuntrock.configuration.ApiConfiguration;
+import com.github.kbuntrock.configuration.JavadocConfiguration;
 import com.github.kbuntrock.javadoc.JavadocMap;
 import com.github.kbuntrock.javadoc.JavadocParser;
 import com.github.kbuntrock.model.Tag;
 import com.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration3Controller;
+import com.github.kbuntrock.resources.endpoint.javadoc.inheritance.ChildClassOne;
 import com.github.kbuntrock.yaml.YamlWriter;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.Test;
@@ -14,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 public class JavadocParserTest extends AbstractTest {
@@ -22,11 +26,36 @@ public class JavadocParserTest extends AbstractTest {
         MavenProject mavenProjet = new MavenProject();
         mavenProjet.setName("My Project");
         mavenProjet.setVersion("10.5.36");
+        mavenProjet.setFile(new File(new File("pom.xml").getAbsolutePath()));
         return mavenProjet;
+    }
+
+    private DocumentationMojo createBasicMojo(String apiLocation) {
+        DocumentationMojo mojo = new DocumentationMojo();
+        ApiConfiguration apiConfiguration = new ApiConfiguration();
+        apiConfiguration.setAttachArtifact(false);
+        apiConfiguration.setLocations(Arrays.asList(apiLocation));
+        mojo.setTestMode(true);
+        mojo.setApis(Arrays.asList(apiConfiguration));
+        mojo.setProject(createBasicMavenProject());
+        return mojo;
     }
 
     private File createTestFile() throws IOException {
         return Files.createTempFile("openapi_test_", ".yml").toFile();
+    }
+
+    @Test
+    public void inheritance_test_one() throws MojoFailureException, MojoExecutionException, IOException {
+
+        DocumentationMojo mojo = createBasicMojo(ChildClassOne.class.getCanonicalName());
+
+        JavadocConfiguration javadocConfig = new JavadocConfiguration();
+        javadocConfig.setScanLocations(Arrays.asList("src/test/java/com/github/kbuntrock/resources/endpoint/javadoc/inheritance"));
+        mojo.setJavadoc(javadocConfig);
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/JavadocParserTest/inheritance_test_one.yml", generated.get(0));
     }
 
     @Test
