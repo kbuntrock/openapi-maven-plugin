@@ -43,6 +43,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
         ApiConfiguration apiConfiguration = new ApiConfiguration();
         apiConfiguration.setAttachArtifact(false);
         apiConfiguration.setLocations(Arrays.asList(apiLocation));
+        apiConfiguration.setDefaultProduceConsumeGuessing(false);
         mojo.setTestMode(true);
         mojo.setApis(Arrays.asList(apiConfiguration));
         mojo.setProject(createBasicMavenProject());
@@ -204,6 +205,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
     public void pathEnhancementTwo() throws MojoFailureException, IOException, MojoExecutionException {
 
         ApiConfiguration apiConfiguration = new ApiConfiguration();
+        apiConfiguration.setDefaultProduceConsumeGuessing(false);
 
         SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
         Optional<Tag> tag = analyser.getTagFromClass(SpringPathEnhancementTwoController.class);

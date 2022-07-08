@@ -25,7 +25,7 @@ public class CommonApiConfiguration {
      * If not defined, try to guess a produce / consume value depending of the parameter/return type
      */
     @Parameter
-    protected boolean defaultProduceConsumeGuessing;
+    protected boolean defaultProduceConsumeGuessing = true;
 
     /**
      * Apply the spring enhancement to path value between a class @RequestMapping and a method @RequestMapping :

@@ -50,14 +50,13 @@ public class ApiConfiguration extends CommonApiConfiguration {
         if (!operation.getSubstitutions().isEmpty()) {
             merged.getOperation().setSubstitutions(operation.getSubstitutions());
         }
-        if (attachArtifact) {
+        if (!attachArtifact) {
             merged.setAttachArtifact(attachArtifact);
         }
         if (!DEFAULT_SUCCESSFUL_OPERATION_DESCRIPTION.equals(defaultSuccessfulOperationDescription)) {
             merged.setDefaultSuccessfulOperationDescription(defaultSuccessfulOperationDescription);
         }
-        if (defaultProduceConsumeGuessing) {
-            // TODO : to update if the default value change.
+        if (!defaultProduceConsumeGuessing) {
             merged.setDefaultProduceConsumeGuessing(defaultProduceConsumeGuessing);
         }
         if (!springPathEnhancement) {

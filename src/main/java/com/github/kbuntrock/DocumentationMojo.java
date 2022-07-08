@@ -119,11 +119,12 @@ public class DocumentationMojo extends AbstractMojo {
      * @throws MojoFailureException
      * @throws MojoExecutionException
      */
-    private List<File> scanProjectResourcesAndWriteSpec() throws MojoFailureException, MojoExecutionException {
+    private List<File> scanProjectResourcesAndWriteSpec() throws MojoFailureException {
 
         List<File> generatedFiles = new ArrayList<>();
-        for (ApiConfiguration apiConfiguration : apis) {
-            SpringResourceParser springResourceParser = new SpringResourceParser(apiConfiguration);
+        for (ApiConfiguration initialApiConfiguration : apis) {
+            ApiConfiguration apiConfig = initialApiConfiguration.mergeWithCommonApiConfiguration(this.apiConfiguration);
+            SpringResourceParser springResourceParser = new SpringResourceParser(apiConfig);
             getLog().debug("Prepare to scan");
             TagLibrary tagLibrary = springResourceParser.scanRestControllers();
             getLog().debug("Scan done");
@@ -131,23 +132,23 @@ public class DocumentationMojo extends AbstractMojo {
             File generatedFile = null;
             try {
                 if (testMode) {
-                    generatedFile = Files.createTempFile(apiConfiguration.getFilename() + "_", ".yml").toFile();
+                    generatedFile = Files.createTempFile(apiConfig.getFilename() + "_", ".yml").toFile();
                 } else {
-                    generatedFile = new File(outputDirectory, apiConfiguration.getFilename() + ".yml");
+                    generatedFile = new File(outputDirectory, apiConfig.getFilename() + ".yml");
                 }
                 getLog().debug("Prepared to write : " + generatedFile.getAbsolutePath());
 
-                new YamlWriter(project, apiConfiguration).write(generatedFile, tagLibrary);
+                new YamlWriter(project, apiConfig).write(generatedFile, tagLibrary);
 
-                if (apiConfiguration.isAttachArtifact()) {
-                    projectHelper.attachArtifact(project, "yml", apiConfiguration.getFilename(), generatedFile);
+                if (apiConfig.isAttachArtifact()) {
+                    projectHelper.attachArtifact(project, "yml", apiConfig.getFilename(), generatedFile);
                 }
 
                 generatedFiles.add(generatedFile);
 
                 int nbTagsGenerated = tagLibrary.getTags().size();
                 int nbOperationsGenerated = tagLibrary.getTags().stream().map(t -> t.getEndpoints().size()).collect(Collectors.summingInt(Integer::intValue));
-                getLog().info(apiConfiguration.getFilename() + " : " + nbTagsGenerated + " tags and " + nbOperationsGenerated + " operations generated.");
+                getLog().info(apiConfig.getFilename() + " : " + nbTagsGenerated + " tags and " + nbOperationsGenerated + " operations generated.");
             } catch (IOException e) {
                 throw new MojoFailureException("Cannot write file specification file : " + (generatedFile == null ? "temporary test file" : generatedFile.getAbsolutePath()));
             }

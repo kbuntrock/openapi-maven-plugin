@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -35,14 +34,11 @@ public class JavadocParserTest extends AbstractTest {
         ApiConfiguration apiConfiguration = new ApiConfiguration();
         apiConfiguration.setAttachArtifact(false);
         apiConfiguration.setLocations(Arrays.asList(apiLocation));
+        apiConfiguration.setDefaultProduceConsumeGuessing(false);
         mojo.setTestMode(true);
         mojo.setApis(Arrays.asList(apiConfiguration));
         mojo.setProject(createBasicMavenProject());
         return mojo;
-    }
-
-    private File createTestFile() throws IOException {
-        return Files.createTempFile("openapi_test_", ".yml").toFile();
     }
 
     @Test
