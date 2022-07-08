@@ -63,233 +63,93 @@ public class SpringClassAnalyserTest extends AbstractTest {
     }
 
     @Test
-    public void nested_genericity() throws MojoFailureException, IOException {
+    public void nested_genericity() throws MojoFailureException, IOException, MojoExecutionException {
 
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
+        DocumentationMojo mojo = createBasicMojo(GenericityTestTwo.class.getCanonicalName());
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(GenericityTestTwo.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
-
-        File generatedFile = createTestFile();
-
-        new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
-
-        try (InputStream generatedFileStream = new FileInputStream(generatedFile);
-             InputStream resourceFileStream = this.getClass().getClassLoader().getResourceAsStream("ut/SpringClassAnalyserTest/nested_genericity.yml")) {
-            String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-            String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-            Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
-        }
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/nested_genericity.yml", generated.get(0));
     }
 
     @Test
-    public void file_upload() throws MojoFailureException, IOException {
+    public void file_upload() throws MojoFailureException, IOException, MojoExecutionException {
 
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
+        DocumentationMojo mojo = createBasicMojo(FileUploadController.class.getCanonicalName());
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(FileUploadController.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
-
-        File generatedFile = createTestFile();
-
-        new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
-
-        try (InputStream generatedFileStream = new FileInputStream(generatedFile);
-             InputStream resourceFileStream = this.getClass().getClassLoader().getResourceAsStream("ut/SpringClassAnalyserTest/file_upload.yml")) {
-            String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-            String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-            Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
-        }
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/file_upload.yml", generated.get(0));
     }
 
     @Test
-    public void enumeration_test_1() throws MojoFailureException, IOException {
+    public void enumeration_test_1() throws MojoFailureException, IOException, MojoExecutionException {
 
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
+        DocumentationMojo mojo = createBasicMojo(TestEnumeration1Controller.class.getCanonicalName());
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(TestEnumeration1Controller.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
-
-        File generatedFile = createTestFile();
-
-        new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
-
-        try (InputStream generatedFileStream = new FileInputStream(generatedFile);
-             InputStream resourceFileStream = this.getClass().getClassLoader().getResourceAsStream("ut/SpringClassAnalyserTest/enumeration_test_1.yml")) {
-            String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-            String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-            Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
-        }
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/enumeration_test_1.yml", generated.get(0));
     }
 
     @Test
-    public void enumeration_test_2() throws MojoFailureException, IOException {
+    public void enumeration_test_2() throws MojoFailureException, IOException, MojoExecutionException {
 
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
+        DocumentationMojo mojo = createBasicMojo(TestEnumeration2Controller.class.getCanonicalName());
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(TestEnumeration2Controller.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
-
-        File generatedFile = createTestFile();
-
-        new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
-
-        try (InputStream generatedFileStream = new FileInputStream(generatedFile);
-             InputStream resourceFileStream = this.getClass().getClassLoader().getResourceAsStream("ut/SpringClassAnalyserTest/enumeration_test_2.yml")) {
-            String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-            String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-            Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
-        }
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/enumeration_test_2.yml", generated.get(0));
     }
 
     @Test
-    public void enumeration_test_3() throws MojoFailureException, IOException {
+    public void enumeration_test_3() throws MojoFailureException, IOException, MojoExecutionException {
 
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
+        DocumentationMojo mojo = createBasicMojo(TestEnumeration3Controller.class.getCanonicalName());
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(TestEnumeration3Controller.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
-
-        File generatedFile = createTestFile();
-
-        new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
-
-        try (InputStream generatedFileStream = new FileInputStream(generatedFile);
-             InputStream resourceFileStream = this.getClass().getClassLoader().getResourceAsStream("ut/SpringClassAnalyserTest/enumeration_test_3.yml")) {
-            String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-            String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-            Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
-        }
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/enumeration_test_3.yml", generated.get(0));
     }
 
     @Test
-    public void enumeration_test_4() throws MojoFailureException, IOException {
+    public void enumeration_test_4() throws MojoFailureException, IOException, MojoExecutionException {
 
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
+        DocumentationMojo mojo = createBasicMojo(TestEnumeration4Controller.class.getCanonicalName());
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(TestEnumeration4Controller.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
-
-        File generatedFile = createTestFile();
-
-        new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
-
-        try (InputStream generatedFileStream = new FileInputStream(generatedFile);
-             InputStream resourceFileStream = this.getClass().getClassLoader().getResourceAsStream("ut/SpringClassAnalyserTest/enumeration_test_4.yml")) {
-            String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-            String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-            Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
-        }
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/enumeration_test_4.yml", generated.get(0));
     }
 
     @Test
-    public void enumeration_test_5() throws MojoFailureException, IOException {
+    public void enumeration_test_5() throws MojoFailureException, IOException, MojoExecutionException {
 
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
+        DocumentationMojo mojo = createBasicMojo(TestEnumeration5Controller.class.getCanonicalName());
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(TestEnumeration5Controller.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
-
-        File generatedFile = createTestFile();
-
-        new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
-
-        try (InputStream generatedFileStream = new FileInputStream(generatedFile);
-             InputStream resourceFileStream = this.getClass().getClassLoader().getResourceAsStream("ut/SpringClassAnalyserTest/enumeration_test_5.yml")) {
-            String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-            String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-            Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
-        }
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/enumeration_test_5.yml", generated.get(0));
     }
 
     @Test
-    public void enumeration_test_6() throws MojoFailureException, IOException {
+    public void enumeration_test_6() throws MojoFailureException, IOException, MojoExecutionException {
 
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
+        DocumentationMojo mojo = createBasicMojo(TestEnumeration6Controller.class.getCanonicalName());
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(TestEnumeration6Controller.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
-
-        File generatedFile = createTestFile();
-
-        new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
-
-        try (InputStream generatedFileStream = new FileInputStream(generatedFile);
-             InputStream resourceFileStream = this.getClass().getClassLoader().getResourceAsStream("ut/SpringClassAnalyserTest/enumeration_test_6.yml")) {
-            String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-            String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-            Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
-        }
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/enumeration_test_6.yml", generated.get(0));
     }
 
     @Test
-    public void time_objects() throws MojoFailureException, IOException {
+    public void time_objects() throws MojoFailureException, IOException, MojoExecutionException {
 
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
+        DocumentationMojo mojo = createBasicMojo(TimeController.class.getCanonicalName());
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(TimeController.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
-
-        File generatedFile = createTestFile();
-
-        new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
-
-        try (InputStream generatedFileStream = new FileInputStream(generatedFile);
-             InputStream resourceFileStream = this.getClass().getClassLoader().getResourceAsStream("ut/SpringClassAnalyserTest/time_objects.yml")) {
-            String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-            String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-            Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
-        }
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/time_objects.yml", generated.get(0));
     }
 
     @Test
-    public void map_objects() throws MojoFailureException, IOException {
+    public void map_objects() throws MojoFailureException, IOException, MojoExecutionException {
 
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
+        DocumentationMojo mojo = createBasicMojo(MapController.class.getCanonicalName());
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(MapController.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
-
-        File generatedFile = createTestFile();
-
-        new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
-
-        try (InputStream generatedFileStream = new FileInputStream(generatedFile);
-             InputStream resourceFileStream = this.getClass().getClassLoader().getResourceAsStream("ut/SpringClassAnalyserTest/map_objects.yml")) {
-            String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-            String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-            Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
-        }
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/map_objects.yml", generated.get(0));
     }
 
     /**
@@ -299,20 +159,13 @@ public class SpringClassAnalyserTest extends AbstractTest {
      * @throws IOException
      */
     @Test
-    public void error_same_operation() throws MojoFailureException, IOException {
+    public void error_same_operation() {
 
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
-
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(SameOperationController.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
-
-        File generatedFile = createTestFile();
+        DocumentationMojo mojo = createBasicMojo(SameOperationController.class.getCanonicalName());
 
         Exception ex = null;
         try {
-            new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
+            mojo.documentProject();
         } catch (Exception e) {
             ex = e;
         }
@@ -323,53 +176,32 @@ public class SpringClassAnalyserTest extends AbstractTest {
     }
 
     @Test
-    public void numbers() throws MojoFailureException, IOException {
+    public void numbers() throws MojoFailureException, IOException, MojoExecutionException {
 
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
+        DocumentationMojo mojo = createBasicMojo(NumberController.class.getCanonicalName());
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(NumberController.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
-
-        File generatedFile = createTestFile();
-
-        new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
-
-        try (InputStream generatedFileStream = new FileInputStream(generatedFile);
-             InputStream resourceFileStream = this.getClass().getClassLoader().getResourceAsStream("ut/SpringClassAnalyserTest/numbers.yml")) {
-            String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-            String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-            Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
-        }
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/numbers.yml", generated.get(0));
     }
 
     @Test
-    public void pathEnhancement() throws MojoFailureException, IOException {
+    public void pathEnhancement() throws MojoFailureException, IOException, MojoExecutionException {
 
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
+        DocumentationMojo mojo = createBasicMojo(SpringPathEnhancementOneController.class.getCanonicalName());
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(SpringPathEnhancementOneController.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
-
-        File generatedFile = createTestFile();
-
-        new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
-
-        try (InputStream generatedFileStream = new FileInputStream(generatedFile);
-             InputStream resourceFileStream = this.getClass().getClassLoader().getResourceAsStream("ut/SpringClassAnalyserTest/springPathEnhancementOne.yml")) {
-            String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-            String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-            Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
-        }
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/springPathEnhancementOne.yml", generated.get(0));
     }
 
+    /**
+     * TODO : to refacto when scanning of @RestController will be done.
+     *
+     * @throws MojoFailureException
+     * @throws IOException
+     * @throws MojoExecutionException
+     */
     @Test
-    public void pathEnhancementTwo() throws MojoFailureException, IOException {
+    public void pathEnhancementTwo() throws MojoFailureException, IOException, MojoExecutionException {
 
         ApiConfiguration apiConfiguration = new ApiConfiguration();
 
@@ -389,25 +221,6 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
             Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
         }
-    }
-
-
-    //@Test
-    public void basicParsing() throws MojoFailureException, IOException {
-
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
-
-        MavenProject mavenProject = new MavenProject();
-        mavenProject.setName("Mon super projet");
-        mavenProject.setVersion("2.5.9-SNAPSHOT");
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(GenericityTestTwo.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
-
-        new YamlWriter(mavenProject, apiConfiguration).write(new File("D:\\Dvpt\\openapi-maven-plugin\\target\\component.yml"), library);
-
-        System.out.println();
     }
 
 }

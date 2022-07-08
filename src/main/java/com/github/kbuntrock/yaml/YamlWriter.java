@@ -101,13 +101,13 @@ public class YamlWriter {
                 operation.setPath(endpoint.getPath());
                 operation.getTags().add(tag.computeConfiguredName(apiConfiguration));
                 operation.setOperationId(endpoint.computeConfiguredName(apiConfiguration));
+                operation.setDeprecated(endpoint.isDeprecated());
 
                 // Javadoc to description
                 JavadocWrapper methodJavadoc = null;
                 if (classDocumentation != null) {
                     methodJavadoc = classDocumentation.getMethodsJavadoc().get(endpoint.getIdentifier());
                     if (methodJavadoc != null) {
-                        methodJavadoc.sort();
                         operation.setDescription(methodJavadoc.getJavadoc().getDescription().toText());
                     }
                 }

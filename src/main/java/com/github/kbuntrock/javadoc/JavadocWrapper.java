@@ -10,12 +10,16 @@ import java.util.*;
  */
 public class JavadocWrapper {
 
+    private static String INHERIT_DOC_TAG_NAME = "inheritDoc";
+
     private static String endOfLineReplacement = null;
 
     private Javadoc javadoc;
 
     private Map<JavadocBlockTag.Type, List<JavadocBlockTag>> blockTagsByType;
     private Map<String, JavadocBlockTag> paramBlockTagsByName;
+    private boolean inheritTagFound = false;
+    private boolean sortDone = false;
 
     public JavadocWrapper(Javadoc javadoc) {
         this.javadoc = javadoc;
@@ -30,6 +34,10 @@ public class JavadocWrapper {
     }
 
     public void sort() {
+        if (sortDone) {
+            return;
+        }
+        sortDone = true;
         blockTagsByType = new HashMap<>();
         paramBlockTagsByName = new HashMap<>();
         for (JavadocBlockTag blockTag : javadoc.getBlockTags()) {
@@ -37,6 +45,8 @@ public class JavadocWrapper {
             list.add(blockTag);
             if (JavadocBlockTag.Type.PARAM == blockTag.getType() && blockTag.getName().isPresent()) {
                 paramBlockTagsByName.put(blockTag.getName().get(), blockTag);
+            } else if (JavadocBlockTag.Type.UNKNOWN == blockTag.getType() && INHERIT_DOC_TAG_NAME.equals(blockTag.getTagName())) {
+                inheritTagFound = true;
             }
         }
     }
@@ -64,5 +74,9 @@ public class JavadocWrapper {
             }
         }
         return Optional.empty();
+    }
+
+    public boolean isInheritTagFound() {
+        return inheritTagFound;
     }
 }

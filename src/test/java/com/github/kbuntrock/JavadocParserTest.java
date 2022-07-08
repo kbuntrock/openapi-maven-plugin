@@ -52,7 +52,7 @@ public class JavadocParserTest extends AbstractTest {
 
         JavadocConfiguration javadocConfig = new JavadocConfiguration();
         javadocConfig.setScanLocations(Arrays.asList("src/test/java/com/github/kbuntrock/resources/endpoint/javadoc/inheritance"));
-        mojo.setJavadoc(javadocConfig);
+        mojo.setJavadocConfiguration(javadocConfig);
 
         List<File> generated = mojo.documentProject();
         checkGenerationResult("ut/JavadocParserTest/inheritance_test_one.yml", generated.get(0));

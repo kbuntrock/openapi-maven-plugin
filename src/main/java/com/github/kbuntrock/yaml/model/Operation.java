@@ -23,6 +23,9 @@ public class Operation {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String description;
 
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private boolean deprecated;
+
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final List<ParameterElement> parameters = new ArrayList<>();
 
@@ -30,7 +33,7 @@ public class Operation {
     private RequestBody requestBody;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public Map<Object, Response> responses = new LinkedHashMap<>();
+    private Map<Object, Response> responses = new LinkedHashMap<>();
 
     public String getName() {
         return name;
@@ -86,5 +89,13 @@ public class Operation {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean isDeprecated() {
+        return deprecated;
+    }
+
+    public void setDeprecated(boolean deprecated) {
+        this.deprecated = deprecated;
     }
 }

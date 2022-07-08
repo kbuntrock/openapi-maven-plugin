@@ -90,6 +90,10 @@ public class SpringClassAnalyser {
                         endpoint.setResponseCode(readResponseCode(method));
                         setConsumeProduceProperties(endpoint, annotation);
                         endpoint.setIdentifier(createIdentifier(method));
+                        Optional<Deprecated> deprecated = getDeprecatedAnnotation(method);
+                        if (deprecated.isPresent()) {
+                            endpoint.setDeprecated(true);
+                        }
                         tag.addEndpoint(endpoint);
                         logger.debug("Parsing endpoint : " + endpoint.getName() + " - the end");
                     }
@@ -145,6 +149,10 @@ public class SpringClassAnalyser {
             requestMapping = annotation.annotationType().getAnnotation(RequestMapping.class);
         }
         return Optional.ofNullable(requestMapping);
+    }
+
+    private Optional<Deprecated> getDeprecatedAnnotation(Method method) {
+        return Optional.ofNullable(method.getAnnotation(Deprecated.class));
     }
 
     private List<ParameterObject> readParameters(Method method) {

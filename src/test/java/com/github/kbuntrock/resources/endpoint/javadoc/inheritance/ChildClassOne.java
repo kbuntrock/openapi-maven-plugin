@@ -26,6 +26,11 @@ public class ChildClassOne extends ParentAbstract implements ParentInterface {
         return true;
     }
 
+    /**
+     * This documentation should not be read
+     *
+     * @inheritDoc
+     */
     @Override
     @GetMapping("/can-encapsulate")
     public boolean canEncapsulate() {

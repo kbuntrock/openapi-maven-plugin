@@ -2,6 +2,7 @@ package com.github.kbuntrock;
 
 
 import com.github.kbuntrock.configuration.ApiConfiguration;
+import com.github.kbuntrock.configuration.CommonApiConfiguration;
 import com.github.kbuntrock.configuration.JavadocConfiguration;
 import com.github.kbuntrock.javadoc.JavadocMap;
 import com.github.kbuntrock.javadoc.JavadocParser;
@@ -37,6 +38,12 @@ import java.util.stream.Collectors;
 public class DocumentationMojo extends AbstractMojo {
 
     /**
+     * A common api configuration between all described apis
+     */
+    @Parameter
+    private CommonApiConfiguration apiConfiguration = new CommonApiConfiguration();
+
+    /**
      * A list of api configurations
      */
     @Parameter(required = true)
@@ -45,8 +52,8 @@ public class DocumentationMojo extends AbstractMojo {
     /**
      * A list of api configurations
      */
-    @Parameter(required = false)
-    private JavadocConfiguration javadoc;
+    @Parameter
+    private JavadocConfiguration javadocConfiguration;
 
     /**
      * Location of the file.
@@ -178,17 +185,17 @@ public class DocumentationMojo extends AbstractMojo {
     }
 
     private void scanJavadoc() {
-        if (javadoc != null && javadoc.getScanLocations() != null && !javadoc.getScanLocations().isEmpty()) {
+        if (javadocConfiguration != null && javadocConfiguration.getScanLocations() != null && !javadocConfiguration.getScanLocations().isEmpty()) {
             long debutJavadoc = System.currentTimeMillis();
             List<File> filesToScan = new ArrayList<>();
-            for (String path : javadoc.getScanLocations()) {
+            for (String path : javadocConfiguration.getScanLocations()) {
                 filesToScan.add(FileUtils.toFile(project.getBasedir().getAbsolutePath(), path));
             }
             JavadocParser javadocParser = new JavadocParser(filesToScan);
             javadocParser.scan();
             JavadocMap.INSTANCE.setJavadocMap(javadocParser.getJavadocMap());
-            if (!javadoc.getEndOfLineReplacement().equals("disabled")) {
-                JavadocWrapper.setEndOfLineReplacement(javadoc.getEndOfLineReplacement());
+            if (!javadocConfiguration.getEndOfLineReplacement().equals("disabled")) {
+                JavadocWrapper.setEndOfLineReplacement(javadocConfiguration.getEndOfLineReplacement());
             }
             getLog().info("Javadoc parsing took " + (System.currentTimeMillis() - debutJavadoc) + "ms.");
         }
@@ -202,8 +209,8 @@ public class DocumentationMojo extends AbstractMojo {
         this.apis = apis;
     }
 
-    public void setJavadoc(JavadocConfiguration javadoc) {
-        this.javadoc = javadoc;
+    public void setJavadocConfiguration(JavadocConfiguration javadocConfiguration) {
+        this.javadocConfiguration = javadocConfiguration;
     }
 
     public void setProject(MavenProject project) {

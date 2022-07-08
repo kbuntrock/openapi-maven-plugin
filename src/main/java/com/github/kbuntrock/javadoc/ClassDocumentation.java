@@ -50,10 +50,16 @@ public class ClassDocumentation {
                 List<JavadocEntry> fieldEntriesToAddOrReplace = new ArrayList<>();
                 for (Field field : fields) {
                     JavadocWrapper currentJavadoc = fieldsJavadoc.get(field.getName());
-                    if (!currentJavadoc.getDescription().isPresent()) {
+                    if (currentJavadoc != null) {
+                        currentJavadoc.sort();
+                    }
+                    if (currentJavadoc == null || currentJavadoc.isInheritTagFound()) {
                         for (ClassDocumentation parentClass : parentsClassDocumentation) {
                             JavadocWrapper parentJavadoc = parentClass.fieldsJavadoc.get(field.getName());
-                            if (parentJavadoc.getDescription().isPresent()) {
+                            if (parentJavadoc != null) {
+                                parentJavadoc.sort();
+                            }
+                            if (parentJavadoc != null && !parentJavadoc.isInheritTagFound()) {
                                 fieldEntriesToAddOrReplace.add(new JavadocEntry(field.getName(), parentJavadoc));
                                 break;
                             }
@@ -71,14 +77,21 @@ public class ClassDocumentation {
 
             Method[] methods = javaClass.getMethods();
             if (methods.length > 0) {
+
                 List<JavadocEntry> methodEntriesToAddOrReplace = new ArrayList<>();
                 for (Method method : methods) {
                     String methodIdentifier = SpringClassAnalyser.createIdentifier(method);
                     JavadocWrapper currentJavadoc = methodsJavadoc.get(methodIdentifier);
-                    if (currentJavadoc == null || !currentJavadoc.getDescription().isPresent()) {
+                    if (currentJavadoc != null) {
+                        currentJavadoc.sort();
+                    }
+                    if (currentJavadoc == null || currentJavadoc.isInheritTagFound()) {
                         for (ClassDocumentation parentClass : parentsClassDocumentation) {
                             JavadocWrapper parentJavadoc = parentClass.methodsJavadoc.get(methodIdentifier);
-                            if (parentJavadoc != null && parentJavadoc.getDescription().isPresent()) {
+                            if (parentJavadoc != null) {
+                                parentJavadoc.sort();
+                            }
+                            if (parentJavadoc != null && !parentJavadoc.isInheritTagFound()) {
                                 methodEntriesToAddOrReplace.add(new JavadocEntry(methodIdentifier, parentJavadoc));
                                 break;
                             }
