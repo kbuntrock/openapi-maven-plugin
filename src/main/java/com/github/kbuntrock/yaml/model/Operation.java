@@ -2,6 +2,7 @@ package com.github.kbuntrock.yaml.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -19,6 +20,10 @@ public class Operation {
     private List<String> tags = new ArrayList<>();
 
     private String operationId;
+
+    @JsonProperty("x-operation-name")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String loopbackOperationName;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String description;
@@ -97,5 +102,13 @@ public class Operation {
 
     public void setDeprecated(boolean deprecated) {
         this.deprecated = deprecated;
+    }
+
+    public String getLoopbackOperationName() {
+        return loopbackOperationName;
+    }
+
+    public void setLoopbackOperationName(String loopbackOperationName) {
+        this.loopbackOperationName = loopbackOperationName;
     }
 }

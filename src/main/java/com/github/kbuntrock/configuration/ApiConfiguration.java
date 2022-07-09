@@ -62,6 +62,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
         if (!springPathEnhancement) {
             merged.setSpringPathEnhancement(springPathEnhancement);
         }
+        if (loopbackOperationName) {
+            merged.setLoopbackOperationName(loopbackOperationName);
+        }
         return merged;
     }
 

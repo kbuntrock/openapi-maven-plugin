@@ -35,6 +35,13 @@ public class CommonApiConfiguration {
     @Parameter
     protected boolean springPathEnhancement = true;
 
+    /**
+     * If true, return a short operation name for code generation, as described here :
+     * https://loopback.io/doc/en/lb4/Decorators_openapi.html
+     */
+    @Parameter
+    protected boolean loopbackOperationName = false;
+
     public Tag getTag() {
         return tag;
     }
@@ -83,5 +90,11 @@ public class CommonApiConfiguration {
         this.defaultSuccessfulOperationDescription = defaultSuccessfulOperationDescription;
     }
 
+    public boolean isLoopbackOperationName() {
+        return loopbackOperationName;
+    }
 
+    public void setLoopbackOperationName(boolean loopbackOperationName) {
+        this.loopbackOperationName = loopbackOperationName;
+    }
 }

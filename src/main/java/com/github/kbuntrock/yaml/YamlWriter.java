@@ -100,7 +100,10 @@ public class YamlWriter {
                 operation.setName(endpoint.getType().name());
                 operation.setPath(endpoint.getPath());
                 operation.getTags().add(tag.computeConfiguredName(apiConfiguration));
-                operation.setOperationId(endpoint.computeConfiguredName(apiConfiguration));
+                operation.setOperationId(endpoint.getName());
+                if (apiConfiguration.isLoopbackOperationName()) {
+                    operation.setLoopbackOperationName(endpoint.getName());
+                }
                 operation.setDeprecated(endpoint.isDeprecated());
 
                 // Javadoc to description
