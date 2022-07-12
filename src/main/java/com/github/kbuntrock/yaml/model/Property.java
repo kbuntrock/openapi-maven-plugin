@@ -9,6 +9,8 @@ public class Property extends Schema {
 
     @JsonIgnore
     private String name;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String description;
     private Integer minLength;
     private Integer maxLength;
     private Boolean uniqueItems;
@@ -76,5 +78,15 @@ public class Property extends Schema {
 
     public void setRequired(boolean required) {
         this.required = required;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

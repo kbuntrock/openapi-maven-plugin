@@ -2,7 +2,13 @@ package com.github.kbuntrock;
 
 
 import com.github.kbuntrock.configuration.ApiConfiguration;
+import com.github.kbuntrock.configuration.CommonApiConfiguration;
+import com.github.kbuntrock.configuration.JavadocConfiguration;
+import com.github.kbuntrock.javadoc.JavadocMap;
+import com.github.kbuntrock.javadoc.JavadocParser;
+import com.github.kbuntrock.javadoc.JavadocWrapper;
 import com.github.kbuntrock.reflection.ReflectionsUtils;
+import com.github.kbuntrock.utils.FileUtils;
 import com.github.kbuntrock.utils.Logger;
 import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
@@ -18,6 +24,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,10 +38,22 @@ import java.util.stream.Collectors;
 public class DocumentationMojo extends AbstractMojo {
 
     /**
+     * A common api configuration between all described apis
+     */
+    @Parameter
+    private CommonApiConfiguration apiConfiguration = new CommonApiConfiguration();
+
+    /**
      * A list of api configurations
      */
     @Parameter(required = true)
     private List<ApiConfiguration> apis;
+
+    /**
+     * A list of api configurations
+     */
+    @Parameter
+    private JavadocConfiguration javadocConfiguration;
 
     /**
      * Location of the file.
@@ -50,15 +69,36 @@ public class DocumentationMojo extends AbstractMojo {
 
     private ClassLoader projectClassLoader;
 
+    private boolean testMode = false;
+
+    /**
+     * Execution of the documentation mojo
+     *
+     * @throws MojoExecutionException
+     * @throws MojoFailureException
+     */
+    @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        Logger.INSTANCE.setLogger(getLog());
 
         long debut = System.currentTimeMillis();
 
-        validateConfiguration();
-        scanProjectResources();
+        Logger.INSTANCE.setLogger(getLog());
+
+        // Prepare the class loader
+        projectClassLoader = createProjectDependenciesClassLoader();
+        ReflectionsUtils.initiate(projectClassLoader);
+
+        // Validate the configuration, parse the javadoc, parse the compiled code, and write the documentation.
+        // This is the method to call in unit tests
+        documentProject();
 
         getLog().info("Openapi spec generation took " + (System.currentTimeMillis() - debut) + "ms.");
+    }
+
+    public List<File> documentProject() throws MojoFailureException, MojoExecutionException {
+        validateConfiguration();
+        scanJavadoc();
+        return scanProjectResourcesAndWriteSpec();
     }
 
     private void validateConfiguration() throws MojoFailureException {
@@ -72,34 +112,48 @@ public class DocumentationMojo extends AbstractMojo {
         }
     }
 
-    private void scanProjectResources() throws MojoFailureException, MojoExecutionException {
+    /**
+     * Scan the project compiled resources and write all the documentations files
+     *
+     * @return the generated files
+     * @throws MojoFailureException
+     * @throws MojoExecutionException
+     */
+    private List<File> scanProjectResourcesAndWriteSpec() throws MojoFailureException {
 
-        projectClassLoader = createProjectDependenciesClassLoader();
-        ReflectionsUtils.initiate(projectClassLoader);
-
-        for (ApiConfiguration apiConfiguration : apis) {
-            SpringResourceParser springResourceParser = new SpringResourceParser(apiConfiguration);
+        List<File> generatedFiles = new ArrayList<>();
+        for (ApiConfiguration initialApiConfiguration : apis) {
+            ApiConfiguration apiConfig = initialApiConfiguration.mergeWithCommonApiConfiguration(this.apiConfiguration);
+            SpringResourceParser springResourceParser = new SpringResourceParser(apiConfig);
             getLog().debug("Prepare to scan");
             TagLibrary tagLibrary = springResourceParser.scanRestControllers();
             getLog().debug("Scan done");
-            File generatedFile = new File(outputDirectory, apiConfiguration.getFilename() + ".yml");
-            getLog().debug("Prepared to write : " + generatedFile.getAbsolutePath());
+
+            File generatedFile = null;
             try {
-
-                new YamlWriter(project, apiConfiguration).write(generatedFile, tagLibrary);
-
-                if (apiConfiguration.isAttachArtifact()) {
-                    projectHelper.attachArtifact(project, "yml", apiConfiguration.getFilename(), generatedFile);
+                if (testMode) {
+                    generatedFile = Files.createTempFile(apiConfig.getFilename() + "_", ".yml").toFile();
+                } else {
+                    generatedFile = new File(outputDirectory, apiConfig.getFilename() + ".yml");
                 }
+                getLog().debug("Prepared to write : " + generatedFile.getAbsolutePath());
+
+                new YamlWriter(project, apiConfig).write(generatedFile, tagLibrary);
+
+                if (apiConfig.isAttachArtifact()) {
+                    projectHelper.attachArtifact(project, "yml", apiConfig.getFilename(), generatedFile);
+                }
+
+                generatedFiles.add(generatedFile);
 
                 int nbTagsGenerated = tagLibrary.getTags().size();
                 int nbOperationsGenerated = tagLibrary.getTags().stream().map(t -> t.getEndpoints().size()).collect(Collectors.summingInt(Integer::intValue));
-                getLog().info(apiConfiguration.getFilename() + " : " + nbTagsGenerated + " tags and " + nbOperationsGenerated + " operations generated.");
+                getLog().info(apiConfig.getFilename() + " : " + nbTagsGenerated + " tags and " + nbOperationsGenerated + " operations generated.");
             } catch (IOException e) {
-                throw new MojoFailureException("Cannot write file specification file : " + generatedFile.getAbsolutePath());
+                throw new MojoFailureException("Cannot write file specification file : " + (generatedFile == null ? "temporary test file" : generatedFile.getAbsolutePath()));
             }
         }
-
+        return generatedFiles;
     }
 
     /**
@@ -122,9 +176,8 @@ public class DocumentationMojo extends AbstractMojo {
             URL[] urlsForClassLoader = pathUrls.toArray(new URL[pathUrls.size()]);
             getLog().debug("urls for URLClassLoader: " + Arrays.asList(urlsForClassLoader));
 
-            // We need to define parent classloader which is the parent of the plugin classloader, in order to not mix up
+            // We need to define parent classloader which is the plugin classloader, in order to not mix up
             // the project and the plugin classes.
-//            projectClassLoader = new URLClassLoader(urlsForClassLoader, DocumentationMojo.class.getClassLoader().getParent());
             return new URLClassLoader(urlsForClassLoader, DocumentationMojo.class.getClassLoader());
         } catch (DependencyResolutionRequiredException | MalformedURLException ex) {
             throw new MojoExecutionException("Cannot create project dependencies classloader", ex);
@@ -132,4 +185,40 @@ public class DocumentationMojo extends AbstractMojo {
 
     }
 
+    private void scanJavadoc() {
+        if (javadocConfiguration != null && javadocConfiguration.getScanLocations() != null && !javadocConfiguration.getScanLocations().isEmpty()) {
+            long debutJavadoc = System.currentTimeMillis();
+            List<File> filesToScan = new ArrayList<>();
+            for (String path : javadocConfiguration.getScanLocations()) {
+                filesToScan.add(FileUtils.toFile(project.getBasedir().getAbsolutePath(), path));
+            }
+            JavadocParser javadocParser = new JavadocParser(filesToScan);
+            javadocParser.scan();
+            JavadocMap.INSTANCE.setJavadocMap(javadocParser.getJavadocMap());
+            if (!JavadocConfiguration.DISABLED_EOF_REPLACEMENT.equals(javadocConfiguration.getEndOfLineReplacement())) {
+                JavadocWrapper.setEndOfLineReplacement(javadocConfiguration.getEndOfLineReplacement());
+            }
+            getLog().info("Javadoc parsing took " + (System.currentTimeMillis() - debutJavadoc) + "ms.");
+        }
+    }
+
+    public List<ApiConfiguration> getApis() {
+        return apis;
+    }
+
+    public void setApis(List<ApiConfiguration> apis) {
+        this.apis = apis;
+    }
+
+    public void setJavadocConfiguration(JavadocConfiguration javadocConfiguration) {
+        this.javadocConfiguration = javadocConfiguration;
+    }
+
+    public void setProject(MavenProject project) {
+        this.project = project;
+    }
+
+    public void setTestMode(boolean testMode) {
+        this.testMode = testMode;
+    }
 }

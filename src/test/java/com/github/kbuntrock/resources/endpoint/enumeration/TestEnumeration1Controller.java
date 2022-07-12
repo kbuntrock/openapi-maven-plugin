@@ -9,5 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface TestEnumeration1Controller {
 
     @GetMapping()
+    @Deprecated
     EnumTest1Dto getAuthorities();
 }

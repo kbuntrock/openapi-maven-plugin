@@ -1,10 +1,11 @@
 package com.github.kbuntrock.configuration;
 
+import com.github.kbuntrock.utils.Cloner;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.util.List;
 
-public class ApiConfiguration {
+public class ApiConfiguration extends CommonApiConfiguration {
 
     /**
      * A list of location to find api endpoints. A location could be a class or a package
@@ -15,28 +16,7 @@ public class ApiConfiguration {
     @Parameter
     private String filename = "spec-open-api";
 
-    @Parameter
-    private Tag tag = new Tag();
-
-    @Parameter
-    private Operation operation = new Operation();
-
-    @Parameter
-    private boolean attachArtifact = true;
-
-    /**
-     * If not defined, try to guess a produce / consume value depending of the parameter/return type
-     */
-    @Parameter
-    private boolean defaultProduceConsumeGuessing;
-
-    /**
-     * Apply the spring enhancement to path value between a class @RequestMapping and a method @RequestMapping :
-     * - add a "/" between the two values if there is none
-     * - add a "/" at the beginning of the operation path if there is none
-     */
-    @Parameter
-    private boolean springPathEnhancement = true;
+    private OperationIdHelper operationIdHelper;
 
     public List<String> getLocations() {
         return locations;
@@ -54,43 +34,52 @@ public class ApiConfiguration {
         this.filename = filename;
     }
 
-    public Tag getTag() {
-        return tag;
+    public OperationIdHelper getOperationIdHelper() {
+        return operationIdHelper;
     }
 
-    public void setTag(Tag tag) {
-        this.tag = tag;
+    public void setOperationIdHelper(OperationIdHelper operationIdHelper) {
+        this.operationIdHelper = operationIdHelper;
     }
 
-    public Operation getOperation() {
-        return operation;
+    /**
+     * Create a ApiConfiguration version based on the common configuration + the modified values overrided in the child config
+     *
+     * @param commonApiConfiguration the common api configuration
+     * @return the merged configuration
+     */
+    public ApiConfiguration mergeWithCommonApiConfiguration(final CommonApiConfiguration commonApiConfiguration) {
+        CommonApiConfiguration copy = Cloner.INSTANCE.deepClone(commonApiConfiguration);
+        ApiConfiguration merged = new ApiConfiguration();
+        Cloner.INSTANCE.copyPropertiesOfInheritedClass(copy, merged);
+        merged.setLocations(locations);
+        merged.setFilename(filename);
+        if (!tag.getSubstitutions().isEmpty()) {
+            merged.getTag().setSubstitutions(tag.getSubstitutions());
+        }
+        if (!operation.getSubstitutions().isEmpty()) {
+            merged.getOperation().setSubstitutions(operation.getSubstitutions());
+        }
+        if (!attachArtifact) {
+            merged.setAttachArtifact(attachArtifact);
+        }
+        if (!DEFAULT_SUCCESSFUL_OPERATION_DESCRIPTION.equals(defaultSuccessfulOperationDescription)) {
+            merged.setDefaultSuccessfulOperationDescription(defaultSuccessfulOperationDescription);
+        }
+        if (!defaultProduceConsumeGuessing) {
+            merged.setDefaultProduceConsumeGuessing(defaultProduceConsumeGuessing);
+        }
+        if (!springPathEnhancement) {
+            merged.setSpringPathEnhancement(springPathEnhancement);
+        }
+        if (loopbackOperationName) {
+            merged.setLoopbackOperationName(loopbackOperationName);
+        }
+        if (!DEFAULT_OPERATION_ID.equals(operationId)) {
+            merged.setOperationId(operationId);
+        }
+        merged.operationIdHelper = new OperationIdHelper(merged.operationId);
+        return merged;
     }
 
-    public void setOperation(Operation operation) {
-        this.operation = operation;
-    }
-
-    public boolean isAttachArtifact() {
-        return attachArtifact;
-    }
-
-    public void setAttachArtifact(boolean attachArtifact) {
-        this.attachArtifact = attachArtifact;
-    }
-
-    public boolean isDefaultProduceConsumeGuessing() {
-        return defaultProduceConsumeGuessing;
-    }
-
-    public void setDefaultProduceConsumeGuessing(boolean defaultProduceConsumeGuessing) {
-        this.defaultProduceConsumeGuessing = defaultProduceConsumeGuessing;
-    }
-
-    public boolean isSpringPathEnhancement() {
-        return springPathEnhancement;
-    }
-
-    public void setSpringPathEnhancement(boolean springPathEnhancement) {
-        this.springPathEnhancement = springPathEnhancement;
-    }
 }

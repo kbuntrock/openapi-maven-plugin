@@ -1,0 +1,101 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: ChildClassOne
+    description: A beautiful description of ChildClassOne
+paths:
+  /api/child-class-one/can-encapsulate:
+    get:
+      tags:
+        - ChildClassOne
+      operationId: canEncapsulate
+      description: Indicate if this class has the ability to encapsulate
+      responses:
+        200:
+          description: true if it can encapsulate
+          content:
+            '*/*':
+              schema:
+                type: boolean
+  /api/child-class-one/can-pretty-print:
+    get:
+      tags:
+        - ChildClassOne
+      operationId: canPrettyPrint
+      description: Indicate if this class has the ability to pretty print
+      responses:
+        200:
+          description: true if it can pretty print
+          content:
+            '*/*':
+              schema:
+                type: boolean
+  /api/child-class-one/functionalities:
+    get:
+      tags:
+        - ChildClassOne
+      operationId: getPageFunctionalities
+      description: "Supported functionalities, as a page"
+      responses:
+        200:
+          description: the supported functionalities
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties:
+                  content:
+                    description: The content of this slice
+                    type: array
+                    items:
+                      type: string
+                    uniqueItems: true
+                  hasNext:
+                    description: True if a next slice exist
+                    type: boolean
+                  totalPages:
+                    description: Total of available pages
+                    type: integer
+                    format: int32
+                  totalElements:
+                    description: Total elements (addition of all the pages)
+                    type: integer
+                    format: int64
+  /api/child-class-one/name:
+    get:
+      tags:
+        - ChildClassOne
+      operationId: getName
+      description: Return the name of this controller
+      responses:
+        200:
+          description: the name
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/child-class-one/pretty-print:
+    post:
+      tags:
+        - ChildClassOne
+      operationId: prettyPrint
+      description: Pretty print a number
+      parameters:
+        - name: number
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: a pretty printed string
+          content:
+            '*/*':
+              schema:
+                type: string

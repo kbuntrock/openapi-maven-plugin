@@ -8,9 +8,6 @@ import java.util.Map;
 
 public class Response {
 
-    public static String DEFAULT_CODE = "default";
-    public static String SUCCESSFUL_OPERATION = "successful operation";
-
     /**
      * http code or default
      */
@@ -32,11 +29,11 @@ public class Response {
         return code;
     }
 
-    public void setCode(Object code) {
+    public void setCode(Object code, String defaultSuccessfulOperationDescription) {
         this.code = code;
         if (code instanceof Integer) {
             if ((Integer) code >= 200 && (Integer) code < 300) {
-                this.description = SUCCESSFUL_OPERATION;
+                this.description = defaultSuccessfulOperationDescription;
             }
         }
     }
@@ -45,4 +42,7 @@ public class Response {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

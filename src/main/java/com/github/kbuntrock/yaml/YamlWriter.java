@@ -3,8 +3,12 @@ package com.github.kbuntrock.yaml;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.github.javaparser.javadoc.JavadocBlockTag;
 import com.github.kbuntrock.TagLibrary;
 import com.github.kbuntrock.configuration.ApiConfiguration;
+import com.github.kbuntrock.javadoc.ClassDocumentation;
+import com.github.kbuntrock.javadoc.JavadocMap;
+import com.github.kbuntrock.javadoc.JavadocWrapper;
 import com.github.kbuntrock.model.DataObject;
 import com.github.kbuntrock.model.Endpoint;
 import com.github.kbuntrock.model.ParameterObject;
@@ -47,13 +51,27 @@ public class YamlWriter {
         specification.getServers().add(server);
 
         specification.setTags(tagLibrary.getTags().stream()
-                .map(x -> new TagElement(x.computeConfiguredName(apiConfiguration))).collect(Collectors.toList()));
+                .map(x -> {
+                    if (JavadocMap.INSTANCE.isPresent()) {
+                        ClassDocumentation classDocumentation = JavadocMap.INSTANCE.getJavadocMap().get(x.getClazz().getCanonicalName());
+                        if (classDocumentation != null) {
+                            classDocumentation.inheritanceEnhancement(x.getClazz(), ClassDocumentation.EnhancementType.METHODS);
+                            Optional<String> description = classDocumentation.getDescription();
+                            if (description.isPresent()) {
+                                return new TagElement(x.computeConfiguredName(apiConfiguration), description.get());
+                            }
+
+                        }
+                    }
+
+                    return new TagElement(x.computeConfiguredName(apiConfiguration), null);
+                }).collect(Collectors.toList()));
 
         specification.setPaths(createPaths(tagLibrary));
 
         Map<String, Schema> schemaSection = createSchemaSection(tagLibrary);
         if (!schemaSection.isEmpty()) {
-            specification.getComponents().put("schemas", createSchemaSection(tagLibrary));
+            specification.getComponents().put("schemas", schemaSection);
         }
 
         om.writeValue(file, specification);
@@ -66,6 +84,11 @@ public class YamlWriter {
 
         for (Tag tag : tagLibrary.getTags()) {
 
+            ClassDocumentation classDocumentation = JavadocMap.INSTANCE.isPresent() ?
+                    JavadocMap.INSTANCE.getJavadocMap().get(tag.getClazz().getCanonicalName()) : null;
+            // There is no need to try to enhance with the abstract or interfaces classes the documentation here.
+            // It has already been made when we were writing the tags
+
             // List of operations, which will be sorted before storing them by path. In order to keep a deterministic generation.
             List<Operation> operations = new ArrayList<>();
 
@@ -76,8 +99,23 @@ public class YamlWriter {
                 operations.add(operation);
                 operation.setName(endpoint.getType().name());
                 operation.setPath(endpoint.getPath());
-                operation.getTags().add(tag.computeConfiguredName(apiConfiguration));
-                operation.setOperationId(endpoint.computeConfiguredName(apiConfiguration));
+                String computedTagName = tag.computeConfiguredName(apiConfiguration);
+                operation.getTags().add(computedTagName);
+                operation.setOperationId(apiConfiguration.getOperationIdHelper().toOperationId(tag.getName(), computedTagName, endpoint.getName()));
+                if (apiConfiguration.isLoopbackOperationName()) {
+                    operation.setLoopbackOperationName(endpoint.getName());
+                }
+                operation.setDeprecated(endpoint.isDeprecated());
+
+                // Javadoc to description
+                JavadocWrapper methodJavadoc = null;
+                if (classDocumentation != null) {
+                    methodJavadoc = classDocumentation.getMethodsJavadoc().get(endpoint.getIdentifier());
+                    if (methodJavadoc != null) {
+                        methodJavadoc.sortTags();
+                        operation.setDescription(methodJavadoc.getJavadoc().getDescription().toText());
+                    }
+                }
 
                 // Warning on paths
                 if (!operation.getPath().startsWith("/")) {
@@ -118,6 +156,18 @@ public class YamlWriter {
                                 + endpoint.getPath() + " - " + endpoint.getType());
                     }
                     parameterElement.setSchema(schema);
+
+                    // Javadoc handling
+                    if (methodJavadoc != null) {
+                        Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(parameterElement.getName());
+                        if (parameterDoc.isPresent()) {
+                            String description = parameterDoc.get().getContent().toText();
+                            if (!description.isEmpty()) {
+                                parameterElement.setDescription(parameterDoc.get().getContent().toText());
+                            }
+                        }
+                    }
+
                     operation.getParameters().add(parameterElement);
                 }
 
@@ -141,6 +191,17 @@ public class YamlWriter {
                         requestBody.getContent().put("*/*", requestBodyContent);
                     }
 
+                    // Javadoc handling
+                    if (methodJavadoc != null) {
+                        Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(body.getName());
+                        if (parameterDoc.isPresent()) {
+                            String description = parameterDoc.get().getContent().toText();
+                            if (!description.isEmpty()) {
+                                requestBody.setDescription(parameterDoc.get().getContent().toText());
+                            }
+                        }
+                    }
+
                 }
 
                 // -------------------------
@@ -148,7 +209,7 @@ public class YamlWriter {
                 // -------------------------
 
                 Response response = new Response();
-                response.setCode(endpoint.getResponseCode());
+                response.setCode(endpoint.getResponseCode(), apiConfiguration.getDefaultSuccessfulOperationDescription());
                 if (endpoint.getResponseObject() != null) {
                     Content responseContent = Content.fromDataObject(endpoint.getResponseObject());
                     if (endpoint.getResponseFormat() != null) {
@@ -158,8 +219,19 @@ public class YamlWriter {
                     } else {
                         response.getContent().put("*/*", responseContent);
                     }
-
                 }
+
+                // Javadoc handling
+                if (methodJavadoc != null) {
+                    Optional<JavadocBlockTag> returnDoc = methodJavadoc.getReturnBlockTag();
+                    if (returnDoc.isPresent()) {
+                        String description = returnDoc.get().getContent().toText();
+                        if (!description.isEmpty()) {
+                            response.setDescription(returnDoc.get().getContent().toText());
+                        }
+                    }
+                }
+
                 operation.getResponses().put(response.getCode(), response);
 
             }

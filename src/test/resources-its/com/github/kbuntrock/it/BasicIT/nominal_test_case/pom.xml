@@ -60,6 +60,9 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <apiConfiguration>
+                        <operationId>{method_name}</operationId>
+                    </apiConfiguration>
                     <apis>
                         <api>
                             <locations>

@@ -2,8 +2,7 @@ package com.github.kbuntrock.yaml.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.github.kbuntrock.model.Endpoint;
-import com.github.kbuntrock.model.Tag;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -22,6 +21,16 @@ public class Operation {
 
     private String operationId;
 
+    @JsonProperty("x-operation-name")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String loopbackOperationName;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String description;
+
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private boolean deprecated;
+
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final List<ParameterElement> parameters = new ArrayList<>();
 
@@ -29,7 +38,7 @@ public class Operation {
     private RequestBody requestBody;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public Map<Object, Response> responses = new LinkedHashMap<>();
+    private Map<Object, Response> responses = new LinkedHashMap<>();
 
     public String getName() {
         return name;
@@ -77,5 +86,29 @@ public class Operation {
 
     public Map<Object, Response> getResponses() {
         return responses;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public boolean isDeprecated() {
+        return deprecated;
+    }
+
+    public void setDeprecated(boolean deprecated) {
+        this.deprecated = deprecated;
+    }
+
+    public String getLoopbackOperationName() {
+        return loopbackOperationName;
+    }
+
+    public void setLoopbackOperationName(String loopbackOperationName) {
+        this.loopbackOperationName = loopbackOperationName;
     }
 }

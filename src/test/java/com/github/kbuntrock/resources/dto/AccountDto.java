@@ -17,16 +17,25 @@ public class AccountDto {
     private static final Long RESERVED_SYSTEM_USER_ID = 0L;
     public static final Long NO_USER_ID = -1L;
 
+    /**
+     * User login
+     */
     @NotNull
     @NotBlank
     @Pattern(regexp = Constants.LOGIN_REGEX)
     @Size(min = 1, max = 50)
     private String login;
 
+    /**
+     * User firstname
+     */
     @NotNull
     @Size(max = 50)
     private String firstName;
 
+    /**
+     * User lastname
+     */
     @NotNull
     @Size(max = 50)
     private String lastName;

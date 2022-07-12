@@ -13,6 +13,7 @@ paths:
       tags:
         - TestEnumeration1Controller
       operationId: getAuthorities
+      deprecated: true
       responses:
         200:
           description: successful operation
