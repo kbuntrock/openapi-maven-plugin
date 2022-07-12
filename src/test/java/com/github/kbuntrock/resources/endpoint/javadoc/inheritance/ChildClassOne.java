@@ -1,6 +1,7 @@
 package com.github.kbuntrock.resources.endpoint.javadoc.inheritance;
 
 import com.github.kbuntrock.resources.Constants;
+import com.github.kbuntrock.resources.dto.PageDto;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,6 +46,16 @@ public class ChildClassOne extends ParentAbstract implements ParentInterface {
     @GetMapping("/name")
     public String getName() {
         return this.getClass().getSimpleName();
+    }
+
+    /**
+     * Supported functionalities, as a page
+     *
+     * @return the supported functionalities
+     */
+    @GetMapping("/functionalities")
+    public PageDto<String> getPageFunctionalities() {
+        return null;
     }
 
 

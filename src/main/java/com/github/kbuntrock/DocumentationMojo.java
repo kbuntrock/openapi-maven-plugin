@@ -195,7 +195,7 @@ public class DocumentationMojo extends AbstractMojo {
             JavadocParser javadocParser = new JavadocParser(filesToScan);
             javadocParser.scan();
             JavadocMap.INSTANCE.setJavadocMap(javadocParser.getJavadocMap());
-            if (!javadocConfiguration.getEndOfLineReplacement().equals("disabled")) {
+            if (!JavadocConfiguration.DISABLED_EOF_REPLACEMENT.equals(javadocConfiguration.getEndOfLineReplacement())) {
                 JavadocWrapper.setEndOfLineReplacement(javadocConfiguration.getEndOfLineReplacement());
             }
             getLog().info("Javadoc parsing took " + (System.currentTimeMillis() - debutJavadoc) + "ms.");

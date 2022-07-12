@@ -1,6 +1,7 @@
 package com.github.kbuntrock;
 
 import com.github.kbuntrock.configuration.ApiConfiguration;
+import com.github.kbuntrock.configuration.OperationIdHelper;
 import com.github.kbuntrock.model.Tag;
 import com.github.kbuntrock.resources.endpoint.enumeration.*;
 import com.github.kbuntrock.resources.endpoint.error.SameOperationController;
@@ -44,6 +45,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
         apiConfiguration.setAttachArtifact(false);
         apiConfiguration.setLocations(Arrays.asList(apiLocation));
         apiConfiguration.setDefaultProduceConsumeGuessing(false);
+        apiConfiguration.setOperationId("{method_name}");
         mojo.setTestMode(true);
         mojo.setApis(Arrays.asList(apiConfiguration));
         mojo.setProject(createBasicMavenProject());
@@ -206,6 +208,8 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
         ApiConfiguration apiConfiguration = new ApiConfiguration();
         apiConfiguration.setDefaultProduceConsumeGuessing(false);
+        apiConfiguration.setOperationId("{method_name}");
+        apiConfiguration.setOperationIdHelper(new OperationIdHelper(apiConfiguration.getOperationId()));
 
         SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
         Optional<Tag> tag = analyser.getTagFromClass(SpringPathEnhancementTwoController.class);

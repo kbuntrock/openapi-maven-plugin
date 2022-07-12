@@ -67,8 +67,10 @@ public class Schema {
         ClassDocumentation classDocumentation = null;
         if (JavadocMap.INSTANCE.isPresent()) {
             classDocumentation = JavadocMap.INSTANCE.getJavadocMap().get(dataObject.getJavaClass().getCanonicalName());
-            if (classDocumentation != null && mainReference) {
+            if (classDocumentation != null) {
                 classDocumentation.inheritanceEnhancement(dataObject.getJavaClass(), ClassDocumentation.EnhancementType.FIELDS);
+            }
+            if (classDocumentation != null && mainReference) {
                 Optional<String> optionalDescription = classDocumentation.getDescription();
                 if (optionalDescription.isPresent()) {
                     description = optionalDescription.get();

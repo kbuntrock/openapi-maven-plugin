@@ -2,6 +2,7 @@ package com.github.kbuntrock.javadoc;
 
 import com.github.javaparser.javadoc.Javadoc;
 import com.github.kbuntrock.SpringClassAnalyser;
+import com.github.kbuntrock.reflection.ReflectionsUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -45,19 +46,19 @@ public class ClassDocumentation {
         }
 
         if (EnhancementType.FIELDS == enhancementType || EnhancementType.BOTH == enhancementType) {
-            Field[] fields = javaClass.getFields();
-            if (fields.length > 0) {
+            List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), javaClass);
+            if (!fields.isEmpty()) {
                 List<JavadocEntry> fieldEntriesToAddOrReplace = new ArrayList<>();
                 for (Field field : fields) {
-                    JavadocWrapper currentJavadoc = fieldsJavadoc.get(field.getName());
+                    JavadocWrapper currentJavadoc = getFieldsJavadoc().get(field.getName());
                     if (currentJavadoc != null) {
-                        currentJavadoc.sort();
+                        currentJavadoc.sortTags();
                     }
                     if (currentJavadoc == null || currentJavadoc.isInheritTagFound()) {
                         for (ClassDocumentation parentClass : parentsClassDocumentation) {
-                            JavadocWrapper parentJavadoc = parentClass.fieldsJavadoc.get(field.getName());
+                            JavadocWrapper parentJavadoc = parentClass.getFieldsJavadoc().get(field.getName());
                             if (parentJavadoc != null) {
-                                parentJavadoc.sort();
+                                parentJavadoc.sortTags();
                             }
                             if (parentJavadoc != null && !parentJavadoc.isInheritTagFound()) {
                                 fieldEntriesToAddOrReplace.add(new JavadocEntry(field.getName(), parentJavadoc));
@@ -68,7 +69,7 @@ public class ClassDocumentation {
 
                 }
                 for (JavadocEntry entry : fieldEntriesToAddOrReplace) {
-                    fieldsJavadoc.put(entry.name, entry.javadocWrapper);
+                    getFieldsJavadoc().put(entry.name, entry.javadocWrapper);
                 }
             }
         }
@@ -81,15 +82,15 @@ public class ClassDocumentation {
                 List<JavadocEntry> methodEntriesToAddOrReplace = new ArrayList<>();
                 for (Method method : methods) {
                     String methodIdentifier = SpringClassAnalyser.createIdentifier(method);
-                    JavadocWrapper currentJavadoc = methodsJavadoc.get(methodIdentifier);
+                    JavadocWrapper currentJavadoc = getMethodsJavadoc().get(methodIdentifier);
                     if (currentJavadoc != null) {
-                        currentJavadoc.sort();
+                        currentJavadoc.sortTags();
                     }
                     if (currentJavadoc == null || currentJavadoc.isInheritTagFound()) {
                         for (ClassDocumentation parentClass : parentsClassDocumentation) {
-                            JavadocWrapper parentJavadoc = parentClass.methodsJavadoc.get(methodIdentifier);
+                            JavadocWrapper parentJavadoc = parentClass.getMethodsJavadoc().get(methodIdentifier);
                             if (parentJavadoc != null) {
-                                parentJavadoc.sort();
+                                parentJavadoc.sortTags();
                             }
                             if (parentJavadoc != null && !parentJavadoc.isInheritTagFound()) {
                                 methodEntriesToAddOrReplace.add(new JavadocEntry(methodIdentifier, parentJavadoc));
@@ -100,7 +101,7 @@ public class ClassDocumentation {
 
                 }
                 for (JavadocEntry entry : methodEntriesToAddOrReplace) {
-                    methodsJavadoc.put(entry.name, entry.javadocWrapper);
+                    getMethodsJavadoc().put(entry.name, entry.javadocWrapper);
                 }
             }
         }

@@ -99,8 +99,9 @@ public class YamlWriter {
                 operations.add(operation);
                 operation.setName(endpoint.getType().name());
                 operation.setPath(endpoint.getPath());
-                operation.getTags().add(tag.computeConfiguredName(apiConfiguration));
-                operation.setOperationId(endpoint.getName());
+                String computedTagName = tag.computeConfiguredName(apiConfiguration);
+                operation.getTags().add(computedTagName);
+                operation.setOperationId(apiConfiguration.getOperationIdHelper().toOperationId(tag.getName(), computedTagName, endpoint.getName()));
                 if (apiConfiguration.isLoopbackOperationName()) {
                     operation.setLoopbackOperationName(endpoint.getName());
                 }
@@ -111,6 +112,7 @@ public class YamlWriter {
                 if (classDocumentation != null) {
                     methodJavadoc = classDocumentation.getMethodsJavadoc().get(endpoint.getIdentifier());
                     if (methodJavadoc != null) {
+                        methodJavadoc.sortTags();
                         operation.setDescription(methodJavadoc.getJavadoc().getDescription().toText());
                     }
                 }

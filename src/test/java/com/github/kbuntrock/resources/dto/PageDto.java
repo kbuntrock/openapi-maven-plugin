@@ -4,8 +4,14 @@ import java.util.ArrayList;
 
 public class PageDto<T> extends SliceDto<T> {
 
+    /**
+     * Total of available pages
+     */
     private int totalPages;
 
+    /**
+     * Total elements (addition of all the pages)
+     */
     private long totalElements;
 
     public static <T> PageDto<T> emptyPage() {

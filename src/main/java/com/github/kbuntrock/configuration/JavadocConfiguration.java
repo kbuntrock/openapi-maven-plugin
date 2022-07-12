@@ -9,11 +9,13 @@ import java.util.List;
  */
 public class JavadocConfiguration {
 
+    public static String DISABLED_EOF_REPLACEMENT = "disabled";
+
     @Parameter(required = false)
     private List<String> scanLocations;
 
     @Parameter(required = false)
-    private String endOfLineReplacement = "<br>";
+    private String endOfLineReplacement = DISABLED_EOF_REPLACEMENT;
 
     public List<String> getScanLocations() {
         return scanLocations;

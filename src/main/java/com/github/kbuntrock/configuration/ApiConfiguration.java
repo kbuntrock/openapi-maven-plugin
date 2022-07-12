@@ -16,6 +16,8 @@ public class ApiConfiguration extends CommonApiConfiguration {
     @Parameter
     private String filename = "spec-open-api";
 
+    private OperationIdHelper operationIdHelper;
+
     public List<String> getLocations() {
         return locations;
     }
@@ -30,6 +32,14 @@ public class ApiConfiguration extends CommonApiConfiguration {
 
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    public OperationIdHelper getOperationIdHelper() {
+        return operationIdHelper;
+    }
+
+    public void setOperationIdHelper(OperationIdHelper operationIdHelper) {
+        this.operationIdHelper = operationIdHelper;
     }
 
     /**
@@ -65,6 +75,10 @@ public class ApiConfiguration extends CommonApiConfiguration {
         if (loopbackOperationName) {
             merged.setLoopbackOperationName(loopbackOperationName);
         }
+        if (!DEFAULT_OPERATION_ID.equals(operationId)) {
+            merged.setOperationId(operationId);
+        }
+        merged.operationIdHelper = new OperationIdHelper(merged.operationId);
         return merged;
     }
 

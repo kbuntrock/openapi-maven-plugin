@@ -2,6 +2,7 @@ package com.github.kbuntrock;
 
 import com.github.kbuntrock.configuration.ApiConfiguration;
 import com.github.kbuntrock.configuration.JavadocConfiguration;
+import com.github.kbuntrock.configuration.OperationIdHelper;
 import com.github.kbuntrock.javadoc.JavadocMap;
 import com.github.kbuntrock.javadoc.JavadocParser;
 import com.github.kbuntrock.model.Tag;
@@ -35,6 +36,7 @@ public class JavadocParserTest extends AbstractTest {
         apiConfiguration.setAttachArtifact(false);
         apiConfiguration.setLocations(Arrays.asList(apiLocation));
         apiConfiguration.setDefaultProduceConsumeGuessing(false);
+        apiConfiguration.setOperationId("{method_name}");
         mojo.setTestMode(true);
         mojo.setApis(Arrays.asList(apiConfiguration));
         mojo.setProject(createBasicMavenProject());
@@ -47,7 +49,8 @@ public class JavadocParserTest extends AbstractTest {
         DocumentationMojo mojo = createBasicMojo(ChildClassOne.class.getCanonicalName());
 
         JavadocConfiguration javadocConfig = new JavadocConfiguration();
-        javadocConfig.setScanLocations(Arrays.asList("src/test/java/com/github/kbuntrock/resources/endpoint/javadoc/inheritance"));
+        javadocConfig.setScanLocations(Arrays.asList("src/test/java/com/github/kbuntrock/resources/endpoint/javadoc/inheritance",
+                "src/test/java/com/github/kbuntrock/resources/dto"));
         mojo.setJavadocConfiguration(javadocConfig);
 
         List<File> generated = mojo.documentProject();
@@ -67,6 +70,8 @@ public class JavadocParserTest extends AbstractTest {
     public void javadoc_file_upload() throws MojoFailureException, IOException {
 
         ApiConfiguration apiConfiguration = new ApiConfiguration();
+        apiConfiguration.setOperationId("{method_name}");
+        apiConfiguration.setOperationIdHelper(new OperationIdHelper(apiConfiguration.getOperationId()));
 
         JavadocParser javadocParser = new JavadocParser(Arrays.asList(new File("src/test/java/com/github/kbuntrock/resources")));
         javadocParser.scan();

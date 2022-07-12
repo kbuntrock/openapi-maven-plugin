@@ -7,7 +7,9 @@ import org.apache.maven.plugins.annotations.Parameter;
  */
 public class CommonApiConfiguration {
 
-    protected String DEFAULT_SUCCESSFUL_OPERATION_DESCRIPTION = "successful operation";
+    protected static String DEFAULT_SUCCESSFUL_OPERATION_DESCRIPTION = "successful operation";
+
+    public static String DEFAULT_OPERATION_ID = "{class_name}.{method_name}";
 
     @Parameter
     protected Tag tag = new Tag();
@@ -41,6 +43,9 @@ public class CommonApiConfiguration {
      */
     @Parameter
     protected boolean loopbackOperationName = false;
+
+    @Parameter
+    protected String operationId = DEFAULT_OPERATION_ID;
 
     public Tag getTag() {
         return tag;
@@ -96,5 +101,13 @@ public class CommonApiConfiguration {
 
     public void setLoopbackOperationName(boolean loopbackOperationName) {
         this.loopbackOperationName = loopbackOperationName;
+    }
+
+    public String getOperationId() {
+        return operationId;
+    }
+
+    public void setOperationId(String operationId) {
+        this.operationId = operationId;
     }
 }

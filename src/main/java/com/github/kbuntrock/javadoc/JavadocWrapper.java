@@ -33,7 +33,7 @@ public class JavadocWrapper {
         JavadocWrapper.endOfLineReplacement = endOfLineReplacement;
     }
 
-    public void sort() {
+    public void sortTags() {
         if (sortDone) {
             return;
         }

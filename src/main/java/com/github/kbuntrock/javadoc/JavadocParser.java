@@ -21,9 +21,6 @@ import java.util.stream.Collectors;
 
 public class JavadocParser {
 
-//    private String projectPath;
-//    private boolean test;
-
     private static final String LOG_PREFIX = JavadocParser.class.getSimpleName() + " - ";
 
     private Map<String, ClassDocumentation> javadocMap = new HashMap<>();
@@ -35,15 +32,6 @@ public class JavadocParser {
     public JavadocParser(List<File> filesToScan) {
         this.filesToScan = filesToScan;
     }
-
-    //    public JavadocParser(String projectPath) {
-//        this(projectPath, false);
-//    }
-//
-//    public JavadocParser(String projectPath, boolean test) {
-//        this.projectPath = projectPath;
-//        this.test = test;
-//    }
 
     public void scan() {
         for (File file : filesToScan) {
@@ -98,7 +86,6 @@ public class JavadocParser {
         @Override
         public void visit(JavadocComment comment, Object arg) {
             super.visit(comment, arg);
-            //System.out.println(describe(comment.getCommentedNode().get()));
             CommentType type = CommentType.fromNode(comment.getCommentedNode().get());
             if (CommentType.OTHER != type) {
                 Optional<ClassDocumentation> classDocumentation = findClassDocumentationForNode(comment.getCommentedNode().get());
@@ -132,8 +119,6 @@ public class JavadocParser {
                     }
                 }
             }
-
-            //System.out.println("JAVADOC COMMENT <<<" + comment.getContent() + ">>>");
         }
     }
 
