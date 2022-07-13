@@ -4,6 +4,7 @@ import com.github.kbuntrock.utils.Cloner;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ApiConfiguration extends CommonApiConfiguration {
 
@@ -77,6 +78,12 @@ public class ApiConfiguration extends CommonApiConfiguration {
         }
         if (!DEFAULT_OPERATION_ID.equals(operationId)) {
             merged.setOperationId(operationId);
+        }
+        if (!DEFAULT_LIBRARY.equalsIgnoreCase(library)) {
+            merged.setLibrary(library);
+        }
+        if (!DEFAULT_TAG_ANNOTATIONS.stream().collect(Collectors.joining()).equals(tagAnnotations.stream().collect(Collectors.joining()))) {
+            merged.setTagAnnotations(tagAnnotations);
         }
         merged.operationIdHelper = new OperationIdHelper(merged.operationId);
         return merged;

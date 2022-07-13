@@ -80,19 +80,26 @@ public class DocumentationMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
 
-        long debut = System.currentTimeMillis();
+        try {
+            long debut = System.currentTimeMillis();
 
-        Logger.INSTANCE.setLogger(getLog());
+            Logger.INSTANCE.setLogger(getLog());
 
-        // Prepare the class loader
-        projectClassLoader = createProjectDependenciesClassLoader();
-        ReflectionsUtils.initiate(projectClassLoader);
+            // Prepare the class loader
+            projectClassLoader = createProjectDependenciesClassLoader();
+            ReflectionsUtils.initiate(projectClassLoader);
 
-        // Validate the configuration, parse the javadoc, parse the compiled code, and write the documentation.
-        // This is the method to call in unit tests
-        documentProject();
+            // Validate the configuration, parse the javadoc, parse the compiled code, and write the documentation.
+            // This is the method to call in unit tests
+            documentProject();
 
-        getLog().info("Openapi spec generation took " + (System.currentTimeMillis() - debut) + "ms.");
+            getLog().info("Openapi spec generation took " + (System.currentTimeMillis() - debut) + "ms.");
+
+        } catch (MojoRuntimeException ex) {
+            throw new MojoExecutionException(ex.getMessage(), ex.getCause());
+        }
+
+
     }
 
     public List<File> documentProject() throws MojoFailureException, MojoExecutionException {

@@ -45,6 +45,8 @@
         <reflections.version>0.10.2</reflections.version>
         <jackson-dataformat-yaml.version>2.13.2</jackson-dataformat-yaml.version>
         <jackson-databind.version>2.13.2.2</jackson-databind.version>
+        <vertigo-vega.version>3.3.0</vertigo-vega.version>
+        <javax-ws-rs-api.version>2.1.1</javax-ws-rs-api.version>
     </properties>
 
     <dependencies>
@@ -104,6 +106,16 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
             <version>${spring-web.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.vertigo</groupId>
+            <artifactId>vertigo-vega</artifactId>
+            <version>${vertigo-vega.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>${javax-ws-rs-api.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>

@@ -1,6 +1,10 @@
 package com.github.kbuntrock.configuration;
 
+import com.github.kbuntrock.configuration.library.Library;
 import org.apache.maven.plugins.annotations.Parameter;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Kevin Buntrock
@@ -10,6 +14,11 @@ public class CommonApiConfiguration {
     protected static String DEFAULT_SUCCESSFUL_OPERATION_DESCRIPTION = "successful operation";
 
     public static String DEFAULT_OPERATION_ID = "{class_name}.{method_name}";
+
+    protected static String DEFAULT_LIBRARY = Library.SPRING_MVC.name();
+
+    protected static List<String> DEFAULT_TAG_ANNOTATIONS = Library.SPRING_MVC.getTagAnnotations().stream()
+            .map(Library.TagAnnotation::getAnnotationClassName).collect(Collectors.toList());
 
     @Parameter
     protected Tag tag = new Tag();
@@ -46,6 +55,12 @@ public class CommonApiConfiguration {
 
     @Parameter
     protected String operationId = DEFAULT_OPERATION_ID;
+
+    @Parameter
+    protected String library = DEFAULT_LIBRARY;
+
+    @Parameter
+    protected List<String> tagAnnotations = DEFAULT_TAG_ANNOTATIONS;
 
     public Tag getTag() {
         return tag;
@@ -109,5 +124,21 @@ public class CommonApiConfiguration {
 
     public void setOperationId(String operationId) {
         this.operationId = operationId;
+    }
+
+    public Library getLibrary() {
+        return Library.getByName(library);
+    }
+
+    public void setLibrary(String library) {
+        this.library = library;
+    }
+
+    public List<String> getTagAnnotations() {
+        return tagAnnotations;
+    }
+
+    public void setTagAnnotations(List<String> tagAnnotations) {
+        this.tagAnnotations = tagAnnotations;
     }
 }

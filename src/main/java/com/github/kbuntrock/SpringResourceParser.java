@@ -1,6 +1,7 @@
 package com.github.kbuntrock;
 
 import com.github.kbuntrock.configuration.ApiConfiguration;
+import com.github.kbuntrock.configuration.library.Library;
 import com.github.kbuntrock.model.Tag;
 import com.github.kbuntrock.reflection.ReflectionsUtils;
 import com.github.kbuntrock.utils.Logger;
@@ -9,8 +10,10 @@ import org.apache.maven.plugin.logging.Log;
 import org.reflections.Reflections;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
-import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.lang.reflect.AnnotatedElement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -37,9 +40,17 @@ public class SpringResourceParser {
 
             Reflections reflections = new Reflections(configurationBuilder);
 
+            Library framework = apiConfiguration.getLibrary();
+
+            List<AnnotatedElement> annotatedElementList = new ArrayList<>();
+            for (String annotationName : apiConfiguration.getTagAnnotations()) {
+                annotatedElementList.add(framework.getByClassName(annotationName));
+            }
+
+            Set<Class<?>> classes = reflections.get(TypesAnnotated.with(annotatedElementList.toArray(new AnnotatedElement[]{}))
+                    .asClass(ReflectionsUtils.getProjectClassLoader()));
 
             // Find directly or inheritedly annotated by RequestMapping classes.
-            Set<Class<?>> classes = reflections.get(TypesAnnotated.with(RequestMapping.class).asClass(ReflectionsUtils.getProjectClassLoader()));
             SpringClassAnalyser springClassAnalyser = new SpringClassAnalyser(apiConfiguration);
             for (Class clazz : classes) {
                 Optional<Tag> optTag = springClassAnalyser.getTagFromClass(clazz);
