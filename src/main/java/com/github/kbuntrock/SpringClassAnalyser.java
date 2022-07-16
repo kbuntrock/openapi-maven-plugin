@@ -8,16 +8,18 @@ import com.github.kbuntrock.utils.ParameterLocation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
+import org.springframework.core.annotation.MergedAnnotation;
+import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -47,18 +49,21 @@ public class SpringClassAnalyser {
     public Optional<Tag> getTagFromClass(Class<?> clazz) throws MojoFailureException {
         Tag tag = new Tag(clazz);
         logger.debug("Parsing tag : " + tag.getName());
-        String basePath = "";
-        RequestMapping classRequestMapping = clazz.getAnnotation(RequestMapping.class);
+        List<String> basePaths = Arrays.asList("");
 
-        if (classRequestMapping != null) {
-            if (classRequestMapping.value() != null && classRequestMapping.value().length > 0) {
-                basePath = classRequestMapping.value()[0];
-            } else if (classRequestMapping.path() != null && classRequestMapping.path().length > 0) {
-                basePath = classRequestMapping.path()[0];
+        MergedAnnotations mergedAnnotations = MergedAnnotations.from(clazz, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+        MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
+
+        if (requestMappingMergedAnnotation.isPresent()) {
+            String[] paths = requestMappingMergedAnnotation.getStringArray("path");
+            if (paths.length > 0) {
+                basePaths = Arrays.asList(paths);
             }
         }
 
-        parseEndpoints(tag, basePath, clazz);
+        for (String basePath : basePaths) {
+            parseEndpoints(tag, basePath, clazz);
+        }
 
         if (tag.getEndpoints().isEmpty()) {
             // There was not valid endpoint to attach to this tag. Therefore, we don't keep track of it.
@@ -73,32 +78,37 @@ public class SpringClassAnalyser {
 
         Method[] methods = clazz.getMethods();
         for (Method method : methods) {
-            Annotation[] annotations = method.getAnnotations();
-            for (Annotation annotation : annotations) {
 
-                Optional<RequestMapping> requestMapping = getRequestMappingAnnotation(annotation);
-                if (requestMapping.isPresent()) {
-                    Optional<Endpoint> optEndpoint = readRequestMapping(basePath, requestMapping.get(), annotation);
-                    if (optEndpoint.isPresent()) {
-                        Endpoint endpoint = optEndpoint.get();
-                        endpoint.setName(method.getName());
-                        logger.debug("Parsing endpoint : " + endpoint.getName());
-                        endpoint.setParameters(readParameters(method));
-                        logger.debug("Parsing endpoint : " + endpoint.getName() + " - parameters read");
-                        endpoint.setResponseObject(readResponseObject(method));
-                        logger.debug("Parsing endpoint : " + endpoint.getName() + " - response read");
-                        endpoint.setResponseCode(readResponseCode(method));
-                        setConsumeProduceProperties(endpoint, annotation);
-                        endpoint.setIdentifier(createIdentifier(method));
-                        Optional<Deprecated> deprecated = getDeprecatedAnnotation(method);
-                        if (deprecated.isPresent()) {
-                            endpoint.setDeprecated(true);
+            MergedAnnotations mergedAnnotations = MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+            MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
+            if (requestMappingMergedAnnotation.isPresent()) {
+                RequestMethod[] requestMethods = requestMappingMergedAnnotation.getEnumArray("method", RequestMethod.class);
+                if (requestMethods.length > 0) {
+                    logger.debug("Parsing request method : " + method.getName());
+                    List<ParameterObject> parameterObjects = readParameters(method);
+                    DataObject responseObject = readResponseObject(method);
+                    int responseCode = readResponseCode(method);
+                    List<String> paths = readEndpointPaths(basePath, requestMappingMergedAnnotation);
+                    Optional<Deprecated> deprecated = getDeprecatedAnnotation(method);
+                    for (RequestMethod requestMethod : requestMethods) {
+                        for (String path : paths) {
+                            Endpoint endpoint = new Endpoint();
+                            endpoint.setType(OperationType.from(requestMethod));
+                            endpoint.setPath(path);
+                            endpoint.setName(method.getName());
+                            endpoint.setParameters(parameterObjects);
+                            endpoint.setResponseObject(responseObject);
+                            endpoint.setResponseCode(responseCode);
+                            setConsumeProduceProperties(endpoint, requestMappingMergedAnnotation);
+                            endpoint.setIdentifier(createIdentifier(method));
+                            if (deprecated.isPresent()) {
+                                endpoint.setDeprecated(true);
+                            }
+                            tag.addEndpoint(endpoint);
+                            logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
                         }
-                        tag.addEndpoint(endpoint);
-                        logger.debug("Parsing endpoint : " + endpoint.getName() + " - the end");
                     }
                 }
-
             }
         }
     }
@@ -233,78 +243,39 @@ public class SpringClassAnalyser {
         return dataObject;
     }
 
-    private Optional<Endpoint> readRequestMapping(String basePath, RequestMapping requestMapping, Annotation realAnnotation) throws MojoFailureException {
-        Optional<OperationType> operation = requestMappingToOperation(requestMapping);
-        if (!operation.isPresent()) {
-            return Optional.empty();
-        }
-        Endpoint endpoint = new Endpoint();
-        endpoint.setType(operation.get());
-        endpoint.setPath(readEndpointPath(basePath, realAnnotation));
-        return Optional.of(endpoint);
-    }
-
     /**
      * Set the consume and produce properties of an endpoint
      *
-     * @param endpoint       the endpoint object to set
-     * @param pathAnnotation An instance of RequestMapping or a subclass of RequestMapping
+     * @param endpoint                       the endpoint object to set
+     * @param requestMappingMergedAnnotation
      */
-    private static void setConsumeProduceProperties(Endpoint endpoint, Annotation pathAnnotation) throws MojoFailureException {
-        Method methodConsumes = null;
-        Method methodProduces = null;
-        try {
-            methodConsumes = pathAnnotation.annotationType().getMethod("consumes");
-            methodProduces = pathAnnotation.annotationType().getMethod("produces");
-        } catch (NoSuchMethodException e) {
-            throw new MojoFailureException("Method 'consumes' or 'produces' not found for " + pathAnnotation.getClass().getSimpleName());
-        }
-        try {
-            Optional<ParameterObject> parameter = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation()).findAny();
-            if (parameter.isPresent()) {
-                String[] consumes = (String[]) methodConsumes.invoke(pathAnnotation);
-                if (consumes != null && consumes.length > 0) {
-                    parameter.get().setFormat(consumes[0]);
-                }
-            }
-            if (endpoint.getResponseObject() != null) {
-                String[] produces = (String[]) methodProduces.invoke(pathAnnotation);
-                if (produces != null && produces.length > 0) {
-                    endpoint.setResponseFormat(produces[0]);
-                }
-            }
+    private static void setConsumeProduceProperties(Endpoint endpoint, MergedAnnotation<RequestMapping> requestMappingMergedAnnotation) throws MojoFailureException {
 
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new MojoFailureException("Method 'consumes' or 'produces' cannot be invoked for " + pathAnnotation.annotationType().getSimpleName());
+        Optional<ParameterObject> body = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation()).findAny();
+        if (body.isPresent()) {
+            String[] consumes = requestMappingMergedAnnotation.getStringArray("consumes");
+            if (consumes.length > 0) {
+                body.get().setFormat(consumes[0]);
+            }
+        }
+        if (endpoint.getResponseObject() != null) {
+            String[] produces = requestMappingMergedAnnotation.getStringArray("produces");
+            if (produces.length > 0) {
+                endpoint.setResponseFormat(produces[0]);
+            }
         }
     }
 
-    private String readEndpointPath(String basePath, Annotation realAnnotation) throws MojoFailureException {
-        Method methodValue = null;
-        Method methodPath = null;
-        try {
-            methodPath = realAnnotation.annotationType().getMethod("path");
-            methodValue = realAnnotation.annotationType().getMethod("value");
-        } catch (NoSuchMethodException e) {
-            throw new MojoFailureException("Method 'value' not found for " + realAnnotation.getClass().getSimpleName());
+    private List<String> readEndpointPaths(String basePath, MergedAnnotation<RequestMapping> requestMappingMergedAnnotation) {
+        String[] paths = requestMappingMergedAnnotation.getStringArray("path");
+        List<String> resolvedPaths = new ArrayList<>();
+        if (paths.length == 0) {
+            resolvedPaths.add(concatenateBasePathAndMethodPath(basePath, "", apiConfiguration.isSpringPathEnhancement()));
         }
-        if (methodValue == null && methodPath == null) {
-            return concatenateBasePathAndMethodPath(basePath, "", apiConfiguration.isSpringPathEnhancement());
+        for (String path : paths) {
+            resolvedPaths.add(concatenateBasePathAndMethodPath(basePath, path, apiConfiguration.isSpringPathEnhancement()));
         }
-        try {
-            String[] paths = (String[]) methodPath.invoke(realAnnotation);
-            if (paths != null && paths.length > 0) {
-                return concatenateBasePathAndMethodPath(basePath, paths[0], apiConfiguration.isSpringPathEnhancement());
-            }
-            String[] values = (String[]) methodValue.invoke(realAnnotation);
-            if (values != null && values.length > 0) {
-                return concatenateBasePathAndMethodPath(basePath, values[0], apiConfiguration.isSpringPathEnhancement());
-            }
-            return concatenateBasePathAndMethodPath(basePath, "", apiConfiguration.isSpringPathEnhancement());
-
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new MojoFailureException("Method value cannot be invoked for " + realAnnotation.annotationType().getSimpleName());
-        }
+        return resolvedPaths;
     }
 
     private static String concatenateBasePathAndMethodPath(String basePath, String methodPath, boolean automaticSeparator) {
@@ -320,30 +291,4 @@ public class SpringClassAnalyser {
         return result;
     }
 
-    private static Optional<OperationType> requestMappingToOperation(RequestMapping requestMapping) {
-        if (requestMapping.method().length < 1) {
-            return Optional.empty();
-        }
-
-        switch (requestMapping.method()[0]) {
-            case GET:
-                return Optional.of(OperationType.GET);
-            case PUT:
-                return Optional.of(OperationType.PUT);
-            case HEAD:
-                return Optional.of(OperationType.HEAD);
-            case POST:
-                return Optional.of(OperationType.POST);
-            case PATCH:
-                return Optional.of(OperationType.PATCH);
-            case DELETE:
-                return Optional.of(OperationType.DELETE);
-            case TRACE:
-                return Optional.of(OperationType.TRACE);
-            case OPTIONS:
-                return Optional.of(OperationType.OPTIONS);
-            default:
-                throw new RuntimeException("RequestMethod unknow : " + requestMapping.method()[0].name());
-        }
-    }
 }

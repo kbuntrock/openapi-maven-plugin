@@ -31,24 +31,25 @@ public class SpringResourceParser {
 
     public TagLibrary scanRestControllers() throws MojoFailureException {
         TagLibrary library = new TagLibrary();
+
+        Library framework = apiConfiguration.getLibrary();
+        List<AnnotatedElement> annotatedElementList = new ArrayList<>();
+        for (String annotationName : apiConfiguration.getTagAnnotations()) {
+            annotatedElementList.add(framework.getByClassName(annotationName));
+        }
+
         for (String apiLocation : apiConfiguration.getLocations()) {
             logger.info("Scanning : " + apiLocation);
 
-            ConfigurationBuilder configurationBuilder = ReflectionsUtils.getConfigurationBuilder();
+            ConfigurationBuilder configurationBuilder = ReflectionsUtils.createConfigurationBuilder();
             configurationBuilder.filterInputsBy(new FilterBuilder().includePackage(apiLocation));
             configurationBuilder.setScanners(TypesAnnotated);
 
             Reflections reflections = new Reflections(configurationBuilder);
 
-            Library framework = apiConfiguration.getLibrary();
-
-            List<AnnotatedElement> annotatedElementList = new ArrayList<>();
-            for (String annotationName : apiConfiguration.getTagAnnotations()) {
-                annotatedElementList.add(framework.getByClassName(annotationName));
-            }
-
             Set<Class<?>> classes = reflections.get(TypesAnnotated.with(annotatedElementList.toArray(new AnnotatedElement[]{}))
                     .asClass(ReflectionsUtils.getProjectClassLoader()));
+            logger.info("Found " + classes.size() + " annotated classes");
 
             // Find directly or inheritedly annotated by RequestMapping classes.
             SpringClassAnalyser springClassAnalyser = new SpringClassAnalyser(apiConfiguration);

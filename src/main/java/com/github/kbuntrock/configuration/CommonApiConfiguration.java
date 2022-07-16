@@ -60,7 +60,8 @@ public class CommonApiConfiguration {
     protected String library = DEFAULT_LIBRARY;
 
     @Parameter
-    protected List<String> tagAnnotations = DEFAULT_TAG_ANNOTATIONS;
+    protected List<String> tagAnnotations = getLibrary().getTagAnnotations().stream()
+            .map(Library.TagAnnotation::getAnnotationClassName).collect(Collectors.toList());
 
     public Tag getTag() {
         return tag;

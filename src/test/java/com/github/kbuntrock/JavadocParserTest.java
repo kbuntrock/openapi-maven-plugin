@@ -8,6 +8,7 @@ import com.github.kbuntrock.javadoc.JavadocParser;
 import com.github.kbuntrock.model.Tag;
 import com.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration3Controller;
 import com.github.kbuntrock.resources.endpoint.javadoc.inheritance.ChildClassOne;
+import com.github.kbuntrock.resources.endpoint.javadoc.inheritance.ChildClassTwo;
 import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -55,6 +56,20 @@ public class JavadocParserTest extends AbstractTest {
 
         List<File> generated = mojo.documentProject();
         checkGenerationResult("ut/JavadocParserTest/inheritance_test_one.yml", generated.get(0));
+    }
+
+    @Test
+    public void inheritance_test_two() throws MojoFailureException, MojoExecutionException, IOException {
+
+        DocumentationMojo mojo = createBasicMojo(ChildClassTwo.class.getCanonicalName());
+
+        JavadocConfiguration javadocConfig = new JavadocConfiguration();
+        javadocConfig.setScanLocations(Arrays.asList("src/test/java/com/github/kbuntrock/resources/endpoint/javadoc/inheritance",
+                "src/test/java/com/github/kbuntrock/resources/dto"));
+        mojo.setJavadocConfiguration(javadocConfig);
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/JavadocParserTest/inheritance_test_two.yml", generated.get(0));
     }
 
     @Test

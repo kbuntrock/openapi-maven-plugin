@@ -40,7 +40,7 @@ public final class ReflectionsUtils {
         return ReflectionsUtils.projectClassLoader;
     }
 
-    public static ConfigurationBuilder getConfigurationBuilder() {
+    public static ConfigurationBuilder createConfigurationBuilder() {
         if (!initiated) {
             throw new RuntimeException("ReflectionsUtils has not been initiated.");
         }
