@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.github.javaparser.javadoc.JavadocBlockTag;
+import com.github.kbuntrock.MojoRuntimeException;
 import com.github.kbuntrock.TagLibrary;
 import com.github.kbuntrock.configuration.ApiConfiguration;
 import com.github.kbuntrock.javadoc.ClassDocumentation;
@@ -242,7 +243,7 @@ public class YamlWriter {
             for (Operation operation : operations) {
                 Operation previousOperation = paths.get(operation.getPath()).put(operation.getName().toLowerCase(), operation);
                 if (previousOperation != null) {
-                    throw new RuntimeException("More than one operation mapped on " + operation.getName() + " : " + operation.getPath() + " in tag " + tag.getName());
+                    throw new MojoRuntimeException("More than one operation mapped on " + operation.getName() + " : " + operation.getPath() + " in tag " + tag.getName());
                 }
             }
 

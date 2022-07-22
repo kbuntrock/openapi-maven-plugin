@@ -8,11 +8,12 @@ import com.github.kbuntrock.javadoc.JavadocParser;
 import com.github.kbuntrock.model.Tag;
 import com.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration3Controller;
 import com.github.kbuntrock.resources.endpoint.javadoc.inheritance.ChildClassOne;
-import com.github.kbuntrock.resources.endpoint.javadoc.inheritance.ChildClassTwo;
+import com.github.kbuntrock.resources.endpoint.javadoc.inheritance.two.ChildClassTwo;
 import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -62,6 +63,42 @@ public class JavadocParserTest extends AbstractTest {
     public void inheritance_test_two() throws MojoFailureException, MojoExecutionException, IOException {
 
         DocumentationMojo mojo = createBasicMojo(ChildClassTwo.class.getCanonicalName());
+
+        JavadocConfiguration javadocConfig = new JavadocConfiguration();
+        javadocConfig.setScanLocations(Arrays.asList("src/test/java/com/github/kbuntrock/resources/endpoint/javadoc/inheritance",
+                "src/test/java/com/github/kbuntrock/resources/dto"));
+        mojo.setJavadocConfiguration(javadocConfig);
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/JavadocParserTest/inheritance_test_two.yml", generated.get(0));
+    }
+
+    @Test
+    public void inheritance_test_two_package_error() throws MojoFailureException, MojoExecutionException, IOException {
+
+        DocumentationMojo mojo = createBasicMojo("com.github.kbuntrock.resources.endpoint.javadoc.inheritance.two");
+
+        JavadocConfiguration javadocConfig = new JavadocConfiguration();
+        javadocConfig.setScanLocations(Arrays.asList("src/test/java/com/github/kbuntrock/resources/endpoint/javadoc/inheritance",
+                "src/test/java/com/github/kbuntrock/resources/dto"));
+        mojo.setJavadocConfiguration(javadocConfig);
+
+        MojoRuntimeException exception = null;
+        try {
+            mojo.documentProject();
+        } catch (MojoRuntimeException ex) {
+            exception = ex;
+        }
+        Assertions.assertNotNull(exception);
+        Assertions.assertEquals("More than one operation mapped on GET : /api/child-class-two/age-plus-one in tag ChildClassTwo",
+                exception.getMessage());
+    }
+
+    @Test
+    public void inheritance_test_two_package_success() throws MojoFailureException, MojoExecutionException, IOException {
+
+        DocumentationMojo mojo = createBasicMojo("com.github.kbuntrock.resources.endpoint.javadoc.inheritance.two");
+        mojo.getApis().get(0).setTagAnnotations(Arrays.asList("RestController"));
 
         JavadocConfiguration javadocConfig = new JavadocConfiguration();
         javadocConfig.setScanLocations(Arrays.asList("src/test/java/com/github/kbuntrock/resources/endpoint/javadoc/inheritance",

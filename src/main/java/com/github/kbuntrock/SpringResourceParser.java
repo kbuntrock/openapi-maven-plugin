@@ -11,6 +11,7 @@ import org.reflections.Reflections;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,7 @@ public class SpringResourceParser {
         TagLibrary library = new TagLibrary();
 
         Library framework = apiConfiguration.getLibrary();
-        List<AnnotatedElement> annotatedElementList = new ArrayList<>();
+        List<Class<? extends Annotation>> annotatedElementList = new ArrayList<>();
         for (String annotationName : apiConfiguration.getTagAnnotations()) {
             annotatedElementList.add(framework.getByClassName(annotationName));
         }
@@ -43,12 +44,12 @@ public class SpringResourceParser {
 
             ConfigurationBuilder configurationBuilder = ReflectionsUtils.createConfigurationBuilder();
             configurationBuilder.filterInputsBy(new FilterBuilder().includePackage(apiLocation));
+
             configurationBuilder.setScanners(TypesAnnotated);
-
             Reflections reflections = new Reflections(configurationBuilder);
-
             Set<Class<?>> classes = reflections.get(TypesAnnotated.with(annotatedElementList.toArray(new AnnotatedElement[]{}))
                     .asClass(ReflectionsUtils.getProjectClassLoader()));
+            
             logger.info("Found " + classes.size() + " annotated classes");
 
             // Find directly or inheritedly annotated by RequestMapping classes.

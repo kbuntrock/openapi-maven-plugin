@@ -1,4 +1,4 @@
-package com.github.kbuntrock.resources.endpoint.javadoc.inheritance;
+package com.github.kbuntrock.resources.endpoint.javadoc.inheritance.two;
 
 import com.github.kbuntrock.resources.dto.PageDto;
 import org.springframework.web.bind.annotation.GetMapping;

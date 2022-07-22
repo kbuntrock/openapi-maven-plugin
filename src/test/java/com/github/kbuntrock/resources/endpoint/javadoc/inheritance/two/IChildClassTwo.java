@@ -1,6 +1,8 @@
-package com.github.kbuntrock.resources.endpoint.javadoc.inheritance;
+package com.github.kbuntrock.resources.endpoint.javadoc.inheritance.two;
 
 import com.github.kbuntrock.resources.Constants;
+import com.github.kbuntrock.resources.endpoint.javadoc.inheritance.GrandParentInterface;
+import com.github.kbuntrock.resources.endpoint.javadoc.inheritance.ParentInterface;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 

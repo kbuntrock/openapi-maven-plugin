@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.ws.rs.Path;
-import java.lang.reflect.AnnotatedElement;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,13 +28,13 @@ public enum Library {
         nameMap.put(VERTIGO.name().toLowerCase(), VERTIGO);
     }
 
-    private Map<String, AnnotatedElement> annotationMap = new HashMap<>();
+    private Map<String, Class<? extends Annotation>> annotationMap = new HashMap<>();
     private List<TagAnnotation> tagAnnotations = new ArrayList<>();
 
     Library(TagAnnotation... tagAnnotations) {
         for (TagAnnotation tagAnnotation : tagAnnotations) {
             this.tagAnnotations.add(tagAnnotation);
-            annotationMap.put(tagAnnotation.getAnnotationClassName(), tagAnnotation.getAnnotatedElement());
+            annotationMap.put(tagAnnotation.getAnnotationClassName(), tagAnnotation.getAnnotattion());
         }
     }
 
@@ -42,8 +42,8 @@ public enum Library {
         return tagAnnotations;
     }
 
-    public AnnotatedElement getByClassName(final String className) {
-        AnnotatedElement toReturn = annotationMap.get(className);
+    public Class<? extends Annotation> getByClassName(final String className) {
+        Class<? extends Annotation> toReturn = annotationMap.get(className);
         if (toReturn == null) {
             throw new MojoRuntimeException("There is no annotation corresponding to : " + className);
         }
@@ -64,13 +64,13 @@ public enum Library {
         VERTIGO_PATH_PREFIX(PathPrefix.class),
         JAXRS_PATH(Path.class);
 
-        private AnnotatedElement annotatedElement;
+        private Class<? extends Annotation> annotatedElement;
 
-        private TagAnnotation(Class<?> clazz) {
+        private TagAnnotation(Class<? extends Annotation> clazz) {
             this.annotatedElement = clazz;
         }
 
-        public AnnotatedElement getAnnotatedElement() {
+        public Class<? extends Annotation> getAnnotattion() {
             return annotatedElement;
         }
 

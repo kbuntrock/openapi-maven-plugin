@@ -23,7 +23,23 @@ public class BasicIT {
 
     @MavenTest
     @MavenGoal("install")
-    void nominal_test_case(MavenExecutionResult result) throws IOException {
+    void nominal_test_case_jdk8(MavenExecutionResult result) throws IOException {
+        nominal_test_case(result);
+    }
+
+    @MavenTest
+    @MavenGoal("install")
+    void nominal_test_case_jdk11(MavenExecutionResult result) throws IOException {
+        nominal_test_case(result);
+    }
+
+    //    @MavenTest
+    @MavenGoal("install")
+    void nominal_test_case_jdk17(MavenExecutionResult result) throws IOException {
+        nominal_test_case(result);
+    }
+
+    private void nominal_test_case(MavenExecutionResult result) throws IOException {
         MavenExecutionResultAssert resultAssert = assertThat(result);
         resultAssert.isSuccessful().out().info().contains("spec-open-api : 1 tags and 2 operations generated.");
 
@@ -44,8 +60,6 @@ public class BasicIT {
 
             Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
         }
-
-
     }
 
 }
