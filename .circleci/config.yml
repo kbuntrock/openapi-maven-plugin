@@ -20,8 +20,23 @@ jobs:
       - checkout
       # Use mvn clean and package as the standard maven build phase
       - run:
-          name: Build and test
-          command: mvn clean verify
+          name: Build and test jdk8
+          command: |
+            echo $JAVA_HOME
+            mvn --version
+            mvn -Dit.test=BasicIT#nominal_test_case_jdk8 clean verify -Pit -Pjdk8
+      - run:
+          name: Build and test jdk11
+          command: |
+            echo $JAVA_HOME
+            mvn --version
+            mvn -Dit.test=BasicIT#nominal_test_case_jdk8 clean verify -Pit -Pjdk11
+      - run:
+          name: Build and test jdk17
+          command: |
+            echo $JAVA_HOME
+            mvn --version
+            mvn -Dit.test=BasicIT#nominal_test_case_jdk8 clean verify -Pit -Pjdk17
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows

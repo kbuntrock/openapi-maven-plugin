@@ -103,6 +103,11 @@ public class DocumentationMojo extends AbstractMojo {
     }
 
     public List<File> documentProject() throws MojoFailureException, MojoExecutionException {
+
+        // Log the java version
+        String version = System.getProperty("java.version");
+        getLog().debug("Running on java " + version);
+
         validateConfiguration();
         scanJavadoc();
         return scanProjectResourcesAndWriteSpec();

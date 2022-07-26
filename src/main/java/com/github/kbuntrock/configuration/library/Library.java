@@ -1,7 +1,6 @@
 package com.github.kbuntrock.configuration.library;
 
 import com.github.kbuntrock.MojoRuntimeException;
-import io.vertigo.vega.webservice.stereotype.PathPrefix;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,15 +16,13 @@ import java.util.Map;
  */
 public enum Library {
     SPRING_MVC(TagAnnotation.SPRING_MVC_REQUEST_MAPPING, TagAnnotation.SPRING_REST_CONTROLLER),
-    JAXRS(TagAnnotation.JAXRS_PATH),
-    VERTIGO(TagAnnotation.VERTIGO_PATH_PREFIX);
+    JAXRS(TagAnnotation.JAXRS_PATH);
 
     private static Map<String, Library> nameMap = new HashMap<>();
 
     static {
         nameMap.put(SPRING_MVC.name().toLowerCase(), SPRING_MVC);
         nameMap.put(JAXRS.name().toLowerCase(), JAXRS);
-        nameMap.put(VERTIGO.name().toLowerCase(), VERTIGO);
     }
 
     private Map<String, Class<? extends Annotation>> annotationMap = new HashMap<>();
@@ -61,7 +58,6 @@ public enum Library {
     public enum TagAnnotation {
         SPRING_MVC_REQUEST_MAPPING(RequestMapping.class),
         SPRING_REST_CONTROLLER(RestController.class),
-        VERTIGO_PATH_PREFIX(PathPrefix.class),
         JAXRS_PATH(Path.class);
 
         private Class<? extends Annotation> annotatedElement;

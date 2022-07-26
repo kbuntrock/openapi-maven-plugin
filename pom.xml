@@ -45,7 +45,6 @@
         <reflections.version>0.10.2</reflections.version>
         <jackson-dataformat-yaml.version>2.13.2</jackson-dataformat-yaml.version>
         <jackson-databind.version>2.13.2.2</jackson-databind.version>
-        <vertigo-vega.version>3.3.0</vertigo-vega.version>
         <javax-ws-rs-api.version>2.1.1</javax-ws-rs-api.version>
     </properties>
 
@@ -113,11 +112,6 @@
             <version>${spring.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.vertigo</groupId>
-            <artifactId>vertigo-vega</artifactId>
-            <version>${vertigo-vega.version}</version>
-        </dependency>
-        <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
             <version>${javax-ws-rs-api.version}</version>
@@ -175,6 +169,119 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>jdk8</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-toolchains-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>toolchain</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <toolchains>
+                                <jdk>
+                                    <version>8</version>
+                                </jdk>
+                            </toolchains>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>jdk11</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-toolchains-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>toolchain</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <toolchains>
+                                <jdk>
+                                    <version>11</version>
+                                </jdk>
+                            </toolchains>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>it</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.soebes.itf.jupiter.extension</groupId>
+                        <artifactId>itf-maven-plugin</artifactId>
+                        <version>0.11.0</version>
+                        <executions>
+                            <execution>
+                                <id>installing</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>install</goal>
+                                    <goal>resources-its</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <!-- Use if we want to filter some tests -->
+                            <!--                            <includes>-->
+                            <!--                                <include>**/*IT.java</include>-->
+                            <!--                            </includes>-->
+                            <!--
+                             ! currently needed to run integration tests.
+                            -->
+                            <systemPropertyVariables>
+                                <maven.version>${maven.version}</maven.version>
+                                <maven.home>${maven.home}</maven.home>
+                            </systemPropertyVariables>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
     <build>
         <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
             <plugins>
@@ -229,6 +336,7 @@
                 <version>3.0.0</version>
                 <executions>
                     <execution>
+                        <phase>validate</phase>
                         <goals>
                             <goal>toolchain</goal>
                         </goals>
@@ -237,7 +345,7 @@
                 <configuration>
                     <toolchains>
                         <jdk>
-                            <version>11</version>
+                            <version>17</version>
                         </jdk>
                     </toolchains>
                 </configuration>
@@ -261,44 +369,6 @@
                         <id>help-goal</id>
                         <goals>
                             <goal>helpmojo</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>com.soebes.itf.jupiter.extension</groupId>
-                <artifactId>itf-maven-plugin</artifactId>
-                <version>0.11.0</version>
-                <executions>
-                    <execution>
-                        <id>installing</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>install</goal>
-                            <goal>resources-its</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <!--
-                     ! currently needed to run integration tests.
-                    -->
-                    <systemProperties>
-                        <maven.version>${maven.version}</maven.version>
-                        <maven.home>${maven.home}</maven.home>
-                    </systemProperties>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
                         </goals>
                     </execution>
                 </executions>

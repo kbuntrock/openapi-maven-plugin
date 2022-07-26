@@ -2,14 +2,8 @@ package com.github.kbuntrock;
 
 import com.github.kbuntrock.configuration.ApiConfiguration;
 import com.github.kbuntrock.configuration.JavadocConfiguration;
-import com.github.kbuntrock.configuration.OperationIdHelper;
-import com.github.kbuntrock.javadoc.JavadocMap;
-import com.github.kbuntrock.javadoc.JavadocParser;
-import com.github.kbuntrock.model.Tag;
-import com.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration3Controller;
 import com.github.kbuntrock.resources.endpoint.javadoc.inheritance.ChildClassOne;
 import com.github.kbuntrock.resources.endpoint.javadoc.inheritance.two.ChildClassTwo;
-import com.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
@@ -20,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 public class JavadocParserTest extends AbstractTest {
 
@@ -108,37 +101,5 @@ public class JavadocParserTest extends AbstractTest {
         List<File> generated = mojo.documentProject();
         checkGenerationResult("ut/JavadocParserTest/inheritance_test_two.yml", generated.get(0));
     }
-
-    @Test
-    public void javadoc_nominal_case() throws IOException {
-
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
-        JavadocParser javadocParser = new JavadocParser(Arrays.asList(new File("src/test/java/com/github/kbuntrock/resources/endpoint/file")));
-        javadocParser.scan();
-
-    }
-
-    @Test
-    public void javadoc_file_upload() throws MojoFailureException, IOException {
-
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
-        apiConfiguration.setOperationId("{method_name}");
-        apiConfiguration.setOperationIdHelper(new OperationIdHelper(apiConfiguration.getOperationId()));
-
-        JavadocParser javadocParser = new JavadocParser(Arrays.asList(new File("src/test/java/com/github/kbuntrock/resources")));
-        javadocParser.scan();
-        JavadocMap.INSTANCE.setJavadocMap(javadocParser.getJavadocMap());
-
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(TestEnumeration3Controller.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
-
-        File generatedFile = new File("target/toto.yml");
-
-        new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
-
-    }
-
-
+    
 }
