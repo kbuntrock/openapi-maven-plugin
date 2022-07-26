@@ -37,6 +37,9 @@ jobs:
             echo $JAVA_HOME
             mvn --version
             mvn -Dit.test=BasicIT#nominal_test_case_jdk8 clean verify -Pit -Pjdk17
+      - store_artifacts:
+        path: ./target/maven-it/com/github/kbuntrock/it/BasicIT/nominal_test_case_jdk8/mvn-stdout.log
+        destination: log-jdk8.txt
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
