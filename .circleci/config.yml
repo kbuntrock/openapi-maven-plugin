@@ -27,8 +27,8 @@ jobs:
             mvn -Dit.test=BasicIT#nominal_test_case_jdk8 clean verify -Pit -Pjdk8
             
       - store_artifacts:
-        path: ./target/maven-it/com/github/kbuntrock/it/BasicIT/nominal_test_case_jdk8/mvn-stdout.log
-        destination: log-jdk8.txt
+          path: ./target/maven-it/com/github/kbuntrock/it/BasicIT/nominal_test_case_jdk8/mvn-stdout.log
+          destination: log-jdk8.txt
         
       - run:
           name: Build and test jdk11
