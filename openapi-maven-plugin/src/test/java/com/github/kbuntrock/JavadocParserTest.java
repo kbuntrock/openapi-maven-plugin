@@ -101,5 +101,20 @@ public class JavadocParserTest extends AbstractTest {
         List<File> generated = mojo.documentProject();
         checkGenerationResult("ut/JavadocParserTest/inheritance_test_two.yml", generated.get(0));
     }
-    
+
+    @Test
+    public void inheritance_test_three() throws MojoFailureException, MojoExecutionException, IOException {
+
+        DocumentationMojo mojo = createBasicMojo("com.github.kbuntrock.resources.endpoint.javadoc.inheritance.three");
+        mojo.getApis().get(0).setTagAnnotations(Arrays.asList("RestController"));
+
+        JavadocConfiguration javadocConfig = new JavadocConfiguration();
+        javadocConfig.setScanLocations(Arrays.asList("src/test/java/com/github/kbuntrock/resources/endpoint/javadoc/inheritance",
+                "src/test/java/com/github/kbuntrock/resources/dto"));
+        mojo.setJavadocConfiguration(javadocConfig);
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/JavadocParserTest/inheritance_test_three.yml", generated.get(0));
+    }
+
 }
