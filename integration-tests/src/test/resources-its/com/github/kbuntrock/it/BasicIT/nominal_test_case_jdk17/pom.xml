@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.kbuntrock.openapi.it</groupId>
-    <artifactId>openapi-basic-it</artifactId>
+    <artifactId>openapi-basic-it-jdk17</artifactId>
     <version>23.5.2</version>
     <name>Basic integration test</name>
 
