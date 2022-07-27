@@ -24,24 +24,24 @@ public class BasicIT {
     @MavenGoal("install")
     @MavenOption(MavenCLIOptions.DEBUG)
     void nominal_test_case_jdk8(MavenExecutionResult result) throws IOException {
-        nominal_test_case(result, "1.8");
+        nominal_test_case(result, "1.8", "-jdk8");
     }
 
     @MavenTest
     @MavenGoal("install")
     @MavenOption(MavenCLIOptions.DEBUG)
     void nominal_test_case_jdk11(MavenExecutionResult result) throws IOException {
-        nominal_test_case(result, "11");
+        nominal_test_case(result, "11", "-jdk11");
     }
 
     @MavenTest
     @MavenGoal("install")
     @MavenOption(MavenCLIOptions.DEBUG)
     void nominal_test_case_jdk17(MavenExecutionResult result) throws IOException {
-        nominal_test_case(result, "17");
+        nominal_test_case(result, "17", "-jdk17");
     }
 
-    private void nominal_test_case(MavenExecutionResult result, final String expectedJavaVersion) throws IOException {
+    private void nominal_test_case(MavenExecutionResult result, final String expectedJavaVersion, final String suffix) throws IOException {
         MavenExecutionResultAssert resultAssert = assertThat(result);
         resultAssert.isSuccessful().out().info().contains("spec-open-api : 1 tags and 2 operations generated.");
 
@@ -56,7 +56,7 @@ public class BasicIT {
         Assertions.assertTrue(generatedFile.exists());
 
         File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory();
-        File generatedArtifactFile = new File(m2Directory, "/com/github/kbuntrock/openapi/it/openapi-basic-it/23.5.2/openapi-basic-it-23.5.2-spec-open-api.yml");
+        File generatedArtifactFile = new File(m2Directory, "/com/github/kbuntrock/openapi/it/openapi-basic-it" + suffix + "/23.5.2/openapi-basic-it" + suffix + "-23.5.2-spec-open-api.yml");
         Assertions.assertTrue(generatedArtifactFile.exists());
 
 

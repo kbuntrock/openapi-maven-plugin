@@ -57,9 +57,9 @@ jobs:
             mvn -Dit.test=BasicIT#nominal_test_case_jdk17 clean verify
       
       # Uncomment to check execution result of integration tests
-      - store_artifacts:
-          path: integration-tests/target/maven-it/com/github/kbuntrock/it/BasicIT/nominal_test_case_jdk8/mvn-stdout.log
-          destination: log-jdk8.txt
+      #- store_artifacts:
+      #    path: integration-tests/target/maven-it/com/github/kbuntrock/it/BasicIT/nominal_test_case_jdk8/mvn-stdout.log
+      #    destination: log-jdk8.txt
 
 
 # Invoke jobs via workflows
