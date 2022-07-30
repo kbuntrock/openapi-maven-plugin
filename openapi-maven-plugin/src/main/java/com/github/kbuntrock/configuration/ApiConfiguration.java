@@ -81,7 +81,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
         if (library != null) {
             merged.setLibrary(library);
         }
-        if (tagAnnotations != null) {
+        if (tagAnnotations != null && !tagAnnotations.isEmpty()) {
             merged.setTagAnnotations(tagAnnotations);
         }
         if (freeFields != null) {

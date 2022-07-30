@@ -70,14 +70,30 @@ public class CommonApiConfiguration {
     protected List<String> tagAnnotations = new ArrayList<>();
 
     public void initDefaultValues() {
-        library = DEFAULT_LIBRARY;
-        tagAnnotations = DEFAULT_TAG_ANNOTATIONS;
-        operationId = DEFAULT_OPERATION_ID;
-        loopbackOperationName = true;
-        springPathEnhancement = true;
-        defaultProduceConsumeGuessing = true;
-        defaultSuccessfulOperationDescription = "successful operation";
-        attachArtifact = true;
+        if (library == null) {
+            library = DEFAULT_LIBRARY;
+        }
+        if (tagAnnotations.isEmpty()) {
+            tagAnnotations = DEFAULT_TAG_ANNOTATIONS;
+        }
+        if (operationId == null) {
+            operationId = DEFAULT_OPERATION_ID;
+        }
+        if (loopbackOperationName == null) {
+            loopbackOperationName = true;
+        }
+        if (springPathEnhancement == null) {
+            springPathEnhancement = true;
+        }
+        if (defaultProduceConsumeGuessing == null) {
+            defaultProduceConsumeGuessing = true;
+        }
+        if (defaultSuccessfulOperationDescription == null) {
+            defaultSuccessfulOperationDescription = "successful operation";
+        }
+        if (attachArtifact == null) {
+            attachArtifact = true;
+        }
     }
 
     public Tag getTag() {
