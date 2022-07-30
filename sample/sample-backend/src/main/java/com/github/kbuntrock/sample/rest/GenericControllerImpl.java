@@ -1,9 +1,9 @@
 package com.github.kbuntrock.sample.rest;
 
-import fr.github.kbuntrock.sample.dto.PageDto;
-import fr.github.kbuntrock.sample.dto.TimeDto;
-import fr.github.kbuntrock.sample.dto.UserDto;
-import fr.github.kbuntrock.sample.enpoint.GenericController;
+import com.github.kbuntrock.sample.dto.PageDto;
+import com.github.kbuntrock.sample.dto.TimeDto;
+import com.github.kbuntrock.sample.dto.UserDto;
+import com.github.kbuntrock.sample.enpoint.GenericController;
 import org.springframework.web.bind.annotation.RestController;
 
 /**

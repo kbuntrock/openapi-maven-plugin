@@ -1,5 +1,7 @@
 package com.github.kbuntrock.yaml;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
@@ -16,6 +18,7 @@ import com.github.kbuntrock.model.ParameterObject;
 import com.github.kbuntrock.model.Tag;
 import com.github.kbuntrock.utils.*;
 import com.github.kbuntrock.yaml.model.*;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
@@ -26,8 +29,14 @@ import java.util.stream.Collectors;
 
 public class YamlWriter {
 
+    private static String SERVERS_FIELD = "servers";
+    private static String SECURITY_FIELD = "security";
+    private static String EXTERNAL_DOC_FIELD = "externalDocs";
+
     private static final ObjectMapper om = new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
             .enable(YAMLGenerator.Feature.INDENT_ARRAYS_WITH_INDICATOR));
+
+    private static final ObjectMapper jsonObjectMapper = new ObjectMapper();
 
     private final Log logger = Logger.INSTANCE.getLogger();
 
@@ -35,16 +44,29 @@ public class YamlWriter {
 
     private final MavenProject mavenProject;
 
+    private Optional<JsonNode> freefields = Optional.empty();
+
     public YamlWriter(final MavenProject mavenProject, final ApiConfiguration apiConfiguration) {
         this.apiConfiguration = apiConfiguration;
         this.mavenProject = mavenProject;
     }
 
+    private void parseFreeFields() {
+        if (!StringUtils.isEmpty(apiConfiguration.getFreeFields())) {
+            try {
+                freefields = Optional.ofNullable(jsonObjectMapper.readTree(apiConfiguration.getFreeFields()));
+            } catch (JsonProcessingException e) {
+                throw new MojoRuntimeException("Free fields json configuration cannot be read", e);
+            }
+        }
+    }
+
     public void write(File file, TagLibrary tagLibrary) throws IOException {
+
+        parseFreeFields();
+
         Specification specification = new Specification();
-        Info info = new Info();
-        info.setTitle(mavenProject.getName());
-        info.setVersion(mavenProject.getVersion());
+        Info info = new Info(mavenProject.getName(), mavenProject.getVersion(), freefields);
         specification.setInfo(info);
 
         Server server = new Server();

@@ -1,8 +1,7 @@
-package fr.github.kbuntrock.sample.enpoint;
+package com.github.kbuntrock.sample.enpoint;
 
-import fr.github.kbuntrock.sample.Constants;
-import fr.github.kbuntrock.sample.dto.Authority;
-import fr.github.kbuntrock.sample.dto.EnumWrapper;
+import com.github.kbuntrock.sample.dto.EnumWrapper;
+import com.github.kbuntrock.sample.dto.Authority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

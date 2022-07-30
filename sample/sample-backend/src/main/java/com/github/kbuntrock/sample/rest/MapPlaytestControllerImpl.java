@@ -1,7 +1,7 @@
 package com.github.kbuntrock.sample.rest;
 
-import fr.github.kbuntrock.sample.dto.UserDto;
-import fr.github.kbuntrock.sample.enpoint.MapPlaytestController;
+import com.github.kbuntrock.sample.dto.UserDto;
+import com.github.kbuntrock.sample.enpoint.MapPlaytestController;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.LinkedHashMap;

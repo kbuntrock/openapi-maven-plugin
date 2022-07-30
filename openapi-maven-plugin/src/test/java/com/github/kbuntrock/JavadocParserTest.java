@@ -2,6 +2,7 @@ package com.github.kbuntrock;
 
 import com.github.kbuntrock.configuration.ApiConfiguration;
 import com.github.kbuntrock.configuration.JavadocConfiguration;
+import com.github.kbuntrock.configuration.library.TagAnnotation;
 import com.github.kbuntrock.resources.endpoint.javadoc.inheritance.ChildClassOne;
 import com.github.kbuntrock.resources.endpoint.javadoc.inheritance.two.ChildClassTwo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -32,6 +33,8 @@ public class JavadocParserTest extends AbstractTest {
         apiConfiguration.setLocations(Arrays.asList(apiLocation));
         apiConfiguration.setDefaultProduceConsumeGuessing(false);
         apiConfiguration.setOperationId("{method_name}");
+        apiConfiguration.setLoopbackOperationName(false);
+        apiConfiguration.setTagAnnotations(Arrays.asList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
         mojo.setTestMode(true);
         mojo.setApis(Arrays.asList(apiConfiguration));
         mojo.setProject(createBasicMavenProject());
@@ -56,6 +59,8 @@ public class JavadocParserTest extends AbstractTest {
     public void inheritance_test_two() throws MojoFailureException, MojoExecutionException, IOException {
 
         DocumentationMojo mojo = createBasicMojo(ChildClassTwo.class.getCanonicalName());
+        mojo.getApis().get(0).setTagAnnotations(Arrays.asList(TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName(),
+                TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
 
         JavadocConfiguration javadocConfig = new JavadocConfiguration();
         javadocConfig.setScanLocations(Arrays.asList("src/test/java/com/github/kbuntrock/resources/endpoint/javadoc/inheritance",
@@ -67,9 +72,11 @@ public class JavadocParserTest extends AbstractTest {
     }
 
     @Test
-    public void inheritance_test_two_package_error() throws MojoFailureException, MojoExecutionException, IOException {
+    public void inheritance_test_two_package_error() throws MojoFailureException, MojoExecutionException {
 
         DocumentationMojo mojo = createBasicMojo("com.github.kbuntrock.resources.endpoint.javadoc.inheritance.two");
+        mojo.getApis().get(0).setTagAnnotations(Arrays.asList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName(),
+                TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName()));
 
         JavadocConfiguration javadocConfig = new JavadocConfiguration();
         javadocConfig.setScanLocations(Arrays.asList("src/test/java/com/github/kbuntrock/resources/endpoint/javadoc/inheritance",

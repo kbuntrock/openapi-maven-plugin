@@ -1,6 +1,6 @@
 package com.github.kbuntrock.sample.rest;
 
-import fr.github.kbuntrock.sample.enpoint.FileUploadController;
+import com.github.kbuntrock.sample.enpoint.FileUploadController;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 

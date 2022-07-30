@@ -37,6 +37,7 @@ public class JavaSourceAnalysisTest extends AbstractTest {
     public void controllerOne() throws MojoFailureException {
 
         ApiConfiguration apiConfiguration = new ApiConfiguration();
+        apiConfiguration.initDefaultValues();
 
         SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
         Optional<Tag> tag = analyser.getTagFromClass(ControllerOne.class);
@@ -53,6 +54,7 @@ public class JavaSourceAnalysisTest extends AbstractTest {
     public void controllerTwo() throws MojoFailureException {
 
         ApiConfiguration apiConfiguration = new ApiConfiguration();
+        apiConfiguration.initDefaultValues();
 
         SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
         Optional<Tag> tag = analyser.getTagFromClass(ControllerTwo.class);
@@ -69,6 +71,7 @@ public class JavaSourceAnalysisTest extends AbstractTest {
     public void controllerThree() throws MojoFailureException {
 
         ApiConfiguration apiConfiguration = new ApiConfiguration();
+        apiConfiguration.initDefaultValues();
 
         SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
         Optional<Tag> tag = analyser.getTagFromClass(ControllerThree.class);

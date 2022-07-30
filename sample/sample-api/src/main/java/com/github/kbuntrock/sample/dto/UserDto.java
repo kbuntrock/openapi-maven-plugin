@@ -1,7 +1,7 @@
-package fr.github.kbuntrock.sample.dto;
+package com.github.kbuntrock.sample.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import fr.github.kbuntrock.sample.Constants;
+import com.github.kbuntrock.sample.Constants;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;

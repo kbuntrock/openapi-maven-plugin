@@ -1,6 +1,6 @@
-package fr.github.kbuntrock.sample.enpoint;
+package com.github.kbuntrock.sample.enpoint;
 
-import fr.github.kbuntrock.sample.Constants;
+import com.github.kbuntrock.sample.Constants;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
