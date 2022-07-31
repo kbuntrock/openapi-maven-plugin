@@ -1,8 +1,8 @@
 package com.github.kbuntrock.sample.rest;
 
-import fr.github.kbuntrock.sample.dto.Authority;
-import fr.github.kbuntrock.sample.dto.EnumWrapper;
-import fr.github.kbuntrock.sample.enpoint.EnumPlaytestController;
+import com.github.kbuntrock.sample.dto.Authority;
+import com.github.kbuntrock.sample.dto.EnumWrapper;
+import com.github.kbuntrock.sample.enpoint.EnumPlaytestController;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;

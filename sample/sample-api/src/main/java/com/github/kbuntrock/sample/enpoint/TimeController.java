@@ -1,7 +1,7 @@
-package fr.github.kbuntrock.sample.enpoint;
+package com.github.kbuntrock.sample.enpoint;
 
-import fr.github.kbuntrock.sample.Constants;
-import fr.github.kbuntrock.sample.dto.TimeDto;
+import com.github.kbuntrock.sample.Constants;
+import com.github.kbuntrock.sample.dto.TimeDto;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;

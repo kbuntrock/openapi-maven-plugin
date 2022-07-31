@@ -4,7 +4,6 @@ import com.github.kbuntrock.utils.Cloner;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ApiConfiguration extends CommonApiConfiguration {
 
@@ -61,29 +60,32 @@ public class ApiConfiguration extends CommonApiConfiguration {
         if (!operation.getSubstitutions().isEmpty()) {
             merged.getOperation().setSubstitutions(operation.getSubstitutions());
         }
-        if (!attachArtifact) {
+        if (attachArtifact != null) {
             merged.setAttachArtifact(attachArtifact);
         }
-        if (!DEFAULT_SUCCESSFUL_OPERATION_DESCRIPTION.equals(defaultSuccessfulOperationDescription)) {
+        if (defaultSuccessfulOperationDescription != null) {
             merged.setDefaultSuccessfulOperationDescription(defaultSuccessfulOperationDescription);
         }
-        if (!defaultProduceConsumeGuessing) {
+        if (defaultProduceConsumeGuessing != null) {
             merged.setDefaultProduceConsumeGuessing(defaultProduceConsumeGuessing);
         }
-        if (!springPathEnhancement) {
+        if (springPathEnhancement != null) {
             merged.setSpringPathEnhancement(springPathEnhancement);
         }
-        if (loopbackOperationName) {
+        if (loopbackOperationName != null) {
             merged.setLoopbackOperationName(loopbackOperationName);
         }
-        if (!DEFAULT_OPERATION_ID.equals(operationId)) {
+        if (operationId != null) {
             merged.setOperationId(operationId);
         }
-        if (!DEFAULT_LIBRARY.equalsIgnoreCase(library)) {
+        if (library != null) {
             merged.setLibrary(library);
         }
-        if (!DEFAULT_TAG_ANNOTATIONS.stream().collect(Collectors.joining()).equals(tagAnnotations.stream().collect(Collectors.joining()))) {
+        if (tagAnnotations != null && !tagAnnotations.isEmpty()) {
             merged.setTagAnnotations(tagAnnotations);
+        }
+        if (freeFields != null) {
+            merged.setFreeFields(freeFields);
         }
         merged.operationIdHelper = new OperationIdHelper(merged.operationId);
         return merged;

@@ -1,11 +1,9 @@
-package fr.github.kbuntrock.sample.enpoint;
+package com.github.kbuntrock.sample.enpoint;
 
-import fr.github.kbuntrock.sample.Constants;
-import fr.github.kbuntrock.sample.dto.UserDto;
-import fr.github.kbuntrock.sample.dto.UserGroupDto;
-import org.springframework.http.MediaType;
+import com.github.kbuntrock.sample.Constants;
+import com.github.kbuntrock.sample.dto.UserGroupDto;
+import com.github.kbuntrock.sample.dto.UserDto;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 

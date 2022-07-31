@@ -80,7 +80,11 @@
                 </executions>
                 <configuration>
                     <apiConfiguration>
+                        <tagAnnotations>
+                            <annotation>RequestMapping</annotation>
+                        </tagAnnotations>
                         <operationId>{method_name}</operationId>
+                        <loopbackOperationName>false</loopbackOperationName>
                     </apiConfiguration>
                     <apis>
                         <api>

@@ -1,10 +1,22 @@
 ---
 openapi: 3.0.3
 info:
-  title: Basic integration test
+  title: This is a title
+  description: This is a sample server.
+  termsOfService: http://example.com/terms/
+  contact:
+    name: API Support
+    url: http://www.example.com/support
+    email: support@example.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
   version: 23.5.2
 servers:
-  - url: ""
+  - url: https://development.gigantic-server.com/v1
+    description: Development server
+  - url: https://prod.gigantic-server.com/v1
+    description: Production server
 tags:
   - name: UserController
 paths:
@@ -94,3 +106,13 @@ components:
           items:
             $ref: '#/components/schemas/Authority'
           uniqueItems: true
+  securitySchemes:
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - jwt: []
+externalDocs:
+  description: Find more info here
+  url: https://example.com

@@ -117,6 +117,8 @@ public class DocumentationMojo extends AbstractMojo {
         if (apis == null || apis.isEmpty()) {
             throw new MojoFailureException("At least one api configuration element should be configured");
         }
+        this.getApiConfiguration().initDefaultValues();
+
         for (ApiConfiguration apiConfiguration : apis) {
             if (apiConfiguration.getLocations() == null || apiConfiguration.getLocations().isEmpty()) {
                 throw new MojoFailureException("At least one location element should be configured");
@@ -222,8 +224,20 @@ public class DocumentationMojo extends AbstractMojo {
         this.apis = apis;
     }
 
+    public JavadocConfiguration getJavadocConfiguration() {
+        return javadocConfiguration;
+    }
+
     public void setJavadocConfiguration(JavadocConfiguration javadocConfiguration) {
         this.javadocConfiguration = javadocConfiguration;
+    }
+
+    public CommonApiConfiguration getApiConfiguration() {
+        return apiConfiguration;
+    }
+
+    public void setApiConfiguration(CommonApiConfiguration apiConfiguration) {
+        this.apiConfiguration = apiConfiguration;
     }
 
     public void setProject(MavenProject project) {

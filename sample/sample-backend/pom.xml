@@ -15,7 +15,7 @@
     <properties>
         <java.version>11</java.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
-        <openapi-plugin-project-version>0.0.4-SNAPSHOT</openapi-plugin-project-version>
+        <openapi-plugin-project-version>0.0.5-SNAPSHOT</openapi-plugin-project-version>
     </properties>
     <dependencies>
         <dependency>
@@ -55,6 +55,11 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <apiConfiguration>
+                        <tagAnnotations>
+                            <annotation>RestController</annotation>
+                        </tagAnnotations>
+                    </apiConfiguration>
                     <javadocConfiguration>
                         <scanLocations>src/main/java</scanLocations>
                         <scanLocations>../sample-api/src/main/java</scanLocations>
@@ -62,8 +67,7 @@
                     <apis>
                         <api>
                             <locations>
-                                <location>com.github.kbuntrock.sample.rest</location>
-                                <!--                                <location>fr.github.kbuntrock.sample.enpoint</location>-->
+                                <location>com.github.kbuntrock.sample</location>
                             </locations>
                             <attachArtifact>true</attachArtifact>
                             <defaultProduceConsumeGuessing>true</defaultProduceConsumeGuessing>

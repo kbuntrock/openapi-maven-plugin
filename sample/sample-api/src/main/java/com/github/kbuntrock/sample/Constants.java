@@ -1,4 +1,4 @@
-package fr.github.kbuntrock.sample;
+package com.github.kbuntrock.sample;
 
 public class Constants {
 

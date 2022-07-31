@@ -1,14 +1,12 @@
 package com.github.kbuntrock.sample.rest;
 
-import fr.github.kbuntrock.sample.dto.Authority;
-import fr.github.kbuntrock.sample.dto.UserDto;
-import fr.github.kbuntrock.sample.dto.UserGroupDto;
-import fr.github.kbuntrock.sample.enpoint.UserController;
+import com.github.kbuntrock.sample.dto.Authority;
+import com.github.kbuntrock.sample.dto.UserDto;
+import com.github.kbuntrock.sample.dto.UserGroupDto;
+import com.github.kbuntrock.sample.enpoint.UserController;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 

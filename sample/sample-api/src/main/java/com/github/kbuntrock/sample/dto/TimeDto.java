@@ -1,4 +1,4 @@
-package fr.github.kbuntrock.sample.dto;
+package com.github.kbuntrock.sample.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 

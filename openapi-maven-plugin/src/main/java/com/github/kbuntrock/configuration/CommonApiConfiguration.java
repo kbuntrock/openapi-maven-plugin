@@ -1,10 +1,11 @@
 package com.github.kbuntrock.configuration;
 
 import com.github.kbuntrock.configuration.library.Library;
+import com.github.kbuntrock.configuration.library.TagAnnotation;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Kevin Buntrock
@@ -15,10 +16,13 @@ public class CommonApiConfiguration {
 
     public static String DEFAULT_OPERATION_ID = "{class_name}.{method_name}";
 
-    protected static String DEFAULT_LIBRARY = Library.SPRING_MVC.name();
+    public static String DEFAULT_LIBRARY = Library.SPRING_MVC.name();
 
-    protected static List<String> DEFAULT_TAG_ANNOTATIONS = Library.SPRING_MVC.getTagAnnotations().stream()
-            .map(Library.TagAnnotation::getAnnotationClassName).collect(Collectors.toList());
+    public static List<String> DEFAULT_TAG_ANNOTATIONS = new ArrayList<>();
+
+    static {
+        DEFAULT_TAG_ANNOTATIONS.add(TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName());
+    }
 
     @Parameter
     protected Tag tag = new Tag();
@@ -27,16 +31,16 @@ public class CommonApiConfiguration {
     protected Operation operation = new Operation();
 
     @Parameter
-    protected boolean attachArtifact = true;
+    protected Boolean attachArtifact;
 
     @Parameter
-    protected String defaultSuccessfulOperationDescription = "successful operation";
+    protected String defaultSuccessfulOperationDescription;
 
     /**
      * If not defined, try to guess a produce / consume value depending of the parameter/return type
      */
     @Parameter
-    protected boolean defaultProduceConsumeGuessing = true;
+    protected Boolean defaultProduceConsumeGuessing;
 
     /**
      * Apply the spring enhancement to path value between a class @RequestMapping and a method @RequestMapping :
@@ -44,24 +48,53 @@ public class CommonApiConfiguration {
      * - add a "/" at the beginning of the operation path if there is none
      */
     @Parameter
-    protected boolean springPathEnhancement = true;
+    protected Boolean springPathEnhancement;
 
     /**
      * If true, return a short operation name for code generation, as described here :
      * https://loopback.io/doc/en/lb4/Decorators_openapi.html
      */
     @Parameter
-    protected boolean loopbackOperationName = false;
+    protected Boolean loopbackOperationName;
 
     @Parameter
-    protected String operationId = DEFAULT_OPERATION_ID;
+    protected String operationId;
 
     @Parameter
-    protected String library = DEFAULT_LIBRARY;
+    protected String freeFields;
 
     @Parameter
-    protected List<String> tagAnnotations = getLibrary().getTagAnnotations().stream()
-            .map(Library.TagAnnotation::getAnnotationClassName).collect(Collectors.toList());
+    protected String library;
+
+    @Parameter
+    protected List<String> tagAnnotations = new ArrayList<>();
+
+    public void initDefaultValues() {
+        if (library == null) {
+            library = DEFAULT_LIBRARY;
+        }
+        if (tagAnnotations.isEmpty()) {
+            tagAnnotations = DEFAULT_TAG_ANNOTATIONS;
+        }
+        if (operationId == null) {
+            operationId = DEFAULT_OPERATION_ID;
+        }
+        if (loopbackOperationName == null) {
+            loopbackOperationName = true;
+        }
+        if (springPathEnhancement == null) {
+            springPathEnhancement = true;
+        }
+        if (defaultProduceConsumeGuessing == null) {
+            defaultProduceConsumeGuessing = true;
+        }
+        if (defaultSuccessfulOperationDescription == null) {
+            defaultSuccessfulOperationDescription = "successful operation";
+        }
+        if (attachArtifact == null) {
+            attachArtifact = true;
+        }
+    }
 
     public Tag getTag() {
         return tag;
@@ -125,6 +158,14 @@ public class CommonApiConfiguration {
 
     public void setOperationId(String operationId) {
         this.operationId = operationId;
+    }
+
+    public String getFreeFields() {
+        return freeFields;
+    }
+
+    public void setFreeFields(String freeFields) {
+        this.freeFields = freeFields;
     }
 
     public Library getLibrary() {

@@ -1,7 +1,7 @@
 package com.github.kbuntrock.sample.rest;
 
-import fr.github.kbuntrock.sample.dto.TimeDto;
-import fr.github.kbuntrock.sample.enpoint.TimeController;
+import com.github.kbuntrock.sample.dto.TimeDto;
+import com.github.kbuntrock.sample.enpoint.TimeController;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.*;
