@@ -61,6 +61,26 @@ public class YamlWriter {
         }
     }
 
+    private void populateSpecificationFreeFields(final Specification specification, final Optional<JsonNode> freefields) {
+
+        if (freefields.isPresent() && freefields.get().get("servers") != null) {
+            specification.setServers(freefields.get().get("servers"));
+        } else {
+            Server server = new Server();
+            server.setUrl("");
+            specification.setServers(Collections.singletonList(server));
+        }
+
+        if (freefields.isPresent()) {
+            if (freefields.get().get("security") != null) {
+                specification.setSecurity(freefields.get().get("security"));
+            }
+            if (freefields.get().get("externalDocs") != null) {
+                specification.setExternalDocs(freefields.get().get("externalDocs"));
+            }
+        }
+    }
+
     public void write(File file, TagLibrary tagLibrary) throws IOException {
 
         parseFreeFields();
@@ -69,9 +89,7 @@ public class YamlWriter {
         Info info = new Info(mavenProject.getName(), mavenProject.getVersion(), freefields);
         specification.setInfo(info);
 
-        Server server = new Server();
-        server.setUrl("");
-        specification.getServers().add(server);
+        populateSpecificationFreeFields(specification, freefields);
 
         specification.setTags(tagLibrary.getTags().stream()
                 .map(x -> {
@@ -95,6 +113,11 @@ public class YamlWriter {
         Map<String, Schema> schemaSection = createSchemaSection(tagLibrary);
         if (!schemaSection.isEmpty()) {
             specification.getComponents().put("schemas", schemaSection);
+        }
+
+        if (freefields.isPresent() && freefields.get().get("components") != null &&
+                freefields.get().get("components").get("securitySchemes") != null) {
+            specification.getComponents().put("securitySchemes", freefields.get().get("components").get("securitySchemes"));
         }
 
         om.writeValue(file, specification);

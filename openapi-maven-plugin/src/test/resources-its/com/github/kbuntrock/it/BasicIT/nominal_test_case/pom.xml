@@ -100,6 +100,34 @@
                             "name": "Apache 2.0",
                             "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
                             }
+                            },
+                            "servers": [
+                            {
+                            "url": "https://development.gigantic-server.com/v1",
+                            "description": "Development server"
+                            },
+                            {
+                            "url": "https://prod.gigantic-server.com/v1",
+                            "description": "Production server"
+                            }
+                            ],
+                            "security": [
+                            {
+                            "jwt": []
+                            }
+                            ],
+                            "externalDocs": {
+                            "description": "Find more info here",
+                            "url": "https://example.com"
+                            },
+                            "components": {
+                            "securitySchemes": {
+                            "jwt": {
+                            "type": "http",
+                            "scheme": "bearer",
+                            "bearerFormat": "JWT"
+                            }
+                            }
                             }
                             }
                         </freeFields>

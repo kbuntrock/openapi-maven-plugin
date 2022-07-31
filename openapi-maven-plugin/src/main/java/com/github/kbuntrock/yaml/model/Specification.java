@@ -3,8 +3,7 @@ package com.github.kbuntrock.yaml.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,8 +15,12 @@ public class Specification {
 
     private Info info;
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private final List<Server> servers = new ArrayList<>();
+    /**
+     * An array of server. If handled by default, it will be a list of one element. Either way, it will be a JsonNode
+     * given by a user json configuration
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Object servers;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<TagElement> tags;
@@ -26,7 +29,13 @@ public class Specification {
     private Map<String, Map<String, Operation>> paths;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private Map<String, Object> components = new HashMap<>();
+    private Map<String, Object> components = new LinkedHashMap<>();
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Object security;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Object externalDocs;
 
     public String getOpenapi() {
         return openapi;
@@ -44,8 +53,12 @@ public class Specification {
         this.info = info;
     }
 
-    public List<Server> getServers() {
+    public Object getServers() {
         return servers;
+    }
+
+    public void setServers(Object servers) {
+        this.servers = servers;
     }
 
     public List<TagElement> getTags() {
@@ -72,4 +85,19 @@ public class Specification {
         this.components = components;
     }
 
+    public Object getSecurity() {
+        return security;
+    }
+
+    public void setSecurity(Object security) {
+        this.security = security;
+    }
+
+    public Object getExternalDocs() {
+        return externalDocs;
+    }
+
+    public void setExternalDocs(Object externalDocs) {
+        this.externalDocs = externalDocs;
+    }
 }
