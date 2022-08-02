@@ -14,6 +14,19 @@
 
     <url>https://github.com/kbuntrock/openapi-maven-plugin</url>
 
+    <scm>
+        <connection>scm:git:git://github.com/kbuntrock/openapi-maven-plugin.git</connection>
+        <developerConnection>scm:git:ssh://github.com:kbuntrock/openapi-maven-plugin.git</developerConnection>
+        <url>https://github.com/kbuntrock/openapi-maven-plugin/tree/dev</url>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://github.com/kbuntrock/openapi-maven-plugin/blob/dev/LICENSE</url>
+        </license>
+    </licenses>
+
     <developers>
         <developer>
             <id>kbuntrock</id>
