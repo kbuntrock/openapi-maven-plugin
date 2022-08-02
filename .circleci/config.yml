@@ -37,7 +37,7 @@ jobs:
       - run:
           name: Prepare integration tests
           command: |
-            cp -r ~/.m2/repository/* integration-tests/src/test/resources-its/com/github/kbuntrock/it/BasicIT/.predefined-repo
+            cp -r ~/.m2/repository/* integration-tests/src/test/resources-its/io/github/kbuntrock/it/BasicIT/.predefined-repo
             
       - run:
           name: Integration tests JDK8
