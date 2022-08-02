@@ -33,10 +33,6 @@ jobs:
             echo $JAVA_HOME
             mvn --version
             mvn clean install
-            md5sum pom.xml | cut -f 1 -d " " > pom.xml.md5
-            ls -l
-            sha1sum pom.xml | cut -f 1 -d " " > pom.xml.sha1
-            ls -l
         
       - run:
           name: Prepare integration tests
@@ -141,8 +137,15 @@ jobs:
             cp openapi-maven-plugin/target/openapi-maven-plugin-${CIRCLE_TAG}.jar release
             cp openapi-maven-plugin/pom.xml release/openapi-maven-plugin-${CIRCLE_TAG}.pom
             cd release
+            md5sum openapi-maven-plugin-${CIRCLE_TAG}.pom | cut -f 1 -d " " > openapi-maven-plugin-${CIRCLE_TAG}.pom.md5
+            sha1sum openapi-maven-plugin-${CIRCLE_TAG}.pom | cut -f 1 -d " " > openapi-maven-plugin-${CIRCLE_TAG}.pom.sha1
+            md5sum openapi-maven-plugin-${CIRCLE_TAG}.jar | cut -f 1 -d " " > openapi-maven-plugin-${CIRCLE_TAG}.jar.md5
+            sha1sum openapi-maven-plugin-${CIRCLE_TAG}.jar | cut -f 1 -d " " > openapi-maven-plugin-${CIRCLE_TAG}.jar.sha1
             pwd
             ls -l
+            jar -cvf release-bundle.jar openapi-maven-plugin-${CIRCLE_TAG}.pom openapi-maven-plugin-${CIRCLE_TAG}.pom.md5 openapi-maven-plugin-${CIRCLE_TAG}.pom.sha1 openapi-maven-plugin-${CIRCLE_TAG}.jar openapi-maven-plugin-${CIRCLE_TAG}.jar.md5 openapi-maven-plugin-${CIRCLE_TAG}.jar.sha1
+            ls -l
+            
       - persist_to_workspace:
           root: release
           paths:
