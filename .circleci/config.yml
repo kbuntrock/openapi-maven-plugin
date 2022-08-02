@@ -33,6 +33,10 @@ jobs:
             echo $JAVA_HOME
             mvn --version
             mvn clean install
+            md5sum pom.xml | cut -f 1 -d " " > pom.xml.md5
+            ls -l
+            sha1sum pom.xml | cut -f 1 -d " " > pom.xml.sha1
+            ls -l
         
       - run:
           name: Prepare integration tests
@@ -135,6 +139,7 @@ jobs:
           command: |
             mkdir release
             cp openapi-maven-plugin/target/openapi-maven-plugin-${CIRCLE_TAG}.jar release
+            cp openapi-maven-plugin/pom.xml release/openapi-maven-plugin-${CIRCLE_TAG}.pom
             cd release
             pwd
             ls -l
