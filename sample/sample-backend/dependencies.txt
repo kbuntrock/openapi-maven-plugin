@@ -1,11 +1,11 @@
 [INFO] Scanning for projects...
 [INFO] 
-[INFO] -----< com.github.kbuntrock.sample:openapi-plugin-sample-backend >------
+[INFO] -----< io.github.kbuntrock.sample:openapi-plugin-sample-backend >------
 [INFO] Building openapi-plugin-sample-backend 0.0.1-SNAPSHOT
 [INFO] --------------------------------[ jar ]---------------------------------
 [INFO] 
 [INFO] --- maven-dependency-plugin:3.1.2:tree (default-cli) @ openapi-plugin-sample-backend ---
-[INFO] com.github.kbuntrock.sample:openapi-plugin-sample-backend:jar:0.0.1-SNAPSHOT
+[INFO] io.github.kbuntrock.sample:openapi-plugin-sample-backend:jar:0.0.1-SNAPSHOT
 [INFO] +- org.springframework.boot:spring-boot-starter-web:jar:2.5.12:compile
 [INFO] |  +- org.springframework.boot:spring-boot-starter:jar:2.5.12:compile
 [INFO] |  |  +- org.springframework.boot:spring-boot:jar:2.5.12:compile

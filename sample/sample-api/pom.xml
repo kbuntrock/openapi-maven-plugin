@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.github.kbuntrock.sample</groupId>
+        <groupId>io.github.kbuntrock.sample</groupId>
         <artifactId>openapi-plugin-sample-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.github.kbuntrock.sample</groupId>
+    <groupId>io.github.kbuntrock.sample</groupId>
     <artifactId>openapi-plugin-sample-api</artifactId>
 
     <description>A sample api to test the plugin.</description>
@@ -50,7 +50,7 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.github.kbuntrock</groupId>
+                <groupId>io.github.kbuntrock</groupId>
                 <artifactId>openapi-maven-plugin</artifactId>
                 <version>${openapi-plugin-project-version}</version>
                 <executions>
@@ -63,6 +63,9 @@
                 </executions>
                 <configuration>
                     <apiConfiguration>
+                        <tagAnnotations>
+                            <annot>RequestMapping</annot>
+                        </tagAnnotations>
                         <freeFields>
                             {
                             "info": {
@@ -85,7 +88,7 @@
                     <apis>
                         <api>
                             <locations>
-                                <location>fr.github.kbuntrock.sample.enpoint</location>
+                                <location>io.github.kbuntrock.sample.enpoint</location>
                             </locations>
                             <attachArtifact>true</attachArtifact>
                             <defaultProduceConsumeGuessing>true</defaultProduceConsumeGuessing>
