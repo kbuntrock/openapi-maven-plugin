@@ -143,13 +143,14 @@ jobs:
             sha1sum openapi-maven-plugin-${CIRCLE_TAG}.jar | cut -f 1 -d " " > openapi-maven-plugin-${CIRCLE_TAG}.jar.sha1
             pwd
             ls -l
-            jar -cvf release-bundle.jar openapi-maven-plugin-${CIRCLE_TAG}.pom openapi-maven-plugin-${CIRCLE_TAG}.pom.md5 openapi-maven-plugin-${CIRCLE_TAG}.pom.sha1 openapi-maven-plugin-${CIRCLE_TAG}.jar openapi-maven-plugin-${CIRCLE_TAG}.jar.md5 openapi-maven-plugin-${CIRCLE_TAG}.jar.sha1
+            jar -cvf release-bundle-${CIRCLE_TAG}.jar openapi-maven-plugin-${CIRCLE_TAG}.pom openapi-maven-plugin-${CIRCLE_TAG}.pom.md5 openapi-maven-plugin-${CIRCLE_TAG}.pom.sha1 openapi-maven-plugin-${CIRCLE_TAG}.jar openapi-maven-plugin-${CIRCLE_TAG}.jar.md5 openapi-maven-plugin-${CIRCLE_TAG}.jar.sha1
             ls -l
             
       - persist_to_workspace:
           root: release
           paths:
             - openapi-maven-plugin-*
+            - release-bundle-*
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
