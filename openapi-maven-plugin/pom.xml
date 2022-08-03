@@ -11,7 +11,7 @@
     <packaging>maven-plugin</packaging>
 
     <name>openapi-maven-plugin Maven Plugin</name>
-
+	<description>A plugin converting annotated classes to openapi 3.0.3 specifications</description>
     <url>https://github.com/kbuntrock/openapi-maven-plugin</url>
 
     <scm>
