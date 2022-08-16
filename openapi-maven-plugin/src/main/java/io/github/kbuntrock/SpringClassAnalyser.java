@@ -1,6 +1,7 @@
 package io.github.kbuntrock;
 
 import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.model.*;
 import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiDataType;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Path;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -52,14 +54,27 @@ public class SpringClassAnalyser {
         List<String> basePaths = Collections.singletonList("");
 
         MergedAnnotations mergedAnnotations = MergedAnnotations.from(clazz, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
-        MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
 
-        if (requestMappingMergedAnnotation.isPresent()) {
-            String[] paths = requestMappingMergedAnnotation.getStringArray("path");
-            if (paths.length > 0) {
-                basePaths = Arrays.asList(paths);
+        if (Library.SPRING_MVC == apiConfiguration.getLibrary()) {
+            // Spring MVC version
+            MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
+            if (requestMappingMergedAnnotation.isPresent()) {
+                String[] paths = requestMappingMergedAnnotation.getStringArray("value");
+                if (paths.length > 0) {
+                    basePaths = Arrays.asList(paths);
+                }
+            }
+        } else if (Library.JAXRS == apiConfiguration.getLibrary()) {
+            // JAXRS version
+            MergedAnnotation<Path> requestMappingMergedAnnotation = mergedAnnotations.get(Path.class);
+            if (requestMappingMergedAnnotation.isPresent()) {
+                String path = requestMappingMergedAnnotation.getString("value");
+                if (!StringUtils.isEmpty(path)) {
+                    basePaths = Arrays.asList(path);
+                }
             }
         }
+
 
         for (String basePath : basePaths) {
             parseEndpoints(tag, basePath, clazz);

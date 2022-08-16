@@ -74,7 +74,11 @@ public class CommonApiConfiguration {
             library = DEFAULT_LIBRARY;
         }
         if (tagAnnotations.isEmpty()) {
-            tagAnnotations = DEFAULT_TAG_ANNOTATIONS;
+            if (Library.SPRING_MVC.name().equals(library)) {
+                tagAnnotations.add(TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName());
+            } else {
+                tagAnnotations.add(TagAnnotation.JAXRS_PATH.getAnnotationClassName());
+            }
         }
         if (operationId == null) {
             operationId = DEFAULT_OPERATION_ID;
