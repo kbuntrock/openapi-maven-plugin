@@ -1,12 +1,16 @@
 package io.github.kbuntrock.model;
 
+import io.github.kbuntrock.reflection.GenericArrayTypeImpl;
+import io.github.kbuntrock.reflection.ParameterizedTypeImpl;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.OpenApiDataType;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Represent a type with all the needed informations to insert it into the openapi specification
@@ -201,6 +205,80 @@ public class DataObject {
 
     public Type getJavaType() {
         return javaType;
+    }
+
+    public String getSignature() {
+        String genericJoin = genericNameToTypeMap == null ? "" : genericNameToTypeMap.values()
+                .stream().map(v -> v.getTypeName()).collect(Collectors.joining("_"));
+        String signature = javaClass.toGenericString() + "__" + genericJoin;
+        return signature;
+    }
+
+    public String getSchemaRecursiveSuffix() {
+        String genericJoin = genericNameToTypeMap == null ? "" : genericNameToTypeMap.values()
+                .stream().map(v -> {
+                    if (v instanceof Class) {
+                        return ((Class) v).getSimpleName();
+                    }
+                    return v.getTypeName();
+                }).collect(Collectors.joining("_"));
+        return genericJoin;
+    }
+
+    /**
+     * Get the type, or the parameterized contextual one if the default is a generic.
+     *
+     * @param genericType method.getGenericReturnType() or field.getGenericType()
+     * @return a type
+     */
+    public Type getContextualType(final Type genericType) {
+
+        if (this.isGenericallyTyped()) {
+            // It is possible that we will not substitute anything. In that cas, the substitution parameterized type
+            // will be equivalent to the source one.
+            if (genericType instanceof TypeVariable) {
+                TypeVariable typeVariable = (TypeVariable) genericType;
+                if (this.getGenericNameToTypeMap().containsKey(typeVariable.getName())) {
+                    return this.getGenericNameToTypeMap().get(typeVariable.getName());
+                }
+            } else if (genericType instanceof ParameterizedType) {
+
+                ParameterizedTypeImpl substitution = new ParameterizedTypeImpl(((ParameterizedType) genericType));
+                doContextualSubstitution(substitution);
+                return substitution;
+
+            } else if (genericType instanceof GenericArrayType) {
+                GenericArrayType genericArrayType = (GenericArrayType) genericType;
+                if (genericArrayType.getGenericComponentType() instanceof ParameterizedType) {
+                    ParameterizedTypeImpl substitution = new ParameterizedTypeImpl(
+                            (ParameterizedType) genericArrayType.getGenericComponentType());
+                    doContextualSubstitution(substitution);
+                    GenericArrayType substitionArrayType = new GenericArrayTypeImpl(substitution);
+                    return substitionArrayType;
+                } else if (genericArrayType.getGenericComponentType() instanceof TypeVariable<?>) {
+                    TypeVariable<?> typeVariable = (TypeVariable<?>) genericArrayType.getGenericComponentType();
+                    if (this.getGenericNameToTypeMap().containsKey(typeVariable.getName())) {
+                        GenericArrayType substitionArrayType = new GenericArrayTypeImpl(this.getGenericNameToTypeMap().get(typeVariable.getName()));
+                        return substitionArrayType;
+                    }
+                } else {
+                    throw new RuntimeException("Type : " + ((GenericArrayType) genericType).getGenericComponentType().getClass().toString()
+                            + " not handled in generic array contextual substitution.");
+                }
+
+            }
+        }
+        return genericType;
+    }
+
+    private void doContextualSubstitution(ParameterizedTypeImpl substitution) {
+        for (int i = 0; i < substitution.getActualTypeArguments().length; i++) {
+            if (this.getGenericNameToTypeMap().containsKey(substitution.getActualTypeArguments()[i].getTypeName())) {
+                substitution.getActualTypeArguments()[i] =
+                        this.getGenericNameToTypeMap().get(substitution.getActualTypeArguments()[i].getTypeName());
+            }
+            substitution.getActualTypeArguments()[i] = getContextualType(substitution.getActualTypeArguments()[i]);
+        }
     }
 
     @Override

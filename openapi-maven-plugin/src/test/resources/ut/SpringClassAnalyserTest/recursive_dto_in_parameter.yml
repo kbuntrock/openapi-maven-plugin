@@ -1,0 +1,32 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: RecursiveDtoInParameterController
+paths:
+  /api/recursive:
+    post:
+      tags:
+        - RecursiveDtoInParameterController
+      operationId: postRecursive
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/RecursiveDto'
+      responses:
+        200:
+          description: successful operation
+components:
+  schemas:
+    RecursiveDto:
+      type: object
+      properties:
+        name:
+          type: string
+        child:
+          $ref: '#/components/schemas/RecursiveDto'

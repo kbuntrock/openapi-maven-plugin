@@ -10,6 +10,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -239,7 +240,23 @@ public class SpringClassAnalyser {
             return null;
         }
         DataObject dataObject = new DataObject(method.getGenericReturnType());
+        dataObject = computeFrameworkReturnObject(dataObject);
         logger.debug(dataObject.toString());
+        return dataObject;
+    }
+
+    /**
+     * Some returned objects are handled in a specific manner by spring.
+     * In that case, we have to adapt it
+     *
+     * @param dataObject source
+     * @return return DataObject
+     */
+    private DataObject computeFrameworkReturnObject(final DataObject dataObject) {
+        if (Optional.class.isAssignableFrom(dataObject.getJavaClass()) ||
+                HttpEntity.class.isAssignableFrom(dataObject.getJavaClass())) {
+            return new DataObject(dataObject.getGenericNameToTypeMap().get("T"));
+        }
         return dataObject;
     }
 

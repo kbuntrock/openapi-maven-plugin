@@ -3,21 +3,25 @@ package io.github.kbuntrock.yaml.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.github.kbuntrock.SpringClassAnalyser;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.JavadocMap;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
 import io.github.kbuntrock.model.DataObject;
-import io.github.kbuntrock.reflection.GenericArrayTypeImpl;
-import io.github.kbuntrock.reflection.ParameterizedTypeImpl;
+import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
+import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiConstants;
 import io.github.kbuntrock.utils.OpenApiDataFormat;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static io.github.kbuntrock.TagLibrary.*;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Schema {
@@ -50,16 +54,20 @@ public class Schema {
      */
     @JsonIgnore
     private boolean mainReference = false;
+    @JsonIgnore
+    private DataObject parentDataObject;
+    @JsonIgnore
+    private String parentFieldName;
 
 
     public Schema() {
     }
 
-    public Schema(DataObject dataObject) {
-        this(dataObject, false);
+    public Schema(DataObject dataObject, Set<String> exploredSignatures) {
+        this(dataObject, false, exploredSignatures, null, null);
     }
 
-    public Schema(DataObject dataObject, boolean mainReference) {
+    public Schema(DataObject dataObject, boolean mainReference, Set<String> exploredSignatures, DataObject parentDataObject, String parentFieldName) {
 
         this.mainReference = mainReference;
 
@@ -80,134 +88,133 @@ public class Schema {
 
         if (dataObject.isMap()) {
             type = dataObject.getOpenApiType().getValue();
-            additionalProperties = new Schema(dataObject.getMapValueType());
+            additionalProperties = new Schema(dataObject.getMapValueType(), false, exploredSignatures, parentDataObject, parentFieldName);
 
         } else if (dataObject.isOpenApiArray()) {
             type = dataObject.getOpenApiType().getValue();
-            items = new Schema(dataObject.getArrayItemDataObject());
+            items = new Schema(dataObject.getArrayItemDataObject(), false, exploredSignatures, parentDataObject, parentFieldName);
 
         } else if (!mainReference && dataObject.isReferenceObject()) {
             reference = OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getJavaClass().getSimpleName();
 
         } else if ((mainReference && dataObject.isReferenceObject() || dataObject.isGenericallyTypedObject())) {
 
-            type = dataObject.getOpenApiType().getValue();
-
-            // LinkedHashMap to keep the order of the class
-            properties = new LinkedHashMap<>();
-
-            List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), dataObject.getJavaClass());
-            if (!fields.isEmpty() && !dataObject.isEnum()) {
-
-                for (Field field : fields) {
-
-                    DataObject propertyObject = new DataObject(getContextualType(field, dataObject));
-                    Property property = new Property(propertyObject, false, field.getName());
-                    extractConstraints(field, property);
-                    properties.put(property.getName(), property);
-
-                    // Javadoc handling
-                    if (classDocumentation != null) {
-                        JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(field.getName());
-                        if (javadocWrapper != null) {
-                            Optional<String> desc = javadocWrapper.getDescription();
-                            property.setDescription(desc.get());
-                        }
-                    }
-
+            boolean forcedReference = false;
+            String referenceSignature = null;
+            if (parentDataObject != null && parentFieldName != null) {
+                String objectSignature = parentDataObject.getJavaClass().getSimpleName() + "_" + parentFieldName + "_" + dataObject.getSignature();
+                if (!exploredSignatures.add(objectSignature)) {
+                    // The fieldname + signature has already be seen. We are in a recursive loop
+                    // We will have to write this field in the schema section.
+                    referenceSignature = parentDataObject.getJavaClass().getSimpleName() + "_" + dataObject.getSchemaRecursiveSuffix();
+                    AdditionnalSchemaLibrary.addDataObject(referenceSignature, dataObject);
+                    forcedReference = true;
                 }
             }
 
-            List<String> enumItemValues = dataObject.getEnumItemValues();
-            if (enumItemValues != null && !enumItemValues.isEmpty()) {
-                enumValues = enumItemValues;
-                if (classDocumentation != null) {
-                    StringBuilder sb = new StringBuilder();
-                    if (description != null) {
-                        sb.append(description);
-                        sb.append("\n");
-                    } else {
-                        sb.append(dataObject.getJavaClass().getSimpleName());
-                        sb.append("\n");
-                    }
-                    for (String value : enumItemValues) {
-                        JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(value);
-                        if (javadocWrapper != null) {
-                            Optional<String> desc = javadocWrapper.getDescription();
-                            if (desc.isPresent()) {
-                                sb.append("  * ");
-                                sb.append("`");
-                                sb.append(value);
-                                sb.append("` - ");
-                                sb.append(desc.get());
-                                sb.append("\n");
+            if (!forcedReference) {
+                type = dataObject.getOpenApiType().getValue();
+
+                // LinkedHashMap to keep the order of the class
+                properties = new LinkedHashMap<>();
+
+                List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), dataObject.getJavaClass());
+                if (!fields.isEmpty() && !dataObject.isEnum()) {
+
+                    for (Field field : fields) {
+
+                        DataObject propertyObject = new DataObject(dataObject.getContextualType(field.getGenericType()));
+                        Property property = new Property(propertyObject, false, field.getName(), exploredSignatures, dataObject);
+                        extractConstraints(field, property);
+                        properties.put(property.getName(), property);
+
+                        // Javadoc handling
+                        if (classDocumentation != null) {
+                            JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(field.getName());
+                            if (javadocWrapper != null) {
+                                Optional<String> desc = javadocWrapper.getDescription();
+                                property.setDescription(desc.get());
                             }
                         }
                     }
-                    description = sb.toString();
                 }
+                if (dataObject.getJavaClass().isInterface()) {
+                    List<Method> methods = Arrays.stream(dataObject.getJavaClass().getMethods()).collect(Collectors.toList());
+                    methods.sort(Comparator.comparing(a -> a.getName()));
+                    for (Method method : methods) {
+                        boolean methodStartWithGet = method.getName().startsWith(METHOD_GET_PREFIX) && method.getName().length() != METHOD_GET_PREFIX_SIZE;
+                        if (method.getParameters().length == 0 && method.getGenericReturnType() != null
+                                && (methodStartWithGet || (method.getName().startsWith(METHOD_IS_PREFIX) && method.getName().length() != METHOD_IS_PREFIX_SIZE))) {
+
+                            String name;
+                            if (methodStartWithGet) {
+                                name = method.getName().replaceFirst("get", "");
+                            } else {
+                                name = method.getName().replaceFirst("is", "");
+                            }
+                            Logger.INSTANCE.getLogger().debug(dataObject.getJavaClass().getSimpleName() + " method name : " + method.getName() + " - " + name);
+                            name = name.substring(0, 1).toLowerCase() + name.substring(1);
+
+                            DataObject propertyObject = new DataObject(dataObject.getContextualType(method.getGenericReturnType()));
+                            Property property = new Property(propertyObject, false, name, exploredSignatures, dataObject);
+                            properties.put(property.getName(), property);
+
+                            // Javadoc handling
+                            if (classDocumentation != null) {
+                                JavadocWrapper javadocWrapper = classDocumentation.getMethodsJavadoc().get(SpringClassAnalyser.createIdentifier(method));
+                                if (javadocWrapper != null) {
+                                    Optional<String> desc = javadocWrapper.getDescription();
+                                    property.setDescription(desc.get());
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+
+                List<String> enumItemValues = dataObject.getEnumItemValues();
+                if (enumItemValues != null && !enumItemValues.isEmpty()) {
+                    enumValues = enumItemValues;
+                    if (classDocumentation != null) {
+                        StringBuilder sb = new StringBuilder();
+                        if (description != null) {
+                            sb.append(description);
+                            sb.append("\n");
+                        } else {
+                            sb.append(dataObject.getJavaClass().getSimpleName());
+                            sb.append("\n");
+                        }
+                        for (String value : enumItemValues) {
+                            JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(value);
+                            if (javadocWrapper != null) {
+                                Optional<String> desc = javadocWrapper.getDescription();
+                                if (desc.isPresent()) {
+                                    sb.append("  * ");
+                                    sb.append("`");
+                                    sb.append(value);
+                                    sb.append("` - ");
+                                    sb.append(desc.get());
+                                    sb.append("\n");
+                                }
+                            }
+                        }
+                        description = sb.toString();
+                    }
+                }
+
+                required = properties.values().stream()
+                        .filter(Property::isRequired).map(Property::getName).collect(Collectors.toList());
+            } else {
+                // We are in a recursive loop case. We write the object as reference and we will have to add it to the schema section
+                reference = OpenApiConstants.OBJECT_REFERENCE_PREFIX + referenceSignature;
             }
-
-            required = properties.values().stream()
-                    .filter(Property::isRequired).map(Property::getName).collect(Collectors.toList());
-
 
         } else {
             type = dataObject.getOpenApiType().getValue();
             OpenApiDataFormat openApiDataFormat = dataObject.getOpenApiType().getFormat();
             if (OpenApiDataFormat.NONE != openApiDataFormat && OpenApiDataFormat.UNKNOWN != openApiDataFormat) {
                 this.format = openApiDataFormat.getValue();
-            }
-        }
-    }
-
-    /**
-     * Get the type, or the parameterized contextual one if the default is a generic.
-     *
-     * @param field  field in the source dataObject
-     * @param source source dataObject
-     * @return a tyoe
-     */
-    private Type getContextualType(final Field field, final DataObject source) {
-
-        if (source.isGenericallyTyped()) {
-            // It is possible that we will not substitute anything. In that cas, the substitution parameterized type
-            // will be equivalent to the source one.
-            if (field.getGenericType() instanceof ParameterizedType) {
-
-                ParameterizedTypeImpl substitution = new ParameterizedTypeImpl(((ParameterizedType) field.getGenericType()));
-                doContextualSubstitution(substitution, source);
-                return substitution;
-
-            } else if (field.getGenericType() instanceof GenericArrayType) {
-                GenericArrayType genericArrayType = (GenericArrayType) field.getGenericType();
-                if (genericArrayType.getGenericComponentType() instanceof ParameterizedType) {
-                    ParameterizedTypeImpl substitution = new ParameterizedTypeImpl(
-                            (ParameterizedType) genericArrayType.getGenericComponentType());
-                    doContextualSubstitution(substitution, source);
-                    GenericArrayType substitionArrayType = new GenericArrayTypeImpl(substitution);
-                    return substitionArrayType;
-                } else if (genericArrayType.getGenericComponentType() instanceof TypeVariable<?>) {
-                    TypeVariable<?> typeVariable = (TypeVariable<?>) genericArrayType.getGenericComponentType();
-                    if (source.getGenericNameToTypeMap().containsKey(typeVariable.getName())) {
-                        GenericArrayType substitionArrayType = new GenericArrayTypeImpl(source.getGenericNameToTypeMap().get(typeVariable.getName()));
-                        return substitionArrayType;
-                    }
-                } else {
-                    throw new RuntimeException("Type : " + ((GenericArrayType) field.getGenericType()).getGenericComponentType().getClass().toString()
-                            + " not handled in generic array contextual substitution.");
-                }
-
-            }
-        }
-        return field.getGenericType();
-    }
-
-    private void doContextualSubstitution(ParameterizedTypeImpl substitution, DataObject source) {
-        for (int i = 0; i < substitution.getActualTypeArguments().length; i++) {
-            if (source.getGenericNameToTypeMap().containsKey(substitution.getActualTypeArguments()[i].getTypeName())) {
-                substitution.getActualTypeArguments()[i] =
-                        source.getGenericNameToTypeMap().get(substitution.getActualTypeArguments()[i].getTypeName());
             }
         }
     }

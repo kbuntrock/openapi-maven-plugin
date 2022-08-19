@@ -1,0 +1,119 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: InterfaceController
+    description: Test a controller returning an interface
+paths:
+  /api/interface:
+    get:
+      tags:
+        - InterfaceController
+      operationId: getInterfaceDto
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties:
+                  account:
+                    description: Comment on getAccount
+                    $ref: '#/components/schemas/AccountDto'
+                  generic:
+                    description: Comment on getGeneric
+                    $ref: '#/components/schemas/TimeDto'
+                  genericList:
+                    description: Comment on getGenericList
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Authority'
+                    uniqueItems: true
+                  parentId:
+                    type: integer
+                    format: int32
+                  returned3:
+                    description: Comment on getReturned3
+                    type: boolean
+                  returned1:
+                    description: Comment on isReturned1
+                    type: boolean
+components:
+  schemas:
+    AccountDto:
+      description: Object utilisé uniquement pour gérer l'identification d'un utilisateur
+        côté client
+      required:
+        - login
+        - firstName
+        - lastName
+        - email
+        - activated
+        - langKey
+        - authorities
+      type: object
+      properties:
+        login:
+          description: User login
+          type: string
+          minLength: 1
+          maxLength: 50
+        firstName:
+          description: User firstname
+          type: string
+          minLength: 0
+          maxLength: 50
+        lastName:
+          description: User lastname
+          type: string
+          minLength: 0
+          maxLength: 50
+        email:
+          type: string
+          minLength: 5
+          maxLength: 254
+        imageUrl:
+          type: string
+          minLength: 0
+          maxLength: 256
+        activated:
+          type: boolean
+        langKey:
+          type: string
+          minLength: 2
+          maxLength: 10
+        authorities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Authority'
+          uniqueItems: true
+    Authority:
+      description: |
+        Permissions for a user
+          * `READ_USER` - Reading
+          * `WRITE_USER` - Writing
+          * `ACCES_APP` - Access to the application (the most basic permission)
+      type: string
+      enum:
+        - READ_USER
+        - WRITE_USER
+        - ACCES_APP
+    TimeDto:
+      type: object
+      properties:
+        instant:
+          type: string
+          format: date-time
+        date:
+          type: string
+          format: date
+        dateTime:
+          type: string
+          format: date-time

@@ -5,17 +5,9 @@ import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Content {
-
-//    private final Map<String, Object> schema = new LinkedHashMap<>();
-//
-//    public Map<String, Object> getSchema() {
-//        return schema;
-//    }
 
     private Schema schema;
 
@@ -25,7 +17,7 @@ public class Content {
 
         boolean isMultipartFile = MultipartFile.class == parameterObject.getJavaClass() ||
                 (OpenApiDataType.ARRAY == parameterObject.getOpenApiType() && MultipartFile.class == parameterObject.getArrayItemDataObject().getJavaClass());
-        boolean isArray = OpenApiDataType.ARRAY == parameterObject.getOpenApiType();
+        
         if (isMultipartFile) {
             // the MultipartFile must be named in the body.
             Content multipartContent = new Content();
@@ -51,8 +43,9 @@ public class Content {
         if (dataObject == null) {
             return null;
         }
+        Set<String> exploredSignatures = new HashSet<>();
         Content content = new Content();
-        content.schema = new Schema(dataObject);
+        content.schema = new Schema(dataObject, exploredSignatures);
         return content;
     }
 

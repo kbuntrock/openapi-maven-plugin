@@ -1,0 +1,114 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: GenericRecursiveListDtoController
+paths:
+  /api/recursive:
+    get:
+      tags:
+        - GenericRecursiveListDtoController
+      operationId: getRecursive
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  wrapped:
+                    $ref: '#/components/schemas/AccountDto'
+                  childList:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        wrapped:
+                          $ref: '#/components/schemas/AccountDto'
+                        childList:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/GenericRecursiveListDto_AccountDto'
+                          uniqueItems: true
+                    uniqueItems: true
+components:
+  schemas:
+    AccountDto:
+      required:
+        - login
+        - firstName
+        - lastName
+        - email
+        - activated
+        - langKey
+        - authorities
+      type: object
+      properties:
+        login:
+          type: string
+          minLength: 1
+          maxLength: 50
+        firstName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        lastName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        email:
+          type: string
+          minLength: 5
+          maxLength: 254
+        imageUrl:
+          type: string
+          minLength: 0
+          maxLength: 256
+        activated:
+          type: boolean
+        langKey:
+          type: string
+          minLength: 2
+          maxLength: 10
+        authorities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Authority'
+          uniqueItems: true
+    Authority:
+      type: string
+      enum:
+        - READ_USER
+        - WRITE_USER
+        - ACCES_APP
+    GenericRecursiveListDto_AccountDto:
+      type: object
+      properties:
+        name:
+          type: string
+        wrapped:
+          $ref: '#/components/schemas/AccountDto'
+        childList:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              wrapped:
+                $ref: '#/components/schemas/AccountDto'
+              childList:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GenericRecursiveListDto_AccountDto'
+                uniqueItems: true
+          uniqueItems: true

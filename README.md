@@ -1,36 +1,62 @@
 # Openapi maven plugin
 
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.kbuntrock/openapi-maven-plugin.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.kbuntrock%22%20AND%20a:%22openapi-maven-plugin%22)
 [![CircleCI](https://circleci.com/gh/kbuntrock/openapi-maven-plugin/tree/dev.svg?style=shield)](https://circleci.com/gh/kbuntrock/openapi-maven-plugin/tree/dev)
 ![GitHub](https://img.shields.io/github/license/kbuntrock/openapi-maven-plugin?color=blue)
 
-This plugin generate an openapi 3.0.3 specification based on the SpringMVC annotations present in the project. Unlike other plugins, no application is launched in order to generate the specification. 
-While doing so, even simple annotated interfaces without implementations are enough to generate a documentation, easing the tooling of the project. 
+The openapi maven plugin analyse Rest controller classes at compile time and generate the corresponding openapi 3.0.3 documentation.
 
-The plugin is also able to read the javadoc and pass it to the openapi documentation. 
+It supports SpringMVC annotations.
+
+Doing this process during the building phase of a project has several advantages compared to some other methods:
+- the source code of the project can be parsed to extract javadoc comments and enrich the generated documentation. There is no need of a third party annotation library for the sole purpose of keeping comments available at runtime. Your code stay pure and you don't duplicate informations.
+- no extra dependency in your jar/war. Meaning less attack surface / no need to monitor another library for vulnerabilities on your app
+- Implementating interfaces or abstract classes is not a requirement. The documentation can be generated from a module referencing only interfaces which will be later in the build chain implemented in one or several other modules.
+- usually faster than launching an app / running the integration test phase
 
 # How to use it
 
 Import the plugin in your project by adding following configuration in your `plugins` block:
 
 ```xml
+<!-- This section tells the maven-compiler-plugin to keep the parameters names. Elsewhere, all our parameters will be names "arg0, arg1, ...". -->
 <plugin>
-	<groupId>com.github.kbuntrock</groupId>
+	<artifactId>maven-compiler-plugin</artifactId>
+	<version>${maven-compiler-plugin.version}</version>
+	<configuration>
+		<compilerArgs>
+			<arg>-parameters</arg>
+		</compilerArgs>
+	</configuration>
+</plugin>
+<!-- Plugin declaration -->
+<plugin>
+	<groupId>io.github.kbuntrock</groupId>
 	<artifactId>openapi-maven-plugin</artifactId>
-	<version>${openapi-maven-plugin.version}</version>
+	<version>0.0.7</version>
 	<executions>
 		<execution>
+			<id>documentation</id>
 			<goals>
 				<goal>documentation</goal>
 			</goals>
 		</execution>
 	</executions>
 	<configuration>
+		<apiConfiguration>
+			<tagAnnotations>
+				<!-- RestController is the default value but it can be replaced by RequestMapping -->
+				<annotation>RestController</annotation>
+			</tagAnnotations>
+		</apiConfiguration>
+		<javadocConfiguration>
+			<scanLocations>src/main/java</scanLocations>
+		</javadocConfiguration>
 		<apis>
 			<api>
 				<locations>
-					<location>fr.otter.crew.web.api.endpoint</location>
+					<location>io.github.kbuntrock.sample.endpoint</location>
 				</locations>
-				<attachArtifact>true</attachArtifact>
 			</api>
 		</apis>
 	</configuration>
@@ -79,3 +105,17 @@ Substitutions can be chained. The order of execution is the one defined in the c
 | `regex` **required** | A java regex to find for replacement |
 | `substitute` | The string to substitute. Default is an empty string. |
 | `type` | Only avalaible for operations. If set, limit the substitution to a precise type of operation (get, post, delete, ...) |
+
+
+
+# Thank-you section
+
+Many thanks to : 
+
+Karl Heinz Marbaise and his work on the amazing "maven-it-extension" plugin (+ really well documented) : https://github.com/khmarbaise/maven-it-extension
+
+- The "java parser" team, which made the comments parsing so easy! 
+https://github.com/javaparser/javaparser
+
+-Ronmamo and his "Reflections" library which helped numerous projects : 
+https://github.com/ronmamo/reflections

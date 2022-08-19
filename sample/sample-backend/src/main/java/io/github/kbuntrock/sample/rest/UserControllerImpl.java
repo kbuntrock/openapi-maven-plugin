@@ -1,14 +1,20 @@
 package io.github.kbuntrock.sample.rest;
 
-import io.github.kbuntrock.sample.dto.Authority;
-import io.github.kbuntrock.sample.dto.UserDto;
-import io.github.kbuntrock.sample.dto.UserGroupDto;
+import io.github.kbuntrock.sample.dto.*;
 import io.github.kbuntrock.sample.enpoint.UserController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 @RestController
 public class UserControllerImpl implements UserController {
@@ -80,5 +86,176 @@ public class UserControllerImpl implements UserController {
         user2.setFirstName("Kev");
 
         return List.of(user1, user2);
+    }
+
+    @Override
+    public Page<UserDto> getUserDtoPage() {
+        UserDto user1 = new UserDto();
+        user1.setId(1L);
+        user1.setFirstName("John");
+        final List<UserDto> list = List.of(user1);
+        return new Page<UserDto>() {
+            @Override
+            public int getTotalPages() {
+                return 5;
+            }
+
+            @Override
+            public long getTotalElements() {
+                return 25;
+            }
+
+            @Override
+            public <U> Page<U> map(Function<? super UserDto, ? extends U> converter) {
+                return null;
+            }
+
+            @Override
+            public int getNumber() {
+                return 1;
+            }
+
+            @Override
+            public int getSize() {
+                return 4;
+            }
+
+            @Override
+            public int getNumberOfElements() {
+                return 6;
+            }
+
+            @Override
+            public List<UserDto> getContent() {
+                return list;
+            }
+
+            @Override
+            public boolean hasContent() {
+                return true;
+            }
+
+            @Override
+            public Sort getSort() {
+                return Sort.by("user_id");
+            }
+
+            @Override
+            public boolean isFirst() {
+                return true;
+            }
+
+            @Override
+            public boolean isLast() {
+                return false;
+            }
+
+            @Override
+            public boolean hasNext() {
+                return true;
+            }
+
+            @Override
+            public boolean hasPrevious() {
+                return false;
+            }
+
+            @Override
+            public Pageable nextPageable() {
+                return null;
+            }
+
+            @Override
+            public Pageable previousPageable() {
+                return null;
+            }
+
+            @Override
+            public Iterator<UserDto> iterator() {
+                return list.iterator();
+            }
+        };
+    }
+
+    @Override
+    public TestInterfaceDto getInterfaceTestDto() {
+        return new TestInterfaceDto() {
+
+            @Override
+            public boolean isReturned1() {
+                return true;
+            }
+
+            @Override
+            public boolean hasReturned2() {
+                return true;
+            }
+
+            @Override
+            public boolean getReturned3() {
+                return true;
+            }
+
+            @Override
+            public boolean setReturned4() {
+                return true;
+            }
+
+            @Override
+            public boolean helloReturned5() {
+                return true;
+            }
+
+            @Override
+            public boolean nextReturned6() {
+                return true;
+            }
+
+            @Override
+            public boolean nextPage() {
+                return false;
+            }
+
+            @Override
+            public boolean getNextPage() {
+                return false;
+            }
+        };
+    }
+
+    @Override
+    public Optional<UserDto> getOptionalUser(boolean empty) {
+        if(empty) {
+            return Optional.empty();
+        }
+        UserDto user1 = new UserDto();
+        user1.setId(1L);
+        user1.setFirstName("John");
+        return Optional.of(user1);
+    }
+
+    @Override
+    public WrapperDto<UserDto> getWrappedUser() {
+        UserDto user1 = new UserDto();
+        user1.setId(1L);
+        user1.setFirstName("John");
+        UserDto user2 = new UserDto();
+        user2.setId(2L);
+        user2.setFirstName("John's child");
+        UserDto user3 = new UserDto();
+        user3.setId(3L);
+        user3.setFirstName("John's child's child");
+        WrapperDto wrapperDto = new WrapperDto<>(user1);
+        wrapperDto.setChild(new WrapperDto(user2));
+        wrapperDto.getChild().setChild(new WrapperDto(user3));
+        return wrapperDto;
+    }
+
+    @Override
+    public ResponseEntity<UserDto> getResponseUser() {
+        UserDto user1 = new UserDto();
+        user1.setId(1L);
+        user1.setFirstName("John");
+        return new ResponseEntity(user1, HttpStatus.valueOf(200));
     }
 }

@@ -1,0 +1,23 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: StreamResponseController
+paths:
+  /api/stream/stream:
+    get:
+      tags:
+        - StreamResponseController
+      operationId: getStream
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
