@@ -1,0 +1,84 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: ResponseEntityController
+    description: A controller designed to test response entities
+paths:
+  /api/account:
+    get:
+      tags:
+        - ResponseEntityController
+      operationId: getAccount
+      description: Get an account object
+      responses:
+        200:
+          description: the return account
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AccountDto'
+components:
+  schemas:
+    AccountDto:
+      description: Object utilisé uniquement pour gérer l'identification d'un utilisateur
+        côté client
+      required:
+        - login
+        - firstName
+        - lastName
+        - email
+        - activated
+        - langKey
+        - authorities
+      type: object
+      properties:
+        login:
+          description: User login
+          type: string
+          minLength: 1
+          maxLength: 50
+        firstName:
+          description: User firstname
+          type: string
+          minLength: 0
+          maxLength: 50
+        lastName:
+          description: User lastname
+          type: string
+          minLength: 0
+          maxLength: 50
+        email:
+          type: string
+          minLength: 5
+          maxLength: 254
+        imageUrl:
+          type: string
+          minLength: 0
+          maxLength: 256
+        activated:
+          type: boolean
+        langKey:
+          type: string
+          minLength: 2
+          maxLength: 10
+        authorities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Authority'
+          uniqueItems: true
+    Authority:
+      description: |
+        Permissions for a user
+          * `READ_USER` - Reading
+          * `WRITE_USER` - Writing
+          * `ACCES_APP` - Access to the application (the most basic permission)
+      type: string
+      enum:
+        - READ_USER
+        - WRITE_USER
+        - ACCES_APP

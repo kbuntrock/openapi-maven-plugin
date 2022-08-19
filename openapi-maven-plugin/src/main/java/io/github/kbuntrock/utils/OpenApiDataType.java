@@ -1,7 +1,8 @@
 package io.github.kbuntrock.utils;
 
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.InputStreamSource;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
@@ -61,7 +62,7 @@ public enum OpenApiDataType {
             return STRING_DATE_TIME;
         } else if (LocalDate.class == clazz) {
             return STRING_DATE;
-        } else if (MultipartFile.class == clazz) {
+        } else if (InputStreamSource.class.isAssignableFrom(clazz) || InputStream.class.isAssignableFrom(clazz)) {
             return STRING_BINARY;
         } else if (clazz.isArray() || List.class == clazz || Set.class == clazz) {
             return ARRAY;

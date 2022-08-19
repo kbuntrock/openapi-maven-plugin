@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { UserGroupDto } from './generated/models';
 import { UserDto } from './generated/models/user-dto';
-import { EnumPlaytestControllerService, FileUploadControllerService, GenericControllerService, MapPlaytestControllerService, TimeControllerService, UserControllerService } from './generated/services';
+import { EnumPlaytestControllerService, FileDownloadControllerService, FileUploadControllerService, GenericControllerService, MapPlaytestControllerService, TimeControllerService, UserControllerService } from './generated/services';
 import * as dayjs from 'dayjs';
 import { Dayjs } from 'dayjs';
 import * as customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -31,6 +31,7 @@ export class AppComponent {
     private readonly mapPlaytestControllerService: MapPlaytestControllerService,
     private readonly timeControllerService: TimeControllerService,
     private readonly fileUploadControllerService: FileUploadControllerService,
+    private readonly fileDownloadControllerService: FileDownloadControllerService,
     private readonly genericControllerService: GenericControllerService) {
       dayjs.extend(utc);
   }
@@ -181,8 +182,27 @@ export class AppComponent {
           }
         })); 
         break; 
+      } case 26: {   
+        this.displayResponse(await this.userControllerService.getUserDtoPage()); 
+        break; 
+      } case 27: {   
+        this.displayResponse(await this.userControllerService.getInterfaceTestDto()); 
+        break; 
+      } case 28: {   
+        this.displayResponse(await this.userControllerService.getOptionalUser({empty: false})); 
+        break; 
+      } case 29: {   
+        this.displayResponse(await this.userControllerService.getOptionalUser({empty: true})); 
+        break; 
+      } case 30: {   
+        this.displayResponse(await this.userControllerService.getWrappedUser()); 
+        break; 
+      } case 31: {   
+        this.displayResponse(await this.userControllerService.getResponseUser()); 
+        break; 
       }
-    }
+
+    } 
     this.compteur++;
   }
 
@@ -243,5 +263,24 @@ export class AppComponent {
       }
     }
    
+  }
+
+  public downloadFile() {
+    const url = FileDownloadControllerService.FileDownloadControllerGetResourceFilePath;
+    const fileName = "mon-image.jpg";
+    const link = document.createElement('a');
+    link.href = url;
+    if (fileName) {
+      link.download = fileName;
+    }
+    // ici on utilise link.dispatchEvent plutot que link.click() car ce dernier n'est pas géré par la version 60.9 de firefox
+    // à modifier si la version du navigateur du client vient à être mise à jour
+    link.dispatchEvent(new MouseEvent(`click`));
+    // https://stackoverflow.com/questions/49209756/do-i-always-need-to-call-url-revokeobjecturl-explicitly
+    // https://stackoverflow.com/questions/54156588/revokeobjecturl-not-work-in-mozilla-firefox-and-microsoft-edge
+    // Pour s'assurer qu'on ne révoque par trop tot l'URL pour le téléchargement
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+    }, 3000);
   }
 }

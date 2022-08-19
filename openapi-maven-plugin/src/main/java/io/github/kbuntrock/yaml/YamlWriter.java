@@ -16,6 +16,7 @@ import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
 import io.github.kbuntrock.utils.*;
 import io.github.kbuntrock.yaml.model.*;
 import org.apache.commons.lang3.StringUtils;
@@ -303,8 +304,15 @@ public class YamlWriter {
         // LinkedHashMap to keep alphabetical order
         Map<String, Schema> schemas = new LinkedHashMap<>();
         for (DataObject dataObject : ordered) {
-            Schema schema = new Schema(dataObject, true);
+            Set<String> exploredSignatures = new HashSet<>();
+            Schema schema = new Schema(dataObject, true, exploredSignatures, null, null);
             schemas.put(dataObject.getJavaClass().getSimpleName(), schema);
+        }
+        // Add the additional eventual recursive entries.
+        for (Map.Entry<String, DataObject> entry : AdditionnalSchemaLibrary.getMap().entrySet()) {
+            Set<String> exploredSignatures = new HashSet<>();
+            Schema schema = new Schema(entry.getValue(), true, exploredSignatures, null, null);
+            schemas.put(entry.getKey(), schema);
         }
         return schemas;
     }

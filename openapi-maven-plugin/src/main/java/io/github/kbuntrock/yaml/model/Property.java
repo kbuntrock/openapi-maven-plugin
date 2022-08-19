@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.github.kbuntrock.model.DataObject;
 
+import java.util.Set;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Property extends Schema {
 
@@ -16,6 +18,9 @@ public class Property extends Schema {
     private Boolean uniqueItems;
     @JsonIgnore
     private boolean required;
+
+    @JsonIgnore
+    private DataObject parentDataObject;
 
     public Property() {
         super();
@@ -32,8 +37,8 @@ public class Property extends Schema {
         this.setEnumValues(schema.getEnumValues());
     }
 
-    public Property(DataObject dataObject, boolean mainReference, String name) {
-        super(dataObject, mainReference);
+    public Property(DataObject dataObject, boolean mainReference, String name, Set<String> exploredSignatures, DataObject parentDataObject) {
+        super(dataObject, mainReference, exploredSignatures, parentDataObject, name);
         if (dataObject.isOpenApiArray()) {
             this.setUniqueItems(true);
         }

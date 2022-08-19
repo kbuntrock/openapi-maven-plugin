@@ -1,18 +1,26 @@
 package io.github.kbuntrock;
 
 import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.configuration.OperationIdHelper;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.resources.endpoint.enumeration.*;
 import io.github.kbuntrock.resources.endpoint.error.SameOperationController;
 import io.github.kbuntrock.resources.endpoint.file.FileUploadController;
+import io.github.kbuntrock.resources.endpoint.file.StreamResponseController;
+import io.github.kbuntrock.resources.endpoint.generic.GenericityTestFour;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestOne;
+import io.github.kbuntrock.resources.endpoint.generic.GenericityTestThree;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTwo;
+import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
 import io.github.kbuntrock.resources.endpoint.map.MapController;
 import io.github.kbuntrock.resources.endpoint.number.NumberController;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementOneController;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementTwoController;
+import io.github.kbuntrock.resources.endpoint.recursive.*;
+import io.github.kbuntrock.resources.endpoint.spring.OptionalController;
+import io.github.kbuntrock.resources.endpoint.spring.ResponseEntityController;
 import io.github.kbuntrock.resources.endpoint.time.TimeController;
 import io.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -37,6 +45,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
         MavenProject mavenProjet = new MavenProject();
         mavenProjet.setName("My Project");
         mavenProjet.setVersion("10.5.36");
+        mavenProjet.setFile(new File(new File("pom.xml").getAbsolutePath()));
         return mavenProjet;
     }
 
@@ -78,12 +87,39 @@ public class SpringClassAnalyserTest extends AbstractTest {
     }
 
     @Test
+    public void genericity_wrapped_dto() throws MojoFailureException, IOException, MojoExecutionException {
+
+        DocumentationMojo mojo = createBasicMojo(GenericityTestThree.class.getCanonicalName());
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/genericity_wrapped_dto.yml", generated.get(0));
+    }
+
+    @Test
+    public void genericity_typed_wrapped_dto() throws MojoFailureException, IOException, MojoExecutionException {
+
+        DocumentationMojo mojo = createBasicMojo(GenericityTestFour.class.getCanonicalName());
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/genericity_typed_wrapped_dto.yml", generated.get(0));
+    }
+
+    @Test
     public void file_upload() throws MojoFailureException, IOException, MojoExecutionException {
 
         DocumentationMojo mojo = createBasicMojo(FileUploadController.class.getCanonicalName());
 
         List<File> generated = mojo.documentProject();
         checkGenerationResult("ut/SpringClassAnalyserTest/file_upload.yml", generated.get(0));
+    }
+
+    @Test
+    public void stream_download() throws MojoFailureException, IOException, MojoExecutionException {
+
+        DocumentationMojo mojo = createBasicMojo(StreamResponseController.class.getCanonicalName());
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/stream_download.yml", generated.get(0));
     }
 
     @Test
@@ -199,6 +235,41 @@ public class SpringClassAnalyserTest extends AbstractTest {
         checkGenerationResult("ut/SpringClassAnalyserTest/springPathEnhancementOne.yml", generated.get(0));
     }
 
+    @Test
+    public void optional() throws MojoFailureException, IOException, MojoExecutionException {
+
+        DocumentationMojo mojo = createBasicMojo(OptionalController.class.getCanonicalName());
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/optional.yml", generated.get(0));
+    }
+
+    @Test
+    public void response_entity() throws MojoFailureException, IOException, MojoExecutionException {
+
+        DocumentationMojo mojo = createBasicMojo(ResponseEntityController.class.getCanonicalName());
+        JavadocConfiguration javadocConfig = new JavadocConfiguration();
+        javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/spring",
+                "src/test/java/io/github/kbuntrock/resources/dto"));
+        mojo.setJavadocConfiguration(javadocConfig);
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/response-entity.yml", generated.get(0));
+    }
+
+    @Test
+    public void interface_dto() throws MojoFailureException, IOException, MojoExecutionException {
+
+        DocumentationMojo mojo = createBasicMojo(InterfaceController.class.getCanonicalName());
+        JavadocConfiguration javadocConfig = new JavadocConfiguration();
+        javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/interfacedto",
+                "src/test/java/io/github/kbuntrock/resources/dto"));
+        mojo.setJavadocConfiguration(javadocConfig);
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/interface.yml", generated.get(0));
+    }
+
     /**
      * TODO : to refacto when scanning of @RestController will be done.
      *
@@ -233,6 +304,64 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
             Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
         }
+    }
+
+    @Test
+    public void recursive_dto() throws MojoFailureException, IOException, MojoExecutionException {
+
+        DocumentationMojo mojo = createBasicMojo(RecursiveDtoController.class.getCanonicalName());
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/recursive_dto.yml", generated.get(0));
+    }
+
+    @Test
+    public void recursive_dto_in_parameter() throws MojoFailureException, IOException, MojoExecutionException {
+
+        DocumentationMojo mojo = createBasicMojo(RecursiveDtoInParameterController.class.getCanonicalName());
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/recursive_dto_in_parameter.yml", generated.get(0));
+    }
+
+    @Test
+    public void generic_recursive_dto() throws MojoFailureException, IOException, MojoExecutionException {
+
+        DocumentationMojo mojo = createBasicMojo(GenericRecursiveDtoController.class.getCanonicalName());
+        JavadocConfiguration javadocConfig = new JavadocConfiguration();
+        javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/recursive",
+                "src/test/java/io/github/kbuntrock/resources/dto"));
+        mojo.setJavadocConfiguration(javadocConfig);
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/generic_recursive_dto.yml", generated.get(0));
+    }
+
+    @Test
+    public void generic_recursive_list_dto() throws MojoFailureException, IOException, MojoExecutionException {
+
+        DocumentationMojo mojo = createBasicMojo(GenericRecursiveListDtoController.class.getCanonicalName());
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/generic_recursive_list_dto.yml", generated.get(0));
+    }
+
+    @Test
+    public void generic_recursive_interface_list_dto() throws MojoFailureException, IOException, MojoExecutionException {
+
+        DocumentationMojo mojo = createBasicMojo(GenericRecursiveInterfaceListDtoInParameterController.class.getCanonicalName());
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/generic_recursive_interface_list_dto.yml", generated.get(0));
+    }
+
+    @Test
+    public void generic_recursive_interface_dto() throws MojoFailureException, IOException, MojoExecutionException {
+
+        DocumentationMojo mojo = createBasicMojo(GenericRecursiveInterfaceDtoController.class.getCanonicalName());
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/generic_recursive_interface_dto.yml", generated.get(0));
     }
 
 }

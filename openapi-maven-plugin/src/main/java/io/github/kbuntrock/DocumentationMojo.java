@@ -7,6 +7,7 @@ import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.javadoc.JavadocMap;
 import io.github.kbuntrock.javadoc.JavadocParser;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
+import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.FileUtils;
 import io.github.kbuntrock.utils.Logger;
@@ -137,6 +138,7 @@ public class DocumentationMojo extends AbstractMojo {
 
         List<File> generatedFiles = new ArrayList<>();
         for (ApiConfiguration initialApiConfiguration : apis) {
+            AdditionnalSchemaLibrary.reset();
             ApiConfiguration apiConfig = initialApiConfiguration.mergeWithCommonApiConfiguration(this.apiConfiguration);
             SpringResourceParser springResourceParser = new SpringResourceParser(apiConfig);
             getLog().debug("Prepare to scan");
