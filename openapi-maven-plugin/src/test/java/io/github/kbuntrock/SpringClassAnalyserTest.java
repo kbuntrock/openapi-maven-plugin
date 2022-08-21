@@ -9,10 +9,7 @@ import io.github.kbuntrock.resources.endpoint.enumeration.*;
 import io.github.kbuntrock.resources.endpoint.error.SameOperationController;
 import io.github.kbuntrock.resources.endpoint.file.FileUploadController;
 import io.github.kbuntrock.resources.endpoint.file.StreamResponseController;
-import io.github.kbuntrock.resources.endpoint.generic.GenericityTestFour;
-import io.github.kbuntrock.resources.endpoint.generic.GenericityTestOne;
-import io.github.kbuntrock.resources.endpoint.generic.GenericityTestThree;
-import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTwo;
+import io.github.kbuntrock.resources.endpoint.generic.*;
 import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
 import io.github.kbuntrock.resources.endpoint.map.MapController;
 import io.github.kbuntrock.resources.endpoint.number.NumberController;
@@ -362,6 +359,15 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
         List<File> generated = mojo.documentProject();
         checkGenerationResult("ut/SpringClassAnalyserTest/generic_recursive_interface_dto.yml", generated.get(0));
+    }
+
+    @Test
+    public void generically_typed_controller() throws MojoFailureException, IOException, MojoExecutionException {
+
+        DocumentationMojo mojo = createBasicMojo(GenericDataController.class.getCanonicalName());
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/generically_typed_controller.yml", generated.get(0));
     }
 
 }

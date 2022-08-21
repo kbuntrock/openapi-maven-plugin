@@ -5,11 +5,11 @@ import java.util.List;
 /**
  * @author Kevin Buntrock
  */
-public interface GenericInterfaceRecursiveListDto<G> {
+public interface GenericInterfaceRecursiveListDto<E> {
 
     String getName();
 
-    G getWrapped();
+    E getWrapped();
 
-    List<GenericInterfaceRecursiveListDto<G>> getChildList();
+    List<GenericInterfaceRecursiveListDto<E>> getChildList();
 }
