@@ -1,4 +1,4 @@
-package io.github.kbuntrock.resources.endpoint;
+package io.github.kbuntrock.resources.endpoint.account;
 
 import io.github.kbuntrock.resources.Constants;
 import io.github.kbuntrock.resources.dto.*;
@@ -57,6 +57,7 @@ public interface AccountController {
      * @param passwordChangeDto current and new password.
      */
     @PostMapping(path = "/change-password")
+    @Deprecated
     void changePassword(@RequestBody PasswordChangeDto passwordChangeDto);
 
     /**

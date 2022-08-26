@@ -140,6 +140,25 @@
                             <attachArtifact>true</attachArtifact>
                             <defaultProduceConsumeGuessing>true</defaultProduceConsumeGuessing>
                         </api>
+                        <api>
+                            <tagAnnotations>
+                                <annotation>RestController</annotation>
+                            </tagAnnotations>
+                            <locations>
+                                <location>io.github.kbuntrock.sample.implementation</location>
+                            </locations>
+                            <tag>
+                                <substitutions>
+                                    <sub>
+                                        <regex>Impl$</regex>
+                                        <substitute></substitute>
+                                    </sub>
+                                </substitutions>
+                            </tag>
+                            <attachArtifact>true</attachArtifact>
+                            <defaultProduceConsumeGuessing>true</defaultProduceConsumeGuessing>
+                            <filename>spec-open-api-impl</filename>
+                        </api>
                     </apis>
                 </configuration>
             </plugin>

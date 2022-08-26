@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.reflections.scanners.Scanners.TypesAnnotated;
 
@@ -50,7 +51,8 @@ public class SpringResourceParser {
             Set<Class<?>> classes = reflections.get(TypesAnnotated.with(annotatedElementList.toArray(new AnnotatedElement[]{}))
                     .asClass(ReflectionsUtils.getProjectClassLoader()));
             
-            logger.info("Found " + classes.size() + " annotated classes");
+            logger.info("Found " + classes.size() + " annotated classes with [ " +
+                    annotatedElementList.stream().map(Class::getSimpleName).collect(Collectors.joining(", ")) + " ]");
 
             // Find directly or inheritedly annotated by RequestMapping classes.
             SpringClassAnalyser springClassAnalyser = new SpringClassAnalyser(apiConfiguration);

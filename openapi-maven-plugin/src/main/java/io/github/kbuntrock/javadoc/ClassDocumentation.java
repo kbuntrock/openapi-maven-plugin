@@ -32,7 +32,6 @@ public class ClassDocumentation {
         inheritanceEnhancementIsDone = true;
         this.javaClass = javaClass;
 
-        // TODO : Do the same concept for main class description
         Map<String, ClassDocumentation> javadocMap = JavadocMap.INSTANCE.getJavadocMap();
         Set<ClassDocumentation> parentsClassDocumentation = new HashSet<>();
         if (javaClass.getSuperclass() != null && Object.class != javaClass.getSuperclass()) {
@@ -43,6 +42,19 @@ public class ClassDocumentation {
         }
         if (parentsClassDocumentation.isEmpty()) {
             return;
+        }
+
+        for (ClassDocumentation parentClass : parentsClassDocumentation) {
+            if (javadocWrapper == null || javadocWrapper.isInheritTagFound()) {
+                JavadocWrapper parentJavadoc = parentClass.getJavadoc();
+                if (parentJavadoc != null) {
+                    parentJavadoc.sortTags();
+                }
+                if (parentJavadoc != null && !parentJavadoc.isInheritTagFound()) {
+                    javadocWrapper = parentJavadoc;
+                    break;
+                }
+            }
         }
 
         if (EnhancementType.FIELDS == enhancementType || EnhancementType.BOTH == enhancementType) {

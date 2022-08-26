@@ -67,21 +67,6 @@ public class JavadocParser {
         visitor.visit(compilationUnit, null);
     }
 
-
-//    public void analyseClass(Class<?> visitedClass) throws IOException {
-//        Path path = FileSystems.getDefault().getPath(projectPath, getProjectClassPath(visitedClass));
-//        if (path.toFile().exists()) {
-//
-//
-//            CompilationUnit compilationUnit = StaticJavaParser.parse(path);
-//            JavadocVisitor visitor = new JavadocVisitor();
-//            visitor.visit(compilationUnit, null);
-//
-//
-//            System.currentTimeMillis();
-//        }
-//    }
-
     private class JavadocVisitor extends VoidVisitorAdapter {
         @Override
         public void visit(JavadocComment comment, Object arg) {
