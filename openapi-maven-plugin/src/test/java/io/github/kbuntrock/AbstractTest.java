@@ -40,6 +40,16 @@ public class AbstractTest {
         }
     }
 
+    protected void checkGenerationResult(final File expectedFile, File generatedFile) throws IOException {
+        try (InputStream generatedFileStream = new FileInputStream(generatedFile);
+             InputStream resourceFileStream = new FileInputStream(expectedFile)) {
+            String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
+            String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
+
+            Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
+        }
+    }
+
 
     public static class TestLogger implements Log {
 

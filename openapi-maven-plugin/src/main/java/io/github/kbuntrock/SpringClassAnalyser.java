@@ -5,11 +5,12 @@ import io.github.kbuntrock.model.*;
 import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.ParameterLocation;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.springframework.core.annotation.MergedAnnotation;
-import org.springframework.core.annotation.MergedAnnotations;
+import org.springframework.core.annotation.*;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,12 +20,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class SpringClassAnalyser {
 
@@ -50,7 +49,7 @@ public class SpringClassAnalyser {
     public Optional<Tag> getTagFromClass(Class<?> clazz) throws MojoFailureException {
         Tag tag = new Tag(clazz);
         logger.debug("Parsing tag : " + tag.getName());
-        List<String> basePaths = Arrays.asList("");
+        List<String> basePaths = Collections.singletonList("");
 
         MergedAnnotations mergedAnnotations = MergedAnnotations.from(clazz, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
         MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
@@ -77,7 +76,10 @@ public class SpringClassAnalyser {
 
     private void parseEndpoints(Tag tag, String basePath, Class<?> clazz) throws MojoFailureException {
 
+        logger.debug("Parsing endpoint " + clazz.getSimpleName());
+
         Method[] methods = clazz.getMethods();
+
         for (Method method : methods) {
 
             MergedAnnotations mergedAnnotations = MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
@@ -86,11 +88,11 @@ public class SpringClassAnalyser {
                 RequestMethod[] requestMethods = requestMappingMergedAnnotation.getEnumArray("method", RequestMethod.class);
                 if (requestMethods.length > 0) {
                     logger.debug("Parsing request method : " + method.getName());
+                    String methodIdentifier = createIdentifier(method);
                     List<ParameterObject> parameterObjects = readParameters(method);
                     DataObject responseObject = readResponseObject(method);
-                    int responseCode = readResponseCode(method);
+                    int responseCode = readResponseCode(mergedAnnotations);
                     List<String> paths = readEndpointPaths(basePath, requestMappingMergedAnnotation);
-                    Optional<Deprecated> deprecated = getDeprecatedAnnotation(method);
                     for (RequestMethod requestMethod : requestMethods) {
                         for (String path : paths) {
                             Endpoint endpoint = new Endpoint();
@@ -101,10 +103,8 @@ public class SpringClassAnalyser {
                             endpoint.setResponseObject(responseObject);
                             endpoint.setResponseCode(responseCode);
                             setConsumeProduceProperties(endpoint, requestMappingMergedAnnotation);
-                            endpoint.setIdentifier(createIdentifier(method));
-                            if (deprecated.isPresent()) {
-                                endpoint.setDeprecated(true);
-                            }
+                            endpoint.setIdentifier(methodIdentifier);
+                            endpoint.setDeprecated(isDeprecated(method));
                             tag.addEndpoint(endpoint);
                             logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
                         }
@@ -146,92 +146,94 @@ public class SpringClassAnalyser {
         return sb.toString();
     }
 
-    /**
-     * The annotation given in parameter can be a "subtype" annotation of RequestMapping (GetMapping, PostMapping, ...)
-     *
-     * @param annotation
-     * @return an Optional<RequestMapping>
-     */
-    private Optional<RequestMapping> getRequestMappingAnnotation(Annotation annotation) {
-        RequestMapping requestMapping = null;
-        if (annotation.annotationType() == RequestMapping.class) {
-            requestMapping = (RequestMapping) annotation;
-        } else if (annotation.annotationType().getAnnotation(RequestMapping.class) != null) {
-            requestMapping = annotation.annotationType().getAnnotation(RequestMapping.class);
+    private boolean isDeprecated(Method originalMethod) {
+        Set<Method> overridenMethods = MethodUtils.getOverrideHierarchy(originalMethod, ClassUtils.Interfaces.INCLUDE);
+        for(Method method: overridenMethods) {
+            if(method.getDeclaredAnnotation(Deprecated.class) != null) {
+                return true;
+            }
         }
-        return Optional.ofNullable(requestMapping);
+        return false;
     }
 
-    private Optional<Deprecated> getDeprecatedAnnotation(Method method) {
-        return Optional.ofNullable(method.getAnnotation(Deprecated.class));
-    }
+    private List<ParameterObject> readParameters(Method originalMethod) {
 
-    private List<ParameterObject> readParameters(Method method) {
-        List<ParameterObject> parameters = new ArrayList<>();
+        logger.debug("Reading parameters from " + originalMethod.getName());
 
-        for (Parameter parameter : method.getParameters()) {
-            if (HttpServletRequest.class.isAssignableFrom(parameter.getType())) {
-                continue;
-            }
+        // Set of the method in the original class and eventually the methods in the parent classes / interfaces
+        Set<Method> overridenMethods = MethodUtils.getOverrideHierarchy(originalMethod, ClassUtils.Interfaces.INCLUDE);
 
-            ParameterObject paramObj = new ParameterObject(parameter.getParameterizedType());
-            paramObj.setName(parameter.getName());
+        Map<String, ParameterObject> parameters = new LinkedHashMap<>();
 
-            // Detect if is a path variable
-            PathVariable pathAnnotation = parameter.getAnnotation(PathVariable.class);
-            if (pathAnnotation != null) {
-                paramObj.setLocation(ParameterLocation.PATH);
-                paramObj.setRequired(pathAnnotation.required());
-                if (!StringUtils.isEmpty(pathAnnotation.value())) {
-                    paramObj.setName(pathAnnotation.value());
-                } else if (!StringUtils.isEmpty(pathAnnotation.name())) {
-                    paramObj.setName(pathAnnotation.name());
+        for(Method method : overridenMethods) {
+            for (Parameter parameter : method.getParameters()) {
+                if (HttpServletRequest.class.isAssignableFrom(parameter.getType())) {
+                    continue;
                 }
-            }
+                logger.debug("Parameter : " + parameter.getName());
 
-            // Detect if is a query variable
-            RequestParam queryAnnotation = parameter.getAnnotation(RequestParam.class);
-            if (queryAnnotation != null) {
-                boolean isMultipartFile = MultipartFile.class == paramObj.getJavaClass() ||
-                        (OpenApiDataType.ARRAY == paramObj.getOpenApiType() && MultipartFile.class == paramObj.getArrayItemDataObject().getJavaClass());
-                if (isMultipartFile) {
-                    // MultipartFile parameters are considered as a requestBody)
+
+                ParameterObject paramObj = parameters.computeIfAbsent(parameter.getName(),
+                        (name) -> new ParameterObject(name, parameter.getParameterizedType()));
+
+                MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+
+                // Detect if is a path variable
+                MergedAnnotation<PathVariable> pathVariableMA = mergedAnnotations.get(PathVariable.class);
+                if(pathVariableMA.isPresent()) {
+                    paramObj.setLocation(ParameterLocation.PATH);
+                    paramObj.setRequired(pathVariableMA.getBoolean("required"));
+                    // The value is equivalent to the name (alias for and user of MergedAnnotation)
+                    String value = pathVariableMA.getString("value");
+                    if (!StringUtils.isEmpty(value)) {
+                        paramObj.setName(value);
+                    }
+                    logger.debug("PathVariable annotation detected (" + paramObj.getName() + ")");
+                }
+
+                // Detect if is a query variable
+                MergedAnnotation<RequestParam> requestParamMA = mergedAnnotations.get(RequestParam.class);
+                if (requestParamMA.isPresent()) {
+
+                    boolean isMultipartFile = MultipartFile.class == paramObj.getJavaClass() ||
+                            (OpenApiDataType.ARRAY == paramObj.getOpenApiType() && MultipartFile.class == paramObj.getArrayItemDataObject().getJavaClass());
+                    if (isMultipartFile) {
+                        // MultipartFile parameters are considered as a requestBody)
+                        paramObj.setLocation(ParameterLocation.BODY);
+                    } else {
+                        paramObj.setLocation(ParameterLocation.QUERY);
+                    }
+                    paramObj.setRequired(requestParamMA.getBoolean("required"));
+
+                    // The value is equivalent to the name (alias for and user of MergedAnnotation)
+                    String value = requestParamMA.getString("value");
+                    if (!StringUtils.isEmpty(value)) {
+                        paramObj.setName(value);
+                    }
+                    logger.debug("RequestParam annotation detected (" + paramObj.getName() + "), location is "+ paramObj.getLocation().toString());
+                }
+
+                // Detect if is a request body parameter
+                MergedAnnotation<RequestBody> requestBodyMA = mergedAnnotations.get(RequestBody.class);
+                if (requestBodyMA.isPresent()) {
                     paramObj.setLocation(ParameterLocation.BODY);
-                } else {
-                    paramObj.setLocation(ParameterLocation.QUERY);
+                    paramObj.setRequired(requestBodyMA.getBoolean("required"));
+                    logger.debug("RequestBody annotation detected, location is "+ paramObj.getLocation().toString());
                 }
-                paramObj.setRequired(queryAnnotation.required());
 
-                if (!StringUtils.isEmpty(queryAnnotation.value())) {
-                    paramObj.setName(queryAnnotation.value());
-                } else if (!StringUtils.isEmpty(queryAnnotation.name())) {
-                    paramObj.setName(queryAnnotation.name());
-                }
             }
-
-            // Detect if is a request body parameter
-            RequestBody requestBodyAnnotation = parameter.getAnnotation(RequestBody.class);
-            if (requestBodyAnnotation != null) {
-                paramObj.setLocation(ParameterLocation.BODY);
-                paramObj.setRequired(requestBodyAnnotation.required());
-            }
-
-            if (paramObj.getLocation() != null) {
-                parameters.add(paramObj);
-            }
-
         }
-        return parameters;
+
+        return parameters.values().stream().filter(x -> x.getLocation() != null).collect(Collectors.toList());
     }
 
-    private static int readResponseCode(Method method) {
+    private static int readResponseCode(MergedAnnotations mergedAnnotations) {
 
-        ResponseStatus responseStatus = method.getAnnotation(ResponseStatus.class);
-        if (responseStatus == null) {
+        MergedAnnotation<ResponseStatus> responseStatusMA = mergedAnnotations.get(ResponseStatus.class);
+        if (!responseStatusMA.isPresent()) {
             return HttpStatus.OK.value();
         }
-
-        return responseStatus.value().value();
+        return responseStatusMA.getValue("value", HttpStatus.class).get().value();
     }
 
     private DataObject readResponseObject(Method method) {

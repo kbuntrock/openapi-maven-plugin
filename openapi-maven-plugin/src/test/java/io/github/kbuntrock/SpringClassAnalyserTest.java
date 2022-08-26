@@ -3,8 +3,10 @@ package io.github.kbuntrock;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.configuration.OperationIdHelper;
+import io.github.kbuntrock.configuration.Substitution;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
 import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.resources.endpoint.account.AccountController;
 import io.github.kbuntrock.resources.endpoint.enumeration.*;
 import io.github.kbuntrock.resources.endpoint.error.SameOperationController;
 import io.github.kbuntrock.resources.endpoint.file.FileUploadController;
@@ -19,6 +21,7 @@ import io.github.kbuntrock.resources.endpoint.recursive.*;
 import io.github.kbuntrock.resources.endpoint.spring.OptionalController;
 import io.github.kbuntrock.resources.endpoint.spring.ResponseEntityController;
 import io.github.kbuntrock.resources.endpoint.time.TimeController;
+import io.github.kbuntrock.resources.implementation.account.AccountControllerImpl;
 import io.github.kbuntrock.yaml.YamlWriter;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -33,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -368,6 +372,48 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
         List<File> generated = mojo.documentProject();
         checkGenerationResult("ut/SpringClassAnalyserTest/generically_typed_controller.yml", generated.get(0));
+    }
+
+    @Test
+    public void interface_vs_implementation() throws MojoFailureException, IOException, MojoExecutionException {
+
+        DocumentationMojo mojo1 = new DocumentationMojo();
+        ApiConfiguration apiConfiguration1 = new ApiConfiguration();
+        apiConfiguration1.setAttachArtifact(false);
+        apiConfiguration1.setLocations(Arrays.asList(AccountController.class.getCanonicalName()));
+        apiConfiguration1.setTagAnnotations(Arrays.asList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
+        JavadocConfiguration javadocConfig = new JavadocConfiguration();
+        javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/account",
+                "src/test/java/io/github/kbuntrock/resources/dto"));
+        mojo1.setJavadocConfiguration(javadocConfig);
+        mojo1.setTestMode(true);
+        mojo1.setApis(Arrays.asList(apiConfiguration1));
+        mojo1.setProject(createBasicMavenProject());
+
+        DocumentationMojo mojo2 = new DocumentationMojo();
+        ApiConfiguration apiConfiguration2 = new ApiConfiguration();
+        apiConfiguration2.setAttachArtifact(false);
+        apiConfiguration2.setLocations(Arrays.asList(AccountControllerImpl.class.getCanonicalName()));
+        apiConfiguration2.setTagAnnotations(Arrays.asList(TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName()));
+        apiConfiguration2.setOperationId("{tag_name}.{method_name}");
+        io.github.kbuntrock.configuration.Tag tag = new io.github.kbuntrock.configuration.Tag();
+        Substitution sub = new Substitution();
+        sub.setRegex("Impl$");
+        sub.setSubstitute("");
+        tag.setSubstitutions(Collections.singletonList(sub));
+        apiConfiguration2.setTag(tag);
+        JavadocConfiguration javadocConfig2 = new JavadocConfiguration();
+        javadocConfig2.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/account",
+                "src/test/java/io/github/kbuntrock/resources/implementation/account",
+                "src/test/java/io/github/kbuntrock/resources/dto"));
+        mojo2.setJavadocConfiguration(javadocConfig2);
+        mojo2.setTestMode(true);
+        mojo2.setApis(Arrays.asList(apiConfiguration2));
+        mojo2.setProject(createBasicMavenProject());
+
+        List<File> generated1 = mojo1.documentProject();
+        List<File> generated2 = mojo2.documentProject();
+        checkGenerationResult(generated1.get(0), generated2.get(0));
     }
 
 }

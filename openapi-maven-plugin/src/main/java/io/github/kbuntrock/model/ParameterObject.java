@@ -44,7 +44,8 @@ public class ParameterObject extends DataObject {
         this.format = format;
     }
 
-    public ParameterObject(Type type) {
+    public ParameterObject(String name, Type type) {
         super(type);
+        this.name = name;
     }
 }

@@ -16,8 +16,14 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDto {
 
+    /**
+     * Id of the user
+     */
     private Long id;
 
+    /**
+     * The login of the user
+     */
     @NotBlank
     @Pattern(regexp = Constants.LOGIN_REGEX)
     @Size(min = 1, max = 50)
