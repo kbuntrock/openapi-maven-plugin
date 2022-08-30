@@ -15,7 +15,7 @@
     <properties>
         <java.version>11</java.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
-        <openapi-plugin-project-version>0.0.9-SNAPSHOT</openapi-plugin-project-version>
+        <openapi-plugin-project-version>0.0.9</openapi-plugin-project-version>
     </properties>
     <dependencies>
         <dependency>
