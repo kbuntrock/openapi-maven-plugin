@@ -132,6 +132,11 @@
                             }
                         </freeFields>
                     </apiConfiguration>
+                    <javadocConfiguration>
+                        <scanLocations>
+                            <project>src/main/java</project>
+                        </scanLocations>
+                    </javadocConfiguration>
                     <apis>
                         <api>
                             <locations>

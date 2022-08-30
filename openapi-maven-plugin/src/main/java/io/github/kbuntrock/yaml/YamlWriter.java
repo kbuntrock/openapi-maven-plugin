@@ -188,19 +188,10 @@ public class YamlWriter {
                     parameterElement.setName(parameter.getName());
                     parameterElement.setIn(parameter.getLocation().toString().toLowerCase(Locale.ENGLISH));
                     parameterElement.setRequired(parameter.isRequired());
-                    Property schema = new Property();
-                    if (parameter.getJavaClass().isEnum()) {
-                        schema.setReference(OpenApiConstants.OBJECT_REFERENCE_PREFIX + parameter.getJavaClass().getSimpleName());
-                    } else {
-                        schema.setType(parameter.getOpenApiType().getValue());
-                        OpenApiDataFormat format = parameter.getOpenApiType().getFormat();
-                        if (OpenApiDataFormat.NONE != format && OpenApiDataFormat.UNKNOWN != format) {
-                            schema.setFormat(format.getValue());
-                        }
-                    }
+                    Property schema = new Property(Content.fromDataObject(parameter).getSchema());
 
-                    // array in query or path parameters are not supported
-                    if (OpenApiDataType.ARRAY == parameter.getOpenApiType()) {
+                    // array in path parameters are not supported
+                    if (OpenApiDataType.ARRAY == parameter.getOpenApiType() && ParameterLocation.PATH == parameter.getLocation()) {
                         logger.warn("Array types in path or query parameter are not allowed : "
                                 + endpoint.getPath() + " - " + endpoint.getType());
                     }

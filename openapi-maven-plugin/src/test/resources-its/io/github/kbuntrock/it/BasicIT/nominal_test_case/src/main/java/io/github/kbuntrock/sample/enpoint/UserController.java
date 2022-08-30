@@ -12,6 +12,12 @@ import java.util.List;
 @RequestMapping(path = Constants.BASE_PATH + "/user")
 public interface UserController {
 
+    String TEXT_BLOCK = """
+        Example text
+        with
+        multiple
+        lines""";
+
     /**
      * Update a user
      *

@@ -29,16 +29,28 @@ public class BasicIT {
 
         File target = new File(result.getMavenProjectResult().getTargetProjectDirectory(), "target");
         File generatedFile = new File(target, "spec-open-api.yml");
+        File generatedFile2 = new File(target, "spec-open-api-impl.yml");
         Assertions.assertTrue(target.exists());
         Assertions.assertTrue(generatedFile.exists());
+        Assertions.assertTrue(generatedFile2.exists());
 
         File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory();
         File generatedArtifactFile = new File(m2Directory, "/io/github/kbuntrock/openapi/it/openapi-basic-it/23.5.2/openapi-basic-it-23.5.2-spec-open-api.yml");
+        File generatedArtifactFile2 = new File(m2Directory, "/io/github/kbuntrock/openapi/it/openapi-basic-it/23.5.2/openapi-basic-it-23.5.2-spec-open-api-impl.yml");
         Assertions.assertTrue(generatedArtifactFile.exists());
+        Assertions.assertTrue(generatedArtifactFile2.exists());
 
 
         try (InputStream generatedFileStream = new FileInputStream(generatedArtifactFile);
              InputStream resourceFileStream = BasicIT.class.getClassLoader().getResourceAsStream("it/BasicIT/nominal_test_case.yml")) {
+            String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
+            String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
+
+            Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
+        }
+
+        try (InputStream generatedFileStream = new FileInputStream(generatedArtifactFile2);
+             InputStream resourceFileStream = BasicIT.class.getClassLoader().getResourceAsStream("it/BasicIT/nominal_test_case_impl.yml")) {
             String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
             String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
 

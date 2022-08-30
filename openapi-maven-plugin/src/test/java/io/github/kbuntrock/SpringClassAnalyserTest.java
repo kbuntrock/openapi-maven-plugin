@@ -106,6 +106,15 @@ public class SpringClassAnalyserTest extends AbstractTest {
     }
 
     @Test
+    public void genericity_list_long() throws MojoFailureException, IOException, MojoExecutionException {
+
+        DocumentationMojo mojo = createBasicMojo(GenericityTestFive.class.getCanonicalName());
+
+        List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/genericity_list_long.yml", generated.get(0));
+    }
+
+    @Test
     public void file_upload() throws MojoFailureException, IOException, MojoExecutionException {
 
         DocumentationMojo mojo = createBasicMojo(FileUploadController.class.getCanonicalName());

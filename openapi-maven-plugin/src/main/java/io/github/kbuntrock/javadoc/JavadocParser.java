@@ -1,6 +1,6 @@
 package io.github.kbuntrock.javadoc;
 
-import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.*;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.*;
@@ -27,10 +27,16 @@ public class JavadocParser {
 
     private List<File> filesToScan;
 
+    private final JavaParser javaParser;
+
     private final Log logger = Logger.INSTANCE.getLogger();
 
     public JavadocParser(List<File> filesToScan) {
         this.filesToScan = filesToScan;
+        ParserConfiguration parserConfiguration = new ParserConfiguration();
+        parserConfiguration.setCharacterEncoding(StandardCharsets.UTF_8);
+        parserConfiguration.setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17);
+        javaParser = new JavaParser(parserConfiguration);
     }
 
     public void scan() {
@@ -62,7 +68,12 @@ public class JavadocParser {
     }
 
     private void exploreJavaFile(final File javaFile) throws FileNotFoundException {
-        CompilationUnit compilationUnit = StaticJavaParser.parse(javaFile, StandardCharsets.UTF_8);
+
+        ParseResult<CompilationUnit> parseResult = javaParser.parse(javaFile);
+        if (!parseResult.isSuccessful()) {
+            throw new ParseProblemException(parseResult.getProblems());
+        }
+        CompilationUnit compilationUnit = parseResult.getResult().get();
         JavadocVisitor visitor = new JavadocVisitor();
         visitor.visit(compilationUnit, null);
     }
@@ -162,21 +173,6 @@ public class JavadocParser {
         }
         return node.toString();
     }
-
-//    private String[] getProjectClassPath(Class<?> clazz) {
-//        String[] classPath = clazz.getCanonicalName().split("\\.");
-//        classPath[classPath.length - 1] = classPath[classPath.length - 1] + ".java";
-//        String[] classPathInProject = new String[classPath.length + 3];
-//        System.arraycopy(classPath, 0, classPathInProject, 3, classPath.length);
-//        classPathInProject[0] = "src";
-//        if (test) {
-//            classPathInProject[1] = "test";
-//        } else {
-//            classPathInProject[1] = "main";
-//        }
-//        classPathInProject[2] = "java";
-//        return classPathInProject;
-//    }
 
 
     public Map<String, ClassDocumentation> getJavadocMap() {
