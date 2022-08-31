@@ -4,9 +4,11 @@
 [![CircleCI](https://circleci.com/gh/kbuntrock/openapi-maven-plugin/tree/dev.svg?style=shield)](https://circleci.com/gh/kbuntrock/openapi-maven-plugin/tree/dev)
 ![GitHub](https://img.shields.io/github/license/kbuntrock/openapi-maven-plugin?color=blue)
 
-L'Openapi maven plugin analyse le code compilé + les fichiers de code source afin de générer une documentation openapi 3.0.3.
+Le but de se plugin est de générer des documentations openapi de webservices REST à partir d'un projet Java, sans qu'il n'y ait pour ceci besoin de modifier le code source. 
 
 Ce plugin supporte les annotations SpringMVC.
+
+Afin de générer les documentations openapi (v3.0.3), le plugin combine les informations obtenues via réflexion sur le code compilé à un parsing des fichiers sources pour en extraire les commentaires javadoc.
 
 La philosophie de ce plugin est de créer la documentation durant la phase de build, sans lancer d'application. Cela a plusieurs avantages comparé à d'autres méthodes: 
 - Le code source du projet peut être analysé afin d'en extraire la javadoc et d'enrichir la documentation. Il n'y a pas besoin d'alourdir le code avec des annotations dans le seul but de garder ces informations disponibles au "runtime". Votre code reste pur, sans duplication d'information.
