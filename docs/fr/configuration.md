@@ -28,6 +28,24 @@ Configurations générales, qui seront appliquées à chaque document généré.
 </configuration>
 ```
 
+### tagAnnotations
+
+- Type : `string list`
+- Valeur par défaut : `RestController`
+
+Indique quelles sont les annotations repérant les classes repérant un webservice.
+
+Les valeurs peuvent être: 
+* `RestController`
+* `RequestMapping`
+
+```xml
+<tagAnnotations>
+	<annotation>RequestMapping</annotation>
+</tagAnnotations>
+```
+
+?> Si plusieurs annotations sont renseignées, il suffit qu'une seule annotation soit rencontrée sur la classe pour qu'elle soit scannée.
 
 ### attachArtifact
 
@@ -95,6 +113,99 @@ Cette valeur sera :
 <defaultProduceConsumeGuessing>false</defaultProduceConsumeGuessing>
 ```
 
+### loopbackOperationName
+
+- Type : `boolean`
+- Valeur par défaut : `true`
+
+Si vrai, insert un attribut d'extension indiquant le nom de la méthode java (voir https://loopback.io/doc/en/lb4/Decorators_openapi.html).
+
+?> Certains outils pourront utiliser cette valeur, comme par exemple ng-openapi-gen qui s'en servira pour le nom des méthodes typescript appelant le webservice.
+
+```xml
+<loopbackOperationName>false</loopbackOperationName>
+```
+
+### freeFields
+
+- Type : `json string`
+
+Permet de renseigner des champs de la spécification qui ne peuvent pas être renseignés par le générateur. La surcharge du nom de la documentation et de sa version est également possible. Par défaut, il s'agît du nom de projet et de la version du projet.
+
+```xml
+<freeFields>
+{
+  "info": {
+    "title": "This is a title",
+    "description": "This is a sample server.",
+    "termsOfService": "http://example.com/terms/",
+    "contact": {
+      "name": "API Support",
+      "url": "http://www.example.com/support",
+      "email": "support@example.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://development.test.com/v1",
+      "description": "Development server"
+    }
+  ],
+  "security": [
+    {
+      "jwt": []
+    }
+  ],
+  "externalDocs": {
+    "description": "Find more info here",
+    "url": "https://example.com"
+  },
+  "components": {
+    "securitySchemes": {
+      "jwt": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
+</freeFields>
+```
+
+### tag
+
+- Type : `section`
+
+Permet de définir une liste de substitutions afin d'adapter le nom d'un tag à partir du nom de la classe rencontrée.
+
+Une substitution accepte deux paramètres :
+* `regex` : la valeur à rechercher (au format regex)
+* `substitute` : la valeur à remplacer
+
+Si plusieurs substitutions sont renseignées, elles seront appliquées séquentiellement.
+
+Exemple : Le nom de classe IImportController et la configuration suivante : 
+
+```xml
+<substitutions>
+	<sub>
+		<regex>^I</regex>
+		<substitute></substitute>
+	</sub>
+	<sub>
+		<regex>Controller$</regex>
+		<substitute>_ws</substitute>
+	</sub>
+</substitutions>
+```
+
+Génèrera le tag suivant : Import_ws
+
 ## javadocConfiguration
 
 - Type: `balise de section`
@@ -124,6 +235,8 @@ Renseigne les chemins relatifs à la racine du projet pour lesquels il faudra sc
 - Présence: `obligatoire`
 
 Configurations spécifiques à chaque document généré. Doit contenir au moins un élément.
+
+!> Tous les paramètres de la section "apiConfiguration" peuvent être re-définis par api, comme le présente l'exemple suivant :
 
 ```xml
 <apis>
