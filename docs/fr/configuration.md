@@ -95,6 +95,8 @@ Des "places holders" permettent d'insérer les valeurs trouvées dans le code du
 * `{tag_name}` : nom du tag du endpoint (généré à partir du nom de la classe, voir doc correspondante)
 * `{method_name}` : nom de la méthode java
 
+!> Rappel : selon la spécification openapi, l'operation id doit être unique dans le document.
+
 ```xml
 <operationId>{tag_name}-{method_name}</operationId>
 ```
