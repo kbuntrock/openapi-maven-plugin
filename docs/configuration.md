@@ -18,7 +18,7 @@ Directory where the documents will be generated.
 - Type : `configuration section`
 - Required : `false`
 
-Configurations générales, qui seront appliquées à chaque document généré. La pluspart des configurations déclarées dans cette section peuvent être ensuite surchargées pour chaque document.
+General configuration section for documented APIs. Will be applied to each generated spec file. Most of the configuration done here can be overrided locally for a specific doc file.
 
 ```xml
 <configuration>
@@ -33,9 +33,9 @@ Configurations générales, qui seront appliquées à chaque document généré.
 - Type : `string list`
 - Default value : `RestController`
 
-Indique quelles sont les annotations repérant les classes repérant un webservice.
+Tells the plugin which annotations are declaring a REST controller class.
 
-Les valeurs peuvent être: 
+Values can be: 
 * `RestController`
 * `RequestMapping`
 
@@ -45,30 +45,30 @@ Les valeurs peuvent être:
 </tagAnnotations>
 ```
 
-?> Si plusieurs annotations sont renseignées, il suffit qu'une seule annotation soit rencontrée sur la classe pour qu'elle soit scannée.
+?> If several annotations are declared, a class only need one to be documented.
 
 ### attachArtifact
 
 - Type : `boolean`
 - Default value : `true`
 
-Attache la documentation générée en tant qu'artefact maven lors de la phase "install"
+Attach the generated document as a maven artifact during the "install" phase.
 
 ```xml
 <attachArtifact>false</attachArtifact>
 ```
 
-?> Le nom du fichier généré sera utilisé en tant que classifier. Exemple : 'mon-projet-0.35.0-SNAPSHOT-spec-open-api.yml'
+?> The generated filename will be used as classifier. Example : 'my-projet-0.35.0-SNAPSHOT-spec-open-api.yml'
 
 ### defaultSuccessfulOperationDescription
 
 - Type : `string`
 - Default value : `successful operation`
 
-Inscrit une description par défaut sur les retours code HTTP 200 lorsqu'aucune javadoc n'est trouvée.
+Default success description if no javadoc is found.
 
 ```xml
-<defaultSuccessfulOperationDescription>Opération réalisée avec succès</defaultSuccessfulOperationDescription>
+<defaultSuccessfulOperationDescription>Great success my friends!</defaultSuccessfulOperationDescription>
 ```
 
 ### springPathEnhancement
