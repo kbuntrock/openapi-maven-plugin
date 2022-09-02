@@ -5,10 +5,7 @@ import io.github.kbuntrock.reflection.ParameterizedTypeImpl;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.OpenApiDataType;
 
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -95,8 +92,17 @@ public class DataObject {
         return arrayItemDataObject != null && !genericallyTyped;
     }
 
-    public DataObject(Type type) {
+    public DataObject(Type originalType) {
+        Type type = originalType;
         try {
+            if(type instanceof WildcardType) {
+                // This block is in charge of handling the "? extends XX" syntax
+                WildcardType wt = (WildcardType) originalType;
+                if(wt.getLowerBounds().length == 0 && wt.getUpperBounds().length == 1) {
+                    type = wt.getUpperBounds()[0];
+                }
+            }
+
             this.javaType = type;
             if (type instanceof ParameterizedType) {
                 // Parameterized types (List, Map, or every custom type)
@@ -150,7 +156,7 @@ public class DataObject {
                 // Anything simplier ...
                 javaClass = (Class<?>) type;
             } else {
-                throw new RuntimeException("Type " + type.getTypeName() + " (+" + type.getClass().getSimpleName() + " is not supported yet");
+                throw new RuntimeException("Type " + originalType.getTypeName() + " (+" + originalType.getClass().getSimpleName() + " is not supported yet");
             }
 
             this.openApiType = OpenApiDataType.fromJavaClass(javaClass);
