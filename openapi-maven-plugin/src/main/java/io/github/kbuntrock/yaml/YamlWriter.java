@@ -223,8 +223,10 @@ public class YamlWriter {
                     RequestBody requestBody = new RequestBody();
                     operation.setRequestBody(requestBody);
                     Content requestBodyContent = Content.fromDataObject(body);
-                    if (body.getFormat() != null) {
-                        requestBody.getContent().put(body.getFormat(), requestBodyContent);
+                    if (body.getFormats() != null) {
+                        for(String format: body.getFormats()) {
+                            requestBody.getContent().put(format, requestBodyContent);
+                        }
                     } else if (apiConfiguration.isDefaultProduceConsumeGuessing()) {
                         requestBody.getContent().put(ProduceConsumeUtils.getDefaultValue(body), requestBodyContent);
                     } else {
@@ -252,8 +254,10 @@ public class YamlWriter {
                 response.setCode(endpoint.getResponseCode(), apiConfiguration.getDefaultSuccessfulOperationDescription());
                 if (endpoint.getResponseObject() != null) {
                     Content responseContent = Content.fromDataObject(endpoint.getResponseObject());
-                    if (endpoint.getResponseFormat() != null) {
-                        response.getContent().put(endpoint.getResponseFormat(), responseContent);
+                    if (endpoint.getResponseFormats() != null) {
+                        for(String format: endpoint.getResponseFormats()) {
+                            response.getContent().put(format, responseContent);
+                        }
                     } else if (apiConfiguration.isDefaultProduceConsumeGuessing()) {
                         response.getContent().put(ProduceConsumeUtils.getDefaultValue(endpoint.getResponseObject()), responseContent);
                     } else {

@@ -58,4 +58,31 @@ public class BasicIT {
         }
     }
 
+    @MavenTest
+    @MavenGoal("install")
+    public void nominal_test_case_jaxrs(MavenExecutionResult result) throws IOException {
+        MavenExecutionResultAssert resultAssert = assertThat(result);
+        resultAssert.isSuccessful().out().info().contains("spec-open-api : 1 tags and 2 operations generated.");
+
+        File target = new File(result.getMavenProjectResult().getTargetProjectDirectory(), "target");
+        File generatedFile = new File(target, "spec-open-api.yml");
+        Assertions.assertTrue(target.exists());
+        Assertions.assertTrue(generatedFile.exists());
+
+        File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory();
+        File generatedArtifactFile = new File(m2Directory, "/io/github/kbuntrock/openapi/it/openapi-basic-it-jaxrs/23.5.2/openapi-basic-it-jaxrs-23.5.2-spec-open-api.yml");
+        Assertions.assertTrue(generatedArtifactFile.exists());
+
+
+        try (InputStream generatedFileStream = new FileInputStream(generatedArtifactFile);
+             InputStream resourceFileStream = BasicIT.class.getClassLoader().getResourceAsStream("it/BasicIT/nominal_test_case_jaxrs" +
+                     ".yml")) {
+            String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
+            String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
+
+            Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
+        }
+
+    }
+
 }

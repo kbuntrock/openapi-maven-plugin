@@ -1,6 +1,7 @@
 package io.github.kbuntrock;
 
 import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.configuration.library.JaxrsHttpVerb;
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.model.*;
 import io.github.kbuntrock.utils.Logger;
@@ -18,8 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Path;
-import java.lang.annotation.Annotation;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
@@ -27,7 +28,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class SpringClassAnalyser {
+/**
+ * Analyse a java class in light of an api configuration object
+ */
+public class JavaClassAnalyser {
 
     private static final Pattern BEGINNING = Pattern.compile("^[a-z\\.]*");
     private static final Pattern FIRST_GENERIC = Pattern.compile("<[a-z\\.]*");
@@ -37,7 +41,7 @@ public class SpringClassAnalyser {
 
     private final ApiConfiguration apiConfiguration;
 
-    public SpringClassAnalyser(ApiConfiguration apiConfiguration) {
+    public JavaClassAnalyser(ApiConfiguration apiConfiguration) {
         this.apiConfiguration = apiConfiguration;
     }
 
@@ -98,32 +102,71 @@ public class SpringClassAnalyser {
         for (Method method : methods) {
 
             MergedAnnotations mergedAnnotations = MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
-            MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
-            if (requestMappingMergedAnnotation.isPresent()) {
-                RequestMethod[] requestMethods = requestMappingMergedAnnotation.getEnumArray("method", RequestMethod.class);
-                if (requestMethods.length > 0) {
-                    logger.debug("Parsing request method : " + method.getName());
-                    String methodIdentifier = createIdentifier(method);
-                    List<ParameterObject> parameterObjects = readParameters(method);
-                    DataObject responseObject = readResponseObject(method);
-                    int responseCode = readResponseCode(mergedAnnotations);
-                    List<String> paths = readEndpointPaths(basePath, requestMappingMergedAnnotation);
-                    for (RequestMethod requestMethod : requestMethods) {
-                        for (String path : paths) {
-                            Endpoint endpoint = new Endpoint();
-                            endpoint.setType(OperationType.from(requestMethod));
-                            endpoint.setPath(path);
-                            endpoint.setName(method.getName());
-                            endpoint.setParameters(parameterObjects);
-                            endpoint.setResponseObject(responseObject);
-                            endpoint.setResponseCode(responseCode);
-                            setConsumeProduceProperties(endpoint, requestMappingMergedAnnotation);
-                            endpoint.setIdentifier(methodIdentifier);
-                            endpoint.setDeprecated(isDeprecated(method));
-                            tag.addEndpoint(endpoint);
-                            logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
-                        }
+            if(Library.SPRING_MVC == apiConfiguration.getLibrary()) {
+                computeSpringAnnotations(basePath, method, mergedAnnotations, tag);
+            } else { // Jaxrs scanning
+                computeJaxrsAnnotations(basePath, method, mergedAnnotations, tag);
+            }
+
+        }
+    }
+
+    private void computeSpringAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations, final Tag tag) throws MojoFailureException {
+        MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
+        if (requestMappingMergedAnnotation.isPresent()) {
+            RequestMethod[] requestMethods = requestMappingMergedAnnotation.getEnumArray("method", RequestMethod.class);
+            if (requestMethods.length > 0) {
+                logger.debug("Parsing request method : " + method.getName());
+                String methodIdentifier = createIdentifier(method);
+                List<ParameterObject> parameterObjects = readSpringParameters(method);
+                DataObject responseObject = readResponseObject(method);
+                int responseCode = readSpringResponseCode(mergedAnnotations);
+                List<String> paths = readSpringEndpointPaths(basePath, requestMappingMergedAnnotation);
+                for (RequestMethod requestMethod : requestMethods) {
+                    for (String path : paths) {
+                        Endpoint endpoint = new Endpoint();
+                        endpoint.setType(OperationType.from(requestMethod));
+                        endpoint.setPath(path);
+                        endpoint.setName(method.getName());
+                        endpoint.setParameters(parameterObjects);
+                        endpoint.setResponseObject(responseObject);
+                        endpoint.setResponseCode(responseCode);
+                        setSpringConsumeProduceProperties(endpoint, requestMappingMergedAnnotation);
+                        endpoint.setIdentifier(methodIdentifier);
+                        endpoint.setDeprecated(isDeprecated(method));
+                        tag.addEndpoint(endpoint);
+                        logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
                     }
+                }
+            }
+        }
+    }
+
+    private void computeJaxrsAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations, final Tag tag) throws MojoFailureException {
+        MergedAnnotation<Path> requestMappingMergedAnnotation = mergedAnnotations.get(Path.class);
+        if (requestMappingMergedAnnotation.isPresent()) {
+
+            for(JaxrsHttpVerb verb : JaxrsHttpVerb.values()) {
+                MergedAnnotation m = mergedAnnotations.get(verb.getAnnotationClass());
+                if(m.isPresent()) {
+                    String methodIdentifier = createIdentifier(method);
+                    List<ParameterObject> parameterObjects = readJaxrsParameters(method);
+                    DataObject responseObject = readResponseObject(method);
+                    int responseCode =  HttpStatus.OK.value();
+                    readJaxrsEndpointPaths(basePath, requestMappingMergedAnnotation);
+                    String path = readJaxrsEndpointPaths(basePath, requestMappingMergedAnnotation);
+                    Endpoint endpoint = new Endpoint();
+                    endpoint.setType(OperationType.from(verb.getAnnotationClass()));
+                    endpoint.setPath(path);
+                    endpoint.setName(method.getName());
+                    endpoint.setParameters(parameterObjects);
+                    endpoint.setResponseObject(responseObject);
+                    endpoint.setResponseCode(responseCode);
+                    setJaxrsConsumeProduceProperties(endpoint, mergedAnnotations);
+                    endpoint.setIdentifier(methodIdentifier);
+                    endpoint.setDeprecated(isDeprecated(method));
+                    tag.addEndpoint(endpoint);
+                    logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
                 }
             }
         }
@@ -171,7 +214,7 @@ public class SpringClassAnalyser {
         return false;
     }
 
-    private List<ParameterObject> readParameters(Method originalMethod) {
+    private List<ParameterObject> readSpringParameters(Method originalMethod) {
 
         logger.debug("Reading parameters from " + originalMethod.getName());
 
@@ -242,7 +285,88 @@ public class SpringClassAnalyser {
         return parameters.values().stream().filter(x -> x.getLocation() != null).collect(Collectors.toList());
     }
 
-    private static int readResponseCode(MergedAnnotations mergedAnnotations) {
+    private List<ParameterObject> readJaxrsParameters(Method originalMethod) {
+
+        logger.debug("Reading parameters from " + originalMethod.getName());
+
+        // Set of the method in the original class and eventually the methods in the parent classes / interfaces
+        Set<Method> overridenMethods = MethodUtils.getOverrideHierarchy(originalMethod, ClassUtils.Interfaces.INCLUDE);
+
+        Map<String, ParameterObject> parameters = new LinkedHashMap<>();
+
+        for(Method method : overridenMethods) {
+
+            boolean bodyParameterDetected = false;
+
+            for (Parameter parameter : method.getParameters()) {
+                if (HttpServletRequest.class.isAssignableFrom(parameter.getType())) {
+                    continue;
+                }
+                logger.debug("Parameter : " + parameter.getName());
+
+
+                ParameterObject paramObj = parameters.computeIfAbsent(parameter.getName(),
+                        (name) -> new ParameterObject(name, parameter.getParameterizedType()));
+
+                MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+
+                MergedAnnotation<NotNull> notnullMA = mergedAnnotations.get(NotNull.class);
+                // Detect if required
+                paramObj.setRequired(notnullMA.isPresent());
+
+                // Detect if is a path variable
+                MergedAnnotation<PathParam> pathVariableMA = mergedAnnotations.get(PathParam.class);
+                if(pathVariableMA.isPresent()) {
+                    paramObj.setLocation(ParameterLocation.PATH);
+                    // Path params are required
+                    paramObj.setRequired(true);
+                    // The value is equivalent to the name (alias for and user of MergedAnnotation)
+                    String value = pathVariableMA.getString("value");
+                    if (!StringUtils.isEmpty(value)) {
+                        paramObj.setName(value);
+                    }
+                    logger.debug("PathParam annotation detected (" + paramObj.getName() + ")");
+                }
+
+                // Detect if is a query variable
+                MergedAnnotation<QueryParam> requestParamMA = mergedAnnotations.get(QueryParam.class);
+                if (requestParamMA.isPresent()) {
+
+                    boolean isMultipartFile = MultipartFile.class == paramObj.getJavaClass() ||
+                            (OpenApiDataType.ARRAY == paramObj.getOpenApiType() && MultipartFile.class == paramObj.getArrayItemDataObject().getJavaClass());
+                    if (isMultipartFile) {
+                        // MultipartFile parameters are considered as a requestBody)
+                        paramObj.setLocation(ParameterLocation.BODY);
+                    } else {
+                        paramObj.setLocation(ParameterLocation.QUERY);
+                    }
+
+                    // The value is equivalent to the name (alias for and user of MergedAnnotation)
+                    String value = requestParamMA.getString("value");
+                    if (!StringUtils.isEmpty(value)) {
+                        paramObj.setName(value);
+                    }
+                    logger.debug("QueryParam annotation detected (" + paramObj.getName() + "), location is "+ paramObj.getLocation().toString());
+                }
+
+                // Detect if is a request body parameter (if it is not a path or a query param)
+                if (paramObj.getLocation() == null) {
+                    if(bodyParameterDetected) {
+                        bodyParameterDetected = true;
+                        logger.error("Cannot set multiple body parameters, (" + paramObj.getName() + ")");
+                    } else {
+                        paramObj.setLocation(ParameterLocation.BODY);
+                        logger.debug("Body parameter detected (" + paramObj.getName() + "), location is "+ paramObj.getLocation().toString());
+                    }
+                }
+
+            }
+        }
+
+        return parameters.values().stream().filter(x -> x.getLocation() != null).collect(Collectors.toList());
+    }
+
+    private static int readSpringResponseCode(MergedAnnotations mergedAnnotations) {
 
         MergedAnnotation<ResponseStatus> responseStatusMA = mergedAnnotations.get(ResponseStatus.class);
         if (!responseStatusMA.isPresent()) {
@@ -283,24 +407,44 @@ public class SpringClassAnalyser {
      * @param endpoint                       the endpoint object to set
      * @param requestMappingMergedAnnotation
      */
-    private static void setConsumeProduceProperties(Endpoint endpoint, MergedAnnotation<RequestMapping> requestMappingMergedAnnotation) throws MojoFailureException {
+    private static void setSpringConsumeProduceProperties(Endpoint endpoint, MergedAnnotation<RequestMapping> requestMappingMergedAnnotation) throws MojoFailureException {
 
         Optional<ParameterObject> body = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation()).findAny();
         if (body.isPresent()) {
             String[] consumes = requestMappingMergedAnnotation.getStringArray("consumes");
             if (consumes.length > 0) {
-                body.get().setFormat(consumes[0]);
+                body.get().setFormats(Arrays.asList(consumes));
             }
         }
         if (endpoint.getResponseObject() != null) {
             String[] produces = requestMappingMergedAnnotation.getStringArray("produces");
             if (produces.length > 0) {
-                endpoint.setResponseFormat(produces[0]);
+                endpoint.setResponseFormats(Arrays.asList(produces));
             }
         }
     }
 
-    private List<String> readEndpointPaths(String basePath, MergedAnnotation<RequestMapping> requestMappingMergedAnnotation) {
+    private static void setJaxrsConsumeProduceProperties(Endpoint endpoint, final MergedAnnotations mergedAnnotations) throws MojoFailureException {
+
+        MergedAnnotation<Consumes> consumesMergedAnnotation = mergedAnnotations.get(Consumes.class);
+        MergedAnnotation<Produces> producesMergedAnnotation = mergedAnnotations.get(Produces.class);
+
+        Optional<ParameterObject> body = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation()).findAny();
+        if (body.isPresent() && consumesMergedAnnotation.isPresent()) {
+            String[] consumes = consumesMergedAnnotation.getStringArray("value");
+            if (consumes.length > 0) {
+                body.get().setFormats(Arrays.asList(consumes));
+            }
+        }
+        if (endpoint.getResponseObject() != null && producesMergedAnnotation.isPresent()) {
+            String[] produces = producesMergedAnnotation.getStringArray("value");
+            if (produces.length > 0) {
+                endpoint.setResponseFormats(Arrays.asList(produces));
+            }
+        }
+    }
+
+    private List<String> readSpringEndpointPaths(String basePath, MergedAnnotation<RequestMapping> requestMappingMergedAnnotation) {
         String[] paths = requestMappingMergedAnnotation.getStringArray("path");
         List<String> resolvedPaths = new ArrayList<>();
         if (paths.length == 0) {
@@ -310,6 +454,14 @@ public class SpringClassAnalyser {
             resolvedPaths.add(concatenateBasePathAndMethodPath(basePath, path, apiConfiguration.isSpringPathEnhancement()));
         }
         return resolvedPaths;
+    }
+
+    private String readJaxrsEndpointPaths(String basePath, MergedAnnotation<Path> requestMappingMergedAnnotation) {
+        String path = requestMappingMergedAnnotation.getString("value");
+        if (path == null) {
+            return concatenateBasePathAndMethodPath(basePath, "", apiConfiguration.isSpringPathEnhancement());
+        }
+        return concatenateBasePathAndMethodPath(basePath, path, apiConfiguration.isSpringPathEnhancement());
     }
 
     private static String concatenateBasePathAndMethodPath(String basePath, String methodPath, boolean automaticSeparator) {

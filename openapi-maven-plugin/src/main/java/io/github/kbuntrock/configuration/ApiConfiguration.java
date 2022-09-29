@@ -1,8 +1,11 @@
 package io.github.kbuntrock.configuration;
 
+import io.github.kbuntrock.configuration.library.Library;
+import io.github.kbuntrock.configuration.library.TagAnnotation;
 import io.github.kbuntrock.utils.Cloner;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ApiConfiguration extends CommonApiConfiguration {
@@ -83,6 +86,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
         }
         if (tagAnnotations != null && !tagAnnotations.isEmpty()) {
             merged.setTagAnnotations(tagAnnotations);
+        } else if(Library.JAXRS.name().equals(merged.getLibrary().toString().toUpperCase())) {
+            merged.setTagAnnotations(new ArrayList<>());
+            merged.getTagAnnotations().add(TagAnnotation.JAXRS_PATH.getAnnotationClassName());
         }
         if (freeFields != null) {
             merged.setFreeFields(freeFields);

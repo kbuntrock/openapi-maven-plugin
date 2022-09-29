@@ -3,6 +3,7 @@ package io.github.kbuntrock.model;
 import io.github.kbuntrock.utils.ParameterLocation;
 
 import java.lang.reflect.Type;
+import java.util.List;
 
 public class ParameterObject extends DataObject {
 
@@ -10,7 +11,7 @@ public class ParameterObject extends DataObject {
     private boolean required;
     private ParameterLocation location;
     // Set only if it is a "body" parameter : json, xml, plain text, ...
-    private String format;
+    private List<String> formats;
 
     public String getName() {
         return name;
@@ -36,12 +37,12 @@ public class ParameterObject extends DataObject {
         this.location = location;
     }
 
-    public String getFormat() {
-        return format;
+    public List<String> getFormats() {
+        return formats;
     }
 
-    public void setFormat(String format) {
-        this.format = format;
+    public void setFormats(List<String> formats) {
+        this.formats = formats;
     }
 
     public ParameterObject(String name, Type type) {

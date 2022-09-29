@@ -1,7 +1,7 @@
 package io.github.kbuntrock.javadoc;
 
 import com.github.javaparser.javadoc.Javadoc;
-import io.github.kbuntrock.SpringClassAnalyser;
+import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 
 import java.lang.reflect.Field;
@@ -93,7 +93,7 @@ public class ClassDocumentation {
 
                 List<JavadocEntry> methodEntriesToAddOrReplace = new ArrayList<>();
                 for (Method method : methods) {
-                    String methodIdentifier = SpringClassAnalyser.createIdentifier(method);
+                    String methodIdentifier = JavaClassAnalyser.createIdentifier(method);
                     JavadocWrapper currentJavadoc = getMethodsJavadoc().get(methodIdentifier);
                     if (currentJavadoc != null) {
                         currentJavadoc.sortTags();

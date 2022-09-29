@@ -3,7 +3,7 @@ package io.github.kbuntrock.yaml.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.github.kbuntrock.SpringClassAnalyser;
+import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.JavadocMap;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
@@ -161,7 +161,7 @@ public class Schema {
 
                             // Javadoc handling
                             if (classDocumentation != null) {
-                                JavadocWrapper javadocWrapper = classDocumentation.getMethodsJavadoc().get(SpringClassAnalyser.createIdentifier(method));
+                                JavadocWrapper javadocWrapper = classDocumentation.getMethodsJavadoc().get(JavaClassAnalyser.createIdentifier(method));
                                 if (javadocWrapper != null) {
                                     Optional<String> desc = javadocWrapper.getDescription();
                                     property.setDescription(desc.get());

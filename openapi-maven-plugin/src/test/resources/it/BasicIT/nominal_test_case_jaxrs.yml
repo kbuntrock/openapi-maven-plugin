@@ -1,0 +1,110 @@
+---
+openapi: 3.0.3
+info:
+  title: Basic integration test Jax-RS
+  version: 23.5.2
+servers:
+  - url: ""
+tags:
+  - name: UserController
+    description: User controller interface
+paths:
+  /api/user/update:
+    put:
+      tags:
+        - UserController
+      operationId: UserController.updateUser
+      description: Update a user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDto'
+        description: the user and his updated data
+      responses:
+        200:
+          description: the updated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+      x-operation-name: updateUser
+  /api/user/user-dtos:
+    get:
+      tags:
+        - UserController
+      operationId: UserController.getUserDtos
+      description: Get a list of all the users of the application
+      responses:
+        200:
+          description: a list of all the users of the application
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDto'
+      x-operation-name: getUserDtos
+components:
+  schemas:
+    Authority:
+      description: |
+        Permissions of a user
+          * `ACCESS_APP` - Has the right to access the application
+          * `READ_USER` - Can read user informations
+          * `UPDATE_USER` - Can update user informations
+      type: string
+      enum:
+        - ACCESS_APP
+        - READ_USER
+        - UPDATE_USER
+    UserDto:
+      description: "A DTO representing a user, with his authorities."
+      type: object
+      properties:
+        id:
+          description: Id of the user
+          type: integer
+          format: int64
+        login:
+          description: The login of the user
+          type: string
+          minLength: 1
+          maxLength: 50
+        firstName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        lastName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        email:
+          type: string
+          minLength: 5
+          maxLength: 254
+        imageUrl:
+          type: string
+          minLength: 0
+          maxLength: 256
+        activated:
+          type: boolean
+        langKey:
+          type: string
+          minLength: 2
+          maxLength: 10
+        createdBy:
+          type: string
+        createdDate:
+          type: string
+          format: date-time
+        lastModifiedBy:
+          type: string
+        lastModifiedDate:
+          type: string
+          format: date-time
+        authorities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Authority'
+          uniqueItems: true

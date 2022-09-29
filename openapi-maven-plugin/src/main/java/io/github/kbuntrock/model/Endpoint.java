@@ -19,7 +19,7 @@ public class Endpoint {
 
     private Integer responseCode;
     private DataObject responseObject;
-    private String responseFormat;
+    private List<String> responseFormats;
     
     private boolean deprecated = false;
 
@@ -86,12 +86,12 @@ public class Endpoint {
         this.responseObject = responseObject;
     }
 
-    public String getResponseFormat() {
-        return responseFormat;
+    public List<String> getResponseFormats() {
+        return responseFormats;
     }
 
-    public void setResponseFormat(String responseFormat) {
-        this.responseFormat = responseFormat;
+    public void setResponseFormats(List<String> responseFormats) {
+        this.responseFormats = responseFormats;
     }
 
     public String getIdentifier() {

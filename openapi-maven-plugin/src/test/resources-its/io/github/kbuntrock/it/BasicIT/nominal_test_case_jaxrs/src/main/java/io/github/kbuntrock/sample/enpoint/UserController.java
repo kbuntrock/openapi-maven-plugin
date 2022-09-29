@@ -12,18 +12,36 @@ import javax.ws.rs.QueryParam;
 
 import java.util.List;
 
+/**
+ * User controller interface
+ */
 @Path(Constants.BASE_PATH + "/user")
 public interface UserController {
 
+    String TEXT_BLOCK = """
+        Example text
+        with
+        multiple
+        lines""";
+
+
+    /**
+     * Update a user
+     *
+     * @param userDto the user and his updated data
+     * @return the updated user
+     */
     @PUT
     @Path("/update")
     UserDto updateUser(UserDto userDto);
 
+    /**
+     * Get a list of all the users of the application
+     *
+     * @return a list of all the users of the application
+     */
     @GET
-    @Path("/user-dtos/{id}")
-    List<UserDto> getUserDtos(@PathParam("id") long id);
+    @Path("/user-dtos")
+    List<UserDto> getUserDtos();
 
-    @POST
-    @Path("/user-dtos/{name}")
-    List<UserDto> getUserDtosByQueryParam(@QueryParam("name") String name);
 }

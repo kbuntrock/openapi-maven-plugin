@@ -21,13 +21,16 @@ import java.util.stream.Collectors;
 
 import static org.reflections.scanners.Scanners.TypesAnnotated;
 
-public class SpringResourceParser {
+/**
+ * In charge of creating the tag library object based on an api configuration object.
+ */
+public class ApiResourceScanner {
 
     private final Log logger = Logger.INSTANCE.getLogger();
 
     private final ApiConfiguration apiConfiguration;
 
-    public SpringResourceParser(final ApiConfiguration apiConfiguration) {
+    public ApiResourceScanner(final ApiConfiguration apiConfiguration) {
         this.apiConfiguration = apiConfiguration;
     }
 
@@ -55,9 +58,9 @@ public class SpringResourceParser {
                     annotatedElementList.stream().map(Class::getSimpleName).collect(Collectors.joining(", ")) + " ]");
 
             // Find directly or inheritedly annotated by RequestMapping classes.
-            SpringClassAnalyser springClassAnalyser = new SpringClassAnalyser(apiConfiguration);
+            JavaClassAnalyser javaClassAnalyser = new JavaClassAnalyser(apiConfiguration);
             for (Class clazz : classes) {
-                Optional<Tag> optTag = springClassAnalyser.getTagFromClass(clazz);
+                Optional<Tag> optTag = javaClassAnalyser.getTagFromClass(clazz);
                 if (optTag.isPresent()) {
                     library.addTag(optTag.get());
                 }

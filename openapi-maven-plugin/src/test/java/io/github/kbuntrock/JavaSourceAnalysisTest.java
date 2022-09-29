@@ -39,7 +39,7 @@ public class JavaSourceAnalysisTest extends AbstractTest {
         ApiConfiguration apiConfiguration = new ApiConfiguration();
         apiConfiguration.initDefaultValues();
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
+        JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration);
         Optional<Tag> tag = analyser.getTagFromClass(ControllerOne.class);
         TagLibrary library = new TagLibrary();
         library.addTag(tag.get());
@@ -56,7 +56,7 @@ public class JavaSourceAnalysisTest extends AbstractTest {
         ApiConfiguration apiConfiguration = new ApiConfiguration();
         apiConfiguration.initDefaultValues();
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
+        JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration);
         Optional<Tag> tag = analyser.getTagFromClass(ControllerTwo.class);
         TagLibrary library = new TagLibrary();
         library.addTag(tag.get());
@@ -73,7 +73,7 @@ public class JavaSourceAnalysisTest extends AbstractTest {
         ApiConfiguration apiConfiguration = new ApiConfiguration();
         apiConfiguration.initDefaultValues();
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
+        JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration);
         Optional<Tag> tag = analyser.getTagFromClass(ControllerThree.class);
         TagLibrary library = new TagLibrary();
         library.addTag(tag.get());

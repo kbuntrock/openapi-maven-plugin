@@ -307,7 +307,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
         apiConfiguration.setOperationIdHelper(new OperationIdHelper(apiConfiguration.getOperationId()));
         apiConfiguration.setTagAnnotations(Arrays.asList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
 
-        SpringClassAnalyser analyser = new SpringClassAnalyser(apiConfiguration);
+        JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration);
         Optional<Tag> tag = analyser.getTagFromClass(SpringPathEnhancementTwoController.class);
         TagLibrary library = new TagLibrary();
         library.addTag(tag.get());
