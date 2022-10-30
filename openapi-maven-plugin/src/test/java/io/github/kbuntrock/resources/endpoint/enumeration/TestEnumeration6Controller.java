@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(Constants.BASE_API + "/test-enum-2")
 public interface TestEnumeration6Controller {
 
-    @GetMapping("/{authority}")
-    String getAuthorities(@PathVariable Authority authority);
+	@GetMapping("/{authority}")
+	String getAuthorities(@PathVariable Authority authority);
 }

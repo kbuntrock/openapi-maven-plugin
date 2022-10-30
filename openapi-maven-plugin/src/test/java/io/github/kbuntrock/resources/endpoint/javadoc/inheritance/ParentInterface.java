@@ -7,11 +7,11 @@ package io.github.kbuntrock.resources.endpoint.javadoc.inheritance;
  */
 public interface ParentInterface {
 
-    /**
-     * Indicate if this class has the ability to encapsulate
-     *
-     * @return true if it can encapsulate
-     */
-    boolean canEncapsulate();
+	/**
+	 * Indicate if this class has the ability to encapsulate
+	 *
+	 * @return true if it can encapsulate
+	 */
+	boolean canEncapsulate();
 
 }

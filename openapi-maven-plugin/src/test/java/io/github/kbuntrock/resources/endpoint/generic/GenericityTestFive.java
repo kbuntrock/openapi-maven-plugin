@@ -1,11 +1,10 @@
 package io.github.kbuntrock.resources.endpoint.generic;
 
 import io.github.kbuntrock.resources.Constants;
-import io.github.kbuntrock.resources.dto.TimeDto;
-import io.github.kbuntrock.resources.dto.TypedDto;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @author Kevin Buntrock
@@ -14,6 +13,7 @@ import java.util.List;
 public interface GenericityTestFive {
 
 
-    @PostMapping(path = "update-something")
-    void update(@RequestParam(value = "smthId", required = true) Long smthId, @RequestParam(value = "otherIds", required = false) List<Long> otherIds);
+	@PostMapping(path = "update-something")
+	void update(@RequestParam(value = "smthId", required = true) Long smthId,
+		@RequestParam(value = "otherIds", required = false) List<Long> otherIds);
 }

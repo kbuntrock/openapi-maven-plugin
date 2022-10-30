@@ -10,5 +10,15 @@ buildNumber.properties
 .mvn/timing.properties
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 .mvn/wrapper/maven-wrapper.jar
-.idea/
 /sample/sample-frontend/src/app/generated/
+
+# IDEs and editors
+**/.idea/*
+!**/.idea/runConfigurations/
+!**/.idea/codeStyleSettings.xml
+!**/.idea/saveactions_settings.xml
+!**/.idea/codeStyles
+.idea/*
+!.idea/runConfigurations/
+!.idea/codeStyles
+!.idea/saveactions_settings.xml

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>parent-it-module</artifactId>
 
-    <groupId>io.github.kbuntrock.openapi.it</groupId>
-    <artifactId>parent-it-module</artifactId>
-    <version>0.0</version>
-    <packaging>pom</packaging>
+  <groupId>io.github.kbuntrock.openapi.it</groupId>
+  <modelVersion>4.0.0</modelVersion>
+  <modules>
+    <module>BasicIT/nominal_test_case</module>
+    <module>BasicIT/nominal_test_case_jaxrs</module>
+  </modules>
+  <packaging>pom</packaging>
 
-    <modules>
-        <module>BasicIT/nominal_test_case</module>
-        <module>BasicIT/nominal_test_case_jaxrs</module>
-    </modules>
+  <version>0.0</version>
 
 
 </project>

@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(Constants.BASE_API + "/test-enum-1")
 public interface TestEnumeration4Controller {
 
-    @PostMapping()
-    String getAuthorities(@RequestBody EnumTest1Dto enumTest1Dto);
+	@PostMapping()
+	String getAuthorities(@RequestBody EnumTest1Dto enumTest1Dto);
 }

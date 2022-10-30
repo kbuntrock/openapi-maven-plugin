@@ -13,29 +13,29 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChildClassTwo implements IChildClassTwo {
 
 
-    /**
-     * Supported functionalities, as a page
-     *
-     * @return the supported functionalities
-     */
-    @GetMapping("/functionalities")
-    public PageDto<String> getPageFunctionalities() {
-        return null;
-    }
+	/**
+	 * Supported functionalities, as a page
+	 *
+	 * @return the supported functionalities
+	 */
+	@GetMapping("/functionalities")
+	public PageDto<String> getPageFunctionalities() {
+		return null;
+	}
 
 
-    @Override
-    public boolean canPrettyPrint() {
-        return false;
-    }
+	@Override
+	public boolean canPrettyPrint() {
+		return false;
+	}
 
-    @Override
-    public String giveMeMyAgePlusOne(int age) {
-        return null;
-    }
+	@Override
+	public String giveMeMyAgePlusOne(final int age) {
+		return null;
+	}
 
-    @Override
-    public boolean canEncapsulate() {
-        return false;
-    }
+	@Override
+	public boolean canEncapsulate() {
+		return false;
+	}
 }

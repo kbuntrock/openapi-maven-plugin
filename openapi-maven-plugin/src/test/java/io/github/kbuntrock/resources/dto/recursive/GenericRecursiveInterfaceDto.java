@@ -5,7 +5,7 @@ package io.github.kbuntrock.resources.dto.recursive;
  */
 public interface GenericRecursiveInterfaceDto<G> {
 
-    String getName();
+	String getName();
 
-    GenericRecursiveInterfaceDto<G> getChild();
+	GenericRecursiveInterfaceDto<G> getChild();
 }

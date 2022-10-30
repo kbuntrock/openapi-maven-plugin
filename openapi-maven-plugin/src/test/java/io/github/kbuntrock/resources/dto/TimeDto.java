@@ -6,31 +6,31 @@ import java.time.LocalDateTime;
 
 public class TimeDto {
 
-    Instant instant;
-    LocalDate date;
-    LocalDateTime dateTime;
+	Instant instant;
+	LocalDate date;
+	LocalDateTime dateTime;
 
-    public Instant getInstant() {
-        return instant;
-    }
+	public Instant getInstant() {
+		return instant;
+	}
 
-    public void setInstant(Instant instant) {
-        this.instant = instant;
-    }
+	public void setInstant(Instant instant) {
+		this.instant = instant;
+	}
 
-    public LocalDate getDate() {
-        return date;
-    }
+	public LocalDate getDate() {
+		return date;
+	}
 
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
+	public void setDate(LocalDate date) {
+		this.date = date;
+	}
 
-    public LocalDateTime getDateTime() {
-        return dateTime;
-    }
+	public LocalDateTime getDateTime() {
+		return dateTime;
+	}
 
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
-    }
+	public void setDateTime(LocalDateTime dateTime) {
+		this.dateTime = dateTime;
+	}
 }

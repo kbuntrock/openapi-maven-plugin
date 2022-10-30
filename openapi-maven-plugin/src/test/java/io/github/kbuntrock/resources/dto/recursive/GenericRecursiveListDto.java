@@ -7,7 +7,7 @@ import java.util.List;
  */
 public class GenericRecursiveListDto<G> {
 
-    private String name;
-    private G wrapped;
-    private List<GenericRecursiveListDto<G>> childList;
+	private String name;
+	private G wrapped;
+	private List<GenericRecursiveListDto<G>> childList;
 }

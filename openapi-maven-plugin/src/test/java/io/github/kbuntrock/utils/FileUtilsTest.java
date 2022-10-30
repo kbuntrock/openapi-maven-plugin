@@ -1,29 +1,28 @@
 package io.github.kbuntrock.utils;
 
+import java.io.File;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.io.File;
 
 /**
  * @author Kevin Buntrock
  */
 public class FileUtilsTest {
 
-    @Test
-    public void path_resolver() {
+	@Test
+	public void path_resolver() {
 
-        String projectDirectory = new File("").getAbsolutePath();
-        String subPath = "src/test/java/io/github/kbuntrock/utils";
-        File resolvedFile = FileUtils.toFile(projectDirectory, subPath);
-        Assertions.assertTrue(resolvedFile.exists());
-        Assertions.assertTrue(resolvedFile.isDirectory());
+		String projectDirectory = new File("").getAbsolutePath();
+		String subPath = "src/test/java/io/github/kbuntrock/utils";
+		File resolvedFile = FileUtils.toFile(projectDirectory, subPath);
+		Assertions.assertTrue(resolvedFile.exists());
+		Assertions.assertTrue(resolvedFile.isDirectory());
 
-        projectDirectory = new File("src/test/java/io/github/kbuntrock/utils").getAbsolutePath();
-        subPath = "../resources/endpoint/../dto";
-        resolvedFile = FileUtils.toFile(projectDirectory, subPath);
-        Assertions.assertTrue(resolvedFile.exists());
-        Assertions.assertTrue(resolvedFile.isDirectory());
+		projectDirectory = new File("src/test/java/io/github/kbuntrock/utils").getAbsolutePath();
+		subPath = "../resources/endpoint/../dto";
+		resolvedFile = FileUtils.toFile(projectDirectory, subPath);
+		Assertions.assertTrue(resolvedFile.exists());
+		Assertions.assertTrue(resolvedFile.isDirectory());
 
-    }
+	}
 }

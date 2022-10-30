@@ -5,7 +5,7 @@ package io.github.kbuntrock.resources.dto;
  */
 public class TypedDto<H> {
 
-    private WrapperDto<H> wrapped;
-    private AccountDto account;
-    
+	private WrapperDto<H> wrapped;
+	private AccountDto account;
+
 }

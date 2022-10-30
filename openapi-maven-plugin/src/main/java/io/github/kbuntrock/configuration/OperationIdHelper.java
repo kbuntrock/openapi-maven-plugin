@@ -12,105 +12,104 @@ import java.util.regex.Pattern;
  */
 public class OperationIdHelper {
 
-    private static Map<String, TokenType> idToTokenType = new HashMap<>();
+	private static final Map<String, TokenType> idToTokenType = new HashMap<>();
+	private static final String REGEX = "(\\{)(.*?)(})";
+	private static final Pattern pattern = Pattern.compile(REGEX);
 
-    static {
-        for (TokenType type : TokenType.values()) {
-            idToTokenType.put(type.id, type);
-        }
-    }
+	static {
+		for(TokenType type : TokenType.values()) {
+			idToTokenType.put(type.id, type);
+		}
+	}
 
-    private static String REGEX = "(\\{)(.*?)(})";
+	private final List<Token> tokens = new ArrayList<>();
 
-    private static Pattern pattern = Pattern.compile(REGEX);
+	public OperationIdHelper(final String configuration) {
+		Matcher matcher = pattern.matcher(configuration);
+		List<TokenType> contenu = new ArrayList<>();
+		while(matcher.find()) {
+			TokenType tokenType = idToTokenType.get(matcher.group(2));
+			if(tokenType != null) {
+				contenu.add(tokenType);
+			} else {
+				throw new RuntimeException("Token type \"" + matcher.group(2) + "\" does not exist.");
+			}
+		}
+		String[] splitted = configuration.split(REGEX);
+		int index;
+		for(index = 0; index < splitted.length; index++) {
+			if(!splitted[index].isEmpty()) {
+				tokens.add(new Token(TokenType.STRING, splitted[index]));
+			}
+			if(index < contenu.size()) {
+				tokens.add(new Token(contenu.get(index)));
+			}
+		}
+		if(splitted.length == 0) {
+			for(TokenType c : contenu) {
+				tokens.add(new Token(c));
+			}
+		}
+	}
 
-    private List<Token> tokens = new ArrayList<>();
+	public String toOperationId(String className, String tagName, String methodName) {
+		StringBuilder sb = new StringBuilder();
+		for(Token token : tokens) {
+			switch(token.type) {
+				case STRING:
+					sb.append(token.value);
+					break;
+				case TAG_NAME:
+					sb.append(tagName);
+					break;
+				case METHOD_NAME:
+					sb.append(methodName);
+					break;
+				case CLASS_NAME:
+					sb.append(className);
+					break;
+			}
+		}
+		return sb.toString();
+	}
 
-    public OperationIdHelper(final String configuration) {
-        Matcher matcher = pattern.matcher(configuration);
-        List<TokenType> contenu = new ArrayList<>();
-        while (matcher.find()) {
-            TokenType tokenType = idToTokenType.get(matcher.group(2));
-            if (tokenType != null) {
-                contenu.add(tokenType);
-            } else {
-                throw new RuntimeException("Token type \"" + matcher.group(2) + "\" does not exist.");
-            }
-        }
-        String[] splitted = configuration.split(REGEX);
-        int index;
-        for (index = 0; index < splitted.length; index++) {
-            if (!splitted[index].isEmpty()) {
-                tokens.add(new Token(TokenType.STRING, splitted[index]));
-            }
-            if (index < contenu.size()) {
-                tokens.add(new Token(contenu.get(index)));
-            }
-        }
-        if (splitted.length == 0) {
-            for (TokenType c : contenu) {
-                tokens.add(new Token(c));
-            }
-        }
-    }
+	private enum TokenType {
+		STRING(null),
+		CLASS_NAME("class_name"),
+		METHOD_NAME("method_name"),
+		TAG_NAME("tag_name");
 
-    public String toOperationId(String className, String tagName, String methodName) {
-        StringBuilder sb = new StringBuilder();
-        for (Token token : tokens) {
-            switch (token.type) {
-                case STRING:
-                    sb.append(token.value);
-                    break;
-                case TAG_NAME:
-                    sb.append(tagName);
-                    break;
-                case METHOD_NAME:
-                    sb.append(methodName);
-                    break;
-                case CLASS_NAME:
-                    sb.append(className);
-                    break;
-            }
-        }
-        return sb.toString();
-    }
+		private final String id;
 
-    private class Token {
-        TokenType type;
-        String value;
+		TokenType(String id) {
+			this.id = id;
+		}
 
-        public Token(TokenType type) {
-            this.type = type;
-        }
+		public String getId() {
+			return id;
+		}
+	}
 
-        public Token(TokenType type, String value) {
-            this.type = type;
-            this.value = value;
-        }
+	private class Token {
 
-        public TokenType getType() {
-            return type;
-        }
+		TokenType type;
+		String value;
 
-        public String getValue() {
-            return value;
-        }
-    }
+		public Token(TokenType type) {
+			this.type = type;
+		}
 
-    private enum TokenType {
-        STRING(null),
-        CLASS_NAME("class_name"),
-        METHOD_NAME("method_name"),
-        TAG_NAME("tag_name");
+		public Token(TokenType type, String value) {
+			this.type = type;
+			this.value = value;
+		}
 
-        private final String id;
+		public TokenType getType() {
+			return type;
+		}
 
-        TokenType(String id) {
-            this.id = id;
-        }
-
-        public String getId() {
-            return id;
-        }
-    }
+		public String getValue() {
+			return value;
+		}
+	}
 }

@@ -8,14 +8,14 @@ import java.lang.reflect.Type;
  */
 public class GenericArrayTypeImpl implements GenericArrayType {
 
-    private Type genericComponentType;
+	private final Type genericComponentType;
 
-    public GenericArrayTypeImpl(Type genericComponentType) {
-        this.genericComponentType = genericComponentType;
-    }
+	public GenericArrayTypeImpl(Type genericComponentType) {
+		this.genericComponentType = genericComponentType;
+	}
 
-    @Override
-    public Type getGenericComponentType() {
-        return genericComponentType;
-    }
+	@Override
+	public Type getGenericComponentType() {
+		return genericComponentType;
+	}
 }

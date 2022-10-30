@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("api")
 public interface GenericRecursiveInterfaceListDtoInParameterController {
 
-    @PostMapping("recursive")
-    void postRecursive(@RequestBody GenericInterfaceRecursiveListDto<AccountDto> body);
+	@PostMapping("recursive")
+	void postRecursive(@RequestBody GenericInterfaceRecursiveListDto<AccountDto> body);
 
 }

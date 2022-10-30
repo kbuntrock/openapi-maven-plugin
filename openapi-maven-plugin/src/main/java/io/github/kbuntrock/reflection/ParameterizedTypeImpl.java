@@ -8,39 +8,39 @@ import java.lang.reflect.Type;
  */
 public class ParameterizedTypeImpl implements ParameterizedType {
 
-    private Type[] actualTypeArguments;
-    private Type rawType;
-    private Type ownerType;
+	private Type[] actualTypeArguments;
+	private Type rawType;
+	private Type ownerType;
 
-    public ParameterizedTypeImpl() {
-    }
+	public ParameterizedTypeImpl() {
+	}
 
-    public ParameterizedTypeImpl(ParameterizedType parameterizedType) {
-        this.actualTypeArguments = parameterizedType.getActualTypeArguments();
-        this.rawType = parameterizedType.getRawType();
-        this.ownerType = parameterizedType.getOwnerType();
-    }
+	public ParameterizedTypeImpl(ParameterizedType parameterizedType) {
+		this.actualTypeArguments = parameterizedType.getActualTypeArguments();
+		this.rawType = parameterizedType.getRawType();
+		this.ownerType = parameterizedType.getOwnerType();
+	}
 
-    @Override
-    public Type[] getActualTypeArguments() {
-        return actualTypeArguments;
-    }
+	@Override
+	public Type[] getActualTypeArguments() {
+		return actualTypeArguments;
+	}
 
-    @Override
-    public Type getRawType() {
-        return rawType;
-    }
+	public void setActualTypeArguments(Type[] actualTypeArguments) {
+		this.actualTypeArguments = actualTypeArguments;
+	}
 
-    @Override
-    public Type getOwnerType() {
-        return ownerType;
-    }
+	@Override
+	public Type getRawType() {
+		return rawType;
+	}
 
-    public void setActualTypeArguments(Type[] actualTypeArguments) {
-        this.actualTypeArguments = actualTypeArguments;
-    }
+	public void setRawType(Type rawType) {
+		this.rawType = rawType;
+	}
 
-    public void setRawType(Type rawType) {
-        this.rawType = rawType;
-    }
+	@Override
+	public Type getOwnerType() {
+		return ownerType;
+	}
 }

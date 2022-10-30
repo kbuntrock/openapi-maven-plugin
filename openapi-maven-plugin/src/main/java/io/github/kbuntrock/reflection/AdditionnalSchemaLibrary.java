@@ -1,7 +1,6 @@
 package io.github.kbuntrock.reflection;
 
 import io.github.kbuntrock.model.DataObject;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -15,17 +14,17 @@ import java.util.Map;
  */
 public final class AdditionnalSchemaLibrary {
 
-    private static Map<String, DataObject> map = new LinkedHashMap<>();
+	private static final Map<String, DataObject> map = new LinkedHashMap<>();
 
-    public static void reset() {
-        map.clear();
-    }
+	public static void reset() {
+		map.clear();
+	}
 
-    public static void addDataObject(final String signature, final DataObject dataObject) {
-        map.put(signature, dataObject);
-    }
+	public static void addDataObject(final String signature, final DataObject dataObject) {
+		map.put(signature, dataObject);
+	}
 
-    public static Map<String, DataObject> getMap() {
-        return map;
-    }
+	public static Map<String, DataObject> getMap() {
+		return map;
+	}
 }

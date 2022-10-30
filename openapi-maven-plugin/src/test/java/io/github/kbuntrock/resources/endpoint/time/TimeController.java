@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(Constants.BASE_API + "/time")
 public interface TimeController {
 
-    @GetMapping("/get-timedto")
-    TimeDto getTimeDto();
+	@GetMapping("/get-timedto")
+	TimeDto getTimeDto();
 }

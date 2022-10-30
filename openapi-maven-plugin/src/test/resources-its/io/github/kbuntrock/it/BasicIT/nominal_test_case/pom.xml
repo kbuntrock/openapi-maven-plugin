@@ -1,172 +1,172 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>openapi-basic-it</artifactId>
 
-    <groupId>io.github.kbuntrock.openapi.it</groupId>
-    <artifactId>openapi-basic-it</artifactId>
-    <version>23.5.2</version>
-    <name>Basic integration test</name>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-toolchains-plugin</artifactId>
+        <configuration>
+          <toolchains>
+            <jdk>
+              <version>${java.version}</version>
+            </jdk>
+          </toolchains>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>toolchain</goal>
+            </goals>
+          </execution>
+        </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>3.0.0</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
+        </configuration>
+        <version>${maven-compiler-plugin.version}</version>
+      </plugin>
+      <plugin>
+        <artifactId>openapi-maven-plugin</artifactId>
+        <configuration>
+          <apiConfiguration>
+            <freeFields>
+              {
+              "info": {
+              "title": "This is a title",
+              "description": "This is a sample server.",
+              "termsOfService": "http://example.com/terms/",
+              "contact": {
+              "name": "API Support",
+              "url": "http://www.example.com/support",
+              "email": "support@example.com"
+              },
+              "license": {
+              "name": "Apache 2.0",
+              "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+              }
+              },
+              "servers": [
+              {
+              "url": "https://development.gigantic-server.com/v1",
+              "description": "Development server"
+              },
+              {
+              "url": "https://prod.gigantic-server.com/v1",
+              "description": "Production server"
+              }
+              ],
+              "security": [
+              {
+              "jwt": []
+              }
+              ],
+              "externalDocs": {
+              "description": "Find more info here",
+              "url": "https://example.com"
+              },
+              "components": {
+              "securitySchemes": {
+              "jwt": {
+              "type": "http",
+              "scheme": "bearer",
+              "bearerFormat": "JWT"
+              }
+              }
+              }
+              }
+            </freeFields>
+            <loopbackOperationName>false</loopbackOperationName>
+            <operationId>{method_name}</operationId>
+            <tagAnnotations>
+              <annotation>RequestMapping</annotation>
+            </tagAnnotations>
+          </apiConfiguration>
+          <apis>
+            <api>
+              <attachArtifact>true</attachArtifact>
+              <defaultProduceConsumeGuessing>true</defaultProduceConsumeGuessing>
+              <locations>
+                <location>io.github.kbuntrock.sample.enpoint</location>
+              </locations>
+            </api>
+            <api>
+              <attachArtifact>true</attachArtifact>
+              <defaultProduceConsumeGuessing>true</defaultProduceConsumeGuessing>
+              <filename>spec-open-api-impl</filename>
+              <locations>
+                <location>io.github.kbuntrock.sample.implementation</location>
+              </locations>
+              <tag>
+                <substitutions>
+                  <sub>
+                    <regex>Impl$</regex>
+                    <substitute></substitute>
+                  </sub>
+                </substitutions>
+              </tag>
+              <tagAnnotations>
+                <annotation>RestController</annotation>
+              </tagAnnotations>
+            </api>
+          </apis>
+          <javadocConfiguration>
+            <scanLocations>
+              <project>src/main/java</project>
+            </scanLocations>
+          </javadocConfiguration>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>documentation</goal>
+            </goals>
+            <id>documentation</id>
+          </execution>
+        </executions>
+        <groupId>io.github.kbuntrock</groupId>
+        <version>${openapi-plugin-project-version}</version>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <version>2.5.12</version>
+    </dependency>
+    <dependency>
+      <artifactId>javax.servlet-api</artifactId>
+      <groupId>javax.servlet</groupId>
+      <version>4.0.1</version>
+    </dependency>
+    <dependency>
+      <artifactId>validation-api</artifactId>
+      <groupId>javax.validation</groupId>
+      <version>2.0.1.Final</version>
+    </dependency>
+  </dependencies>
+  <groupId>io.github.kbuntrock.openapi.it</groupId>
+  <modelVersion>4.0.0</modelVersion>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
-        <openapi-plugin-project-version>0.0.11-SNAPSHOT</openapi-plugin-project-version>
+  <name>Basic integration test</name>
 
-    </properties>
+  <properties>
+    <java.version>17</java.version>
+    <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <openapi-plugin-project-version>0.0.11-SNAPSHOT</openapi-plugin-project-version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>2.5.12</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <version>2.0.1.Final</version>
-        </dependency>
-    </dependencies>
+  </properties>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-toolchains-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>toolchain</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <toolchains>
-                        <jdk>
-                            <version>${java.version}</version>
-                        </jdk>
-                    </toolchains>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
-                <configuration>
-                    <compilerArgs>
-                        <arg>-parameters</arg>
-                    </compilerArgs>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>io.github.kbuntrock</groupId>
-                <artifactId>openapi-maven-plugin</artifactId>
-                <version>${openapi-plugin-project-version}</version>
-                <executions>
-                    <execution>
-                        <id>documentation</id>
-                        <goals>
-                            <goal>documentation</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <apiConfiguration>
-                        <tagAnnotations>
-                            <annotation>RequestMapping</annotation>
-                        </tagAnnotations>
-                        <operationId>{method_name}</operationId>
-                        <loopbackOperationName>false</loopbackOperationName>
-                        <freeFields>
-                            {
-                            "info": {
-                            "title": "This is a title",
-                            "description": "This is a sample server.",
-                            "termsOfService": "http://example.com/terms/",
-                            "contact": {
-                            "name": "API Support",
-                            "url": "http://www.example.com/support",
-                            "email": "support@example.com"
-                            },
-                            "license": {
-                            "name": "Apache 2.0",
-                            "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
-                            }
-                            },
-                            "servers": [
-                            {
-                            "url": "https://development.gigantic-server.com/v1",
-                            "description": "Development server"
-                            },
-                            {
-                            "url": "https://prod.gigantic-server.com/v1",
-                            "description": "Production server"
-                            }
-                            ],
-                            "security": [
-                            {
-                            "jwt": []
-                            }
-                            ],
-                            "externalDocs": {
-                            "description": "Find more info here",
-                            "url": "https://example.com"
-                            },
-                            "components": {
-                            "securitySchemes": {
-                            "jwt": {
-                            "type": "http",
-                            "scheme": "bearer",
-                            "bearerFormat": "JWT"
-                            }
-                            }
-                            }
-                            }
-                        </freeFields>
-                    </apiConfiguration>
-                    <javadocConfiguration>
-                        <scanLocations>
-                            <project>src/main/java</project>
-                        </scanLocations>
-                    </javadocConfiguration>
-                    <apis>
-                        <api>
-                            <locations>
-                                <location>io.github.kbuntrock.sample.enpoint</location>
-                            </locations>
-                            <attachArtifact>true</attachArtifact>
-                            <defaultProduceConsumeGuessing>true</defaultProduceConsumeGuessing>
-                        </api>
-                        <api>
-                            <tagAnnotations>
-                                <annotation>RestController</annotation>
-                            </tagAnnotations>
-                            <locations>
-                                <location>io.github.kbuntrock.sample.implementation</location>
-                            </locations>
-                            <tag>
-                                <substitutions>
-                                    <sub>
-                                        <regex>Impl$</regex>
-                                        <substitute></substitute>
-                                    </sub>
-                                </substitutions>
-                            </tag>
-                            <attachArtifact>true</attachArtifact>
-                            <defaultProduceConsumeGuessing>true</defaultProduceConsumeGuessing>
-                            <filename>spec-open-api-impl</filename>
-                        </api>
-                    </apis>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+  <version>23.5.2</version>
 </project>

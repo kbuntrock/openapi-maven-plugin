@@ -13,6 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(Constants.BASE_API + "/genericity-test-three")
 public interface GenericityTestThree {
 
-    @GetMapping("/get-account/{id}")
-    WrapperDto<AccountDto> getPageAccount(@PathVariable int id);
+	@GetMapping("/get-account/{id}")
+	WrapperDto<AccountDto> getPageAccount(@PathVariable int id);
 }

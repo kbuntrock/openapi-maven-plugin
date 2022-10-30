@@ -7,10 +7,10 @@ package io.github.kbuntrock.resources.dto;
  */
 public interface ParentInterfaceDto {
 
-    /**
-     * Get the parent id
-     *
-     * @return the parent id
-     */
-    int getParentId();
+	/**
+	 * Get the parent id
+	 *
+	 * @return the parent id
+	 */
+	int getParentId();
 }

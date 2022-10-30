@@ -7,10 +7,10 @@ package io.github.kbuntrock.resources.endpoint.javadoc.inheritance;
  */
 public interface GrandParentInterface {
 
-    /**
-     * Indicate if this class has the ability to pretty print
-     *
-     * @return true if it can pretty print
-     */
-    boolean canPrettyPrint();
+	/**
+	 * Indicate if this class has the ability to pretty print
+	 *
+	 * @return true if it can pretty print
+	 */
+	boolean canPrettyPrint();
 }

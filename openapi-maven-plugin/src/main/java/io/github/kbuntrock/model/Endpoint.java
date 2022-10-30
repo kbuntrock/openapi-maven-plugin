@@ -2,111 +2,110 @@ package io.github.kbuntrock.model;
 
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.Substitution;
-
 import java.util.List;
 
 public class Endpoint {
 
-    private String path;
+	private String path;
 
-    private OperationType type;
+	private OperationType type;
 
-    private String name;
+	private String name;
 
-    private String computedName;
+	private String computedName;
 
-    private List<ParameterObject> parameters;
+	private List<ParameterObject> parameters;
 
-    private Integer responseCode;
-    private DataObject responseObject;
-    private List<String> responseFormats;
-    
-    private boolean deprecated = false;
+	private Integer responseCode;
+	private DataObject responseObject;
+	private List<String> responseFormats;
 
-    /**
-     * Used to identify uniquely a endpoint. Aggregation of the returned type, the name and the parameters types.
-     */
-    private String identifier;
+	private boolean deprecated = false;
 
-    public String getPath() {
-        return path;
-    }
+	/**
+	 * Used to identify uniquely a endpoint. Aggregation of the returned type, the name and the parameters types.
+	 */
+	private String identifier;
 
-    public void setPath(String path) {
-        this.path = path;
-    }
+	public String getPath() {
+		return path;
+	}
 
-    public OperationType getType() {
-        return type;
-    }
+	public void setPath(String path) {
+		this.path = path;
+	}
 
-    public void setType(OperationType type) {
-        this.type = type;
-    }
+	public OperationType getType() {
+		return type;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public void setType(OperationType type) {
+		this.type = type;
+	}
 
-    public String computeConfiguredName(ApiConfiguration apiConfiguration) {
-        if (computedName == null) {
-            computedName = getName();
-            for (Substitution substitution : apiConfiguration.getOperation().getSubstitutionsByType(getType().toString().toLowerCase())) {
-                computedName = computedName.replaceAll(substitution.getRegex(), substitution.getSubstitute());
-            }
-        }
-        return computedName;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public List<ParameterObject> getParameters() {
-        return parameters;
-    }
+	public String computeConfiguredName(ApiConfiguration apiConfiguration) {
+		if(computedName == null) {
+			computedName = getName();
+			for(Substitution substitution : apiConfiguration.getOperation().getSubstitutionsByType(getType().toString().toLowerCase())) {
+				computedName = computedName.replaceAll(substitution.getRegex(), substitution.getSubstitute());
+			}
+		}
+		return computedName;
+	}
 
-    public void setParameters(List<ParameterObject> parameters) {
-        this.parameters = parameters;
-    }
+	public List<ParameterObject> getParameters() {
+		return parameters;
+	}
 
-    public Integer getResponseCode() {
-        return responseCode;
-    }
+	public void setParameters(List<ParameterObject> parameters) {
+		this.parameters = parameters;
+	}
 
-    public void setResponseCode(Integer responseCode) {
-        this.responseCode = responseCode;
-    }
+	public Integer getResponseCode() {
+		return responseCode;
+	}
 
-    public DataObject getResponseObject() {
-        return responseObject;
-    }
+	public void setResponseCode(Integer responseCode) {
+		this.responseCode = responseCode;
+	}
 
-    public void setResponseObject(DataObject responseObject) {
-        this.responseObject = responseObject;
-    }
+	public DataObject getResponseObject() {
+		return responseObject;
+	}
 
-    public List<String> getResponseFormats() {
-        return responseFormats;
-    }
+	public void setResponseObject(DataObject responseObject) {
+		this.responseObject = responseObject;
+	}
 
-    public void setResponseFormats(List<String> responseFormats) {
-        this.responseFormats = responseFormats;
-    }
+	public List<String> getResponseFormats() {
+		return responseFormats;
+	}
 
-    public String getIdentifier() {
-        return identifier;
-    }
+	public void setResponseFormats(List<String> responseFormats) {
+		this.responseFormats = responseFormats;
+	}
 
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
-    }
+	public String getIdentifier() {
+		return identifier;
+	}
 
-    public boolean isDeprecated() {
-        return deprecated;
-    }
+	public void setIdentifier(String identifier) {
+		this.identifier = identifier;
+	}
 
-    public void setDeprecated(boolean deprecated) {
-        this.deprecated = deprecated;
-    }
+	public boolean isDeprecated() {
+		return deprecated;
+	}
+
+	public void setDeprecated(boolean deprecated) {
+		this.deprecated = deprecated;
+	}
 }

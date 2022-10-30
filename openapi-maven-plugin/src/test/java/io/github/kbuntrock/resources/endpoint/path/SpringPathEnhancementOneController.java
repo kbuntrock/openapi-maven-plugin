@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("api")
 public interface SpringPathEnhancementOneController {
 
-    @GetMapping("one")
-    String getOne();
+	@GetMapping("one")
+	String getOne();
 
-    @GetMapping
-    String getTwo();
+	@GetMapping
+	String getTwo();
 }

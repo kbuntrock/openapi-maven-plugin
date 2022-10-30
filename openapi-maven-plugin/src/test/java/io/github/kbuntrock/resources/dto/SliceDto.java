@@ -5,36 +5,36 @@ import java.util.List;
 
 public class SliceDto<T> {
 
-    /**
-     * The content of this slice
-     */
-    private List<T> content;
+	/**
+	 * The content of this slice
+	 */
+	private List<T> content;
 
-    /**
-     * True if a next slice exist
-     */
-    private boolean hasNext;
+	/**
+	 * True if a next slice exist
+	 */
+	private boolean hasNext;
 
-    public static <T> SliceDto<T> emptySlice() {
-        final SliceDto<T> slice = new SliceDto<>();
-        slice.setContent(new ArrayList<>());
-        slice.setHasNext(false);
-        return slice;
-    }
+	public static <T> SliceDto<T> emptySlice() {
+		final SliceDto<T> slice = new SliceDto<>();
+		slice.setContent(new ArrayList<>());
+		slice.setHasNext(false);
+		return slice;
+	}
 
-    public List<T> getContent() {
-        return content;
-    }
+	public List<T> getContent() {
+		return content;
+	}
 
-    public void setContent(final List<T> content) {
-        this.content = content;
-    }
+	public void setContent(final List<T> content) {
+		this.content = content;
+	}
 
-    public boolean getHasNext() {
-        return hasNext;
-    }
+	public boolean getHasNext() {
+		return hasNext;
+	}
 
-    public void setHasNext(final boolean hasNext) {
-        this.hasNext = hasNext;
-    }
+	public void setHasNext(final boolean hasNext) {
+		this.hasNext = hasNext;
+	}
 }

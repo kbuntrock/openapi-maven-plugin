@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("api")
 public interface RecursiveDtoInParameterController {
 
-    @PostMapping("recursive")
-    void postRecursive(@RequestBody RecursiveDto recursiveDto);
+	@PostMapping("recursive")
+	void postRecursive(@RequestBody RecursiveDto recursiveDto);
 
 }

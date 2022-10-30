@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("api")
 public interface GenericRecursiveDtoController {
 
-    /**
-     * Return the recursive generic object
-     *
-     * @return something
-     */
-    @GetMapping("recursive")
-    GenericRecursiveDto<AccountDto> getRecursive();
+	/**
+	 * Return the recursive generic object
+	 *
+	 * @return something
+	 */
+	@GetMapping("recursive")
+	GenericRecursiveDto<AccountDto> getRecursive();
 
 }

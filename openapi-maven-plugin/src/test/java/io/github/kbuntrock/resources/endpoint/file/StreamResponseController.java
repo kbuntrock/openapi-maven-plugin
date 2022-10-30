@@ -12,6 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(Constants.BASE_API + "/stream")
 public interface StreamResponseController {
 
-    @GetMapping(value = "/stream", produces = "application/octet-stream")
-    ResponseEntity<Resource> getStream();
+	@GetMapping(value = "/stream", produces = "application/octet-stream")
+	ResponseEntity<Resource> getStream();
 }

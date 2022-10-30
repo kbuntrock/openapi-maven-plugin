@@ -12,26 +12,26 @@ import java.util.List;
 @RequestMapping(path = Constants.BASE_PATH + "/user")
 public interface UserController {
 
-    String TEXT_BLOCK = """
-        Example text
-        with
-        multiple
-        lines""";
+	String TEXT_BLOCK = """
+		Example text
+		with
+		multiple
+		lines""";
 
-    /**
-     * Update a user
-     *
-     * @param userDto the user and his updated data
-     * @return the updated user
-     */
-    @PutMapping("/update")
-    UserDto updateUser(@RequestBody UserDto userDto);
+	/**
+	 * Update a user
+	 *
+	 * @param userDto the user and his updated data
+	 * @return the updated user
+	 */
+	@PutMapping("/update")
+	UserDto updateUser(@RequestBody UserDto userDto);
 
-    /**
-     * Get a list of all the users of the application
-     *
-     * @return a list of all the users of the application
-     */
-    @GetMapping("/user-dtos")
-    List<UserDto> getUserDtos();
+	/**
+	 * Get a list of all the users of the application
+	 *
+	 * @return a list of all the users of the application
+	 */
+	@GetMapping("/user-dtos")
+	List<UserDto> getUserDtos();
 }

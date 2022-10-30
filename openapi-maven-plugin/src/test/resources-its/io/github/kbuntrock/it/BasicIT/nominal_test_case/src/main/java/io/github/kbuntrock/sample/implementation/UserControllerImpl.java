@@ -9,13 +9,13 @@ import java.util.List;
 @RestController
 public class UserControllerImpl implements UserController {
 
-    @Override
-    public UserDto updateUser(UserDto userDto) {
-        return null;
-    }
+	@Override
+	public UserDto updateUser(final UserDto userDto) {
+		return null;
+	}
 
-    @Override
-    public List<UserDto> getUserDtos() {
-        return null;
-    }
+	@Override
+	public List<UserDto> getUserDtos() {
+		return null;
+	}
 }

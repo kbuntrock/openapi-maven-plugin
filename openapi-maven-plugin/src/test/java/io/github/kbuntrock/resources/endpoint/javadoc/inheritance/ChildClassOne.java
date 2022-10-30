@@ -15,48 +15,48 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping(Constants.BASE_API + "/child-class-one")
 public class ChildClassOne extends ParentAbstract implements ParentInterface {
 
-    @Override
-    @PostMapping("/pretty-print")
-    public String prettyPrint(@RequestParam long number) {
-        return null;
-    }
+	@Override
+	@PostMapping("/pretty-print")
+	public String prettyPrint(@RequestParam final long number) {
+		return null;
+	}
 
-    @Override
-    @GetMapping("/can-pretty-print")
-    public boolean canPrettyPrint() {
-        return true;
-    }
+	@Override
+	@GetMapping("/can-pretty-print")
+	public boolean canPrettyPrint() {
+		return true;
+	}
 
-    /**
-     * This documentation should not be read
-     *
-     * @inheritDoc
-     */
-    @Override
-    @GetMapping("/can-encapsulate")
-    public boolean canEncapsulate() {
-        return true;
-    }
+	/**
+	 * This documentation should not be read
+	 *
+	 * @inheritDoc
+	 */
+	@Override
+	@GetMapping("/can-encapsulate")
+	public boolean canEncapsulate() {
+		return true;
+	}
 
-    /**
-     * Return the name of this controller
-     *
-     * @return the name
-     */
-    @GetMapping("/name")
-    public String getName() {
-        return this.getClass().getSimpleName();
-    }
+	/**
+	 * Return the name of this controller
+	 *
+	 * @return the name
+	 */
+	@GetMapping("/name")
+	public String getName() {
+		return this.getClass().getSimpleName();
+	}
 
-    /**
-     * Supported functionalities, as a page
-     *
-     * @return the supported functionalities
-     */
-    @GetMapping("/functionalities")
-    public PageDto<String> getPageFunctionalities() {
-        return null;
-    }
+	/**
+	 * Supported functionalities, as a page
+	 *
+	 * @return the supported functionalities
+	 */
+	@GetMapping("/functionalities")
+	public PageDto<String> getPageFunctionalities() {
+		return null;
+	}
 
 
 }

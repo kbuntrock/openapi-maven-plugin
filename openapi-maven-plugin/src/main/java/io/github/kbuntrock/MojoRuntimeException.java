@@ -5,11 +5,11 @@ package io.github.kbuntrock;
  */
 public class MojoRuntimeException extends RuntimeException {
 
-    public MojoRuntimeException(String message) {
-        super(message);
-    }
+	public MojoRuntimeException(String message) {
+		super(message);
+	}
 
-    public MojoRuntimeException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public MojoRuntimeException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

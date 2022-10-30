@@ -3,15 +3,15 @@ package io.github.kbuntrock.utils;
 import org.apache.maven.plugin.logging.Log;
 
 public enum Logger {
-    INSTANCE;
+	INSTANCE;
 
-    private Log logger;
+	private Log logger;
 
-    public Log getLogger() {
-        return logger;
-    }
+	public Log getLogger() {
+		return logger;
+	}
 
-    public void setLogger(Log logger) {
-        this.logger = logger;
-    }
+	public void setLogger(Log logger) {
+		this.logger = logger;
+	}
 }

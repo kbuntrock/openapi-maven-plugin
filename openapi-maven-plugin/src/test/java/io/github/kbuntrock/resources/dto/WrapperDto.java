@@ -5,13 +5,13 @@ package io.github.kbuntrock.resources.dto;
  */
 public class WrapperDto<T> {
 
-    private T wrapped;
+	private T wrapped;
 
-    public T getWrapped() {
-        return wrapped;
-    }
+	public T getWrapped() {
+		return wrapped;
+	}
 
-    public void setWrapped(T wrapped) {
-        this.wrapped = wrapped;
-    }
+	public void setWrapped(T wrapped) {
+		this.wrapped = wrapped;
+	}
 }

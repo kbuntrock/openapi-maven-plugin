@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(Constants.BASE_API + "/test-enum-3")
 public interface TestEnumeration3Controller {
 
-    @GetMapping()
-    Authority getAuthority();
+	@GetMapping()
+	Authority getAuthority();
 }

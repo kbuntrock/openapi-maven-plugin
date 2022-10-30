@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
  */
 public interface IChildClassThree extends ParentInterface, GrandParentInterface {
 
-    @GetMapping("/age-plus-one")
-    String giveMeMyAgePlusOne(int age);
+	@GetMapping("/age-plus-one")
+	String giveMeMyAgePlusOne(int age);
 }

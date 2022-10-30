@@ -10,12 +10,11 @@ import io.github.kbuntrock.resources.dto.TimeDto;
 import io.github.kbuntrock.resources.endpoint.javasource.ControllerOne;
 import io.github.kbuntrock.resources.endpoint.javasource.ControllerThree;
 import io.github.kbuntrock.resources.endpoint.javasource.ControllerTwo;
+import java.util.Optional;
+import java.util.Set;
 import org.apache.maven.plugin.MojoFailureException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * Check if all DataObjects which will endup in the schema reference section are correctly marked.
@@ -24,66 +23,66 @@ import java.util.Set;
  */
 public class JavaSourceAnalysisTest extends AbstractTest {
 
-    private boolean containsClassRepresentation(Set<DataObject> set, Class<?> clazz) {
-        for (DataObject dataObject : set) {
-            if (dataObject.getJavaClass().equals(clazz)) {
-                return true;
-            }
-        }
-        return false;
-    }
+	private boolean containsClassRepresentation(final Set<DataObject> set, final Class<?> clazz) {
+		for(final DataObject dataObject : set) {
+			if(dataObject.getJavaClass().equals(clazz)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-    @Test
-    public void controllerOne() throws MojoFailureException {
+	@Test
+	public void controllerOne() throws MojoFailureException {
 
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
-        apiConfiguration.initDefaultValues();
+		final ApiConfiguration apiConfiguration = new ApiConfiguration();
+		apiConfiguration.initDefaultValues();
 
-        JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(ControllerOne.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
+		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration);
+		final Optional<Tag> tag = analyser.getTagFromClass(ControllerOne.class);
+		final TagLibrary library = new TagLibrary();
+		library.addTag(tag.get());
 
-        Assertions.assertEquals(3, library.getSchemaObjects().size());
-        Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), TimeDto.class));
-        Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), Authority.class));
-        Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), SpeAccountDto.class));
-    }
+		Assertions.assertEquals(3, library.getSchemaObjects().size());
+		Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), TimeDto.class));
+		Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), Authority.class));
+		Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), SpeAccountDto.class));
+	}
 
-    @Test
-    public void controllerTwo() throws MojoFailureException {
+	@Test
+	public void controllerTwo() throws MojoFailureException {
 
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
-        apiConfiguration.initDefaultValues();
+		final ApiConfiguration apiConfiguration = new ApiConfiguration();
+		apiConfiguration.initDefaultValues();
 
-        JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(ControllerTwo.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
+		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration);
+		final Optional<Tag> tag = analyser.getTagFromClass(ControllerTwo.class);
+		final TagLibrary library = new TagLibrary();
+		library.addTag(tag.get());
 
-        Assertions.assertEquals(3, library.getSchemaObjects().size());
-        Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), TimeDto.class));
-        Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), Authority.class));
-        Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), SpeAccountDto.class));
-    }
+		Assertions.assertEquals(3, library.getSchemaObjects().size());
+		Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), TimeDto.class));
+		Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), Authority.class));
+		Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), SpeAccountDto.class));
+	}
 
-    @Test
-    public void controllerThree() throws MojoFailureException {
+	@Test
+	public void controllerThree() throws MojoFailureException {
 
-        ApiConfiguration apiConfiguration = new ApiConfiguration();
-        apiConfiguration.initDefaultValues();
+		final ApiConfiguration apiConfiguration = new ApiConfiguration();
+		apiConfiguration.initDefaultValues();
 
-        JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration);
-        Optional<Tag> tag = analyser.getTagFromClass(ControllerThree.class);
-        TagLibrary library = new TagLibrary();
-        library.addTag(tag.get());
+		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration);
+		final Optional<Tag> tag = analyser.getTagFromClass(ControllerThree.class);
+		final TagLibrary library = new TagLibrary();
+		library.addTag(tag.get());
 
-        Assertions.assertEquals(4, library.getSchemaObjects().size());
-        Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), TimeDto.class));
-        Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), Authority.class));
-        Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), SpeAccountDto.class));
-        Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), AccountDto.class));
-    }
+		Assertions.assertEquals(4, library.getSchemaObjects().size());
+		Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), TimeDto.class));
+		Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), Authority.class));
+		Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), SpeAccountDto.class));
+		Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), AccountDto.class));
+	}
 
 
 }

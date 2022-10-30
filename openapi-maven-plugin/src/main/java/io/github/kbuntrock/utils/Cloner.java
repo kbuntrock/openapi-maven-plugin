@@ -7,20 +7,20 @@ package io.github.kbuntrock.utils;
  * @author Kevin Buntrock
  */
 public enum Cloner {
-    INSTANCE;
+	INSTANCE;
 
-    private final com.rits.cloning.Cloner cloner;
+	private final com.rits.cloning.Cloner cloner;
 
-    private Cloner() {
-        cloner = new com.rits.cloning.Cloner();
-    }
+	Cloner() {
+		cloner = new com.rits.cloning.Cloner();
+	}
 
-    public <T> T deepClone(T o) {
-        return cloner.deepClone(o);
-    }
+	public <T> T deepClone(T o) {
+		return cloner.deepClone(o);
+	}
 
-    public <T, E extends T> void copyPropertiesOfInheritedClass(final T src, final E dest) {
-        cloner.copyPropertiesOfInheritedClass(src, dest);
-    }
+	public <T, E extends T> void copyPropertiesOfInheritedClass(final T src, final E dest) {
+		cloner.copyPropertiesOfInheritedClass(src, dest);
+	}
 
 }

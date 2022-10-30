@@ -7,13 +7,13 @@ import java.util.List;
  */
 public class SpeAccountDto extends AccountDto {
 
-    private PageDto<List<TimeDto>>[] page;
+	private PageDto<List<TimeDto>>[] page;
 
-    public PageDto<List<TimeDto>>[] getPage() {
-        return page;
-    }
+	public PageDto<List<TimeDto>>[] getPage() {
+		return page;
+	}
 
-    public void setPage(PageDto<List<TimeDto>>[] page) {
-        this.page = page;
-    }
+	public void setPage(PageDto<List<TimeDto>>[] page) {
+		this.page = page;
+	}
 }

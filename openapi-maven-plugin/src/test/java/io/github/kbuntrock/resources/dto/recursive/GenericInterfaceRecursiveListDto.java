@@ -7,9 +7,9 @@ import java.util.List;
  */
 public interface GenericInterfaceRecursiveListDto<E> {
 
-    String getName();
+	String getName();
 
-    E getWrapped();
+	E getWrapped();
 
-    List<GenericInterfaceRecursiveListDto<E>> getChildList();
+	List<GenericInterfaceRecursiveListDto<E>> getChildList();
 }

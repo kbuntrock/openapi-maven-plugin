@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(Constants.BASE_API + "/test-enum-1")
 public interface TestEnumeration1Controller {
 
-    @GetMapping()
-    @Deprecated
-    EnumTest1Dto getAuthorities();
+	@GetMapping()
+	@Deprecated
+	EnumTest1Dto getAuthorities();
 }

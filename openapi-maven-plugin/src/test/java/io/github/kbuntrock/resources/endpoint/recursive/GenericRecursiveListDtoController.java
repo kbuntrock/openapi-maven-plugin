@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("api")
 public interface GenericRecursiveListDtoController {
 
-    @GetMapping("recursive")
-    GenericRecursiveListDto<AccountDto> getRecursive();
+	@GetMapping("recursive")
+	GenericRecursiveListDto<AccountDto> getRecursive();
 
 }

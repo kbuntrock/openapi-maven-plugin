@@ -12,6 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(Constants.BASE_API + "/child-class-two")
 public interface IChildClassTwo extends ParentInterface, GrandParentInterface {
 
-    @GetMapping("/age-plus-one")
-    String giveMeMyAgePlusOne(int age);
+	@GetMapping("/age-plus-one")
+	String giveMeMyAgePlusOne(int age);
 }

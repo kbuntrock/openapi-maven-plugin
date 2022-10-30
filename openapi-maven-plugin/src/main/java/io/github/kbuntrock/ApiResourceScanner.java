@@ -1,16 +1,12 @@
 package io.github.kbuntrock;
 
+import static org.reflections.scanners.Scanners.TypesAnnotated;
+
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.Logger;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
-import org.reflections.Reflections;
-import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.FilterBuilder;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
@@ -18,54 +14,58 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.reflections.scanners.Scanners.TypesAnnotated;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
+import org.reflections.Reflections;
+import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
 
 /**
  * In charge of creating the tag library object based on an api configuration object.
  */
 public class ApiResourceScanner {
 
-    private final Log logger = Logger.INSTANCE.getLogger();
+	private final Log logger = Logger.INSTANCE.getLogger();
 
-    private final ApiConfiguration apiConfiguration;
+	private final ApiConfiguration apiConfiguration;
 
-    public ApiResourceScanner(final ApiConfiguration apiConfiguration) {
-        this.apiConfiguration = apiConfiguration;
-    }
+	public ApiResourceScanner(final ApiConfiguration apiConfiguration) {
+		this.apiConfiguration = apiConfiguration;
+	}
 
-    public TagLibrary scanRestControllers() throws MojoFailureException {
-        TagLibrary library = new TagLibrary();
+	public TagLibrary scanRestControllers() throws MojoFailureException {
 
-        Library framework = apiConfiguration.getLibrary();
-        List<Class<? extends Annotation>> annotatedElementList = new ArrayList<>();
-        for (String annotationName : apiConfiguration.getTagAnnotations()) {
-            annotatedElementList.add(framework.getByClassName(annotationName));
-        }
+		final TagLibrary library = new TagLibrary();
 
-        for (String apiLocation : apiConfiguration.getLocations()) {
-            logger.info("Scanning : " + apiLocation);
+		final Library framework = apiConfiguration.getLibrary();
+		final List<Class<? extends Annotation>> annotatedElementList = new ArrayList<>();
+		for(final String annotationName : apiConfiguration.getTagAnnotations()) {
+			annotatedElementList.add(framework.getByClassName(annotationName));
+		}
 
-            ConfigurationBuilder configurationBuilder = ReflectionsUtils.createConfigurationBuilder();
-            configurationBuilder.filterInputsBy(new FilterBuilder().includePackage(apiLocation));
+		for(final String apiLocation : apiConfiguration.getLocations()) {
+			logger.info("Scanning : " + apiLocation);
 
-            configurationBuilder.setScanners(TypesAnnotated);
-            Reflections reflections = new Reflections(configurationBuilder);
-            Set<Class<?>> classes = reflections.get(TypesAnnotated.with(annotatedElementList.toArray(new AnnotatedElement[]{}))
-                    .asClass(ReflectionsUtils.getProjectClassLoader()));
-            
-            logger.info("Found " + classes.size() + " annotated classes with [ " +
-                    annotatedElementList.stream().map(Class::getSimpleName).collect(Collectors.joining(", ")) + " ]");
+			final ConfigurationBuilder configurationBuilder = ReflectionsUtils.createConfigurationBuilder();
+			configurationBuilder.filterInputsBy(new FilterBuilder().includePackage(apiLocation));
 
-            // Find directly or inheritedly annotated by RequestMapping classes.
-            JavaClassAnalyser javaClassAnalyser = new JavaClassAnalyser(apiConfiguration);
-            for (Class clazz : classes) {
-                Optional<Tag> optTag = javaClassAnalyser.getTagFromClass(clazz);
-                if (optTag.isPresent()) {
-                    library.addTag(optTag.get());
-                }
-            }
-        }
-        return library;
-    }
+			configurationBuilder.setScanners(TypesAnnotated);
+			final Reflections reflections = new Reflections(configurationBuilder);
+			final Set<Class<?>> classes = reflections.get(TypesAnnotated.with(annotatedElementList.toArray(new AnnotatedElement[]{}))
+				.asClass(ReflectionsUtils.getProjectClassLoader()));
+
+			logger.info("Found " + classes.size() + " annotated classes with [ " +
+				annotatedElementList.stream().map(Class::getSimpleName).collect(Collectors.joining(", ")) + " ]");
+
+			// Find directly or inheritedly annotated by RequestMapping classes.
+			final JavaClassAnalyser javaClassAnalyser = new JavaClassAnalyser(apiConfiguration);
+			for(final Class clazz : classes) {
+				final Optional<Tag> optTag = javaClassAnalyser.getTagFromClass(clazz);
+				if(optTag.isPresent()) {
+					library.addTag(optTag.get());
+				}
+			}
+		}
+		return library;
+	}
 }

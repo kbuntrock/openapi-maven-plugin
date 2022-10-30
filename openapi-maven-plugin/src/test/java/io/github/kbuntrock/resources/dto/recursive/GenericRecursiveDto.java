@@ -7,18 +7,18 @@ package io.github.kbuntrock.resources.dto.recursive;
  */
 public class GenericRecursiveDto<G> {
 
-    /**
-     * A non recursive property
-     */
-    private String name;
+	/**
+	 * A non recursive property
+	 */
+	private String name;
 
-    /**
-     * The generic wrapped object
-     */
-    private G wrapped;
+	/**
+	 * The generic wrapped object
+	 */
+	private G wrapped;
 
-    /**
-     * The recursive property
-     */
-    private GenericRecursiveDto<G> child;
+	/**
+	 * The recursive property
+	 */
+	private GenericRecursiveDto<G> child;
 }

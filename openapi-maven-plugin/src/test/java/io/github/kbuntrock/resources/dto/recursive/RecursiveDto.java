@@ -5,6 +5,6 @@ package io.github.kbuntrock.resources.dto.recursive;
  */
 public class RecursiveDto {
 
-    private String name;
-    private RecursiveDto child;
+	private String name;
+	private RecursiveDto child;
 }

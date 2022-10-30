@@ -2,15 +2,12 @@ package io.github.kbuntrock.resources.endpoint.generic;
 
 import io.github.kbuntrock.resources.Constants;
 import io.github.kbuntrock.resources.dto.AccountDto;
-import io.github.kbuntrock.resources.dto.Authority;
-import io.github.kbuntrock.resources.dto.ChildAccountDto;
 import io.github.kbuntrock.resources.dto.TerritoryEnum;
+import java.util.List;
+import java.util.Map;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Kevin Buntrock
@@ -19,6 +16,6 @@ import java.util.Map;
 public interface GenericityTestSix {
 
 
-    @PostMapping(path = "authority-map")
-    Map<TerritoryEnum, List<? extends AccountDto>> findTerritoireGeographiqueByCriteria(@RequestParam Long sectionId);
+	@PostMapping(path = "authority-map")
+	Map<TerritoryEnum, List<? extends AccountDto>> findTerritoireGeographiqueByCriteria(@RequestParam Long sectionId);
 }

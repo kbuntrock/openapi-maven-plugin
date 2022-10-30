@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
  */
 public interface SpringPathEnhancementTwoController {
 
-    @GetMapping("one")
-    String getOne();
+	@GetMapping("one")
+	String getOne();
 
-    @GetMapping
-    String getTwo();
+	@GetMapping
+	String getTwo();
 }

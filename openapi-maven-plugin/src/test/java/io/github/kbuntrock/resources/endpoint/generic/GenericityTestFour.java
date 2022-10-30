@@ -13,6 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(Constants.BASE_API + "/genericity-test-four")
 public interface GenericityTestFour {
 
-    @GetMapping("/get-typed-dto/{id}")
-    TypedDto<TimeDto> getTypedDto(@PathVariable int id);
+	@GetMapping("/get-typed-dto/{id}")
+	TypedDto<TimeDto> getTypedDto(@PathVariable int id);
 }

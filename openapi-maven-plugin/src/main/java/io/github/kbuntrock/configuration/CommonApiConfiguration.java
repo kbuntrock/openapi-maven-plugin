@@ -2,189 +2,185 @@ package io.github.kbuntrock.configuration;
 
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
-import org.apache.maven.plugins.annotations.Parameter;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * @author Kevin Buntrock
  */
 public class CommonApiConfiguration {
 
-    protected static String DEFAULT_SUCCESSFUL_OPERATION_DESCRIPTION = "successful operation";
+	public static String DEFAULT_OPERATION_ID = "{class_name}.{method_name}";
+	public static String DEFAULT_LIBRARY = Library.SPRING_MVC.name();
+	public static List<String> DEFAULT_TAG_ANNOTATIONS = new ArrayList<>();
+	protected static String DEFAULT_SUCCESSFUL_OPERATION_DESCRIPTION = "successful operation";
 
-    public static String DEFAULT_OPERATION_ID = "{class_name}.{method_name}";
+	static {
+		DEFAULT_TAG_ANNOTATIONS.add(TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName());
+	}
 
-    public static String DEFAULT_LIBRARY = Library.SPRING_MVC.name();
+	@Parameter
+	protected Tag tag = new Tag();
 
-    public static List<String> DEFAULT_TAG_ANNOTATIONS = new ArrayList<>();
+	@Parameter
+	protected Operation operation = new Operation();
 
-    static {
-        DEFAULT_TAG_ANNOTATIONS.add(TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName());
-    }
+	@Parameter
+	protected Boolean attachArtifact;
 
-    @Parameter
-    protected Tag tag = new Tag();
+	@Parameter
+	protected String defaultSuccessfulOperationDescription;
 
-    @Parameter
-    protected Operation operation = new Operation();
+	/**
+	 * If not defined, try to guess a produce / consume value depending of the parameter/return type
+	 */
+	@Parameter
+	protected Boolean defaultProduceConsumeGuessing;
 
-    @Parameter
-    protected Boolean attachArtifact;
+	/**
+	 * Apply the spring enhancement to path value between a class @RequestMapping and a method @RequestMapping :
+	 * - add a "/" between the two values if there is none
+	 * - add a "/" at the beginning of the operation path if there is none
+	 */
+	@Parameter
+	protected Boolean springPathEnhancement;
 
-    @Parameter
-    protected String defaultSuccessfulOperationDescription;
+	/**
+	 * If true, return a short operation name for code generation, as described here :
+	 * https://loopback.io/doc/en/lb4/Decorators_openapi.html
+	 */
+	@Parameter
+	protected Boolean loopbackOperationName;
 
-    /**
-     * If not defined, try to guess a produce / consume value depending of the parameter/return type
-     */
-    @Parameter
-    protected Boolean defaultProduceConsumeGuessing;
+	@Parameter
+	protected String operationId;
 
-    /**
-     * Apply the spring enhancement to path value between a class @RequestMapping and a method @RequestMapping :
-     * - add a "/" between the two values if there is none
-     * - add a "/" at the beginning of the operation path if there is none
-     */
-    @Parameter
-    protected Boolean springPathEnhancement;
+	@Parameter
+	protected String freeFields;
 
-    /**
-     * If true, return a short operation name for code generation, as described here :
-     * https://loopback.io/doc/en/lb4/Decorators_openapi.html
-     */
-    @Parameter
-    protected Boolean loopbackOperationName;
+	@Parameter
+	protected String library;
 
-    @Parameter
-    protected String operationId;
+	@Parameter
+	protected List<String> tagAnnotations = new ArrayList<>();
 
-    @Parameter
-    protected String freeFields;
+	public void initDefaultValues() {
+		if(library == null) {
+			library = DEFAULT_LIBRARY;
+		}
+		if(tagAnnotations.isEmpty()) {
+			if(Library.SPRING_MVC.name().equals(library)) {
+				tagAnnotations.add(TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName());
+			} else {
+				tagAnnotations.add(TagAnnotation.JAXRS_PATH.getAnnotationClassName());
+			}
+		}
+		if(operationId == null) {
+			operationId = DEFAULT_OPERATION_ID;
+		}
+		if(loopbackOperationName == null) {
+			loopbackOperationName = true;
+		}
+		if(springPathEnhancement == null) {
+			springPathEnhancement = true;
+		}
+		if(defaultProduceConsumeGuessing == null) {
+			defaultProduceConsumeGuessing = true;
+		}
+		if(defaultSuccessfulOperationDescription == null) {
+			defaultSuccessfulOperationDescription = "successful operation";
+		}
+		if(attachArtifact == null) {
+			attachArtifact = true;
+		}
+	}
 
-    @Parameter
-    protected String library;
+	public Tag getTag() {
+		return tag;
+	}
 
-    @Parameter
-    protected List<String> tagAnnotations = new ArrayList<>();
+	public void setTag(Tag tag) {
+		this.tag = tag;
+	}
 
-    public void initDefaultValues() {
-        if (library == null) {
-            library = DEFAULT_LIBRARY;
-        }
-        if (tagAnnotations.isEmpty()) {
-            if (Library.SPRING_MVC.name().equals(library)) {
-                tagAnnotations.add(TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName());
-            } else {
-                tagAnnotations.add(TagAnnotation.JAXRS_PATH.getAnnotationClassName());
-            }
-        }
-        if (operationId == null) {
-            operationId = DEFAULT_OPERATION_ID;
-        }
-        if (loopbackOperationName == null) {
-            loopbackOperationName = true;
-        }
-        if (springPathEnhancement == null) {
-            springPathEnhancement = true;
-        }
-        if (defaultProduceConsumeGuessing == null) {
-            defaultProduceConsumeGuessing = true;
-        }
-        if (defaultSuccessfulOperationDescription == null) {
-            defaultSuccessfulOperationDescription = "successful operation";
-        }
-        if (attachArtifact == null) {
-            attachArtifact = true;
-        }
-    }
+	public Operation getOperation() {
+		return operation;
+	}
 
-    public Tag getTag() {
-        return tag;
-    }
+	public void setOperation(Operation operation) {
+		this.operation = operation;
+	}
 
-    public void setTag(Tag tag) {
-        this.tag = tag;
-    }
+	public boolean isAttachArtifact() {
+		return attachArtifact;
+	}
 
-    public Operation getOperation() {
-        return operation;
-    }
+	public void setAttachArtifact(boolean attachArtifact) {
+		this.attachArtifact = attachArtifact;
+	}
 
-    public void setOperation(Operation operation) {
-        this.operation = operation;
-    }
+	public boolean isDefaultProduceConsumeGuessing() {
+		return defaultProduceConsumeGuessing;
+	}
 
-    public boolean isAttachArtifact() {
-        return attachArtifact;
-    }
+	public void setDefaultProduceConsumeGuessing(boolean defaultProduceConsumeGuessing) {
+		this.defaultProduceConsumeGuessing = defaultProduceConsumeGuessing;
+	}
 
-    public void setAttachArtifact(boolean attachArtifact) {
-        this.attachArtifact = attachArtifact;
-    }
+	public boolean isSpringPathEnhancement() {
+		return springPathEnhancement;
+	}
 
-    public boolean isDefaultProduceConsumeGuessing() {
-        return defaultProduceConsumeGuessing;
-    }
+	public void setSpringPathEnhancement(boolean springPathEnhancement) {
+		this.springPathEnhancement = springPathEnhancement;
+	}
 
-    public void setDefaultProduceConsumeGuessing(boolean defaultProduceConsumeGuessing) {
-        this.defaultProduceConsumeGuessing = defaultProduceConsumeGuessing;
-    }
+	public String getDefaultSuccessfulOperationDescription() {
+		return defaultSuccessfulOperationDescription;
+	}
 
-    public boolean isSpringPathEnhancement() {
-        return springPathEnhancement;
-    }
+	public void setDefaultSuccessfulOperationDescription(String defaultSuccessfulOperationDescription) {
+		this.defaultSuccessfulOperationDescription = defaultSuccessfulOperationDescription;
+	}
 
-    public void setSpringPathEnhancement(boolean springPathEnhancement) {
-        this.springPathEnhancement = springPathEnhancement;
-    }
+	public boolean isLoopbackOperationName() {
+		return loopbackOperationName;
+	}
 
-    public String getDefaultSuccessfulOperationDescription() {
-        return defaultSuccessfulOperationDescription;
-    }
+	public void setLoopbackOperationName(boolean loopbackOperationName) {
+		this.loopbackOperationName = loopbackOperationName;
+	}
 
-    public void setDefaultSuccessfulOperationDescription(String defaultSuccessfulOperationDescription) {
-        this.defaultSuccessfulOperationDescription = defaultSuccessfulOperationDescription;
-    }
+	public String getOperationId() {
+		return operationId;
+	}
 
-    public boolean isLoopbackOperationName() {
-        return loopbackOperationName;
-    }
+	public void setOperationId(String operationId) {
+		this.operationId = operationId;
+	}
 
-    public void setLoopbackOperationName(boolean loopbackOperationName) {
-        this.loopbackOperationName = loopbackOperationName;
-    }
+	public String getFreeFields() {
+		return freeFields;
+	}
 
-    public String getOperationId() {
-        return operationId;
-    }
+	public void setFreeFields(String freeFields) {
+		this.freeFields = freeFields;
+	}
 
-    public void setOperationId(String operationId) {
-        this.operationId = operationId;
-    }
+	public Library getLibrary() {
+		return Library.getByName(library);
+	}
 
-    public String getFreeFields() {
-        return freeFields;
-    }
+	public void setLibrary(String library) {
+		this.library = library;
+	}
 
-    public void setFreeFields(String freeFields) {
-        this.freeFields = freeFields;
-    }
+	public List<String> getTagAnnotations() {
+		return tagAnnotations;
+	}
 
-    public Library getLibrary() {
-        return Library.getByName(library);
-    }
-
-    public void setLibrary(String library) {
-        this.library = library;
-    }
-
-    public List<String> getTagAnnotations() {
-        return tagAnnotations;
-    }
-
-    public void setTagAnnotations(List<String> tagAnnotations) {
-        this.tagAnnotations = tagAnnotations;
-    }
+	public void setTagAnnotations(List<String> tagAnnotations) {
+		this.tagAnnotations = tagAnnotations;
+	}
 }

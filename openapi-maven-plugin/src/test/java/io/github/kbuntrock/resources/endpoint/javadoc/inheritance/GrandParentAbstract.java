@@ -7,11 +7,11 @@ package io.github.kbuntrock.resources.endpoint.javadoc.inheritance;
  */
 public abstract class GrandParentAbstract {
 
-    /**
-     * Pretty print a number
-     *
-     * @param number
-     * @return a pretty printed string
-     */
-    public abstract String prettyPrint(long number);
+	/**
+	 * Pretty print a number
+	 *
+	 * @param number
+	 * @return a pretty printed string
+	 */
+	public abstract String prettyPrint(long number);
 }

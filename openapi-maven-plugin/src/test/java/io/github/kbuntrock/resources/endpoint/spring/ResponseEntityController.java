@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("api")
 public interface ResponseEntityController {
 
-    /**
-     * Get an account object
-     *
-     * @return the return account
-     */
-    @GetMapping("account")
-    ResponseEntity<AccountDto> getAccount();
+	/**
+	 * Get an account object
+	 *
+	 * @return the return account
+	 */
+	@GetMapping("account")
+	ResponseEntity<AccountDto> getAccount();
 
 }
