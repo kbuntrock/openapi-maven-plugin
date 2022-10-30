@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,7 +82,7 @@ public class DocumentationMojo extends AbstractMojo {
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
 		try {
-			long debut = System.currentTimeMillis();
+			final long debut = System.currentTimeMillis();
 
 			Logger.INSTANCE.setLogger(getLog());
 
@@ -94,7 +96,7 @@ public class DocumentationMojo extends AbstractMojo {
 
 			getLog().info("Openapi spec generation took " + (System.currentTimeMillis() - debut) + "ms.");
 
-		} catch(MojoRuntimeException ex) {
+		} catch(final MojoRuntimeException ex) {
 			throw new MojoExecutionException(ex.getMessage(), ex.getCause());
 		}
 
@@ -104,7 +106,7 @@ public class DocumentationMojo extends AbstractMojo {
 	public List<File> documentProject() throws MojoFailureException, MojoExecutionException {
 
 		// Log the java version
-		String version = System.getProperty("java.version");
+		final String version = System.getProperty("java.version");
 		getLog().debug("Running on java " + version);
 
 		validateConfiguration();
@@ -118,7 +120,7 @@ public class DocumentationMojo extends AbstractMojo {
 		}
 		this.getApiConfiguration().initDefaultValues();
 
-		for(ApiConfiguration apiConfiguration : apis) {
+		for(final ApiConfiguration apiConfiguration : apis) {
 			if(apiConfiguration.getLocations() == null || apiConfiguration.getLocations().isEmpty()) {
 				throw new MojoFailureException("At least one location element should be configured");
 			}
@@ -134,13 +136,13 @@ public class DocumentationMojo extends AbstractMojo {
 	 */
 	private List<File> scanProjectResourcesAndWriteSpec() throws MojoFailureException {
 
-		List<File> generatedFiles = new ArrayList<>();
-		for(ApiConfiguration initialApiConfiguration : apis) {
+		final List<File> generatedFiles = new ArrayList<>();
+		for(final ApiConfiguration initialApiConfiguration : apis) {
 			AdditionnalSchemaLibrary.reset();
-			ApiConfiguration apiConfig = initialApiConfiguration.mergeWithCommonApiConfiguration(this.apiConfiguration);
-			ApiResourceScanner apiResourceScanner = new ApiResourceScanner(apiConfig);
+			final ApiConfiguration apiConfig = initialApiConfiguration.mergeWithCommonApiConfiguration(this.apiConfiguration);
+			final ApiResourceScanner apiResourceScanner = new ApiResourceScanner(apiConfig);
 			getLog().debug("Prepare to scan");
-			TagLibrary tagLibrary = apiResourceScanner.scanRestControllers();
+			final TagLibrary tagLibrary = apiResourceScanner.scanRestControllers();
 			getLog().debug("Scan done");
 
 			File generatedFile = null;
@@ -160,12 +162,12 @@ public class DocumentationMojo extends AbstractMojo {
 
 				generatedFiles.add(generatedFile);
 
-				int nbTagsGenerated = tagLibrary.getTags().size();
-				int nbOperationsGenerated = tagLibrary.getTags().stream().map(t -> t.getEndpoints().size())
+				final int nbTagsGenerated = tagLibrary.getTags().size();
+				final int nbOperationsGenerated = tagLibrary.getTags().stream().map(t -> t.getEndpoints().size())
 					.collect(Collectors.summingInt(Integer::intValue));
 				getLog().info(
 					apiConfig.getFilename() + " : " + nbTagsGenerated + " tags and " + nbOperationsGenerated + " operations generated.");
-			} catch(IOException e) {
+			} catch(final IOException e) {
 				throw new MojoFailureException("Cannot write file specification file : " + (generatedFile == null ? "temporary test file"
 					: generatedFile.getAbsolutePath()));
 			}
@@ -181,21 +183,21 @@ public class DocumentationMojo extends AbstractMojo {
 	 */
 	private ClassLoader createProjectDependenciesClassLoader() throws MojoExecutionException {
 		try {
-			List<URL> pathUrls = new ArrayList<>();
-			for(String compileClasspathElements : project.getCompileClasspathElements()) {
+			final List<URL> pathUrls = new ArrayList<>();
+			for(final String compileClasspathElements : project.getCompileClasspathElements()) {
 				pathUrls.add(new File(compileClasspathElements).toURI().toURL());
 			}
-			for(String runtimeClasspathElement : project.getRuntimeClasspathElements()) {
+			for(final String runtimeClasspathElement : project.getRuntimeClasspathElements()) {
 				pathUrls.add(new File(runtimeClasspathElement).toURI().toURL());
 			}
 
-			URL[] urlsForClassLoader = pathUrls.toArray(new URL[pathUrls.size()]);
+			final URL[] urlsForClassLoader = pathUrls.toArray(new URL[pathUrls.size()]);
 			getLog().debug("urls for URLClassLoader: " + Arrays.asList(urlsForClassLoader));
 
 			// We need to define parent classloader which is the plugin classloader, in order to not mix up
 			// the project and the plugin classes.
 			return new URLClassLoader(urlsForClassLoader, DocumentationMojo.class.getClassLoader());
-		} catch(DependencyResolutionRequiredException | MalformedURLException ex) {
+		} catch(final DependencyResolutionRequiredException | MalformedURLException ex) {
 			throw new MojoExecutionException("Cannot create project dependencies classloader", ex);
 		}
 
@@ -204,12 +206,22 @@ public class DocumentationMojo extends AbstractMojo {
 	private void scanJavadoc() {
 		if(javadocConfiguration != null && javadocConfiguration.getScanLocations() != null && !javadocConfiguration.getScanLocations()
 			.isEmpty()) {
-			long debutJavadoc = System.currentTimeMillis();
-			List<File> filesToScan = new ArrayList<>();
-			for(String path : javadocConfiguration.getScanLocations()) {
+			final long debutJavadoc = System.currentTimeMillis();
+
+			Charset charset = StandardCharsets.UTF_8;
+			if(Charset.isSupported(javadocConfiguration.getEncoding())) {
+				charset = Charset.forName(javadocConfiguration.getEncoding());
+			} else {
+				getLog().warn("Encoding " + javadocConfiguration.getEncoding() + " is not supported. UTF-8 will be used instead.");
+				getLog().warn("Supported encoding on this JVM are : " + Charset.availableCharsets().keySet().stream()
+					.collect(Collectors.joining(", ")));
+			}
+
+			final List<File> filesToScan = new ArrayList<>();
+			for(final String path : javadocConfiguration.getScanLocations()) {
 				filesToScan.add(FileUtils.toFile(project.getBasedir().getAbsolutePath(), path));
 			}
-			JavadocParser javadocParser = new JavadocParser(filesToScan);
+			final JavadocParser javadocParser = new JavadocParser(filesToScan, charset);
 			javadocParser.scan();
 			JavadocMap.INSTANCE.setJavadocMap(javadocParser.getJavadocMap());
 			if(!JavadocConfiguration.DISABLED_EOF_REPLACEMENT.equals(javadocConfiguration.getEndOfLineReplacement())) {
@@ -223,7 +235,7 @@ public class DocumentationMojo extends AbstractMojo {
 		return apis;
 	}
 
-	public void setApis(List<ApiConfiguration> apis) {
+	public void setApis(final List<ApiConfiguration> apis) {
 		this.apis = apis;
 	}
 
@@ -231,7 +243,7 @@ public class DocumentationMojo extends AbstractMojo {
 		return javadocConfiguration;
 	}
 
-	public void setJavadocConfiguration(JavadocConfiguration javadocConfiguration) {
+	public void setJavadocConfiguration(final JavadocConfiguration javadocConfiguration) {
 		this.javadocConfiguration = javadocConfiguration;
 	}
 
@@ -239,15 +251,15 @@ public class DocumentationMojo extends AbstractMojo {
 		return apiConfiguration;
 	}
 
-	public void setApiConfiguration(CommonApiConfiguration apiConfiguration) {
+	public void setApiConfiguration(final CommonApiConfiguration apiConfiguration) {
 		this.apiConfiguration = apiConfiguration;
 	}
 
-	public void setProject(MavenProject project) {
+	public void setProject(final MavenProject project) {
 		this.project = project;
 	}
 
-	public void setTestMode(boolean testMode) {
+	public void setTestMode(final boolean testMode) {
 		this.testMode = testMode;
 	}
 }

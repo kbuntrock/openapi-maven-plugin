@@ -19,7 +19,7 @@ import com.github.javaparser.javadoc.Javadoc;
 import io.github.kbuntrock.utils.Logger;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,25 +35,25 @@ public class JavadocParser {
 	private final Map<String, ClassDocumentation> javadocMap = new HashMap<>();
 	private final List<File> filesToScan;
 
-	public JavadocParser(List<File> filesToScan) {
+	public JavadocParser(final List<File> filesToScan, final Charset charset) {
 		this.filesToScan = filesToScan;
-		ParserConfiguration parserConfiguration = new ParserConfiguration();
-		parserConfiguration.setCharacterEncoding(StandardCharsets.UTF_8);
+		final ParserConfiguration parserConfiguration = new ParserConfiguration();
+		parserConfiguration.setCharacterEncoding(charset);
 		parserConfiguration.setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17);
 		javaParser = new JavaParser(parserConfiguration);
 	}
 
-	private static String describe(Node node) {
+	private static String describe(final Node node) {
 		if(node instanceof MethodDeclaration) {
-			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			final MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 			return "Method " + methodDeclaration.getDeclarationAsString();
 		}
 		if(node instanceof ConstructorDeclaration) {
-			ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) node;
+			final ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) node;
 			return "Constructor " + constructorDeclaration.getDeclarationAsString();
 		}
 		if(node instanceof ClassOrInterfaceDeclaration) {
-			ClassOrInterfaceDeclaration classOrInterfaceDeclaration = (ClassOrInterfaceDeclaration) node;
+			final ClassOrInterfaceDeclaration classOrInterfaceDeclaration = (ClassOrInterfaceDeclaration) node;
 			if(classOrInterfaceDeclaration.isInterface()) {
 				return "Interface " + classOrInterfaceDeclaration.getName();
 			} else {
@@ -61,19 +61,20 @@ public class JavadocParser {
 			}
 		}
 		if(node instanceof EnumDeclaration) {
-			EnumDeclaration enumDeclaration = (EnumDeclaration) node;
+			final EnumDeclaration enumDeclaration = (EnumDeclaration) node;
 			return "Enum " + enumDeclaration.getName();
 		}
 		if(node instanceof FieldDeclaration) {
-			FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-			List<String> varNames = fieldDeclaration.getVariables().stream().map(v -> v.getName().getId()).collect(Collectors.toList());
+			final FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+			final List<String> varNames = fieldDeclaration.getVariables().stream().map(v -> v.getName().getId())
+				.collect(Collectors.toList());
 			return "Field " + String.join(", ", varNames);
 		}
 		return node.toString();
 	}
 
 	public void scan() {
-		for(File file : filesToScan) {
+		for(final File file : filesToScan) {
 			if(!file.exists()) {
 				logger.warn(LOG_PREFIX + "Directory " + file.getAbsolutePath() + " does not exist.");
 			} else if(!file.isDirectory()) {
@@ -82,7 +83,7 @@ public class JavadocParser {
 				try {
 					logger.info(LOG_PREFIX + "Scanning directory : " + file.getAbsolutePath());
 					exploreDirectory(file);
-				} catch(FileNotFoundException e) {
+				} catch(final FileNotFoundException e) {
 					logger.error(LOG_PREFIX + "Cannot read file " + file.getAbsolutePath());
 					throw new RuntimeException("Cannot read file", e);
 				}
@@ -91,7 +92,7 @@ public class JavadocParser {
 	}
 
 	private void exploreDirectory(final File directory) throws FileNotFoundException {
-		for(File child : directory.listFiles()) {
+		for(final File child : directory.listFiles()) {
 			if(child.isFile() && child.getName().endsWith(".java")) {
 				exploreJavaFile(child);
 			} else if(child.isDirectory()) {
@@ -102,16 +103,16 @@ public class JavadocParser {
 
 	private void exploreJavaFile(final File javaFile) throws FileNotFoundException {
 
-		ParseResult<CompilationUnit> parseResult = javaParser.parse(javaFile);
+		final ParseResult<CompilationUnit> parseResult = javaParser.parse(javaFile);
 		if(!parseResult.isSuccessful()) {
 			throw new ParseProblemException(parseResult.getProblems());
 		}
-		CompilationUnit compilationUnit = parseResult.getResult().get();
-		JavadocVisitor visitor = new JavadocVisitor();
+		final CompilationUnit compilationUnit = parseResult.getResult().get();
+		final JavadocVisitor visitor = new JavadocVisitor();
 		visitor.visit(compilationUnit, null);
 	}
 
-	private Optional<ClassDocumentation> findClassDocumentationForNode(Node commentedNode) {
+	private Optional<ClassDocumentation> findClassDocumentationForNode(final Node commentedNode) {
 		ClassOrInterfaceDeclaration classDeclaration = null;
 		if(commentedNode instanceof ClassOrInterfaceDeclaration) {
 			classDeclaration = (ClassOrInterfaceDeclaration) commentedNode;
@@ -145,13 +146,13 @@ public class JavadocParser {
 	private class JavadocVisitor extends VoidVisitorAdapter {
 
 		@Override
-		public void visit(JavadocComment comment, Object arg) {
+		public void visit(final JavadocComment comment, final Object arg) {
 			super.visit(comment, arg);
-			CommentType type = CommentType.fromNode(comment.getCommentedNode().get());
+			final CommentType type = CommentType.fromNode(comment.getCommentedNode().get());
 			if(CommentType.OTHER != type) {
-				Optional<ClassDocumentation> classDocumentation = findClassDocumentationForNode(comment.getCommentedNode().get());
+				final Optional<ClassDocumentation> classDocumentation = findClassDocumentationForNode(comment.getCommentedNode().get());
 				if(classDocumentation.isPresent()) {
-					Javadoc javadoc = comment.parse();
+					final Javadoc javadoc = comment.parse();
 					switch(type) {
 						case CLASS:
 							classDocumentation.get().setJavadoc(javadoc);
@@ -168,12 +169,12 @@ public class JavadocParser {
 								new JavadocWrapper(javadoc));
 							break;
 						case METHOD:
-							MethodDeclaration methodDeclaration = (MethodDeclaration) comment.getCommentedNode().get();
-							StringBuilder sb = new StringBuilder();
+							final MethodDeclaration methodDeclaration = (MethodDeclaration) comment.getCommentedNode().get();
+							final StringBuilder sb = new StringBuilder();
 							sb.append(methodDeclaration.getType().asString());
 							sb.append("_");
 							sb.append(methodDeclaration.getName().asString());
-							for(Parameter parameter : methodDeclaration.getParameters()) {
+							for(final Parameter parameter : methodDeclaration.getParameters()) {
 								sb.append("_");
 								sb.append(parameter.getType().asString());
 							}

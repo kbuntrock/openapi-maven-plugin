@@ -124,7 +124,7 @@ components:
       scheme: bearer
       bearerFormat: JWT
 security:
-  - jwt: [ ]
+  - jwt: []
 externalDocs:
   description: Find more info here
   url: https://example.com

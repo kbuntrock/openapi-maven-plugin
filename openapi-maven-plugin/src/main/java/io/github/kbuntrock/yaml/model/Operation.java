@@ -10,8 +10,6 @@ import java.util.Map;
 
 public class Operation {
 
-	@JsonInclude(JsonInclude.Include.NON_EMPTY)
-	private final List<ParameterElement> parameters = new ArrayList<>();
 	@JsonIgnore
 	private String name;
 	@JsonIgnore
@@ -25,6 +23,8 @@ public class Operation {
 	private String description;
 	@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 	private boolean deprecated;
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	private final List<ParameterElement> parameters = new ArrayList<>();
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private RequestBody requestBody;
 
@@ -35,7 +35,7 @@ public class Operation {
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
@@ -43,7 +43,7 @@ public class Operation {
 		return path;
 	}
 
-	public void setPath(String path) {
+	public void setPath(final String path) {
 		this.path = path;
 	}
 
@@ -51,7 +51,7 @@ public class Operation {
 		return tags;
 	}
 
-	public void setTags(List<String> tags) {
+	public void setTags(final List<String> tags) {
 		this.tags = tags;
 	}
 
@@ -59,7 +59,7 @@ public class Operation {
 		return operationId;
 	}
 
-	public void setOperationId(String operationId) {
+	public void setOperationId(final String operationId) {
 		this.operationId = operationId;
 	}
 
@@ -71,7 +71,7 @@ public class Operation {
 		return requestBody;
 	}
 
-	public void setRequestBody(RequestBody requestBody) {
+	public void setRequestBody(final RequestBody requestBody) {
 		this.requestBody = requestBody;
 	}
 
@@ -83,7 +83,7 @@ public class Operation {
 		return description;
 	}
 
-	public void setDescription(String description) {
+	public void setDescription(final String description) {
 		this.description = description;
 	}
 
@@ -91,7 +91,7 @@ public class Operation {
 		return deprecated;
 	}
 
-	public void setDeprecated(boolean deprecated) {
+	public void setDeprecated(final boolean deprecated) {
 		this.deprecated = deprecated;
 	}
 
@@ -99,7 +99,7 @@ public class Operation {
 		return loopbackOperationName;
 	}
 
-	public void setLoopbackOperationName(String loopbackOperationName) {
+	public void setLoopbackOperationName(final String loopbackOperationName) {
 		this.loopbackOperationName = loopbackOperationName;
 	}
 }

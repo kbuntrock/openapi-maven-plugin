@@ -14,21 +14,32 @@ public class JavadocConfiguration {
 	private List<String> scanLocations;
 
 	@Parameter(required = false)
+	private String encoding = "UTF-8";
+
+	@Parameter(required = false)
 	private String endOfLineReplacement = DISABLED_EOF_REPLACEMENT;
 
 	public List<String> getScanLocations() {
 		return scanLocations;
 	}
 
-	public void setScanLocations(List<String> scanLocations) {
+	public void setScanLocations(final List<String> scanLocations) {
 		this.scanLocations = scanLocations;
+	}
+
+	public String getEncoding() {
+		return encoding;
+	}
+
+	public void setEncoding(final String encoding) {
+		this.encoding = encoding;
 	}
 
 	public String getEndOfLineReplacement() {
 		return endOfLineReplacement;
 	}
 
-	public void setEndOfLineReplacement(String endOfLineReplacement) {
+	public void setEndOfLineReplacement(final String endOfLineReplacement) {
 		this.endOfLineReplacement = endOfLineReplacement;
 	}
 }

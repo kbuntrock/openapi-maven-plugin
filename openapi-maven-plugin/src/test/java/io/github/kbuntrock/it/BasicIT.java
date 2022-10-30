@@ -22,37 +22,38 @@ public class BasicIT {
 
 	@MavenTest
 	@MavenGoal("install")
-	public void nominal_test_case(MavenExecutionResult result) throws IOException {
-		MavenExecutionResultAssert resultAssert = assertThat(result);
+	public void nominal_test_case(final MavenExecutionResult result) throws IOException {
+		final MavenExecutionResultAssert resultAssert = assertThat(result);
 		resultAssert.isSuccessful().out().info().contains("spec-open-api : 1 tags and 2 operations generated.");
 
-		File target = new File(result.getMavenProjectResult().getTargetProjectDirectory(), "target");
-		File generatedFile = new File(target, "spec-open-api.yml");
-		File generatedFile2 = new File(target, "spec-open-api-impl.yml");
+		final File target = new File(result.getMavenProjectResult().getTargetProjectDirectory(), "target");
+		final File generatedFile = new File(target, "spec-open-api.yml");
+		final File generatedFile2 = new File(target, "spec-open-api-impl.yml");
 		Assertions.assertTrue(target.exists());
 		Assertions.assertTrue(generatedFile.exists());
 		Assertions.assertTrue(generatedFile2.exists());
 
-		File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory();
-		File generatedArtifactFile = new File(m2Directory,
+		final File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory();
+		final File generatedArtifactFile = new File(m2Directory,
 			"/io/github/kbuntrock/openapi/it/openapi-basic-it/23.5.2/openapi-basic-it-23.5.2-spec-open-api.yml");
-		File generatedArtifactFile2 = new File(m2Directory,
+		final File generatedArtifactFile2 = new File(m2Directory,
 			"/io/github/kbuntrock/openapi/it/openapi-basic-it/23.5.2/openapi-basic-it-23.5.2-spec-open-api-impl.yml");
 		Assertions.assertTrue(generatedArtifactFile.exists());
 		Assertions.assertTrue(generatedArtifactFile2.exists());
 
-		try(InputStream generatedFileStream = new FileInputStream(generatedArtifactFile);
-			InputStream resourceFileStream = BasicIT.class.getClassLoader().getResourceAsStream("it/BasicIT/nominal_test_case.yml")) {
-			String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-			String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
+		try(final InputStream generatedFileStream = new FileInputStream(generatedArtifactFile);
+			final InputStream resourceFileStream = BasicIT.class.getClassLoader().getResourceAsStream("it/BasicIT/nominal_test_case.yml")) {
+			final String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
+			final String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
 
 			Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
 		}
 
-		try(InputStream generatedFileStream = new FileInputStream(generatedArtifactFile2);
-			InputStream resourceFileStream = BasicIT.class.getClassLoader().getResourceAsStream("it/BasicIT/nominal_test_case_impl.yml")) {
-			String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-			String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
+		try(final InputStream generatedFileStream = new FileInputStream(generatedArtifactFile2);
+			final InputStream resourceFileStream = BasicIT.class.getClassLoader()
+				.getResourceAsStream("it/BasicIT/nominal_test_case_impl.yml")) {
+			final String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
+			final String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
 
 			Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
 		}
@@ -60,25 +61,25 @@ public class BasicIT {
 
 	@MavenTest
 	@MavenGoal("install")
-	public void nominal_test_case_jaxrs(MavenExecutionResult result) throws IOException {
-		MavenExecutionResultAssert resultAssert = assertThat(result);
+	public void nominal_test_case_jaxrs(final MavenExecutionResult result) throws IOException {
+		final MavenExecutionResultAssert resultAssert = assertThat(result);
 		resultAssert.isSuccessful().out().info().contains("spec-open-api : 1 tags and 2 operations generated.");
 
-		File target = new File(result.getMavenProjectResult().getTargetProjectDirectory(), "target");
-		File generatedFile = new File(target, "spec-open-api.yml");
+		final File target = new File(result.getMavenProjectResult().getTargetProjectDirectory(), "target");
+		final File generatedFile = new File(target, "spec-open-api.yml");
 		Assertions.assertTrue(target.exists());
 		Assertions.assertTrue(generatedFile.exists());
 
-		File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory();
-		File generatedArtifactFile = new File(m2Directory,
+		final File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory();
+		final File generatedArtifactFile = new File(m2Directory,
 			"/io/github/kbuntrock/openapi/it/openapi-basic-it-jaxrs/23.5.2/openapi-basic-it-jaxrs-23.5.2-spec-open-api.yml");
 		Assertions.assertTrue(generatedArtifactFile.exists());
 
-		try(InputStream generatedFileStream = new FileInputStream(generatedArtifactFile);
-			InputStream resourceFileStream = BasicIT.class.getClassLoader().getResourceAsStream("it/BasicIT/nominal_test_case_jaxrs" +
+		try(final InputStream generatedFileStream = new FileInputStream(generatedArtifactFile);
+			final InputStream resourceFileStream = BasicIT.class.getClassLoader().getResourceAsStream("it/BasicIT/nominal_test_case_jaxrs" +
 				".yml")) {
-			String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-			String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
+			final String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
+			final String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
 
 			Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
 		}
