@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
@@ -29,8 +30,22 @@ public class ApiResourceScanner {
 
 	private final ApiConfiguration apiConfiguration;
 
+	private final List<Pattern> whiteListPatterns = new ArrayList<>();
+	private final List<Pattern> blackListPatterns = new ArrayList<>();
+
 	public ApiResourceScanner(final ApiConfiguration apiConfiguration) {
 		this.apiConfiguration = apiConfiguration;
+
+		if(apiConfiguration.getClassNameWhiteList() != null) {
+			for(final String whiteEntry : apiConfiguration.getClassNameWhiteList()) {
+				whiteListPatterns.add(Pattern.compile(whiteEntry));
+			}
+		}
+		if(apiConfiguration.getClassNameBlackList() != null) {
+			for(final String blackEntry : apiConfiguration.getClassNameBlackList()) {
+				blackListPatterns.add(Pattern.compile(blackEntry));
+			}
+		}
 	}
 
 	public TagLibrary scanRestControllers() throws MojoFailureException {
@@ -60,12 +75,38 @@ public class ApiResourceScanner {
 			// Find directly or inheritedly annotated by RequestMapping classes.
 			final JavaClassAnalyser javaClassAnalyser = new JavaClassAnalyser(apiConfiguration);
 			for(final Class clazz : classes) {
-				final Optional<Tag> optTag = javaClassAnalyser.getTagFromClass(clazz);
-				if(optTag.isPresent()) {
-					library.addTag(optTag.get());
+				if(validateWhiteList(clazz) && validateBlackList(clazz)) {
+					final Optional<Tag> optTag = javaClassAnalyser.getTagFromClass(clazz);
+					if(optTag.isPresent()) {
+						library.addTag(optTag.get());
+					}
 				}
 			}
 		}
 		return library;
+	}
+
+	private boolean validateWhiteList(final Class clazz) {
+		if(!whiteListPatterns.isEmpty()) {
+			for(final Pattern whitePattern : whiteListPatterns) {
+				if(whitePattern.matcher(clazz.getCanonicalName()).matches()) {
+					return true;
+				}
+			}
+			return false;
+		}
+		return true;
+	}
+
+	private boolean validateBlackList(final Class clazz) {
+		if(!blackListPatterns.isEmpty()) {
+			for(final Pattern blackPattern : blackListPatterns) {
+				if(blackPattern.matcher(clazz.getCanonicalName()).matches()) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return true;
 	}
 }

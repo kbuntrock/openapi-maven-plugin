@@ -18,13 +18,22 @@ public class ApiConfiguration extends CommonApiConfiguration {
 	@Parameter
 	private String filename = "spec-open-api";
 
+	@Parameter(required = true)
+	private List<String> classNameWhiteList;
+	@Parameter(required = true)
+	private List<String> methodNameWhiteList;
+	@Parameter(required = true)
+	private List<String> classNameBlackList;
+	@Parameter(required = true)
+	private List<String> methodNameBlackList;
+
 	private OperationIdHelper operationIdHelper;
 
 	public List<String> getLocations() {
 		return locations;
 	}
 
-	public void setLocations(List<String> locations) {
+	public void setLocations(final List<String> locations) {
 		this.locations = locations;
 	}
 
@@ -32,7 +41,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		return filename;
 	}
 
-	public void setFilename(String filename) {
+	public void setFilename(final String filename) {
 		this.filename = filename;
 	}
 
@@ -40,8 +49,40 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		return operationIdHelper;
 	}
 
-	public void setOperationIdHelper(OperationIdHelper operationIdHelper) {
+	public void setOperationIdHelper(final OperationIdHelper operationIdHelper) {
 		this.operationIdHelper = operationIdHelper;
+	}
+
+	public List<String> getClassNameWhiteList() {
+		return classNameWhiteList;
+	}
+
+	public void setClassNameWhiteList(final List<String> classNameWhiteList) {
+		this.classNameWhiteList = classNameWhiteList;
+	}
+
+	public List<String> getMethodNameWhiteList() {
+		return methodNameWhiteList;
+	}
+
+	public void setMethodNameWhiteList(final List<String> methodNameWhiteList) {
+		this.methodNameWhiteList = methodNameWhiteList;
+	}
+
+	public List<String> getClassNameBlackList() {
+		return classNameBlackList;
+	}
+
+	public void setClassNameBlackList(final List<String> classNameBlackList) {
+		this.classNameBlackList = classNameBlackList;
+	}
+
+	public List<String> getMethodNameBlackList() {
+		return methodNameBlackList;
+	}
+
+	public void setMethodNameBlackList(final List<String> methodNameBlackList) {
+		this.methodNameBlackList = methodNameBlackList;
 	}
 
 	/**
@@ -51,8 +92,8 @@ public class ApiConfiguration extends CommonApiConfiguration {
 	 * @return the merged configuration
 	 */
 	public ApiConfiguration mergeWithCommonApiConfiguration(final CommonApiConfiguration commonApiConfiguration) {
-		CommonApiConfiguration copy = Cloner.INSTANCE.deepClone(commonApiConfiguration);
-		ApiConfiguration merged = new ApiConfiguration();
+		final CommonApiConfiguration copy = Cloner.INSTANCE.deepClone(commonApiConfiguration);
+		final ApiConfiguration merged = new ApiConfiguration();
 		Cloner.INSTANCE.copyPropertiesOfInheritedClass(copy, merged);
 		merged.setLocations(locations);
 		merged.setFilename(filename);
