@@ -18,15 +18,6 @@ public class ApiConfiguration extends CommonApiConfiguration {
 	@Parameter
 	private String filename = "spec-open-api";
 
-	@Parameter(required = true)
-	private List<String> classNameWhiteList;
-	@Parameter(required = true)
-	private List<String> methodNameWhiteList;
-	@Parameter(required = true)
-	private List<String> classNameBlackList;
-	@Parameter(required = true)
-	private List<String> methodNameBlackList;
-
 	private OperationIdHelper operationIdHelper;
 
 	public List<String> getLocations() {
@@ -51,38 +42,6 @@ public class ApiConfiguration extends CommonApiConfiguration {
 
 	public void setOperationIdHelper(final OperationIdHelper operationIdHelper) {
 		this.operationIdHelper = operationIdHelper;
-	}
-
-	public List<String> getClassNameWhiteList() {
-		return classNameWhiteList;
-	}
-
-	public void setClassNameWhiteList(final List<String> classNameWhiteList) {
-		this.classNameWhiteList = classNameWhiteList;
-	}
-
-	public List<String> getMethodNameWhiteList() {
-		return methodNameWhiteList;
-	}
-
-	public void setMethodNameWhiteList(final List<String> methodNameWhiteList) {
-		this.methodNameWhiteList = methodNameWhiteList;
-	}
-
-	public List<String> getClassNameBlackList() {
-		return classNameBlackList;
-	}
-
-	public void setClassNameBlackList(final List<String> classNameBlackList) {
-		this.classNameBlackList = classNameBlackList;
-	}
-
-	public List<String> getMethodNameBlackList() {
-		return methodNameBlackList;
-	}
-
-	public void setMethodNameBlackList(final List<String> methodNameBlackList) {
-		this.methodNameBlackList = methodNameBlackList;
 	}
 
 	/**
@@ -133,6 +92,13 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		if(freeFields != null) {
 			merged.setFreeFields(freeFields);
 		}
+		if(whiteList != null) {
+			merged.setWhiteList(whiteList);
+		}
+		if(blackList != null) {
+			merged.setBlackList(blackList);
+		}
+
 		merged.operationIdHelper = new OperationIdHelper(merged.operationId);
 		return merged;
 	}

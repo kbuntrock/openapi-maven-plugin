@@ -44,6 +44,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -305,13 +306,6 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		checkGenerationResult("ut/SpringClassAnalyserTest/interface.yml", generated.get(0));
 	}
 
-	/**
-	 * TODO : to refacto when scanning of @RestController will be done.
-	 *
-	 * @throws MojoFailureException
-	 * @throws IOException
-	 * @throws MojoExecutionException
-	 */
 	@Test
 	public void pathEnhancementTwo() throws MojoFailureException, IOException, MojoExecutionException {
 
@@ -449,6 +443,104 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final List<File> generated1 = mojo1.documentProject();
 		final List<File> generated2 = mojo2.documentProject();
 		checkGenerationResult(generated1.get(0), generated2.get(0));
+	}
+
+	@Test
+	public void white_list_class() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo("io.github.kbuntrock.resources.endpoint");
+		// Should filter on NumberController and TimeController
+		final List<String> whiteList = new ArrayList<>();
+		whiteList.add(".*umberControl.*");
+		whiteList.add(".*imeControl.*");
+		mojo.getApiConfiguration().setWhiteList(whiteList);
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/white_list_class.yml", generated.get(0));
+	}
+
+	@Test
+	public void white_list_class_method() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo("io.github.kbuntrock.resources.endpoint");
+		// Should filter on AccountController.invalidateSession
+		final List<String> whiteList = new ArrayList<>();
+		whiteList.add(".*ccountControl.*__.*lidateSession");
+		mojo.getApiConfiguration().setWhiteList(whiteList);
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/white_list_class_method.yml", generated.get(0));
+	}
+
+	@Test
+	public void white_list_method() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(AccountController.class.getCanonicalName());
+		// Should filter on AccountController -> 4 methods in it
+		final List<String> whiteList = new ArrayList<>();
+		whiteList.add("__.*Account");
+		mojo.getApiConfiguration().setWhiteList(whiteList);
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/white_list_method.yml", generated.get(0));
+
+		final DocumentationMojo mojo2 = createBasicMojo(AccountController.class.getCanonicalName());
+		// Should filter on AccountController -> 4 methods in it
+		final List<String> whiteList2 = new ArrayList<>();
+		whiteList2.add(".*__.*Account");
+		mojo2.getApiConfiguration().setWhiteList(whiteList2);
+
+		final List<File> generated2 = mojo2.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/white_list_method.yml", generated2.get(0));
+	}
+
+	@Test
+	public void black_list_class() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo("io.github.kbuntrock.resources.endpoint.generic");
+		// Should filter on AccountController -> 4 methods in it
+		final List<String> blackList = new ArrayList<>();
+		blackList.add(".*\\.GenericityTestF.*$");
+		blackList.add(".*\\.GenericityTestT.*$");
+		blackList.add(".*\\.GenericityTestS.*$");
+		blackList.add(".*\\.GenericDataController");
+		mojo.getApiConfiguration().setBlackList(blackList);
+
+		// The result should be the same as the multiple_genericity test
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/multiple_genericity.yml", generated.get(0));
+	}
+
+	@Test
+	public void black_list_class_method() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(AccountController.class.getCanonicalName());
+		// Should filter on AccountController -> 4 methods in it
+		final List<String> blackList = new ArrayList<>();
+		blackList.add(".*AccountController__.*Password.*");
+		blackList.add(".*AccountController__.*Session.*");
+		blackList.add(".*AccountController__isAuthenticated");
+		mojo.getApiConfiguration().setBlackList(blackList);
+
+		// The result should be the same as the white list method test
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/white_list_method.yml", generated.get(0));
+	}
+
+	@Test
+	public void black_list_method() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(AccountController.class.getCanonicalName());
+		// Should filter on AccountController -> 4 methods in it
+		final List<String> blackList = new ArrayList<>();
+		blackList.add("__.*Password.*");
+		blackList.add("__.*Session.*");
+		blackList.add("__isAuthenticated");
+		mojo.getApiConfiguration().setBlackList(blackList);
+
+		// The result should be the same as the white list method test
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/white_list_method.yml", generated.get(0));
 	}
 
 }

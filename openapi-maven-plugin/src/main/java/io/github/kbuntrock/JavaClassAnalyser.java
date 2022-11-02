@@ -1,6 +1,7 @@
 package io.github.kbuntrock;
 
 import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.library.JaxrsHttpVerb;
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.model.DataObject;
@@ -34,6 +35,7 @@ import javax.ws.rs.QueryParam;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.springframework.core.annotation.MergedAnnotation;
@@ -61,20 +63,35 @@ public class JavaClassAnalyser {
 
 	private final ApiConfiguration apiConfiguration;
 
-	private final List<Pattern> whiteListPatterns = new ArrayList<>();
-	private final List<Pattern> blackListPatterns = new ArrayList<>();
+	private final List<Pair<Pattern, Pattern>> whiteListPatterns = new ArrayList<>();
+	private final List<Pair<Pattern, Pattern>> blackListPatterns = new ArrayList<>();
 
 	public JavaClassAnalyser(final ApiConfiguration apiConfiguration) {
 		this.apiConfiguration = apiConfiguration;
 
-		if(apiConfiguration.getMethodNameWhiteList() != null) {
-			for(final String whiteEntry : apiConfiguration.getMethodNameWhiteList()) {
-				whiteListPatterns.add(Pattern.compile(whiteEntry));
+		// Compilation of white list / black list patterns
+		if(apiConfiguration.getWhiteList() != null) {
+			for(final String whiteEntry : apiConfiguration.getWhiteList()) {
+				final String[] regexArray = whiteEntry.split(CommonApiConfiguration.SEPARATOR_CLASS_METHOD);
+				if(regexArray.length == 2) {
+					if(StringUtils.isEmpty(regexArray[0])) {
+						whiteListPatterns.add(Pair.of(null, Pattern.compile(regexArray[1])));
+					} else {
+						whiteListPatterns.add(Pair.of(Pattern.compile(regexArray[0]), Pattern.compile(regexArray[1])));
+					}
+				}
 			}
 		}
-		if(apiConfiguration.getMethodNameBlackList() != null) {
-			for(final String blackEntry : apiConfiguration.getMethodNameBlackList()) {
-				blackListPatterns.add(Pattern.compile(blackEntry));
+		if(apiConfiguration.getBlackList() != null) {
+			for(final String blackEntry : apiConfiguration.getBlackList()) {
+				final String[] regexArray = blackEntry.split(CommonApiConfiguration.SEPARATOR_CLASS_METHOD);
+				if(regexArray.length == 2) {
+					if(StringUtils.isEmpty(regexArray[0])) {
+						blackListPatterns.add(Pair.of(null, Pattern.compile(regexArray[1])));
+					} else {
+						blackListPatterns.add(Pair.of(Pattern.compile(regexArray[0]), Pattern.compile(regexArray[1])));
+					}
+				}
 			}
 		}
 	}
@@ -235,7 +252,7 @@ public class JavaClassAnalyser {
 
 		for(final Method method : methods) {
 
-			if(validateWhiteList(method) && validateBlackList(method)) {
+			if(validateWhiteList(clazz, method) && validateBlackList(clazz, method)) {
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
 				if(Library.SPRING_MVC == apiConfiguration.getLibrary()) {
 					computeSpringAnnotations(basePath, method, mergedAnnotations, tag);
@@ -523,10 +540,15 @@ public class JavaClassAnalyser {
 		return concatenateBasePathAndMethodPath(basePath, path, apiConfiguration.isSpringPathEnhancement());
 	}
 
-	private boolean validateWhiteList(final Method method) {
+	private boolean validateWhiteList(final Class<?> clazz, final Method method) {
+
 		if(!whiteListPatterns.isEmpty()) {
-			for(final Pattern whitePattern : whiteListPatterns) {
-				if(whitePattern.matcher(method.getName()).matches()) {
+			for(final Pair<Pattern, Pattern> pair : whiteListPatterns) {
+				boolean validateLeft = true;
+				if(pair.getLeft() != null) {
+					validateLeft = pair.getLeft().matcher(clazz.getCanonicalName()).matches();
+				}
+				if(validateLeft && pair.getRight().matcher(method.getName()).matches()) {
 					return true;
 				}
 			}
@@ -535,14 +557,17 @@ public class JavaClassAnalyser {
 		return true;
 	}
 
-	private boolean validateBlackList(final Method method) {
+	private boolean validateBlackList(final Class<?> clazz, final Method method) {
 		if(!blackListPatterns.isEmpty()) {
-			for(final Pattern blackPattern : blackListPatterns) {
-				if(blackPattern.matcher(method.getName()).matches()) {
+			for(final Pair<Pattern, Pattern> pair : blackListPatterns) {
+				boolean validateLeft = true;
+				if(pair.getLeft() != null) {
+					validateLeft = pair.getLeft().matcher(clazz.getCanonicalName()).matches();
+				}
+				if(validateLeft && pair.getRight().matcher(method.getName()).matches()) {
 					return false;
 				}
 			}
-			return true;
 		}
 		return true;
 	}

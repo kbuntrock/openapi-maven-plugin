@@ -1,0 +1,24 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: AccountController
+paths:
+  /api/account/sessions/{series}:
+    delete:
+      tags:
+        - AccountController
+      operationId: invalidateSession
+      parameters:
+        - name: series
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation

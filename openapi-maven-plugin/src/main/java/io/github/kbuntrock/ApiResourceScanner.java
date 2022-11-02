@@ -3,6 +3,7 @@ package io.github.kbuntrock;
 import static org.reflections.scanners.Scanners.TypesAnnotated;
 
 import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
@@ -36,14 +37,20 @@ public class ApiResourceScanner {
 	public ApiResourceScanner(final ApiConfiguration apiConfiguration) {
 		this.apiConfiguration = apiConfiguration;
 
-		if(apiConfiguration.getClassNameWhiteList() != null) {
-			for(final String whiteEntry : apiConfiguration.getClassNameWhiteList()) {
-				whiteListPatterns.add(Pattern.compile(whiteEntry));
+		if(apiConfiguration.getWhiteList() != null) {
+			for(final String whiteEntry : apiConfiguration.getWhiteList()) {
+				final String regex = whiteEntry.split(CommonApiConfiguration.SEPARATOR_CLASS_METHOD)[0];
+				if(!whiteEntry.startsWith(CommonApiConfiguration.SEPARATOR_CLASS_METHOD)) {
+					whiteListPatterns.add(Pattern.compile(regex));
+				}
 			}
 		}
-		if(apiConfiguration.getClassNameBlackList() != null) {
-			for(final String blackEntry : apiConfiguration.getClassNameBlackList()) {
-				blackListPatterns.add(Pattern.compile(blackEntry));
+		if(apiConfiguration.getBlackList() != null) {
+			for(final String blackEntry : apiConfiguration.getBlackList()) {
+				final String[] regexArray = blackEntry.split(CommonApiConfiguration.SEPARATOR_CLASS_METHOD);
+				if(regexArray.length == 1) {
+					blackListPatterns.add(Pattern.compile(regexArray[0]));
+				}
 			}
 		}
 	}
@@ -105,7 +112,6 @@ public class ApiResourceScanner {
 					return false;
 				}
 			}
-			return true;
 		}
 		return true;
 	}
