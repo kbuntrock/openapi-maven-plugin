@@ -11,6 +11,8 @@ import org.apache.maven.plugins.annotations.Parameter;
  */
 public class CommonApiConfiguration {
 
+	public static String SEPARATOR_CLASS_METHOD = "__";
+
 	public static String DEFAULT_OPERATION_ID = "{class_name}.{method_name}";
 	public static String DEFAULT_LIBRARY = Library.SPRING_MVC.name();
 	public static List<String> DEFAULT_TAG_ANNOTATIONS = new ArrayList<>();
@@ -65,6 +67,12 @@ public class CommonApiConfiguration {
 	@Parameter
 	protected List<String> tagAnnotations = new ArrayList<>();
 
+	@Parameter(required = true)
+	protected List<String> whiteList;
+
+	@Parameter(required = true)
+	protected List<String> blackList;
+
 	public void initDefaultValues() {
 		if(library == null) {
 			library = DEFAULT_LIBRARY;
@@ -100,7 +108,7 @@ public class CommonApiConfiguration {
 		return tag;
 	}
 
-	public void setTag(Tag tag) {
+	public void setTag(final Tag tag) {
 		this.tag = tag;
 	}
 
@@ -108,7 +116,7 @@ public class CommonApiConfiguration {
 		return operation;
 	}
 
-	public void setOperation(Operation operation) {
+	public void setOperation(final Operation operation) {
 		this.operation = operation;
 	}
 
@@ -116,7 +124,7 @@ public class CommonApiConfiguration {
 		return attachArtifact;
 	}
 
-	public void setAttachArtifact(boolean attachArtifact) {
+	public void setAttachArtifact(final boolean attachArtifact) {
 		this.attachArtifact = attachArtifact;
 	}
 
@@ -124,7 +132,7 @@ public class CommonApiConfiguration {
 		return defaultProduceConsumeGuessing;
 	}
 
-	public void setDefaultProduceConsumeGuessing(boolean defaultProduceConsumeGuessing) {
+	public void setDefaultProduceConsumeGuessing(final boolean defaultProduceConsumeGuessing) {
 		this.defaultProduceConsumeGuessing = defaultProduceConsumeGuessing;
 	}
 
@@ -132,7 +140,7 @@ public class CommonApiConfiguration {
 		return springPathEnhancement;
 	}
 
-	public void setSpringPathEnhancement(boolean springPathEnhancement) {
+	public void setSpringPathEnhancement(final boolean springPathEnhancement) {
 		this.springPathEnhancement = springPathEnhancement;
 	}
 
@@ -140,7 +148,7 @@ public class CommonApiConfiguration {
 		return defaultSuccessfulOperationDescription;
 	}
 
-	public void setDefaultSuccessfulOperationDescription(String defaultSuccessfulOperationDescription) {
+	public void setDefaultSuccessfulOperationDescription(final String defaultSuccessfulOperationDescription) {
 		this.defaultSuccessfulOperationDescription = defaultSuccessfulOperationDescription;
 	}
 
@@ -148,7 +156,7 @@ public class CommonApiConfiguration {
 		return loopbackOperationName;
 	}
 
-	public void setLoopbackOperationName(boolean loopbackOperationName) {
+	public void setLoopbackOperationName(final boolean loopbackOperationName) {
 		this.loopbackOperationName = loopbackOperationName;
 	}
 
@@ -156,7 +164,7 @@ public class CommonApiConfiguration {
 		return operationId;
 	}
 
-	public void setOperationId(String operationId) {
+	public void setOperationId(final String operationId) {
 		this.operationId = operationId;
 	}
 
@@ -164,7 +172,7 @@ public class CommonApiConfiguration {
 		return freeFields;
 	}
 
-	public void setFreeFields(String freeFields) {
+	public void setFreeFields(final String freeFields) {
 		this.freeFields = freeFields;
 	}
 
@@ -172,7 +180,7 @@ public class CommonApiConfiguration {
 		return Library.getByName(library);
 	}
 
-	public void setLibrary(String library) {
+	public void setLibrary(final String library) {
 		this.library = library;
 	}
 
@@ -180,7 +188,23 @@ public class CommonApiConfiguration {
 		return tagAnnotations;
 	}
 
-	public void setTagAnnotations(List<String> tagAnnotations) {
+	public void setTagAnnotations(final List<String> tagAnnotations) {
 		this.tagAnnotations = tagAnnotations;
+	}
+
+	public List<String> getWhiteList() {
+		return whiteList;
+	}
+
+	public void setWhiteList(final List<String> whiteList) {
+		this.whiteList = whiteList;
+	}
+
+	public List<String> getBlackList() {
+		return blackList;
+	}
+
+	public void setBlackList(final List<String> blackList) {
+		this.blackList = blackList;
 	}
 }
