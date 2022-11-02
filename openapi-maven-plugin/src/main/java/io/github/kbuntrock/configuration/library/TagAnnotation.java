@@ -11,11 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 public enum TagAnnotation {
 	SPRING_MVC_REQUEST_MAPPING(RequestMapping.class),
 	SPRING_REST_CONTROLLER(RestController.class),
-	JAXRS_PATH(Path.class);
+	JAVAX_RS_PATH(Path.class),
+	JAKARTA_RS_PATH(jakarta.ws.rs.Path.class);
 
 	private final Class<? extends Annotation> annotatedElement;
 
-	TagAnnotation(Class<? extends Annotation> clazz) {
+	TagAnnotation(final Class<? extends Annotation> clazz) {
 		this.annotatedElement = clazz;
 	}
 
