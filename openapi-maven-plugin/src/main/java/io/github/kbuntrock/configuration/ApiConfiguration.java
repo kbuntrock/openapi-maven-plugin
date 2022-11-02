@@ -85,9 +85,12 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		}
 		if(tagAnnotations != null && !tagAnnotations.isEmpty()) {
 			merged.setTagAnnotations(tagAnnotations);
-		} else if(Library.JAXRS.name().equals(merged.getLibrary().toString().toUpperCase())) {
+		} else if(Library.JAVAX_RS.name().equals(merged.getLibrary().toString().toUpperCase())) {
 			merged.setTagAnnotations(new ArrayList<>());
-			merged.getTagAnnotations().add(TagAnnotation.JAXRS_PATH.getAnnotationClassName());
+			merged.getTagAnnotations().add(TagAnnotation.JAVAX_RS_PATH.getAnnotationClassName());
+		} else if(Library.JAKARTA_RS.name().equals(merged.getLibrary().toString().toUpperCase())) {
+			merged.setTagAnnotations(new ArrayList<>());
+			merged.getTagAnnotations().add(TagAnnotation.JAKARTA_RS_PATH.getAnnotationClassName());
 		}
 		if(freeFields != null) {
 			merged.setFreeFields(freeFields);

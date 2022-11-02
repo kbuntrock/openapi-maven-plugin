@@ -80,8 +80,10 @@ public class CommonApiConfiguration {
 		if(tagAnnotations.isEmpty()) {
 			if(Library.SPRING_MVC.name().equals(library)) {
 				tagAnnotations.add(TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName());
+			} else if(Library.JAVAX_RS.name().equals(library)) {
+				tagAnnotations.add(TagAnnotation.JAVAX_RS_PATH.getAnnotationClassName());
 			} else {
-				tagAnnotations.add(TagAnnotation.JAXRS_PATH.getAnnotationClassName());
+				tagAnnotations.add(TagAnnotation.JAKARTA_RS_PATH.getAnnotationClassName());
 			}
 		}
 		if(operationId == null) {

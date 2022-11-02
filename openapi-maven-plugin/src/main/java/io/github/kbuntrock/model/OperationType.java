@@ -5,38 +5,46 @@ import java.util.Map;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 public enum OperationType {
-	GET(RequestMethod.GET, javax.ws.rs.GET.class),
-	POST(RequestMethod.POST, javax.ws.rs.POST.class),
-	PUT(RequestMethod.PUT, javax.ws.rs.PUT.class),
-	PATCH(RequestMethod.PATCH, javax.ws.rs.PATCH.class),
-	DELETE(RequestMethod.DELETE, javax.ws.rs.DELETE.class),
-	HEAD(RequestMethod.HEAD, javax.ws.rs.HEAD.class),
-	OPTIONS(RequestMethod.OPTIONS, javax.ws.rs.OPTIONS.class),
-	TRACE(RequestMethod.TRACE, null);
+	GET(RequestMethod.GET, javax.ws.rs.GET.class, jakarta.ws.rs.GET.class),
+	POST(RequestMethod.POST, javax.ws.rs.POST.class, jakarta.ws.rs.POST.class),
+	PUT(RequestMethod.PUT, javax.ws.rs.PUT.class, jakarta.ws.rs.PUT.class),
+	PATCH(RequestMethod.PATCH, javax.ws.rs.PATCH.class, jakarta.ws.rs.PATCH.class),
+	DELETE(RequestMethod.DELETE, javax.ws.rs.DELETE.class, jakarta.ws.rs.DELETE.class),
+	HEAD(RequestMethod.HEAD, javax.ws.rs.HEAD.class, jakarta.ws.rs.HEAD.class),
+	OPTIONS(RequestMethod.OPTIONS, javax.ws.rs.OPTIONS.class, jakarta.ws.rs.OPTIONS.class),
+	TRACE(RequestMethod.TRACE, null, null);
 
 	private static final Map<RequestMethod, OperationType> mapBySpringMvcRequestMethod = new HashMap<>();
-	private static final Map<Class, OperationType> mapBySJaxrsAnnotationClass = new HashMap<>();
+	private static final Map<Class, OperationType> mapByJavaxRsAnnotationClass = new HashMap<>();
+	private static final Map<Class, OperationType> mapByJakartaRsAnnotationClass = new HashMap<>();
 
 	static {
-		for(OperationType type : OperationType.values()) {
+		for(final OperationType type : OperationType.values()) {
 			mapBySpringMvcRequestMethod.put(type.springMvcRequestMethod, type);
-			mapBySJaxrsAnnotationClass.put(type.jaxrsVerbAnnotation, type);
+			mapByJavaxRsAnnotationClass.put(type.javaxRsVerbAnnotation, type);
+			mapByJakartaRsAnnotationClass.put(type.jakartaRsVerbAnnotation, type);
 		}
 	}
 
 	private final RequestMethod springMvcRequestMethod;
-	private final Class jaxrsVerbAnnotation;
+	private final Class javaxRsVerbAnnotation;
+	private final Class jakartaRsVerbAnnotation;
 
-	OperationType(RequestMethod springMvcRequestMethod, Class jaxrsVerbAnnotation) {
+	OperationType(final RequestMethod springMvcRequestMethod, final Class javaxRsVerbAnnotation, final Class jakartaRsVerbAnnotation) {
 		this.springMvcRequestMethod = springMvcRequestMethod;
-		this.jaxrsVerbAnnotation = jaxrsVerbAnnotation;
+		this.javaxRsVerbAnnotation = javaxRsVerbAnnotation;
+		this.jakartaRsVerbAnnotation = jakartaRsVerbAnnotation;
 	}
 
-	public static OperationType from(final RequestMethod springMvcRequestMethod) {
+	public static OperationType fromJavax(final RequestMethod springMvcRequestMethod) {
 		return mapBySpringMvcRequestMethod.get(springMvcRequestMethod);
 	}
 
-	public static OperationType from(final Class jaxrsVerbAnnotation) {
-		return mapBySJaxrsAnnotationClass.get(jaxrsVerbAnnotation);
+	public static OperationType fromJavax(final Class javaxRsVerbAnnotation) {
+		return mapByJavaxRsAnnotationClass.get(javaxRsVerbAnnotation);
+	}
+
+	public static OperationType fromJakarta(final Class jakartaRsVerbAnnotation) {
+		return mapByJakartaRsAnnotationClass.get(jakartaRsVerbAnnotation);
 	}
 }
