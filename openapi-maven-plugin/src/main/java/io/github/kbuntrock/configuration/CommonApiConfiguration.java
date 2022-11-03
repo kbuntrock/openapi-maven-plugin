@@ -46,7 +46,7 @@ public class CommonApiConfiguration {
 	 * - add a "/" at the beginning of the operation path if there is none
 	 */
 	@Parameter
-	protected Boolean springPathEnhancement;
+	protected Boolean pathEnhancement;
 
 	/**
 	 * If true, return a short operation name for code generation, as described here :
@@ -92,8 +92,8 @@ public class CommonApiConfiguration {
 		if(loopbackOperationName == null) {
 			loopbackOperationName = true;
 		}
-		if(springPathEnhancement == null) {
-			springPathEnhancement = true;
+		if(pathEnhancement == null) {
+			pathEnhancement = true;
 		}
 		if(defaultProduceConsumeGuessing == null) {
 			defaultProduceConsumeGuessing = true;
@@ -138,12 +138,12 @@ public class CommonApiConfiguration {
 		this.defaultProduceConsumeGuessing = defaultProduceConsumeGuessing;
 	}
 
-	public boolean isSpringPathEnhancement() {
-		return springPathEnhancement;
+	public boolean getPathEnhancement() {
+		return pathEnhancement;
 	}
 
-	public void setSpringPathEnhancement(final boolean springPathEnhancement) {
-		this.springPathEnhancement = springPathEnhancement;
+	public void setPathEnhancement(final boolean pathEnhancement) {
+		this.pathEnhancement = pathEnhancement;
 	}
 
 	public String getDefaultSuccessfulOperationDescription() {

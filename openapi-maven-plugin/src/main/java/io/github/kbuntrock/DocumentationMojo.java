@@ -148,16 +148,26 @@ public class DocumentationMojo extends AbstractMojo {
 			File generatedFile = null;
 			try {
 				if(testMode) {
-					generatedFile = Files.createTempFile(apiConfig.getFilename() + "_", ".yml").toFile();
+					generatedFile = Files.createTempFile(apiConfig.getFilename() + "_", "").toFile();
 				} else {
-					generatedFile = new File(outputDirectory, apiConfig.getFilename() + ".yml");
+					generatedFile = new File(outputDirectory, apiConfig.getFilename());
 				}
 				getLog().debug("Prepared to write : " + generatedFile.getAbsolutePath());
 
 				new YamlWriter(project, apiConfig).write(generatedFile, tagLibrary);
 
 				if(apiConfig.isAttachArtifact()) {
-					projectHelper.attachArtifact(project, "yml", apiConfig.getFilename(), generatedFile);
+					String artifactType = "yaml";
+					String fileNameWithoutExtension = apiConfig.getFilename();
+					if(apiConfig.getFilename().endsWith(".yml")) {
+						artifactType = "yml";
+						fileNameWithoutExtension = apiConfig.getFilename()
+							.substring(0, fileNameWithoutExtension.length() - ".yml".length());
+					} else if(apiConfig.getFilename().endsWith(".yaml")) {
+						fileNameWithoutExtension = apiConfig.getFilename()
+							.substring(0, fileNameWithoutExtension.length() - ".yaml".length());
+					}
+					projectHelper.attachArtifact(project, artifactType, fileNameWithoutExtension, generatedFile);
 				}
 
 				generatedFiles.add(generatedFile);
