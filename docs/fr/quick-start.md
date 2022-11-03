@@ -26,7 +26,7 @@ A la suite, ajoutez dans votre pom.xml les lignes suivantes en les adaptant au b
 <plugin>
 	<groupId>io.github.kbuntrock</groupId>
 	<artifactId>openapi-maven-plugin</artifactId>
-	<version>0.0.8</version>
+	<version>0.0.11</version>
 	<executions>
 		<execution>
 			<id>documentation</id>
@@ -38,7 +38,8 @@ A la suite, ajoutez dans votre pom.xml les lignes suivantes en les adaptant au b
 	<configuration>
 		<!-- Cette section défini des configurations 'générales', qui peuvent être surchargées pour chaque document généré. -->
 		<apiConfiguration>
-			<tagAnnotations>
+			<library>SPRING_MVC</library> <!-- Valeur par défaut, la balise peut être supprimée en l'état -->
+			<tagAnnotations> <!-- Balise uniquement utile pour Spring MVC -->
 				<!-- RestController est la valeur par défaut mais peut être remplacée par RequestMapping -->
 				<annotation>RestController</annotation>
 			</tagAnnotations>

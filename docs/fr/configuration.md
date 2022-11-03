@@ -28,7 +28,25 @@ Configurations générales, qui seront appliquées à chaque document généré.
 </configuration>
 ```
 
+### library
+
+- Type : `string`
+- Valeur par défaut : `SPRING_MVC`
+
+Indique quelle librairie d'annotations sera utilisée pour détécter les webservices à documenter.
+
+Les valeurs peuvent être: 
+* `SPRING_MVC`
+* `JAVAX_RS` (valeur JAXRS également autorisée)
+* `JAKARTA_RS`
+
+```xml
+<library>JAVAX_RS</library>
+```
+
 ### tagAnnotations
+
+!> Non pertinent si `JAVAX_RS` ou `JAKARTA_RS` est utilisé.
 
 - Type : `string list`
 - Valeur par défaut : `RestController`
@@ -71,7 +89,7 @@ Inscrit une description par défaut sur les retours code HTTP 200 lorsqu'aucune 
 <defaultSuccessfulOperationDescription>Opération réalisée avec succès</defaultSuccessfulOperationDescription>
 ```
 
-### springPathEnhancement
+### pathEnhancement
 
 - Type : `boolean`
 - Valeur par défaut : `true`
@@ -80,8 +98,10 @@ Applique une correction de chemin (réalisée par spring) entre les classes anno
 Ajoute un "/" entre les deux valeurs si il n'y en a pas.
 Ajoute un "/" au début du chemin si il n'y en a pas
 
+ex : "api" + "status" donneront le path suivant : "/api/status".
+
 ```xml
-<springPathEnhancement>false</springPathEnhancement>
+<pathEnhancement>false</pathEnhancement>
 ```
 
 ### operationId
@@ -122,10 +142,56 @@ Cette valeur sera :
 
 Si vrai, insert un attribut d'extension indiquant le nom de la méthode java (voir https://loopback.io/doc/en/lb4/Decorators_openapi.html).
 
-?> Certains outils pourront utiliser cette valeur, comme par exemple ng-openapi-gen qui s'en servira pour le nom des méthodes typescript appelant le webservice.
+?> Certains outils pourront utiliser cette valeur, comme par exemple ng-openapi-gen (https://github.com/cyclosproject/ng-openapi-gen) qui s'en servira pour le nom des méthodes typescript appelant le webservice.
 
 ```xml
 <loopbackOperationName>false</loopbackOperationName>
+```
+
+### whiteList
+
+- Type : `string list`
+- Présence : `optionelle`
+
+Définit une liste blanche de classes / méthodes / combinaison des deux qu'il est autorisé de documenter.
+Chaque entrée est divisée en trois parties : 
+- gauche : regex de classe
+- séparateur : double underscore, sert uniquement à séparer les parties ("__")
+- droite : regex de méthode 
+
+!> c'est le nom canonique (avec package) de la classe qui est soumis à la regex
+
+Il n'est pas obligatoire de renseigner les deux parties en même temps. Voir les exemples suivants
+
+```xml
+<whiteList>
+	<entry>io.github.kbuntrock.AccountController__getCurrentUser<entry> <!-- très précis, seule la méthode getCurrentUser de la classe AccountController est autorisée par cette règle -->
+	<entry>__.*Session$<entry> <!-- toutes les méthodes se terminant par le mot Session sont autorisées par cette règle -->
+	<entry>.*Monitoring.*<entry> <!-- toutes les classes comprenant le mot "Monitoring" sont autorisées par cette règle -->
+</whiteList>
+```
+
+### blackList
+
+- Type : `string list`
+- Présence : `optionelle`
+
+Définit une liste noire de classes / méthodes / combinaison des deux qu'il n'est pas autorisé de documenter.
+Chaque entrée est divisée en trois parties : 
+- gauche : regex de classe
+- séparateur : double underscore, sert uniquement à séparer les parties ("__")
+- droite : regex de méthode 
+
+!> c'est le nom canonique (avec package) de la classe qui est soumis à la regex
+
+Il n'est pas obligatoire de renseigner les deux parties en même temps. Voir les exemples suivants
+
+```xml
+<blackList>
+	<entry>io.github.kbuntrock.AccountController__getCurrentUser<entry> <!-- très précis, seule la méthode getCurrentUser de la classe AccountController est bannie par cette règle -->
+	<entry>__.*Session$<entry> <!-- toutes les méthodes se terminant par le mot Session sont bannies par cette règle -->
+	<entry>.*Monitoring.*<entry> <!-- toutes les classes comprenant le mot "Monitoring" sont bannies par cette règle -->
+</blackList>
 ```
 
 ### freeFields
@@ -231,6 +297,18 @@ Renseigne les chemins relatifs à la racine du projet pour lesquels il faudra sc
 </scanLocations>
 ```
 
+### encoding
+
+- Type : `string`
+- Valeur par défaut : `UTF-8`
+
+Indique l'encodage des fichiers de code source dont la javadoc sera extraite.
+
+
+```xml
+<encoding>windows-1252</encoding>
+```
+
 ## apis
 
 - Type: `balise de section`
@@ -283,7 +361,7 @@ Renseigne les packages ou noms de classes complets à documenter.
 <locations>
 	<location>io.github.myproject.webservices</location>
 	<location>io.github.otherlibrary.webservices</location>
-	<location>io.github.myproject.supervision.Autotest.java</location>
+	<location>io.github.myproject.supervision.Autotest</location>
 </locations>
 ```
 
