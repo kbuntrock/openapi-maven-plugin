@@ -23,6 +23,6 @@ One can mention :
 - defining a "loopback operation name", used by some code generation tools (see [here](https://loopback.io/doc/en/lb4/Decorators_openapi.html) and [here](https://github.com/cyclosproject/ng-openapi-gen) ).
 ...
 
-Full documentation is located [here](https://kbuntrock.github.io/openapi-maven-plugin)
+Full documentation is located [here](https://kbuntrock.github.io/openapi-maven-plugin) and is available in english or french.
 
 Don't hesitate to show your appreciation of this project by giving it a :star:.
