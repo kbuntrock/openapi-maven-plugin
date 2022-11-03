@@ -100,7 +100,7 @@
             <api>
               <attachArtifact>true</attachArtifact>
               <defaultProduceConsumeGuessing>true</defaultProduceConsumeGuessing>
-              <filename>spec-open-api-impl</filename>
+              <filename>spec-open-api-impl.yml</filename>
               <locations>
                 <location>io.github.kbuntrock.sample.implementation</location>
               </locations>

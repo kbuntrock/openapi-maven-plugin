@@ -24,7 +24,7 @@ public class BasicIT {
 	@MavenGoal("install")
 	public void nominal_test_case(final MavenExecutionResult result) throws IOException {
 		final MavenExecutionResultAssert resultAssert = assertThat(result);
-		resultAssert.isSuccessful().out().info().contains("spec-open-api : 1 tags and 2 operations generated.");
+		resultAssert.isSuccessful().out().info().contains("spec-open-api.yml : 1 tags and 2 operations generated.");
 
 		final File target = new File(result.getMavenProjectResult().getTargetProjectDirectory(), "target");
 		final File generatedFile = new File(target, "spec-open-api.yml");
@@ -63,7 +63,7 @@ public class BasicIT {
 	@MavenGoal("install")
 	public void nominal_test_case_jaxrs(final MavenExecutionResult result) throws IOException {
 		final MavenExecutionResultAssert resultAssert = assertThat(result);
-		resultAssert.isSuccessful().out().info().contains("spec-open-api : 1 tags and 2 operations generated.");
+		resultAssert.isSuccessful().out().info().contains("spec-open-api.yml : 1 tags and 2 operations generated.");
 
 		final File target = new File(result.getMavenProjectResult().getTargetProjectDirectory(), "target");
 		final File generatedFile = new File(target, "spec-open-api.yml");

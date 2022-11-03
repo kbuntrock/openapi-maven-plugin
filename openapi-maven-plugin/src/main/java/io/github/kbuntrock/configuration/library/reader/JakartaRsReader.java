@@ -181,9 +181,9 @@ public class JakartaRsReader extends AstractLibraryReader {
 	protected List<String> readEndpointPaths(final String basePath, final MergedAnnotation<? extends Annotation> pathMergedAnnotation) {
 		final String path = pathMergedAnnotation.getString("value");
 		if(path == null) {
-			return Arrays.asList(concatenateBasePathAndMethodPath(basePath, "", apiConfiguration.isSpringPathEnhancement()));
+			return Arrays.asList(concatenateBasePathAndMethodPath(basePath, "", apiConfiguration.getPathEnhancement()));
 		}
-		return Arrays.asList(concatenateBasePathAndMethodPath(basePath, path, apiConfiguration.isSpringPathEnhancement()));
+		return Arrays.asList(concatenateBasePathAndMethodPath(basePath, path, apiConfiguration.getPathEnhancement()));
 	}
 
 	@Override

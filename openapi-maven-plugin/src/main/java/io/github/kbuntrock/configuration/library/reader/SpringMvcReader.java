@@ -170,10 +170,10 @@ public class SpringMvcReader extends AstractLibraryReader {
 		final String[] paths = requestMappingMergedAnnotation.getStringArray("path");
 		final List<String> resolvedPaths = new ArrayList<>();
 		if(paths.length == 0) {
-			resolvedPaths.add(concatenateBasePathAndMethodPath(basePath, "", apiConfiguration.isSpringPathEnhancement()));
+			resolvedPaths.add(concatenateBasePathAndMethodPath(basePath, "", apiConfiguration.getPathEnhancement()));
 		}
 		for(final String path : paths) {
-			resolvedPaths.add(concatenateBasePathAndMethodPath(basePath, path, apiConfiguration.isSpringPathEnhancement()));
+			resolvedPaths.add(concatenateBasePathAndMethodPath(basePath, path, apiConfiguration.getPathEnhancement()));
 		}
 		return resolvedPaths;
 	}
