@@ -38,8 +38,22 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class JavaxRsReader extends AstractLibraryReader {
 
+	private Class jakartaNotNull;
+	private Class jakartaHttpServletRequest;
+
 	public JavaxRsReader(final ApiConfiguration apiConfiguration) {
 		super(apiConfiguration);
+		try {
+			// For the validation constraint, there should be no problem if the dependency is not present.
+			jakartaNotNull = ClassLoaderUtils.getByName(JakartaRsReader.NOT_NULL_CNAME);
+		} catch(final ClassNotFoundException e) {
+			// Nothing to do, could be normal since it is in the validation api
+		}
+		try {
+			jakartaHttpServletRequest = ClassLoaderUtils.getByName(JakartaRsReader.HttpServletRequest_CNAME);
+		} catch(final ClassNotFoundException e) {
+			// Nothing to do, could be normal since it is in the servlet api
+		}
 	}
 
 	@Override
@@ -103,7 +117,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 
 			for(final Parameter parameter : method.getParameters()) {
 				if(HttpServletRequest.class.isAssignableFrom(parameter.getType()) ||
-					jakarta.servlet.http.HttpServletRequest.class.isAssignableFrom(parameter.getType())) {
+					(jakartaHttpServletRequest != null && jakartaHttpServletRequest.isAssignableFrom(parameter.getType()))) {
 					continue;
 				}
 				logger.debug("Parameter : " + parameter.getName());
@@ -118,8 +132,8 @@ public class JavaxRsReader extends AstractLibraryReader {
 				// Detect if required
 				if(notnullMA.isPresent()) {
 					paramObj.setRequired(notnullMA.isPresent());
-				} else {
-					paramObj.setRequired(mergedAnnotations.get(jakarta.validation.constraints.NotNull.class).isPresent());
+				} else if(jakartaNotNull != null) {
+					paramObj.setRequired(mergedAnnotations.get(jakartaNotNull).isPresent());
 				}
 
 				// Detect if is a path variable

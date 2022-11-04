@@ -7,6 +7,7 @@ import io.github.kbuntrock.resources.endpoint.javadoc.inheritance.ChildClassOne;
 import io.github.kbuntrock.resources.endpoint.javadoc.inheritance.two.ChildClassTwo;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -98,7 +99,9 @@ public class JavadocParserTest extends AbstractTest {
 	public void inheritance_test_two_package_success() throws MojoFailureException, MojoExecutionException, IOException {
 
 		final DocumentationMojo mojo = createBasicMojo("io.github.kbuntrock.resources.endpoint.javadoc.inheritance.two");
-		mojo.getApis().get(0).setTagAnnotations(Collections.singletonList("RestController"));
+		final List<String> tags = new ArrayList<>();
+		tags.add("RestController");
+		mojo.getApis().get(0).setTagAnnotations(tags);
 
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
 		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/javadoc/inheritance",
@@ -113,7 +116,9 @@ public class JavadocParserTest extends AbstractTest {
 	public void inheritance_test_three() throws MojoFailureException, MojoExecutionException, IOException {
 
 		final DocumentationMojo mojo = createBasicMojo("io.github.kbuntrock.resources.endpoint.javadoc.inheritance.three");
-		mojo.getApis().get(0).setTagAnnotations(Collections.singletonList("RestController"));
+		final List<String> tags = new ArrayList<>();
+		tags.add("RestController");
+		mojo.getApis().get(0).setTagAnnotations(tags);
 
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
 		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/javadoc/inheritance",
