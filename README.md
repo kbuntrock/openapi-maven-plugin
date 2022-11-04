@@ -6,6 +6,8 @@
 
 The openapi maven plugin analyse Rest controller java classes and generate the corresponding openapi 3.0.3 documentation. It supports Spring MVC, Javax RS and Jakarta RS annotations.
 
+It is compatible from jdk8 to at least jdk17 (IT tests are run on jdk8, jdk11 and jdk17).
+
 The plugin generate the documentation using the compiled classes + the source code of the project.
 
 Doing this process during the building phase of a project has several advantages compared to other methods:
