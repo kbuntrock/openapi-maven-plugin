@@ -6,6 +6,8 @@
 
 Le but de se plugin est de générer la documentation openapi de webservices REST à partir d'un projet Java utilisant les annotations Spring MVC, Javax RS ou Jakarta RS.
 
+Il est compatible du jdk8 jusqu'à au moins jdk17 (les tests d'intégration sont passés sur un jdk8, jdk11 et jdk17).
+
 Le plugin combine les informations obtenues via réflexion sur le code compilé et le parsing des fichiers sources pour en extraire les commentaires javadoc.
 
 La philosophie de ce plugin est de créer la documentation durant la phase de build, sans lancer d'application. Cela a plusieurs avantages comparé à d'autres méthodes: 
