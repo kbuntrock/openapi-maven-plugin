@@ -141,6 +141,7 @@ public class DocumentationMojo extends AbstractMojo {
 			AdditionnalSchemaLibrary.reset();
 			final ApiConfiguration apiConfig = initialApiConfiguration.mergeWithCommonApiConfiguration(this.apiConfiguration);
 			final ApiResourceScanner apiResourceScanner = new ApiResourceScanner(apiConfig);
+			getLog().debug("Prepare to scan");
 			final TagLibrary tagLibrary = apiResourceScanner.scanRestControllers();
 			getLog().debug("Scan done");
 
