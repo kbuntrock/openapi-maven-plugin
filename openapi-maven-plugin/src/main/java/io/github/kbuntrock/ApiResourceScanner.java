@@ -61,7 +61,6 @@ public class ApiResourceScanner {
 
 		final Library framework = apiConfiguration.getLibrary();
 		final List<Class<? extends Annotation>> annotatedElementList = new ArrayList<>();
-		logger.warn("tag annot size now : " + apiConfiguration.getTagAnnotations().size());
 		for(final String annotationName : apiConfiguration.getTagAnnotations()) {
 			annotatedElementList.add(framework.getByClassName(annotationName));
 		}
