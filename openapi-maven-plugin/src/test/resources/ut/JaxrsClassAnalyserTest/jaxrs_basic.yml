@@ -50,7 +50,7 @@ paths:
       parameters:
         - name: name
           in: query
-          required: false
+          required: true
           schema:
             type: string
       responses:

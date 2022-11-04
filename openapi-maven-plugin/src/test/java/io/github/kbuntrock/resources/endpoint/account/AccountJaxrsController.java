@@ -3,6 +3,8 @@ package io.github.kbuntrock.resources.endpoint.account;
 import io.github.kbuntrock.resources.Constants;
 import io.github.kbuntrock.resources.dto.AccountDto;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -27,7 +29,7 @@ public interface AccountJaxrsController {
 
 	@POST
 	@Path("/user-dtos")
-	List<AccountDto> getAccountDtosByQueryParam(@QueryParam("name") String name);
+	List<AccountDto> getAccountDtosByQueryParam(@NotNull @QueryParam("name") String name, HttpServletRequest request);
 
 	@DELETE
 	@Path("/delete/{id}")

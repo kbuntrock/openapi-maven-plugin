@@ -3,6 +3,7 @@ package io.github.kbuntrock.configuration.library;
 import io.github.kbuntrock.MojoRuntimeException;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.library.reader.AstractLibraryReader;
+import io.github.kbuntrock.configuration.library.reader.ClassLoaderUtils;
 import io.github.kbuntrock.configuration.library.reader.JakartaRsReader;
 import io.github.kbuntrock.configuration.library.reader.JavaxRsReader;
 import io.github.kbuntrock.configuration.library.reader.SpringMvcReader;
@@ -28,13 +29,11 @@ public enum Library {
 		nameMap.put(JAKARTA_RS.name().toLowerCase(), JAKARTA_RS);
 	}
 
-	private final Map<String, Class<? extends Annotation>> annotationMap = new HashMap<>();
 	private final List<TagAnnotation> tagAnnotations = new ArrayList<>();
 
 	Library(final TagAnnotation... tagAnnotations) {
 		for(final TagAnnotation tagAnnotation : tagAnnotations) {
 			this.tagAnnotations.add(tagAnnotation);
-			annotationMap.put(tagAnnotation.getAnnotationClassName(), tagAnnotation.getAnnotattion());
 		}
 	}
 
@@ -55,11 +54,7 @@ public enum Library {
 	}
 
 	public Class<? extends Annotation> getByClassName(final String className) {
-		final Class<? extends Annotation> toReturn = annotationMap.get(className);
-		if(toReturn == null) {
-			throw new MojoRuntimeException("There is no annotation corresponding to : " + className);
-		}
-		return toReturn;
+		return ClassLoaderUtils.getByNameRuntimeEx(className);
 	}
 
 	public AstractLibraryReader createReader(final ApiConfiguration apiConfiguration) {

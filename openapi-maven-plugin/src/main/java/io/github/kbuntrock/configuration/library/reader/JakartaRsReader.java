@@ -9,12 +9,6 @@ import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.ParameterLocation;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
@@ -38,14 +32,38 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class JakartaRsReader extends AstractLibraryReader {
 
+	private static final String PATH_CNAME = "jakarta.ws.rs.Path";
+	public static final String NOT_NULL_CNAME = "jakarta.validation.constraints.NotNull";
+	public static final String HttpServletRequest_CNAME = "jakarta.servlet.http.HttpServletRequest";
+	private Class jakartaPath;
+	private Class jakartaNotNull;
+	private Class jakartaHttpServletRequest;
+
 	public JakartaRsReader(final ApiConfiguration apiConfiguration) {
 		super(apiConfiguration);
+		initClasses();
+	}
+
+	private void initClasses() {
+		// If the jakarta path class is not present, there is a configuration error
+		jakartaPath = ClassLoaderUtils.getByNameRuntimeEx(PATH_CNAME);
+		try {
+			// For the validation constraint, there should be no problem if the dependency is not present.
+			jakartaNotNull = ClassLoaderUtils.getByName(NOT_NULL_CNAME);
+		} catch(final ClassNotFoundException e) {
+			// Nothing to do, could be normal since it is in the validation api
+		}
+		try {
+			jakartaHttpServletRequest = ClassLoaderUtils.getByName(HttpServletRequest_CNAME);
+		} catch(final ClassNotFoundException e) {
+			// Nothing to do, could be normal since it is in the servlet api
+		}
 	}
 
 	@Override
 	public List<String> readBasePaths(final Class<?> clazz, final MergedAnnotations mergedAnnotations) {
 		List<String> basePaths = Collections.singletonList("");
-		final MergedAnnotation<Path> requestMappingMergedAnnotation = mergedAnnotations.get(Path.class);
+		final MergedAnnotation requestMappingMergedAnnotation = mergedAnnotations.get(jakartaPath);
 		if(requestMappingMergedAnnotation.isPresent()) {
 			final String path = requestMappingMergedAnnotation.getString("value");
 			if(!StringUtils.isEmpty(path)) {
@@ -59,7 +77,7 @@ public class JakartaRsReader extends AstractLibraryReader {
 	public void computeAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations, final Tag tag)
 		throws MojoFailureException {
 
-		final MergedAnnotation<Path> requestMappingMergedAnnotation = mergedAnnotations.get(Path.class);
+		final MergedAnnotation requestMappingMergedAnnotation = mergedAnnotations.get(jakartaPath);
 		if(requestMappingMergedAnnotation.isPresent()) {
 
 			for(final JakartaRsHttpVerb verb : JakartaRsHttpVerb.values()) {
@@ -71,7 +89,7 @@ public class JakartaRsReader extends AstractLibraryReader {
 					final int responseCode = readResponseCode(null);
 					final String path = readEndpointPaths(basePath, requestMappingMergedAnnotation).get(0);
 					final Endpoint endpoint = new Endpoint();
-					endpoint.setType(OperationType.fromJakarta(verb.getAnnotationClass()));
+					endpoint.setType(OperationType.fromJakarta(verb.getAnnotationClass().getCanonicalName()));
 					endpoint.setPath(path);
 					endpoint.setName(method.getName());
 					endpoint.setParameters(parameterObjects);
@@ -103,7 +121,7 @@ public class JakartaRsReader extends AstractLibraryReader {
 
 			for(final Parameter parameter : method.getParameters()) {
 				if(HttpServletRequest.class.isAssignableFrom(parameter.getType()) ||
-					jakarta.servlet.http.HttpServletRequest.class.isAssignableFrom(parameter.getType())) {
+					(jakartaHttpServletRequest != null && jakartaHttpServletRequest.isAssignableFrom(parameter.getType()))) {
 					continue;
 				}
 				logger.debug("Parameter : " + parameter.getName());
@@ -118,12 +136,13 @@ public class JakartaRsReader extends AstractLibraryReader {
 				// Detect if required
 				if(notnullMA.isPresent()) {
 					paramObj.setRequired(notnullMA.isPresent());
-				} else {
-					paramObj.setRequired(mergedAnnotations.get(jakarta.validation.constraints.NotNull.class).isPresent());
+				} else if(jakartaNotNull != null) {
+					paramObj.setRequired(mergedAnnotations.get(jakartaNotNull).isPresent());
 				}
 
 				// Detect if is a path variable
-				final MergedAnnotation<PathParam> pathVariableMA = mergedAnnotations.get(PathParam.class);
+				final MergedAnnotation pathVariableMA = mergedAnnotations.get(
+					ClassLoaderUtils.getByNameRuntimeEx("jakarta.ws.rs.PathParam"));
 				if(pathVariableMA.isPresent()) {
 					paramObj.setLocation(ParameterLocation.PATH);
 					// Path params are required
@@ -137,7 +156,8 @@ public class JakartaRsReader extends AstractLibraryReader {
 				}
 
 				// Detect if is a query variable
-				final MergedAnnotation<QueryParam> requestParamMA = mergedAnnotations.get(QueryParam.class);
+				final MergedAnnotation requestParamMA = mergedAnnotations.get(
+					ClassLoaderUtils.getByNameRuntimeEx("jakarta.ws.rs.QueryParam"));
 				if(requestParamMA.isPresent()) {
 
 					final boolean isMultipartFile = MultipartFile.class == paramObj.getJavaClass() ||
@@ -178,7 +198,7 @@ public class JakartaRsReader extends AstractLibraryReader {
 	}
 
 	@Override
-	protected List<String> readEndpointPaths(final String basePath, final MergedAnnotation<? extends Annotation> pathMergedAnnotation) {
+	protected List<String> readEndpointPaths(final String basePath, final MergedAnnotation pathMergedAnnotation) {
 		final String path = pathMergedAnnotation.getString("value");
 		if(path == null) {
 			return Arrays.asList(concatenateBasePathAndMethodPath(basePath, "", apiConfiguration.getPathEnhancement()));
@@ -189,8 +209,10 @@ public class JakartaRsReader extends AstractLibraryReader {
 	@Override
 	protected void setConsumeProduceProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations)
 		throws MojoFailureException {
-		final MergedAnnotation<Consumes> consumesMergedAnnotation = mergedAnnotations.get(Consumes.class);
-		final MergedAnnotation<Produces> producesMergedAnnotation = mergedAnnotations.get(Produces.class);
+		final MergedAnnotation consumesMergedAnnotation = mergedAnnotations.get(
+			ClassLoaderUtils.getByNameRuntimeEx("jakarta.ws.rs.Consumes"));
+		final MergedAnnotation producesMergedAnnotation = mergedAnnotations.get(
+			ClassLoaderUtils.getByNameRuntimeEx("jakarta.ws.rs.Produces"));
 
 		final Optional<ParameterObject> body = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation())
 			.findAny();
@@ -214,22 +236,22 @@ public class JakartaRsReader extends AstractLibraryReader {
 	}
 
 	private enum JakartaRsHttpVerb {
-		GET(jakarta.ws.rs.GET.class),
-		PUT(jakarta.ws.rs.PUT.class),
-		POST(jakarta.ws.rs.POST.class),
-		DELETE(jakarta.ws.rs.DELETE.class),
-		PATCH(jakarta.ws.rs.PATCH.class),
-		OPTIONS(jakarta.ws.rs.OPTIONS.class),
-		HEAD(jakarta.ws.rs.HEAD.class);
+		GET("jakarta.ws.rs.GET"),
+		PUT("jakarta.ws.rs.PUT"),
+		POST("jakarta.ws.rs.POST"),
+		DELETE("jakarta.ws.rs.DELETE"),
+		PATCH("jakarta.ws.rs.PATCH"),
+		OPTIONS("jakarta.ws.rs.OPTIONS"),
+		HEAD("jakarta.ws.rs.HEAD");
 
-		private final Class annotationClass;
+		private final String annotationClassName;
 
-		JakartaRsHttpVerb(final Class annotationClass) {
-			this.annotationClass = annotationClass;
+		JakartaRsHttpVerb(final String annotationClassName) {
+			this.annotationClassName = annotationClassName;
 		}
 
 		public Class getAnnotationClass() {
-			return annotationClass;
+			return ClassLoaderUtils.getByNameRuntimeEx(annotationClassName);
 		}
 	}
 

@@ -2,6 +2,8 @@ package io.github.kbuntrock.resources.endpoint.account;
 
 import io.github.kbuntrock.resources.Constants;
 import io.github.kbuntrock.resources.dto.AccountDto;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -27,7 +29,7 @@ public interface AccountJakartaController {
 
 	@POST
 	@Path("/user-dtos")
-	List<AccountDto> getAccountDtosByQueryParam(@QueryParam("name") String name);
+	List<AccountDto> getAccountDtosByQueryParam(@QueryParam("name") @NotNull String name, HttpServletRequest request);
 
 	@DELETE
 	@Path("/delete/{id}")

@@ -39,13 +39,13 @@ jobs:
           command: |
             cp -r ~/.m2/repository/* integration-tests/src/test/resources-its/io/github/kbuntrock/it/BasicIT/.predefined-repo
             
-      #- run:
-      #    name: Integration tests JDK8
-      #    command: |
-      #      export JAVA_HOME=$JAVA8_HOME
-      #      mvn --version
-      #      cd integration-tests
-      #      mvn -Dit.test=BasicIT#nominal_test_case_jdk8 clean verify
+      - run:
+          name: Integration tests JDK8
+          command: |
+            export JAVA_HOME=$JAVA8_HOME
+            mvn --version
+            cd integration-tests
+            mvn -Dit.test=BasicIT#nominal_test_case_jdk8 clean verify
             
       - run:
           name: Integration tests JDK11
