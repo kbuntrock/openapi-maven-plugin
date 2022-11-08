@@ -1,5 +1,6 @@
 package io.github.kbuntrock;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.ParameterObject;
@@ -29,7 +30,7 @@ public class TagLibrary {
 	private final Set<DataObject> schemaObjects = new HashSet<>();
 	private final Set<String> exploredSignatures = new HashSet<>();
 
-	public void addTag(Tag tag) throws MojoFailureException {
+	public void addTag(final Tag tag) throws MojoFailureException {
 		tags.add(tag);
 		exploreTagObjects(tag);
 		System.currentTimeMillis();
@@ -40,13 +41,13 @@ public class TagLibrary {
 	 *
 	 * @param tag a rest controller
 	 */
-	private void exploreTagObjects(Tag tag) {
-		for(Endpoint endpoint : tag.getEndpoints()) {
+	private void exploreTagObjects(final Tag tag) {
+		for(final Endpoint endpoint : tag.getEndpoints()) {
 			if(endpoint.getResponseObject() != null) {
 				exploreDataObject(endpoint.getResponseObject());
 			}
 
-			for(ParameterObject parameterObject : endpoint.getParameters()) {
+			for(final ParameterObject parameterObject : endpoint.getParameters()) {
 				exploreDataObject(parameterObject);
 			}
 		}
@@ -65,8 +66,8 @@ public class TagLibrary {
 		} else if(dataObject.isGenericallyTyped()) {
 //            // Eventually analyse instead the generic types
 			if(dataObject.getGenericNameToTypeMap() != null) {
-				for(Map.Entry<String, Type> entry : dataObject.getGenericNameToTypeMap().entrySet()) {
-					DataObject genericObject = new DataObject(dataObject.getContextualType(entry.getValue()));
+				for(final Map.Entry<String, Type> entry : dataObject.getGenericNameToTypeMap().entrySet()) {
+					final DataObject genericObject = new DataObject(dataObject.getContextualType(entry.getValue()));
 					exploreDataObject(genericObject);
 				}
 			}
@@ -76,46 +77,27 @@ public class TagLibrary {
 		}
 	}
 
-	private void inspectObject(DataObject explored) {
+	private void inspectObject(final DataObject explored) {
 		if(explored.getJavaClass().isEnum()) {
 			return;
 		}
-		List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), explored.getJavaClass());
-		for(Field field : fields) {
-			DataObject dataObject = new DataObject(explored.getContextualType(field.getGenericType()));
+		final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), explored.getJavaClass());
+		for(final Field field : fields) {
+			if(field.isAnnotationPresent(JsonIgnore.class)) {
+				// Field is tagged ignore. No need to document it.
+				continue;
+			}
+			final DataObject dataObject = new DataObject(explored.getContextualType(field.getGenericType()));
 			exploreDataObject(dataObject);
 		}
 		if(explored.getJavaClass().isInterface()) {
-			Method[] methods = explored.getJavaClass().getMethods();
-			for(Method method : methods) {
+			final Method[] methods = explored.getJavaClass().getMethods();
+			for(final Method method : methods) {
 
 				if(method.getParameters().length == 0
 					&& ((method.getName().startsWith(METHOD_GET_PREFIX) && method.getName().length() != METHOD_GET_PREFIX_SIZE) ||
 					(method.getName().startsWith(METHOD_IS_PREFIX)) && method.getName().length() != METHOD_IS_PREFIX_SIZE)) {
-					DataObject dataObject = new DataObject(explored.getContextualType(method.getGenericReturnType()));
-					exploreDataObject(dataObject);
-				}
-			}
-		}
-
-	}
-
-	private void inspectObject(Class<?> clazz) {
-		if(clazz.isEnum()) {
-			return;
-		}
-		List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), clazz);
-		for(Field field : fields) {
-			DataObject dataObject = new DataObject(field.getGenericType());
-			exploreDataObject(dataObject);
-		}
-		if(clazz.isInterface()) {
-			Method[] methods = clazz.getMethods();
-			for(Method method : methods) {
-
-				if(method.getParameters().length == 0
-					&& (method.getName().startsWith("get") || method.getName().startsWith("is"))) {
-					DataObject dataObject = new DataObject(method.getGenericReturnType());
+					final DataObject dataObject = new DataObject(explored.getContextualType(method.getGenericReturnType()));
 					exploreDataObject(dataObject);
 				}
 			}

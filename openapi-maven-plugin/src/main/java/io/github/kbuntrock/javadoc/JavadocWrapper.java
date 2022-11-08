@@ -24,11 +24,11 @@ public class JavadocWrapper {
 	private boolean inheritTagFound = false;
 	private boolean sortDone = false;
 
-	public JavadocWrapper(Javadoc javadoc) {
+	public JavadocWrapper(final Javadoc javadoc) {
 		this.javadoc = javadoc;
 	}
 
-	public static void setEndOfLineReplacement(String endOfLineReplacement) {
+	public static void setEndOfLineReplacement(final String endOfLineReplacement) {
 		JavadocWrapper.endOfLineReplacement = endOfLineReplacement;
 	}
 
@@ -43,8 +43,8 @@ public class JavadocWrapper {
 		sortDone = true;
 		blockTagsByType = new HashMap<>();
 		paramBlockTagsByName = new HashMap<>();
-		for(JavadocBlockTag blockTag : javadoc.getBlockTags()) {
-			List<JavadocBlockTag> list = blockTagsByType.computeIfAbsent(blockTag.getType(), k -> new ArrayList<>());
+		for(final JavadocBlockTag blockTag : javadoc.getBlockTags()) {
+			final List<JavadocBlockTag> list = blockTagsByType.computeIfAbsent(blockTag.getType(), k -> new ArrayList<>());
 			list.add(blockTag);
 			if(JavadocBlockTag.Type.PARAM == blockTag.getType() && blockTag.getName().isPresent()) {
 				paramBlockTagsByName.put(blockTag.getName().get(), blockTag);
@@ -59,7 +59,7 @@ public class JavadocWrapper {
 	}
 
 	public Optional<JavadocBlockTag> getReturnBlockTag() {
-		List<JavadocBlockTag> list = blockTagsByType.get(JavadocBlockTag.Type.RETURN);
+		final List<JavadocBlockTag> list = blockTagsByType.get(JavadocBlockTag.Type.RETURN);
 		if(list != null && !list.isEmpty()) {
 			return Optional.of(list.get(0));
 		}

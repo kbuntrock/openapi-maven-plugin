@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class ClassDocumentation {
-
+	
 	private final String completeName;
 	private final String simpleName;
 	private JavadocWrapper javadocWrapper;

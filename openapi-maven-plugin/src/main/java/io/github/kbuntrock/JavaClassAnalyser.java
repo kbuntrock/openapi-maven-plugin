@@ -3,30 +3,20 @@ package io.github.kbuntrock;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.library.reader.AstractLibraryReader;
-import io.github.kbuntrock.model.Endpoint;
-import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.utils.Logger;
-import io.github.kbuntrock.utils.ParameterLocation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.Produces;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  * Analyse a java class in light of an api configuration object
@@ -106,76 +96,6 @@ public class JavaClassAnalyser {
 			sb.append(createTypeIdentifier(parameter.getParameterizedType().getTypeName()));
 		}
 		return sb.toString();
-	}
-
-	private static int readSpringResponseCode(final MergedAnnotations mergedAnnotations) {
-
-		final MergedAnnotation<ResponseStatus> responseStatusMA = mergedAnnotations.get(ResponseStatus.class);
-		if(!responseStatusMA.isPresent()) {
-			return HttpStatus.OK.value();
-		}
-		return responseStatusMA.getValue("value", HttpStatus.class).get().value();
-	}
-
-	/**
-	 * Set the consume and produce properties of an endpoint
-	 *
-	 * @param endpoint                       the endpoint object to set
-	 * @param requestMappingMergedAnnotation
-	 */
-	private static void setSpringConsumeProduceProperties(final Endpoint endpoint,
-		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation) throws MojoFailureException {
-
-		final Optional<ParameterObject> body = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation())
-			.findAny();
-		if(body.isPresent()) {
-			final String[] consumes = requestMappingMergedAnnotation.getStringArray("consumes");
-			if(consumes.length > 0) {
-				body.get().setFormats(Arrays.asList(consumes));
-			}
-		}
-		if(endpoint.getResponseObject() != null) {
-			final String[] produces = requestMappingMergedAnnotation.getStringArray("produces");
-			if(produces.length > 0) {
-				endpoint.setResponseFormats(Arrays.asList(produces));
-			}
-		}
-	}
-
-	private static void setJaxrsConsumeProduceProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations)
-		throws MojoFailureException {
-
-		final MergedAnnotation<Consumes> consumesMergedAnnotation = mergedAnnotations.get(Consumes.class);
-		final MergedAnnotation<Produces> producesMergedAnnotation = mergedAnnotations.get(Produces.class);
-
-		final Optional<ParameterObject> body = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation())
-			.findAny();
-		if(body.isPresent() && consumesMergedAnnotation.isPresent()) {
-			final String[] consumes = consumesMergedAnnotation.getStringArray("value");
-			if(consumes.length > 0) {
-				body.get().setFormats(Arrays.asList(consumes));
-			}
-		}
-		if(endpoint.getResponseObject() != null && producesMergedAnnotation.isPresent()) {
-			final String[] produces = producesMergedAnnotation.getStringArray("value");
-			if(produces.length > 0) {
-				endpoint.setResponseFormats(Arrays.asList(produces));
-			}
-		}
-	}
-
-	private static String concatenateBasePathAndMethodPath(final String basePath, final String methodPath,
-		final boolean automaticSeparator) {
-		String result = basePath + methodPath;
-		if(automaticSeparator) {
-			if(!methodPath.isEmpty() && !methodPath.startsWith("/") && !basePath.endsWith("/")) {
-				result = basePath + "/" + methodPath;
-			}
-			if(!result.startsWith("/")) {
-				result = "/" + result;
-			}
-		}
-		return result;
 	}
 
 	/**

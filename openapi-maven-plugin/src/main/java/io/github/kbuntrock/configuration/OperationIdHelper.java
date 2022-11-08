@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
  * @author Kevin Buntrock
  */
 public class OperationIdHelper {
-
+	
 	private static final Map<String, TokenType> idToTokenType = new HashMap<>();
 	private static final String REGEX = "(\\{)(.*?)(})";
 	private static final Pattern pattern = Pattern.compile(REGEX);

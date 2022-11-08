@@ -13,7 +13,7 @@ public enum OperationType {
 	HEAD(RequestMethod.HEAD, javax.ws.rs.HEAD.class, "jakarta.ws.rs.HEAD"),
 	OPTIONS(RequestMethod.OPTIONS, javax.ws.rs.OPTIONS.class, "jakarta.ws.rs.OPTIONS"),
 	TRACE(RequestMethod.TRACE, null, null);
-
+	
 	private static final Map<RequestMethod, OperationType> mapBySpringMvcRequestMethod = new HashMap<>();
 	private static final Map<Class, OperationType> mapByJavaxRsAnnotationClass = new HashMap<>();
 	private static final Map<String, OperationType> mapByJakartaRsAnnotationClass = new HashMap<>();

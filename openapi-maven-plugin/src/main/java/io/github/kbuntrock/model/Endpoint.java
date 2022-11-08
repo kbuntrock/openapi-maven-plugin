@@ -7,7 +7,7 @@ import java.util.List;
 public class Endpoint {
 
 	private String path;
-
+	
 	private OperationType type;
 
 	private String name;

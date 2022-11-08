@@ -1,0 +1,77 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: JsonIgnoreController
+paths:
+  /api/json-ignore/get:
+    get:
+      tags:
+        - JsonIgnoreController
+      operationId: get
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JsonIgnoreDto'
+components:
+  schemas:
+    Authority:
+      type: string
+      enum:
+        - READ_USER
+        - WRITE_USER
+        - ACCES_APP
+    JsonIgnoreDto:
+      type: object
+      properties:
+        keyAndPassword:
+          $ref: '#/components/schemas/KeyAndPasswordDto'
+        secondJsonIgnore:
+          $ref: '#/components/schemas/SecondJsonIgnoreDto'
+    KeyAndPasswordDto:
+      type: object
+      properties:
+        key:
+          type: string
+        newPassword:
+          type: string
+    SecondJsonIgnoreDto:
+      type: object
+      properties:
+        timeDto:
+          $ref: '#/components/schemas/TimeDto'
+        page:
+          type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/Authority'
+              uniqueItems: true
+            hasNext:
+              type: boolean
+            totalPages:
+              type: integer
+              format: int32
+            totalElements:
+              type: integer
+              format: int64
+    TimeDto:
+      type: object
+      properties:
+        instant:
+          type: string
+          format: date-time
+        date:
+          type: string
+          format: date
+        dateTime:
+          type: string
+          format: date-time

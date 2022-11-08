@@ -10,7 +10,7 @@ public class GenericArrayTypeImpl implements GenericArrayType {
 
 	private final Type genericComponentType;
 
-	public GenericArrayTypeImpl(Type genericComponentType) {
+	public GenericArrayTypeImpl(final Type genericComponentType) {
 		this.genericComponentType = genericComponentType;
 	}
 

@@ -8,7 +8,7 @@ import java.util.Map;
  */
 public enum JavadocMap {
 	INSTANCE;
-
+	
 	private Map<String, ClassDocumentation> javadocMap = new HashMap<>();
 
 	public Map<String, ClassDocumentation> getJavadocMap() {

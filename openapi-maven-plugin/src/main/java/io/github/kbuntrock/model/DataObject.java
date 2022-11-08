@@ -89,7 +89,7 @@ public class DataObject {
 					mapKeyValueDataObjects[0] = new DataObject(pt.getActualTypeArguments()[0]);
 					mapKeyValueDataObjects[1] = new DataObject(pt.getActualTypeArguments()[1]);
 				}
-
+				
 			} else if(type instanceof GenericArrayType) {
 
 				// Parameterized array

@@ -197,7 +197,7 @@ public class CommonApiConfiguration {
 	public List<String> getWhiteList() {
 		return whiteList;
 	}
-
+	
 	public void setWhiteList(final List<String> whiteList) {
 		this.whiteList = whiteList;
 	}

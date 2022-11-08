@@ -16,7 +16,7 @@ public class Tag {
 	private final Class<?> clazz;
 	private String computedName;
 
-	public Tag(Class<?> clazz) {
+	public Tag(final Class<?> clazz) {
 		this.name = clazz.getSimpleName();
 		this.clazz = clazz;
 	}
@@ -25,14 +25,14 @@ public class Tag {
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
-	public String computeConfiguredName(ApiConfiguration apiConfiguration) {
+	public String computeConfiguredName(final ApiConfiguration apiConfiguration) {
 		if(computedName == null) {
 			computedName = getName();
-			for(Substitution substitution : apiConfiguration.getTag().getSubstitutions()) {
+			for(final Substitution substitution : apiConfiguration.getTag().getSubstitutions()) {
 				computedName = computedName.replaceAll(substitution.getRegex(), substitution.getSubstitute());
 			}
 		}

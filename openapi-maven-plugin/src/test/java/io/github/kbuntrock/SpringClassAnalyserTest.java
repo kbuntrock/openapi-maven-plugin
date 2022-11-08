@@ -23,6 +23,7 @@ import io.github.kbuntrock.resources.endpoint.generic.GenericityTestOne;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestSix;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestThree;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTwo;
+import io.github.kbuntrock.resources.endpoint.ignore.JsonIgnoreController;
 import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
 import io.github.kbuntrock.resources.endpoint.map.MapController;
 import io.github.kbuntrock.resources.endpoint.number.NumberController;
@@ -541,6 +542,16 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		// The result should be the same as the white list method test
 		final List<File> generated = mojo.documentProject();
 		checkGenerationResult("ut/SpringClassAnalyserTest/white_list_method.yml", generated.get(0));
+	}
+
+	@Test
+	public void json_ignore() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(JsonIgnoreController.class.getCanonicalName());
+
+		// The result should be the same as the white list method test
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/json_ignore.yml", generated.get(0));
 	}
 
 }

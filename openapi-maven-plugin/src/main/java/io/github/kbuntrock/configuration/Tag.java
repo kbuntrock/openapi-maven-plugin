@@ -13,7 +13,7 @@ public class Tag {
 		return substitutions;
 	}
 
-	public void setSubstitutions(List<Substitution> substitutions) {
+	public void setSubstitutions(final List<Substitution> substitutions) {
 		this.substitutions = substitutions;
 	}
 }

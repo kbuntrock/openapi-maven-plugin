@@ -15,7 +15,7 @@ public class ParameterizedTypeImpl implements ParameterizedType {
 	public ParameterizedTypeImpl() {
 	}
 
-	public ParameterizedTypeImpl(ParameterizedType parameterizedType) {
+	public ParameterizedTypeImpl(final ParameterizedType parameterizedType) {
 		this.actualTypeArguments = parameterizedType.getActualTypeArguments();
 		this.rawType = parameterizedType.getRawType();
 		this.ownerType = parameterizedType.getOwnerType();
@@ -26,7 +26,7 @@ public class ParameterizedTypeImpl implements ParameterizedType {
 		return actualTypeArguments;
 	}
 
-	public void setActualTypeArguments(Type[] actualTypeArguments) {
+	public void setActualTypeArguments(final Type[] actualTypeArguments) {
 		this.actualTypeArguments = actualTypeArguments;
 	}
 
@@ -35,7 +35,7 @@ public class ParameterizedTypeImpl implements ParameterizedType {
 		return rawType;
 	}
 
-	public void setRawType(Type rawType) {
+	public void setRawType(final Type rawType) {
 		this.rawType = rawType;
 	}
 
