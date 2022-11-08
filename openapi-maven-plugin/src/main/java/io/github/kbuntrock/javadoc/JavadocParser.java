@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import org.apache.maven.plugin.logging.Log;
 
 public class JavadocParser {
-
+	
 	private static final String LOG_PREFIX = JavadocParser.class.getSimpleName() + " - ";
 	private final JavaParser javaParser;
 	private final Log logger = Logger.INSTANCE.getLogger();

@@ -15,7 +15,6 @@ public enum TagAnnotation {
 		this.annotatedElement = annotatedElement;
 	}
 
-
 	public String getAnnotationClassName() {
 		return annotatedElement;
 	}

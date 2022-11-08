@@ -32,7 +32,7 @@ public class ParameterObject extends DataObject {
 	public void setRequired(boolean required) {
 		this.required = required;
 	}
-
+	
 	public ParameterLocation getLocation() {
 		return location;
 	}

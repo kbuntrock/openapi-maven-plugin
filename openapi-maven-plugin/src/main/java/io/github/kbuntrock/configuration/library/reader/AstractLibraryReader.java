@@ -22,7 +22,7 @@ import org.springframework.http.HttpEntity;
 public abstract class AstractLibraryReader {
 
 	protected final Log logger = Logger.INSTANCE.getLogger();
-
+	
 	protected final ApiConfiguration apiConfiguration;
 
 	public AstractLibraryReader(final ApiConfiguration apiConfiguration) {

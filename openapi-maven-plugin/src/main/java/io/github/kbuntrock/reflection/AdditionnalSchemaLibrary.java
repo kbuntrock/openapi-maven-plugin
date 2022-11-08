@@ -13,7 +13,7 @@ import java.util.Map;
  * @author Kevin Buntrock
  */
 public final class AdditionnalSchemaLibrary {
-
+	
 	private static final Map<String, DataObject> map = new LinkedHashMap<>();
 
 	public static void reset() {

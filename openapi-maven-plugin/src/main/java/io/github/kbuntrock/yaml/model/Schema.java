@@ -72,12 +72,13 @@ public class Schema {
 	public Schema() {
 	}
 
-	public Schema(DataObject dataObject, Set<String> exploredSignatures) {
+	public Schema(final DataObject dataObject, final Set<String> exploredSignatures) {
 		this(dataObject, false, exploredSignatures, null, null);
 	}
 
-	public Schema(DataObject dataObject, boolean mainReference, Set<String> exploredSignatures, DataObject parentDataObject,
-		String parentFieldName) {
+	public Schema(final DataObject dataObject, final boolean mainReference, final Set<String> exploredSignatures,
+		final DataObject parentDataObject,
+		final String parentFieldName) {
 
 		this.mainReference = mainReference;
 
@@ -89,7 +90,7 @@ public class Schema {
 				classDocumentation.inheritanceEnhancement(dataObject.getJavaClass(), ClassDocumentation.EnhancementType.FIELDS);
 			}
 			if(classDocumentation != null && mainReference) {
-				Optional<String> optionalDescription = classDocumentation.getDescription();
+				final Optional<String> optionalDescription = classDocumentation.getDescription();
 				if(optionalDescription.isPresent()) {
 					description = optionalDescription.get();
 				}
@@ -112,7 +113,7 @@ public class Schema {
 			boolean forcedReference = false;
 			String referenceSignature = null;
 			if(parentDataObject != null && parentFieldName != null) {
-				String objectSignature =
+				final String objectSignature =
 					parentDataObject.getJavaClass().getSimpleName() + "_" + parentFieldName + "_" + dataObject.getSignature();
 				if(!exploredSignatures.add(objectSignature)) {
 					// The fieldname + signature has already be seen. We are in a recursive loop
@@ -129,31 +130,37 @@ public class Schema {
 				// LinkedHashMap to keep the order of the class
 				properties = new LinkedHashMap<>();
 
-				List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), dataObject.getJavaClass());
+				final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), dataObject.getJavaClass());
 				if(!fields.isEmpty() && !dataObject.isEnum()) {
 
-					for(Field field : fields) {
+					for(final Field field : fields) {
+						if(field.isAnnotationPresent(JsonIgnore.class)) {
+							// Field is tagged ignore. No need to document it.
+							continue;
+							// TODO : faire un truc ici (en fait pas que ici, dans le JavaClassAnalyser également pour ne pas tout scanner)
+							// TODO : nettoyer JavaClassAnalyser.
+						}
 
-						DataObject propertyObject = new DataObject(dataObject.getContextualType(field.getGenericType()));
-						Property property = new Property(propertyObject, false, field.getName(), exploredSignatures, dataObject);
+						final DataObject propertyObject = new DataObject(dataObject.getContextualType(field.getGenericType()));
+						final Property property = new Property(propertyObject, false, field.getName(), exploredSignatures, dataObject);
 						extractConstraints(field, property);
 						properties.put(property.getName(), property);
 
 						// Javadoc handling
 						if(classDocumentation != null) {
-							JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(field.getName());
+							final JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(field.getName());
 							if(javadocWrapper != null) {
-								Optional<String> desc = javadocWrapper.getDescription();
+								final Optional<String> desc = javadocWrapper.getDescription();
 								property.setDescription(desc.get());
 							}
 						}
 					}
 				}
 				if(dataObject.getJavaClass().isInterface()) {
-					List<Method> methods = Arrays.stream(dataObject.getJavaClass().getMethods()).collect(Collectors.toList());
+					final List<Method> methods = Arrays.stream(dataObject.getJavaClass().getMethods()).collect(Collectors.toList());
 					methods.sort(Comparator.comparing(a -> a.getName()));
-					for(Method method : methods) {
-						boolean methodStartWithGet =
+					for(final Method method : methods) {
+						final boolean methodStartWithGet =
 							method.getName().startsWith(METHOD_GET_PREFIX) && method.getName().length() != METHOD_GET_PREFIX_SIZE;
 						if(method.getParameters().length == 0 && method.getGenericReturnType() != null
 							&& (methodStartWithGet || (method.getName().startsWith(METHOD_IS_PREFIX)
@@ -169,16 +176,16 @@ public class Schema {
 								.debug(dataObject.getJavaClass().getSimpleName() + " method name : " + method.getName() + " - " + name);
 							name = name.substring(0, 1).toLowerCase() + name.substring(1);
 
-							DataObject propertyObject = new DataObject(dataObject.getContextualType(method.getGenericReturnType()));
-							Property property = new Property(propertyObject, false, name, exploredSignatures, dataObject);
+							final DataObject propertyObject = new DataObject(dataObject.getContextualType(method.getGenericReturnType()));
+							final Property property = new Property(propertyObject, false, name, exploredSignatures, dataObject);
 							properties.put(property.getName(), property);
 
 							// Javadoc handling
 							if(classDocumentation != null) {
-								JavadocWrapper javadocWrapper = classDocumentation.getMethodsJavadoc()
+								final JavadocWrapper javadocWrapper = classDocumentation.getMethodsJavadoc()
 									.get(JavaClassAnalyser.createIdentifier(method));
 								if(javadocWrapper != null) {
-									Optional<String> desc = javadocWrapper.getDescription();
+									final Optional<String> desc = javadocWrapper.getDescription();
 									property.setDescription(desc.get());
 								}
 							}
@@ -187,11 +194,11 @@ public class Schema {
 
 				}
 
-				List<String> enumItemValues = dataObject.getEnumItemValues();
+				final List<String> enumItemValues = dataObject.getEnumItemValues();
 				if(enumItemValues != null && !enumItemValues.isEmpty()) {
 					enumValues = enumItemValues;
 					if(classDocumentation != null) {
-						StringBuilder sb = new StringBuilder();
+						final StringBuilder sb = new StringBuilder();
 						if(description != null) {
 							sb.append(description);
 							sb.append("\n");
@@ -199,10 +206,10 @@ public class Schema {
 							sb.append(dataObject.getJavaClass().getSimpleName());
 							sb.append("\n");
 						}
-						for(String value : enumItemValues) {
-							JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(value);
+						for(final String value : enumItemValues) {
+							final JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(value);
 							if(javadocWrapper != null) {
-								Optional<String> desc = javadocWrapper.getDescription();
+								final Optional<String> desc = javadocWrapper.getDescription();
 								if(desc.isPresent()) {
 									sb.append("  * ");
 									sb.append("`");
@@ -226,15 +233,15 @@ public class Schema {
 
 		} else {
 			type = dataObject.getOpenApiType().getValue();
-			OpenApiDataFormat openApiDataFormat = dataObject.getOpenApiType().getFormat();
+			final OpenApiDataFormat openApiDataFormat = dataObject.getOpenApiType().getFormat();
 			if(OpenApiDataFormat.NONE != openApiDataFormat && OpenApiDataFormat.UNKNOWN != openApiDataFormat) {
 				this.format = openApiDataFormat.getValue();
 			}
 		}
 	}
 
-	private void extractConstraints(Field field, Property property) {
-		Size size = field.getAnnotation(Size.class);
+	private void extractConstraints(final Field field, final Property property) {
+		final Size size = field.getAnnotation(Size.class);
 		if(size != null) {
 			property.setMinLength(size.min());
 			if(size.max() != Integer.MAX_VALUE) {
@@ -242,7 +249,7 @@ public class Schema {
 			}
 		}
 
-		NotNull notNull = field.getAnnotation(NotNull.class);
+		final NotNull notNull = field.getAnnotation(NotNull.class);
 		if(notNull != null) {
 			property.setRequired(true);
 		}
@@ -252,7 +259,7 @@ public class Schema {
 		return required;
 	}
 
-	public void setRequired(List<String> required) {
+	public void setRequired(final List<String> required) {
 		this.required = required;
 	}
 
@@ -260,7 +267,7 @@ public class Schema {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(final String type) {
 		this.type = type;
 	}
 
@@ -268,7 +275,7 @@ public class Schema {
 		return properties;
 	}
 
-	public void setProperties(Map<String, Property> properties) {
+	public void setProperties(final Map<String, Property> properties) {
 		this.properties = properties;
 	}
 
@@ -276,7 +283,7 @@ public class Schema {
 		return enumValues;
 	}
 
-	public void setEnumValues(List<String> enumValues) {
+	public void setEnumValues(final List<String> enumValues) {
 		this.enumValues = enumValues;
 	}
 
@@ -284,7 +291,7 @@ public class Schema {
 		return format;
 	}
 
-	public void setFormat(String format) {
+	public void setFormat(final String format) {
 		this.format = format;
 	}
 
@@ -292,7 +299,7 @@ public class Schema {
 		return additionalProperties;
 	}
 
-	public void setAdditionalProperties(Schema additionalProperties) {
+	public void setAdditionalProperties(final Schema additionalProperties) {
 		this.additionalProperties = additionalProperties;
 	}
 
@@ -300,7 +307,7 @@ public class Schema {
 		return reference;
 	}
 
-	public void setReference(String reference) {
+	public void setReference(final String reference) {
 		this.reference = reference;
 	}
 
@@ -308,7 +315,7 @@ public class Schema {
 		return items;
 	}
 
-	public void setItems(Schema items) {
+	public void setItems(final Schema items) {
 		this.items = items;
 	}
 
@@ -316,7 +323,7 @@ public class Schema {
 		return description;
 	}
 
-	public void setDescription(String description) {
+	public void setDescription(final String description) {
 		this.description = description;
 	}
 

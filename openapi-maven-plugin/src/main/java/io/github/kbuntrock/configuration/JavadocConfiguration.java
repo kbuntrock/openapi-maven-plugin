@@ -12,10 +12,8 @@ public class JavadocConfiguration {
 
 	@Parameter(required = false)
 	private List<String> scanLocations;
-
 	@Parameter(required = false)
 	private String encoding = "UTF-8";
-
 	@Parameter(required = false)
 	private String endOfLineReplacement = DISABLED_EOF_REPLACEMENT;
 
