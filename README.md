@@ -26,5 +26,3 @@ One can mention :
 ...
 
 Full documentation is located [here](https://kbuntrock.github.io/openapi-maven-plugin) and is available in english or french.
-
-Don't hesitate to show your appreciation of this project by giving it a :star:.
