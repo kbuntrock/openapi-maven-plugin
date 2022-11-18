@@ -63,8 +63,12 @@ components:
           * `ACCESS_APP` - Has the right to access the application
           * `READ_USER` - Can read user informations
           * `UPDATE_USER` - Can update user informations
-      type: string
+      type: integer
       enum:
+        - 1000
+        - 2000
+        - 3000
+      x-enumNames:
         - ACCESS_APP
         - READ_USER
         - UPDATE_USER

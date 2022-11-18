@@ -11,7 +11,7 @@ public class Operation {
 
 	@Parameter
 	private List<Substitution> substitutions = new ArrayList<>();
-	
+
 	private Map<String, List<Substitution>> substitutionsMap;
 
 	public List<Substitution> getSubstitutions() {
@@ -20,6 +20,15 @@ public class Operation {
 
 	public void setSubstitutions(final List<Substitution> substitutions) {
 		this.substitutions = substitutions;
+	}
+
+	public Operation() {
+	}
+
+	public Operation(final Operation operation) {
+		for(final Substitution substitution : operation.getSubstitutions()) {
+			substitutions.add(new Substitution(substitution));
+		}
 	}
 
 	/**

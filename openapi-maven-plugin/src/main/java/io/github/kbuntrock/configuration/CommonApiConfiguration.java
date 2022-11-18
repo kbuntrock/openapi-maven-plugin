@@ -73,6 +73,43 @@ public class CommonApiConfiguration {
 	@Parameter(required = true)
 	protected List<String> blackList;
 
+	@Parameter
+	protected List<EnumConfig> enumConfigList = new ArrayList<>();
+
+	public CommonApiConfiguration() {
+	}
+
+	public CommonApiConfiguration(final CommonApiConfiguration commonApiConfiguration) {
+		this.tag = new Tag(commonApiConfiguration.tag);
+		this.operation = new Operation(commonApiConfiguration.operation);
+		this.attachArtifact = commonApiConfiguration.attachArtifact;
+		this.defaultSuccessfulOperationDescription = commonApiConfiguration.defaultSuccessfulOperationDescription;
+		this.defaultProduceConsumeGuessing = commonApiConfiguration.defaultProduceConsumeGuessing;
+		this.pathEnhancement = commonApiConfiguration.pathEnhancement;
+		this.loopbackOperationName = commonApiConfiguration.loopbackOperationName;
+		this.operationId = commonApiConfiguration.operationId;
+		this.freeFields = commonApiConfiguration.freeFields;
+		this.library = commonApiConfiguration.library;
+		for(final String tagAnnotation : commonApiConfiguration.tagAnnotations) {
+			this.tagAnnotations.add(tagAnnotation);
+		}
+		if(commonApiConfiguration.whiteList != null) {
+			this.whiteList = new ArrayList<>();
+			for(final String whiteEntry : commonApiConfiguration.whiteList) {
+				this.whiteList.add(whiteEntry);
+			}
+		}
+		if(commonApiConfiguration.blackList != null) {
+			this.blackList = new ArrayList<>();
+			for(final String blackEntry : commonApiConfiguration.blackList) {
+				this.blackList.add(blackEntry);
+			}
+		}
+		for(final EnumConfig enumConfig : commonApiConfiguration.enumConfigList) {
+			this.enumConfigList.add(new EnumConfig(enumConfig));
+		}
+	}
+
 	public void initDefaultValues() {
 		if(library == null) {
 			library = DEFAULT_LIBRARY;
@@ -197,7 +234,7 @@ public class CommonApiConfiguration {
 	public List<String> getWhiteList() {
 		return whiteList;
 	}
-	
+
 	public void setWhiteList(final List<String> whiteList) {
 		this.whiteList = whiteList;
 	}
@@ -208,5 +245,13 @@ public class CommonApiConfiguration {
 
 	public void setBlackList(final List<String> blackList) {
 		this.blackList = blackList;
+	}
+
+	public List<EnumConfig> getEnumConfigList() {
+		return enumConfigList;
+	}
+
+	public void setEnumConfigList(final List<EnumConfig> enumConfigList) {
+		this.enumConfigList = enumConfigList;
 	}
 }

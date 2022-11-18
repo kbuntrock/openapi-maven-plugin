@@ -48,6 +48,9 @@ public class Schema {
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	@JsonProperty("enum")
 	protected List<String> enumValues;
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	@JsonProperty("x-enumNames")
+	protected List<String> enumNames;
 	// Used in case of a Map object
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	protected Schema additionalProperties;
@@ -137,8 +140,6 @@ public class Schema {
 						if(field.isAnnotationPresent(JsonIgnore.class)) {
 							// Field is tagged ignore. No need to document it.
 							continue;
-							// TODO : faire un truc ici (en fait pas que ici, dans le JavaClassAnalyser également pour ne pas tout scanner)
-							// TODO : nettoyer JavaClassAnalyser.
 						}
 
 						final DataObject propertyObject = new DataObject(dataObject.getContextualType(field.getGenericType()));
@@ -197,6 +198,7 @@ public class Schema {
 				final List<String> enumItemValues = dataObject.getEnumItemValues();
 				if(enumItemValues != null && !enumItemValues.isEmpty()) {
 					enumValues = enumItemValues;
+					enumNames = dataObject.getEnumItemNames();
 					if(classDocumentation != null) {
 						final StringBuilder sb = new StringBuilder();
 						if(description != null) {
@@ -206,7 +208,8 @@ public class Schema {
 							sb.append(dataObject.getJavaClass().getSimpleName());
 							sb.append("\n");
 						}
-						for(final String value : enumItemValues) {
+						for(int i = 0; i < enumItemValues.size(); i++) {
+							final String value = enumNames == null ? enumItemValues.get(i) : enumNames.get(i);
 							final JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(value);
 							if(javadocWrapper != null) {
 								final Optional<String> desc = javadocWrapper.getDescription();

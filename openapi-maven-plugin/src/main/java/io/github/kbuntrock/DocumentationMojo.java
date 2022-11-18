@@ -3,6 +3,7 @@ package io.github.kbuntrock;
 
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
+import io.github.kbuntrock.configuration.EnumConfigHolder;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.javadoc.JavadocMap;
 import io.github.kbuntrock.javadoc.JavadocParser;
@@ -119,6 +120,7 @@ public class DocumentationMojo extends AbstractMojo {
 			throw new MojoFailureException("At least one api configuration element should be configured");
 		}
 		this.getApiConfiguration().initDefaultValues();
+		EnumConfigHolder.storeConfig(this.getApiConfiguration().getEnumConfigList());
 
 		for(final ApiConfiguration apiConfiguration : apis) {
 			if(apiConfiguration.getLocations() == null || apiConfiguration.getLocations().isEmpty()) {

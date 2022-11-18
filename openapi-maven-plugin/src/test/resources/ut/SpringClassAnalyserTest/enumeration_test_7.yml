@@ -1,0 +1,32 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: TestEnumeration7Controller
+paths:
+  /api/test-enum-7/territories:
+    get:
+      tags:
+        - TestEnumeration7Controller
+      operationId: getTerritories
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/TerritoryEnum'
+components:
+  schemas:
+    TerritoryEnum:
+      type: integer
+      enum:
+        - 1
+        - 2
+      x-enumNames:
+        - FRANCE
+        - GERMANY

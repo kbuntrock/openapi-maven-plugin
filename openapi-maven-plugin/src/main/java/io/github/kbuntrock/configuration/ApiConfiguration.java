@@ -2,7 +2,6 @@ package io.github.kbuntrock.configuration;
 
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
-import io.github.kbuntrock.utils.Cloner;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -51,9 +50,25 @@ public class ApiConfiguration extends CommonApiConfiguration {
 	 * @return the merged configuration
 	 */
 	public ApiConfiguration mergeWithCommonApiConfiguration(final CommonApiConfiguration commonApiConfiguration) {
-		final CommonApiConfiguration copy = Cloner.INSTANCE.deepClone(commonApiConfiguration);
+		final CommonApiConfiguration copy = new CommonApiConfiguration(commonApiConfiguration);
 		final ApiConfiguration merged = new ApiConfiguration();
-		Cloner.INSTANCE.copyPropertiesOfInheritedClass(copy, merged);
+		// Copy properties
+		merged.tag = copy.tag;
+		merged.operation = copy.operation;
+		merged.attachArtifact = copy.attachArtifact;
+		merged.defaultSuccessfulOperationDescription = copy.defaultSuccessfulOperationDescription;
+		merged.defaultProduceConsumeGuessing = copy.defaultProduceConsumeGuessing;
+		merged.pathEnhancement = copy.pathEnhancement;
+		merged.loopbackOperationName = copy.loopbackOperationName;
+		merged.operationId = copy.operationId;
+		merged.freeFields = copy.freeFields;
+		merged.library = copy.library;
+		merged.tagAnnotations = copy.tagAnnotations;
+		merged.whiteList = copy.whiteList;
+		merged.blackList = copy.blackList;
+		merged.enumConfigList = copy.enumConfigList;
+		// End copy properties
+
 		merged.setLocations(locations);
 		merged.setFilename(filename);
 
