@@ -177,13 +177,6 @@
       <version>3.24.4</version>
     </dependency>
 
-    <!-- Copy Objects -->
-    <dependency>
-      <groupId>io.github.kostaskougios</groupId>
-      <artifactId>cloning</artifactId>
-      <version>1.10.3</version>
-    </dependency>
-
     <!-- Tests -->
     <dependency>
       <groupId>jakarta.ws.rs</groupId>

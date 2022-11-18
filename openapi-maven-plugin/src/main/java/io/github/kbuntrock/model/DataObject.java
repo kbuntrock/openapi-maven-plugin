@@ -1,9 +1,11 @@
 package io.github.kbuntrock.model;
 
+import io.github.kbuntrock.configuration.EnumConfigHolder;
 import io.github.kbuntrock.reflection.GenericArrayTypeImpl;
 import io.github.kbuntrock.reflection.ParameterizedTypeImpl;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.OpenApiDataType;
+import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * Represent a type with all the needed informations to insert it into the openapi specification
@@ -39,7 +42,7 @@ public class DataObject {
 	/**
 	 * The corresponding openapi type
 	 */
-	private final OpenApiDataType openApiType;
+	private OpenApiDataType openApiType;
 	/**
 	 * The type of the items if this data object represent a java Collection or java array
 	 */
@@ -48,6 +51,10 @@ public class DataObject {
 	 * All the value's names if this data object represent a java enum
 	 */
 	private List<String> enumItemValues;
+	/**
+	 * Used only if configured
+	 */
+	private List<String> enumItemNames;
 	/**
 	 * True if this object is generically typed
 	 */
@@ -58,12 +65,12 @@ public class DataObject {
 	private Map<String, Type> genericNameToTypeMap;
 
 
-	public DataObject(Type originalType) {
+	public DataObject(final Type originalType) {
 		Type type = originalType;
 		try {
 			if(type instanceof WildcardType) {
 				// This block is in charge of handling the "? extends XX" syntax
-				WildcardType wt = (WildcardType) originalType;
+				final WildcardType wt = (WildcardType) originalType;
 				if(wt.getLowerBounds().length == 0 && wt.getUpperBounds().length == 1) {
 					type = wt.getUpperBounds()[0];
 				}
@@ -74,7 +81,7 @@ public class DataObject {
 				// Parameterized types (List, Map, or every custom type)
 
 				this.genericallyTyped = true;
-				ParameterizedType pt = (ParameterizedType) type;
+				final ParameterizedType pt = (ParameterizedType) type;
 				javaClass = Class.forName(ReflectionsUtils.getClassNameFromType(pt.getRawType()),
 					true, ReflectionsUtils.getProjectClassLoader());
 				genericNameToTypeMap = new HashMap<>();
@@ -89,20 +96,20 @@ public class DataObject {
 					mapKeyValueDataObjects[0] = new DataObject(pt.getActualTypeArguments()[0]);
 					mapKeyValueDataObjects[1] = new DataObject(pt.getActualTypeArguments()[1]);
 				}
-				
+
 			} else if(type instanceof GenericArrayType) {
 
 				// Parameterized array
 
 				this.genericallyTyped = true;
 				// See https://stackoverflow.com/questions/15450356/how-to-make-class-forname-return-array-type
-				GenericArrayType gat = (GenericArrayType) type;
+				final GenericArrayType gat = (GenericArrayType) type;
 				if(gat.getGenericComponentType() instanceof ParameterizedType) {
 					genericNameToTypeMap = new HashMap<>();
-					ParameterizedType gpt = (ParameterizedType) gat.getGenericComponentType();
+					final ParameterizedType gpt = (ParameterizedType) gat.getGenericComponentType();
 					javaClass = Class.forName("[L" + ReflectionsUtils.getClassNameFromType(gpt.getRawType()) + ";",
 						true, ReflectionsUtils.getProjectClassLoader());
-					Class<?> rawJavaClass = Class.forName(ReflectionsUtils.getClassNameFromType(gpt.getRawType()),
+					final Class<?> rawJavaClass = Class.forName(ReflectionsUtils.getClassNameFromType(gpt.getRawType()),
 						true, ReflectionsUtils.getProjectClassLoader());
 					for(int i = 0; i < gpt.getActualTypeArguments().length; i++) {
 						this.genericNameToTypeMap.put(rawJavaClass.getTypeParameters()[i].getTypeName(),
@@ -110,7 +117,7 @@ public class DataObject {
 					}
 					this.arrayItemDataObject = new DataObject(gpt);
 				} else if(gat.getGenericComponentType() instanceof Class<?>) {
-					Class<?> clazz = (Class<?>) gat.getGenericComponentType();
+					final Class<?> clazz = (Class<?>) gat.getGenericComponentType();
 					javaClass = Class.forName("[L" + ReflectionsUtils.getClassNameFromType(clazz) + ";",
 						true, ReflectionsUtils.getProjectClassLoader());
 					this.arrayItemDataObject = new DataObject(clazz);
@@ -129,18 +136,36 @@ public class DataObject {
 
 			this.openApiType = OpenApiDataType.fromJavaClass(javaClass);
 			if(javaClass.isEnum()) {
-				Object[] values = javaClass.getEnumConstants();
+				final Object[] values = javaClass.getEnumConstants();
 				this.enumItemValues = new ArrayList<>();
-				for(Object value : values) {
-					this.enumItemValues.add(value.toString());
+				final String valueField = EnumConfigHolder.getValueFieldForEnum(javaClass.getCanonicalName());
+				if(valueField != null) {
+					this.enumItemNames = new ArrayList<>();
+
+					final Field field = javaClass.getDeclaredField(valueField);
+					ReflectionUtils.makeAccessible(field);
+					this.openApiType = OpenApiDataType.fromJavaClass(field.getType());
+					for(final Object value : values) {
+						this.enumItemNames.add(value.toString());
+						this.enumItemValues.add(field.get(value).toString());
+					}
+				} else {
+					for(final Object value : values) {
+						this.enumItemValues.add(value.toString());
+					}
 				}
+
 
 			} else if(javaClass.isArray() && !genericallyTyped) {
 				arrayItemDataObject = new DataObject(javaClass.getComponentType());
 			}
 
-		} catch(ClassNotFoundException ex) {
+		} catch(final ClassNotFoundException ex) {
 			throw new RuntimeException("ClassNotFound wrapped", ex);
+		} catch(final NoSuchFieldException e) {
+			throw new RuntimeException("Field not found", e);
+		} catch(final IllegalAccessException e) {
+			throw new RuntimeException(e);
 		}
 
 	}
@@ -199,6 +224,10 @@ public class DataObject {
 		return enumItemValues;
 	}
 
+	public List<String> getEnumItemNames() {
+		return enumItemNames;
+	}
+
 	public DataObject getMapKeyType() {
 		return mapKeyValueDataObjects[0];
 	}
@@ -224,14 +253,14 @@ public class DataObject {
 	}
 
 	public String getSignature() {
-		String genericJoin = genericNameToTypeMap == null ? "" : genericNameToTypeMap.values()
+		final String genericJoin = genericNameToTypeMap == null ? "" : genericNameToTypeMap.values()
 			.stream().map(v -> v.getTypeName()).collect(Collectors.joining("_"));
-		String signature = javaClass.toGenericString() + "__" + genericJoin;
+		final String signature = javaClass.toGenericString() + "__" + genericJoin;
 		return signature;
 	}
 
 	public String getSchemaRecursiveSuffix() {
-		String genericJoin = genericNameToTypeMap == null ? "" : genericNameToTypeMap.values()
+		final String genericJoin = genericNameToTypeMap == null ? "" : genericNameToTypeMap.values()
 			.stream().map(v -> {
 				if(v instanceof Class) {
 					return ((Class) v).getSimpleName();
@@ -253,28 +282,28 @@ public class DataObject {
 			// It is possible that we will not substitute anything. In that cas, the substitution parameterized type
 			// will be equivalent to the source one.
 			if(genericType instanceof TypeVariable) {
-				TypeVariable typeVariable = (TypeVariable) genericType;
+				final TypeVariable typeVariable = (TypeVariable) genericType;
 				if(this.getGenericNameToTypeMap().containsKey(typeVariable.getName())) {
 					return this.getGenericNameToTypeMap().get(typeVariable.getName());
 				}
 			} else if(genericType instanceof ParameterizedType) {
 
-				ParameterizedTypeImpl substitution = new ParameterizedTypeImpl(((ParameterizedType) genericType));
+				final ParameterizedTypeImpl substitution = new ParameterizedTypeImpl(((ParameterizedType) genericType));
 				doContextualSubstitution(substitution);
 				return substitution;
 
 			} else if(genericType instanceof GenericArrayType) {
-				GenericArrayType genericArrayType = (GenericArrayType) genericType;
+				final GenericArrayType genericArrayType = (GenericArrayType) genericType;
 				if(genericArrayType.getGenericComponentType() instanceof ParameterizedType) {
-					ParameterizedTypeImpl substitution = new ParameterizedTypeImpl(
+					final ParameterizedTypeImpl substitution = new ParameterizedTypeImpl(
 						(ParameterizedType) genericArrayType.getGenericComponentType());
 					doContextualSubstitution(substitution);
-					GenericArrayType substitionArrayType = new GenericArrayTypeImpl(substitution);
+					final GenericArrayType substitionArrayType = new GenericArrayTypeImpl(substitution);
 					return substitionArrayType;
 				} else if(genericArrayType.getGenericComponentType() instanceof TypeVariable<?>) {
-					TypeVariable<?> typeVariable = (TypeVariable<?>) genericArrayType.getGenericComponentType();
+					final TypeVariable<?> typeVariable = (TypeVariable<?>) genericArrayType.getGenericComponentType();
 					if(this.getGenericNameToTypeMap().containsKey(typeVariable.getName())) {
-						GenericArrayType substitionArrayType = new GenericArrayTypeImpl(
+						final GenericArrayType substitionArrayType = new GenericArrayTypeImpl(
 							this.getGenericNameToTypeMap().get(typeVariable.getName()));
 						return substitionArrayType;
 					}
@@ -288,7 +317,7 @@ public class DataObject {
 		return genericType;
 	}
 
-	private void doContextualSubstitution(ParameterizedTypeImpl substitution) {
+	private void doContextualSubstitution(final ParameterizedTypeImpl substitution) {
 		for(int i = 0; i < substitution.getActualTypeArguments().length; i++) {
 			if(this.getGenericNameToTypeMap().containsKey(substitution.getActualTypeArguments()[i].getTypeName())) {
 				substitution.getActualTypeArguments()[i] =
@@ -299,14 +328,14 @@ public class DataObject {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		if(this == o) {
 			return true;
 		}
 		if(o == null || getClass() != o.getClass()) {
 			return false;
 		}
-		DataObject that = (DataObject) o;
+		final DataObject that = (DataObject) o;
 		return Objects.equals(javaClass, that.javaClass);
 	}
 
