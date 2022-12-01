@@ -484,7 +484,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final DocumentationMojo mojo = createBasicMojo("io.github.kbuntrock.resources.endpoint");
 		// Should filter on AccountController.invalidateSession
 		final List<String> whiteList = new ArrayList<>();
-		whiteList.add(".*ccountControl.*__.*lidateSession");
+		whiteList.add(".*ccountControl.*#.*lidateSession");
 		mojo.getApiConfiguration().setWhiteList(whiteList);
 
 		final List<File> generated = mojo.documentProject();
@@ -497,7 +497,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final DocumentationMojo mojo = createBasicMojo(AccountController.class.getCanonicalName());
 		// Should filter on AccountController -> 4 methods in it
 		final List<String> whiteList = new ArrayList<>();
-		whiteList.add("__.*Account");
+		whiteList.add("#.*Account");
 		mojo.getApiConfiguration().setWhiteList(whiteList);
 
 		final List<File> generated = mojo.documentProject();
@@ -506,7 +506,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final DocumentationMojo mojo2 = createBasicMojo(AccountController.class.getCanonicalName());
 		// Should filter on AccountController -> 4 methods in it
 		final List<String> whiteList2 = new ArrayList<>();
-		whiteList2.add(".*__.*Account");
+		whiteList2.add(".*#.*Account");
 		mojo2.getApiConfiguration().setWhiteList(whiteList2);
 
 		final List<File> generated2 = mojo2.documentProject();
@@ -536,9 +536,9 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final DocumentationMojo mojo = createBasicMojo(AccountController.class.getCanonicalName());
 		// Should filter on AccountController -> 4 methods in it
 		final List<String> blackList = new ArrayList<>();
-		blackList.add(".*AccountController__.*Password.*");
-		blackList.add(".*AccountController__.*Session.*");
-		blackList.add(".*AccountController__isAuthenticated");
+		blackList.add(".*AccountController#.*Password.*");
+		blackList.add(".*AccountController#.*Session.*");
+		blackList.add(".*AccountController#isAuthenticated");
 		mojo.getApiConfiguration().setBlackList(blackList);
 
 		// The result should be the same as the white list method test
@@ -552,9 +552,9 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final DocumentationMojo mojo = createBasicMojo(AccountController.class.getCanonicalName());
 		// Should filter on AccountController -> 4 methods in it
 		final List<String> blackList = new ArrayList<>();
-		blackList.add("__.*Password.*");
-		blackList.add("__.*Session.*");
-		blackList.add("__isAuthenticated");
+		blackList.add("#.*Password.*");
+		blackList.add("#.*Session.*");
+		blackList.add("#isAuthenticated");
 		mojo.getApiConfiguration().setBlackList(blackList);
 
 		// The result should be the same as the white list method test
