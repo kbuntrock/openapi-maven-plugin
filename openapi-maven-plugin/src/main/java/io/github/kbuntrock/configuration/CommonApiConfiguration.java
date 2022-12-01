@@ -11,7 +11,7 @@ import org.apache.maven.plugins.annotations.Parameter;
  */
 public class CommonApiConfiguration {
 
-	public static String SEPARATOR_CLASS_METHOD = "__";
+	public static String SEPARATOR_CLASS_METHOD = "#";
 
 	public static String DEFAULT_OPERATION_ID = "{class_name}.{method_name}";
 	public static String DEFAULT_LIBRARY = Library.SPRING_MVC.name();

@@ -255,7 +255,7 @@ public class DataObject {
 	public String getSignature() {
 		final String genericJoin = genericNameToTypeMap == null ? "" : genericNameToTypeMap.values()
 			.stream().map(v -> v.getTypeName()).collect(Collectors.joining("_"));
-		final String signature = javaClass.toGenericString() + "__" + genericJoin;
+		final String signature = javaClass.toGenericString() + "#" + genericJoin;
 		return signature;
 	}
 
