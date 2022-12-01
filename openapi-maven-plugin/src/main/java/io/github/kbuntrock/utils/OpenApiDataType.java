@@ -6,8 +6,7 @@ import java.math.BigInteger;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
+import java.util.Collection;
 import org.springframework.core.io.InputStreamSource;
 
 public enum OpenApiDataType {
@@ -27,16 +26,16 @@ public enum OpenApiDataType {
 	private final String value;
 	private final OpenApiDataFormat format;
 
-	OpenApiDataType(String openapiName) {
+	OpenApiDataType(final String openapiName) {
 		this(openapiName, OpenApiDataFormat.NONE);
 	}
 
-	OpenApiDataType(String value, OpenApiDataFormat format) {
+	OpenApiDataType(final String value, final OpenApiDataFormat format) {
 		this.value = value;
 		this.format = format;
 	}
 
-	public static OpenApiDataType fromJavaClass(Class<?> clazz) {
+	public static OpenApiDataType fromJavaClass(final Class<?> clazz) {
 		if(Boolean.class == clazz || Boolean.TYPE == clazz) {
 			return BOOLEAN;
 		} else if(Integer.class == clazz || Integer.TYPE == clazz) {
@@ -55,7 +54,7 @@ public enum OpenApiDataType {
 			return STRING_DATE;
 		} else if(InputStreamSource.class.isAssignableFrom(clazz) || InputStream.class.isAssignableFrom(clazz)) {
 			return STRING_BINARY;
-		} else if(clazz.isArray() || List.class == clazz || Set.class == clazz) {
+		} else if(clazz.isArray() || Collection.class.isAssignableFrom(clazz)) {
 			return ARRAY;
 		} else if(clazz.isEnum()) {
 			return STRING;

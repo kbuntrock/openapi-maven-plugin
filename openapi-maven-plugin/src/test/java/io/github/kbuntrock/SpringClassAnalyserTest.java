@@ -9,6 +9,8 @@ import io.github.kbuntrock.configuration.library.TagAnnotation;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.resources.dto.TerritoryEnum;
 import io.github.kbuntrock.resources.endpoint.account.AccountController;
+import io.github.kbuntrock.resources.endpoint.annotation.AnnotatedController;
+import io.github.kbuntrock.resources.endpoint.collection.CollectionController;
 import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration1Controller;
 import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration2Controller;
 import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration3Controller;
@@ -568,6 +570,32 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		// The result should be the same as the white list method test
 		final List<File> generated = mojo.documentProject();
 		checkGenerationResult("ut/SpringClassAnalyserTest/json_ignore.yml", generated.get(0));
+	}
+
+	@Test
+	public void annotated_controller() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(AnnotatedController.class.getCanonicalName());
+		mojo.getApis().get(0).setTagAnnotations(Collections.singletonList("io.github.kbuntrock.resources.annotation.MyRestController"));
+		// The result should be the same as the white list method test
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/annotated_controller.yml", generated.get(0));
+	}
+
+	@Test
+	public void collection() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(CollectionController.class.getCanonicalName());
+		// The result should be the same as the white list method test
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/collection.yml", generated.get(0));
+	}
+
+	@Test
+	public void extra_classes() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(CollectionController.class.getCanonicalName());
+		mojo.getApis().get(0).setExtraSchemaClasses(Collections.singletonList("io.github.kbuntrock.resources.dto.AccountDto"));
+		// The result should be the same as the white list method test
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/extra_classes.yml", generated.get(0));
 	}
 
 }

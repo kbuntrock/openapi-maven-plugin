@@ -67,6 +67,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.whiteList = copy.whiteList;
 		merged.blackList = copy.blackList;
 		merged.enumConfigList = copy.enumConfigList;
+		merged.extraSchemaClasses = copy.extraSchemaClasses;
 		// End copy properties
 
 		merged.setLocations(locations);
@@ -116,6 +117,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		}
 		if(blackList != null) {
 			merged.setBlackList(blackList);
+		}
+		if(extraSchemaClasses != null && !extraSchemaClasses.isEmpty()) {
+			merged.setExtraSchemaClasses(extraSchemaClasses);
 		}
 
 		merged.operationIdHelper = new OperationIdHelper(merged.operationId);

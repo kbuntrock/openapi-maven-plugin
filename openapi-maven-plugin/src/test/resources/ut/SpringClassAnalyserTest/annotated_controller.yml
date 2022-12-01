@@ -1,0 +1,23 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: AnnotatedController
+paths:
+  /counter:
+    get:
+      tags:
+        - AnnotatedController
+      operationId: getCounter
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int32

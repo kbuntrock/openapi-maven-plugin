@@ -1,0 +1,32 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: CollectionController
+paths:
+  /api/collection:
+    get:
+      tags:
+        - CollectionController
+      operationId: getStringCollection
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
