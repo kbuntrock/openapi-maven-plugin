@@ -33,7 +33,16 @@ public class TagLibrary {
 	public void addTag(final Tag tag) throws MojoFailureException {
 		tags.add(tag);
 		exploreTagObjects(tag);
-		System.currentTimeMillis();
+	}
+
+	/**
+	 * Add an extra data object
+	 *
+	 * @param clazz
+	 */
+	public void addExtraClass(final Class clazz) {
+		final DataObject dataObject = new DataObject(clazz);
+		exploreDataObject(dataObject);
 	}
 
 	/**

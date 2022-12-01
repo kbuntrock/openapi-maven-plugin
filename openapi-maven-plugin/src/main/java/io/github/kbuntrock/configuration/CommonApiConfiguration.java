@@ -76,6 +76,9 @@ public class CommonApiConfiguration {
 	@Parameter
 	protected List<EnumConfig> enumConfigList = new ArrayList<>();
 
+	@Parameter
+	protected List<String> extraSchemaClasses = new ArrayList<>();
+
 	public CommonApiConfiguration() {
 	}
 
@@ -95,18 +98,17 @@ public class CommonApiConfiguration {
 		}
 		if(commonApiConfiguration.whiteList != null) {
 			this.whiteList = new ArrayList<>();
-			for(final String whiteEntry : commonApiConfiguration.whiteList) {
-				this.whiteList.add(whiteEntry);
-			}
+			this.whiteList.addAll(commonApiConfiguration.whiteList);
 		}
 		if(commonApiConfiguration.blackList != null) {
 			this.blackList = new ArrayList<>();
-			for(final String blackEntry : commonApiConfiguration.blackList) {
-				this.blackList.add(blackEntry);
-			}
+			this.blackList.addAll(commonApiConfiguration.blackList);
 		}
 		for(final EnumConfig enumConfig : commonApiConfiguration.enumConfigList) {
 			this.enumConfigList.add(new EnumConfig(enumConfig));
+		}
+		if(!commonApiConfiguration.extraSchemaClasses.isEmpty()) {
+			this.extraSchemaClasses.addAll(commonApiConfiguration.extraSchemaClasses);
 		}
 	}
 
@@ -253,5 +255,13 @@ public class CommonApiConfiguration {
 
 	public void setEnumConfigList(final List<EnumConfig> enumConfigList) {
 		this.enumConfigList = enumConfigList;
+	}
+
+	public List<String> getExtraSchemaClasses() {
+		return extraSchemaClasses;
+	}
+
+	public void setExtraSchemaClasses(final List<String> extraSchemaClasses) {
+		this.extraSchemaClasses = extraSchemaClasses;
 	}
 }

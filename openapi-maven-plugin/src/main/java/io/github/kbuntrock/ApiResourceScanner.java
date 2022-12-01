@@ -89,6 +89,15 @@ public class ApiResourceScanner {
 					}
 				}
 			}
+
+			// Possibly add extra data objets to the future schema section (objets which are not explicitely used by a endpoint)
+			for(final String className : apiConfiguration.getExtraSchemaClasses()) {
+				try {
+					library.addExtraClass(ReflectionsUtils.getProjectClassLoader().loadClass(className));
+				} catch(final ClassNotFoundException e) {
+					throw new MojoRuntimeException("Cannot load extra class " + className, e);
+				}
+			}
 		}
 		return library;
 	}
