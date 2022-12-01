@@ -156,7 +156,7 @@ If true, insert this extension attribute with the java method name (see https://
 Define a white list of classes / methods / both which are autorised to be documented.
 Each entry is divided in 3 parts
 - left : class regex
-- separator : double underscore, used only to split the left and right part ("__")
+- separator : #, used only to split the left and right part
 - right : method regex 
 
 !> It is the class canonical name (with package) which is given to the regex pattern matcher.
@@ -165,9 +165,9 @@ It is not mandatory to fill both entry parts. See the following examples.
 
 ```xml
 <whiteList>
-	<entry>io.github.kbuntrock.AccountController__getCurrentUser<entry> <!-- Very precise. Only the method getCurrentUser in the AccountController class are authorized to be documented by this rule -->
-	<entry>__.*Session$<entry> <!-- All methods ending with the word Session are authorized to be documented by this rule -->
-	<entry>.*Monitoring.*<entry> <!-- All classes with the word "Monitoring" are authorized to be documented by this rule -->
+	<entry>io.github.kbuntrock.AccountController#getCurrentUser</entry> <!-- Precise: only the method getCurrentUser in the AccountController class are authorized to be documented by this rule -->
+	<entry>#.*Session$</entry> <!-- All methods ending with the word Session are authorized to be documented by this rule -->
+	<entry>.*Monitoring.*</entry> <!-- All classes with the word "Monitoring" are authorized to be documented by this rule -->
 </whiteList>
 ```
 
@@ -179,7 +179,7 @@ It is not mandatory to fill both entry parts. See the following examples.
 Define a black list of classes / methods / both which are autorised to be documented.
 Each entry is divided in 3 parts
 - left : class regex
-- separator : double underscore, used only to split the left and right part ("__")
+- separator : #, used only to split the left and right part
 - right : method regex 
 
 !> It is the class canonical name (with package) which is given to the regex pattern matcher.
@@ -188,9 +188,9 @@ It is not mandatory to fill both entry parts. See the following examples.
 
 ```xml
 <blackList>
-	<entry>io.github.kbuntrock.AccountController__getCurrentUser<entry> <!-- Very precise. Only the method getCurrentUser in the AccountController class is banned from the documentation by this rule -->
-	<entry>__.*Session$<entry> <!--  All methods ending with the word Session are banned from the documentation by this rule -->
-	<entry>.*Monitoring.*<entry> <!-- All classes with the word "Monitoring" are banned from the documentation by this rule -->
+	<entry>io.github.kbuntrock.AccountController#getCurrentUser</entry> <!-- Very precise. Only the method getCurrentUser in the AccountController class is banned from the documentation by this rule -->
+	<entry>#.*Session$</entry> <!--  All methods ending with the word Session are banned from the documentation by this rule -->
+	<entry>.*Monitoring.*</entry> <!-- All classes with the word "Monitoring" are banned from the documentation by this rule -->
 </blackList>
 ```
 
@@ -274,6 +274,20 @@ Ex: The class name "IImportController" with the following configuration:
 ```
 
 Will give the tag name : "Import_ws"
+
+### extraSchemaClasses
+
+- Type: `string list`
+- Required: `false`
+
+Define a list of java objects not referenced by a documented endpoint, but which will still be included in the schema section
+
+```xml
+<extraSchemaClasses>
+	<class>io.github.kbuntrock.TechnicalExceptionDto</class>
+	<class>io.github.kbuntrock.SecurityExceptionDto</class>
+</extraSchemaClasses>
+```
 
 ## javadocConfiguration
 

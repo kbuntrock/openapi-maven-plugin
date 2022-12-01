@@ -156,7 +156,7 @@ Si vrai, insert un attribut d'extension indiquant le nom de la méthode java (vo
 Définit une liste blanche de classes / méthodes / combinaison des deux qu'il est autorisé de documenter.
 Chaque entrée est divisée en trois parties : 
 - gauche : regex de classe
-- séparateur : double underscore, sert uniquement à séparer les parties ("__")
+- séparateur : #, sert uniquement à séparer les parties
 - droite : regex de méthode 
 
 !> c'est le nom canonique (avec package) de la classe qui est soumis à la regex
@@ -165,9 +165,9 @@ Il n'est pas obligatoire de renseigner les deux parties en même temps. Voir les
 
 ```xml
 <whiteList>
-	<entry>io.github.kbuntrock.AccountController__getCurrentUser<entry> <!-- très précis, seule la méthode getCurrentUser de la classe AccountController est autorisée par cette règle -->
-	<entry>__.*Session$<entry> <!-- toutes les méthodes se terminant par le mot Session sont autorisées par cette règle -->
-	<entry>.*Monitoring.*<entry> <!-- toutes les classes comprenant le mot "Monitoring" sont autorisées par cette règle -->
+	<entry>io.github.kbuntrock.AccountController#getCurrentUser</entry> <!-- précis, seule la méthode getCurrentUser de la classe AccountController est autorisée par cette règle -->
+	<entry>#.*Session$</entry> <!-- toutes les méthodes se terminant par le mot Session sont autorisées par cette règle -->
+	<entry>.*Monitoring.*</entry> <!-- toutes les classes comprenant le mot "Monitoring" sont autorisées par cette règle -->
 </whiteList>
 ```
 
@@ -179,7 +179,7 @@ Il n'est pas obligatoire de renseigner les deux parties en même temps. Voir les
 Définit une liste noire de classes / méthodes / combinaison des deux qu'il n'est pas autorisé de documenter.
 Chaque entrée est divisée en trois parties : 
 - gauche : regex de classe
-- séparateur : double underscore, sert uniquement à séparer les parties ("__")
+- séparateur : #, sert uniquement à séparer les parties
 - droite : regex de méthode 
 
 !> c'est le nom canonique (avec package) de la classe qui est soumis à la regex
@@ -188,9 +188,9 @@ Il n'est pas obligatoire de renseigner les deux parties en même temps. Voir les
 
 ```xml
 <blackList>
-	<entry>io.github.kbuntrock.AccountController__getCurrentUser<entry> <!-- très précis, seule la méthode getCurrentUser de la classe AccountController est bannie par cette règle -->
-	<entry>__.*Session$<entry> <!-- toutes les méthodes se terminant par le mot Session sont bannies par cette règle -->
-	<entry>.*Monitoring.*<entry> <!-- toutes les classes comprenant le mot "Monitoring" sont bannies par cette règle -->
+	<entry>io.github.kbuntrock.AccountController#getCurrentUser</entry> <!-- précis, seule la méthode getCurrentUser de la classe AccountController est bannie par cette règle -->
+	<entry>#.*Session$</entry> <!-- toutes les méthodes se terminant par le mot Session sont bannies par cette règle -->
+	<entry>.*Monitoring.*</entry> <!-- toutes les classes comprenant le mot "Monitoring" sont bannies par cette règle -->
 </blackList>
 ```
 
@@ -273,6 +273,20 @@ Exemple : Le nom de classe IImportController et la configuration suivante :
 ```
 
 Génèrera le tag suivant : Import_ws
+
+### extraSchemaClasses
+
+- Type : `string list`
+- Présence : `optionelle`
+
+Définie une liste d'objets (classe java) qui seront à inclure dans le schema, bien qu'ils ne soient pas explicitement référencés par un endpoint.
+
+```xml
+<extraSchemaClasses>
+	<class>io.github.kbuntrock.TechnicalExceptionDto</class>
+	<class>io.github.kbuntrock.SecurityExceptionDto</class>
+</extraSchemaClasses>
+```
 
 ## javadocConfiguration
 
