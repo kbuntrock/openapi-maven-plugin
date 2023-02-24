@@ -16,30 +16,47 @@ import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.comments.JavadocComment;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.javadoc.Javadoc;
+import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.utils.Logger;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.maven.plugin.logging.Log;
 
 public class JavadocParser {
-	
+
 	private static final String LOG_PREFIX = JavadocParser.class.getSimpleName() + " - ";
 	private final JavaParser javaParser;
 	private final Log logger = Logger.INSTANCE.getLogger();
 	private final Map<String, ClassDocumentation> javadocMap = new HashMap<>();
 	private final List<File> filesToScan;
 
-	public JavadocParser(final List<File> filesToScan, final Charset charset) {
+	private final boolean debugScan;
+
+	public JavadocParser(final List<File> filesToScan, final JavadocConfiguration javadocConfiguration) {
+
 		this.filesToScan = filesToScan;
 		final ParserConfiguration parserConfiguration = new ParserConfiguration();
-		parserConfiguration.setCharacterEncoding(charset);
+
 		parserConfiguration.setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17);
+
+		Charset charset = StandardCharsets.UTF_8;
+		if(Charset.isSupported(javadocConfiguration.getEncoding())) {
+			charset = Charset.forName(javadocConfiguration.getEncoding());
+		} else {
+			logger.warn("Encoding " + javadocConfiguration.getEncoding() + " is not supported. UTF-8 will be used instead.");
+			logger.warn("Supported encoding on this JVM are : " + Charset.availableCharsets().keySet().stream()
+				.collect(Collectors.joining(", ")));
+		}
+		parserConfiguration.setCharacterEncoding(charset);
+		debugScan = javadocConfiguration.isDebugScan();
 		javaParser = new JavaParser(parserConfiguration);
 	}
 
@@ -87,6 +104,26 @@ public class JavadocParser {
 					logger.error(LOG_PREFIX + "Cannot read file " + file.getAbsolutePath());
 					throw new RuntimeException("Cannot read file", e);
 				}
+			}
+		}
+		printDebug();
+	}
+
+	private void printDebug() {
+		if(debugScan) {
+			logger.debug("-------- PRINT JAVADOC SCAN RESULTS ----------");
+			for(final ClassDocumentation classDocumentation : javadocMap.values()) {
+				logger.debug("Class documentation for : " + classDocumentation.getCompleteName());
+				logger.debug("Description : " + classDocumentation.getDescription());
+				if(!classDocumentation.getMethodsJavadoc().isEmpty()) {
+					for(final Entry<String, JavadocWrapper> entry : classDocumentation.getMethodsJavadoc().entrySet()) {
+						logger.debug("Method doc for : " + entry.getKey());
+						logger.debug("Description : " + entry.getValue().getDescription());
+						entry.getValue().printParameters();
+						entry.getValue().printReturn();
+					}
+				}
+
 			}
 		}
 	}
