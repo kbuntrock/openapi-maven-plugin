@@ -2,10 +2,12 @@ package io.github.kbuntrock.javadoc;
 
 import com.github.javaparser.javadoc.Javadoc;
 import com.github.javaparser.javadoc.JavadocBlockTag;
+import io.github.kbuntrock.utils.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 /**
@@ -59,6 +61,7 @@ public class JavadocWrapper {
 	}
 
 	public Optional<JavadocBlockTag> getReturnBlockTag() {
+
 		final List<JavadocBlockTag> list = blockTagsByType.get(JavadocBlockTag.Type.RETURN);
 		if(list != null && !list.isEmpty()) {
 			return Optional.of(list.get(0));
@@ -81,5 +84,24 @@ public class JavadocWrapper {
 
 	public boolean isInheritTagFound() {
 		return inheritTagFound;
+	}
+
+	public void printParameters() {
+		if(paramBlockTagsByName != null && !paramBlockTagsByName.isEmpty()) {
+			Logger.INSTANCE.getLogger().debug("Parameters : ");
+			for(final Entry<String, JavadocBlockTag> entry : paramBlockTagsByName.entrySet()) {
+				Logger.INSTANCE.getLogger().debug(entry.getKey() + " : " + entry.getValue().getContent().toText());
+			}
+		}
+
+	}
+
+	public void printReturn() {
+		if(blockTagsByType != null) {
+			final Optional<JavadocBlockTag> returnTag = getReturnBlockTag();
+			if(returnTag.isPresent()) {
+				Logger.INSTANCE.getLogger().debug("Return : " + returnTag.get().getContent().toText());
+			}
+		}
 	}
 }

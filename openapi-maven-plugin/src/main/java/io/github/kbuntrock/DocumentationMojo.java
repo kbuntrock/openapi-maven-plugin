@@ -18,8 +18,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -221,20 +219,11 @@ public class DocumentationMojo extends AbstractMojo {
 			.isEmpty()) {
 			final long debutJavadoc = System.currentTimeMillis();
 
-			Charset charset = StandardCharsets.UTF_8;
-			if(Charset.isSupported(javadocConfiguration.getEncoding())) {
-				charset = Charset.forName(javadocConfiguration.getEncoding());
-			} else {
-				getLog().warn("Encoding " + javadocConfiguration.getEncoding() + " is not supported. UTF-8 will be used instead.");
-				getLog().warn("Supported encoding on this JVM are : " + Charset.availableCharsets().keySet().stream()
-					.collect(Collectors.joining(", ")));
-			}
-
 			final List<File> filesToScan = new ArrayList<>();
 			for(final String path : javadocConfiguration.getScanLocations()) {
 				filesToScan.add(FileUtils.toFile(project.getBasedir().getAbsolutePath(), path));
 			}
-			final JavadocParser javadocParser = new JavadocParser(filesToScan, charset);
+			final JavadocParser javadocParser = new JavadocParser(filesToScan, javadocConfiguration);
 			javadocParser.scan();
 			JavadocMap.INSTANCE.setJavadocMap(javadocParser.getJavadocMap());
 			if(!JavadocConfiguration.DISABLED_EOF_REPLACEMENT.equals(javadocConfiguration.getEndOfLineReplacement())) {

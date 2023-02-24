@@ -14,6 +14,9 @@ public class JavadocConfiguration {
 	private List<String> scanLocations;
 	@Parameter(required = false)
 	private String encoding = "UTF-8";
+
+	@Parameter(required = false)
+	private boolean debugScan = false;
 	@Parameter(required = false)
 	private String endOfLineReplacement = DISABLED_EOF_REPLACEMENT;
 
@@ -39,5 +42,13 @@ public class JavadocConfiguration {
 
 	public void setEndOfLineReplacement(final String endOfLineReplacement) {
 		this.endOfLineReplacement = endOfLineReplacement;
+	}
+
+	public void setDebugScan(final boolean debugScan) {
+		this.debugScan = debugScan;
+	}
+
+	public boolean isDebugScan() {
+		return debugScan;
 	}
 }

@@ -74,7 +74,7 @@ public class YamlWriter {
 		if(!StringUtils.isEmpty(apiConfiguration.getFreeFields())) {
 			try {
 				freefields = Optional.ofNullable(jsonObjectMapper.readTree(apiConfiguration.getFreeFields()));
-			} catch(JsonProcessingException e) {
+			} catch(final JsonProcessingException e) {
 				throw new MojoRuntimeException("Free fields json configuration cannot be read", e);
 			}
 		}
@@ -85,7 +85,7 @@ public class YamlWriter {
 		if(freefields.isPresent() && freefields.get().get("servers") != null) {
 			specification.setServers(freefields.get().get("servers"));
 		} else {
-			Server server = new Server();
+			final Server server = new Server();
 			server.setUrl("");
 			specification.setServers(Collections.singletonList(server));
 		}
@@ -100,12 +100,12 @@ public class YamlWriter {
 		}
 	}
 
-	public void write(File file, TagLibrary tagLibrary) throws IOException {
+	public void write(final File file, final TagLibrary tagLibrary) throws IOException {
 
 		parseFreeFields();
 
-		Specification specification = new Specification();
-		Info info = new Info(mavenProject.getName(), mavenProject.getVersion(), freefields);
+		final Specification specification = new Specification();
+		final Info info = new Info(mavenProject.getName(), mavenProject.getVersion(), freefields);
 		specification.setInfo(info);
 
 		populateSpecificationFreeFields(specification, freefields);
@@ -119,8 +119,11 @@ public class YamlWriter {
 						classDocumentation = new ClassDocumentation(x.getClazz().getCanonicalName(), x.getClazz().getSimpleName());
 						JavadocMap.INSTANCE.getJavadocMap().put(x.getClazz().getCanonicalName(), classDocumentation);
 					}
+					logger.debug(
+						"Class documentation found for tag " + x.getClazz().getSimpleName() + " ? " + (classDocumentation != null));
+
 					classDocumentation.inheritanceEnhancement(x.getClazz(), ClassDocumentation.EnhancementType.METHODS);
-					Optional<String> description = classDocumentation.getDescription();
+					final Optional<String> description = classDocumentation.getDescription();
 					if(description.isPresent()) {
 						return new TagElement(x.computeConfiguredName(apiConfiguration), description.get());
 					}
@@ -131,7 +134,7 @@ public class YamlWriter {
 
 		specification.setPaths(createPaths(tagLibrary));
 
-		Map<String, Schema> schemaSection = createSchemaSection(tagLibrary);
+		final Map<String, Schema> schemaSection = createSchemaSection(tagLibrary);
 		if(!schemaSection.isEmpty()) {
 			specification.getComponents().put("schemas", schemaSection);
 		}
@@ -144,30 +147,34 @@ public class YamlWriter {
 		om.writeValue(file, specification);
 	}
 
-	private Map<String, Map<String, Operation>> createPaths(TagLibrary tagLibrary) {
-		Map<String, Map<String, Operation>> paths = new LinkedHashMap<>();
+	private Map<String, Map<String, Operation>> createPaths(final TagLibrary tagLibrary) {
+		final Map<String, Map<String, Operation>> paths = new LinkedHashMap<>();
 
-		Set<String> operationIds = new HashSet<>();
+		final Set<String> operationIds = new HashSet<>();
 
-		for(Tag tag : tagLibrary.getTags()) {
+		for(final Tag tag : tagLibrary.getTags()) {
 
-			ClassDocumentation classDocumentation = JavadocMap.INSTANCE.isPresent() ?
+			final ClassDocumentation classDocumentation = JavadocMap.INSTANCE.isPresent() ?
 				JavadocMap.INSTANCE.getJavadocMap().get(tag.getClazz().getCanonicalName()) : null;
+
+			logger.debug(
+				"Class documentation found for tag paths section " + tag.getClazz().getSimpleName() + " ? " + (classDocumentation != null));
+
 			// There is no need to try to enhance with the abstract or interfaces classes the documentation here.
 			// It has already been made when we were writing the tags
 
 			// List of operations, which will be sorted before storing them by path. In order to keep a deterministic generation.
 			List<Operation> operations = new ArrayList<>();
 
-			for(Endpoint endpoint : tag.getEndpoints().stream().sorted(Comparator.comparing(Endpoint::getPath))
+			for(final Endpoint endpoint : tag.getEndpoints().stream().sorted(Comparator.comparing(Endpoint::getPath))
 				.collect(Collectors.toList())) {
 				paths.computeIfAbsent(endpoint.getPath(), k -> new LinkedHashMap<>());
 
-				Operation operation = new Operation();
+				final Operation operation = new Operation();
 				operations.add(operation);
 				operation.setName(endpoint.getType().name());
 				operation.setPath(endpoint.getPath());
-				String computedTagName = tag.computeConfiguredName(apiConfiguration);
+				final String computedTagName = tag.computeConfiguredName(apiConfiguration);
 				operation.getTags().add(computedTagName);
 				operation.setOperationId(
 					apiConfiguration.getOperationIdHelper().toOperationId(tag.getName(), computedTagName, endpoint.getName()));
@@ -184,6 +191,8 @@ public class YamlWriter {
 						methodJavadoc.sortTags();
 						operation.setDescription(methodJavadoc.getJavadoc().getDescription().toText());
 					}
+					logger.debug(
+						"Method documentation found for endpoint method " + endpoint.getIdentifier() + " ? " + (methodJavadoc != null));
 				}
 
 				// Warning on paths
@@ -202,13 +211,13 @@ public class YamlWriter {
 				// -------------------------
 
 				// All parameters which are not in the body
-				for(ParameterObject parameter : endpoint.getParameters().stream()
+				for(final ParameterObject parameter : endpoint.getParameters().stream()
 					.filter(x -> ParameterLocation.BODY != x.getLocation()).collect(Collectors.toList())) {
-					ParameterElement parameterElement = new ParameterElement();
+					final ParameterElement parameterElement = new ParameterElement();
 					parameterElement.setName(parameter.getName());
 					parameterElement.setIn(parameter.getLocation().toString().toLowerCase(Locale.ENGLISH));
 					parameterElement.setRequired(parameter.isRequired());
-					Property schema = new Property(Content.fromDataObject(parameter).getSchema());
+					final Property schema = new Property(Content.fromDataObject(parameter).getSchema());
 
 					// array in path parameters are not supported
 					if(OpenApiDataType.ARRAY == parameter.getOpenApiType() && ParameterLocation.PATH == parameter.getLocation()) {
@@ -219,32 +228,36 @@ public class YamlWriter {
 
 					// Javadoc handling
 					if(methodJavadoc != null) {
-						Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(parameterElement.getName());
+						final Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(parameterElement.getName());
 						if(parameterDoc.isPresent()) {
-							String description = parameterDoc.get().getContent().toText();
+							final String description = parameterDoc.get().getContent().toText();
 							if(!description.isEmpty()) {
 								parameterElement.setDescription(parameterDoc.get().getContent().toText());
 							}
 						}
+						logger.debug(
+							"Parameter documentation found for endpoint parameter " + parameterElement.getName() + " ? "
+								+ parameterDoc.isPresent());
 					}
 
 					operation.getParameters().add(parameterElement);
 				}
 
 				// There can be only one body
-				List<ParameterObject> bodies = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation())
+				final List<ParameterObject> bodies = endpoint.getParameters().stream()
+					.filter(x -> ParameterLocation.BODY == x.getLocation())
 					.collect(Collectors.toList());
 				if(bodies.size() > 1) {
 					logger.warn("More than one body is not allowed : "
 						+ endpoint.getPath() + " - " + endpoint.getType());
 				}
 				if(!bodies.isEmpty()) {
-					ParameterObject body = bodies.get(0);
-					RequestBody requestBody = new RequestBody();
+					final ParameterObject body = bodies.get(0);
+					final RequestBody requestBody = new RequestBody();
 					operation.setRequestBody(requestBody);
-					Content requestBodyContent = Content.fromDataObject(body);
+					final Content requestBodyContent = Content.fromDataObject(body);
 					if(body.getFormats() != null) {
-						for(String format : body.getFormats()) {
+						for(final String format : body.getFormats()) {
 							requestBody.getContent().put(format, requestBodyContent);
 						}
 					} else if(apiConfiguration.isDefaultProduceConsumeGuessing()) {
@@ -255,13 +268,16 @@ public class YamlWriter {
 
 					// Javadoc handling
 					if(methodJavadoc != null) {
-						Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(body.getName());
+						final Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(body.getName());
 						if(parameterDoc.isPresent()) {
-							String description = parameterDoc.get().getContent().toText();
+							final String description = parameterDoc.get().getContent().toText();
 							if(!description.isEmpty()) {
 								requestBody.setDescription(parameterDoc.get().getContent().toText());
 							}
 						}
+						logger.debug(
+							"Parameter documentation found for endpoint body " + body.getName() + " ? "
+								+ parameterDoc.isPresent());
 					}
 
 				}
@@ -270,12 +286,12 @@ public class YamlWriter {
 				// ----- RESPONSE part----
 				// -------------------------
 
-				Response response = new Response();
+				final Response response = new Response();
 				response.setCode(endpoint.getResponseCode(), apiConfiguration.getDefaultSuccessfulOperationDescription());
 				if(endpoint.getResponseObject() != null) {
-					Content responseContent = Content.fromDataObject(endpoint.getResponseObject());
+					final Content responseContent = Content.fromDataObject(endpoint.getResponseObject());
 					if(endpoint.getResponseFormats() != null) {
-						for(String format : endpoint.getResponseFormats()) {
+						for(final String format : endpoint.getResponseFormats()) {
 							response.getContent().put(format, responseContent);
 						}
 					} else if(apiConfiguration.isDefaultProduceConsumeGuessing()) {
@@ -287,13 +303,15 @@ public class YamlWriter {
 
 				// Javadoc handling
 				if(methodJavadoc != null) {
-					Optional<JavadocBlockTag> returnDoc = methodJavadoc.getReturnBlockTag();
+					final Optional<JavadocBlockTag> returnDoc = methodJavadoc.getReturnBlockTag();
 					if(returnDoc.isPresent()) {
-						String description = returnDoc.get().getContent().toText();
+						final String description = returnDoc.get().getContent().toText();
 						if(!description.isEmpty()) {
 							response.setDescription(returnDoc.get().getContent().toText());
 						}
 					}
+					logger.debug(
+						"Return documentation found ? " + returnDoc.isPresent());
 				}
 
 				operation.getResponses().put(response.getCode(), response);
@@ -303,8 +321,8 @@ public class YamlWriter {
 			// We now order operations by types :
 			operations = operations.stream().sorted(Comparator.comparing(Operation::getName)).collect(Collectors.toList());
 			// And map them to their path
-			for(Operation operation : operations) {
-				Operation previousOperation = paths.get(operation.getPath()).put(operation.getName().toLowerCase(), operation);
+			for(final Operation operation : operations) {
+				final Operation previousOperation = paths.get(operation.getPath()).put(operation.getName().toLowerCase(), operation);
 				if(previousOperation != null) {
 					throw new MojoRuntimeException(
 						"More than one operation mapped on " + operation.getName() + " : " + operation.getPath() + " in tag "
@@ -316,21 +334,21 @@ public class YamlWriter {
 		return paths;
 	}
 
-	private Map<String, Schema> createSchemaSection(TagLibrary library) {
-		List<DataObject> ordered = library.getSchemaObjects().stream()
+	private Map<String, Schema> createSchemaSection(final TagLibrary library) {
+		final List<DataObject> ordered = library.getSchemaObjects().stream()
 			.sorted(Comparator.comparing(p -> p.getJavaClass().getSimpleName())).collect(Collectors.toList());
 
 		// LinkedHashMap to keep alphabetical order
-		Map<String, Schema> schemas = new LinkedHashMap<>();
-		for(DataObject dataObject : ordered) {
-			Set<String> exploredSignatures = new HashSet<>();
-			Schema schema = new Schema(dataObject, true, exploredSignatures, null, null);
+		final Map<String, Schema> schemas = new LinkedHashMap<>();
+		for(final DataObject dataObject : ordered) {
+			final Set<String> exploredSignatures = new HashSet<>();
+			final Schema schema = new Schema(dataObject, true, exploredSignatures, null, null);
 			schemas.put(dataObject.getJavaClass().getSimpleName(), schema);
 		}
 		// Add the additional eventual recursive entries.
-		for(Map.Entry<String, DataObject> entry : AdditionnalSchemaLibrary.getMap().entrySet()) {
-			Set<String> exploredSignatures = new HashSet<>();
-			Schema schema = new Schema(entry.getValue(), true, exploredSignatures, null, null);
+		for(final Map.Entry<String, DataObject> entry : AdditionnalSchemaLibrary.getMap().entrySet()) {
+			final Set<String> exploredSignatures = new HashSet<>();
+			final Schema schema = new Schema(entry.getValue(), true, exploredSignatures, null, null);
 			schemas.put(entry.getKey(), schema);
 		}
 		return schemas;
