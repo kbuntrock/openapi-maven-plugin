@@ -37,6 +37,18 @@ public class JaxrsClassAnalyserTest extends AbstractTest {
 		return mojo;
 	}
 
+	private DocumentationMojo createBasicJakartaMojo(final String apiLocation) {
+		final DocumentationMojo mojo = new DocumentationMojo();
+		final ApiConfiguration apiConfiguration = new ApiConfiguration();
+		apiConfiguration.setLibrary(Library.JAKARTA_RS.name());
+		apiConfiguration.setAttachArtifact(false);
+		apiConfiguration.setLocations(Collections.singletonList(apiLocation));
+		mojo.setTestMode(true);
+		mojo.setApis(Collections.singletonList(apiConfiguration));
+		mojo.setProject(createBasicMavenProject());
+		return mojo;
+	}
+
 
 	@Test
 	public void jaxrs_basic() throws MojoFailureException, MojoExecutionException, IOException {

@@ -4,6 +4,7 @@ import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.library.reader.AstractLibraryReader;
 import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.reflection.ClassGenericityResolver;
 import io.github.kbuntrock.utils.Logger;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -130,12 +131,13 @@ public class JavaClassAnalyser {
 		logger.debug("Parsing endpoint " + clazz.getSimpleName());
 
 		final Method[] methods = clazz.getMethods();
+		final ClassGenericityResolver genericityResolver = new ClassGenericityResolver(clazz);
 
 		for(final Method method : methods) {
 
 			if(validateWhiteList(clazz, method) && validateBlackList(clazz, method)) {
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
-				libraryReader.computeAnnotations(basePath, method, mergedAnnotations, tag);
+				libraryReader.computeAnnotations(basePath, method, mergedAnnotations, tag, genericityResolver);
 			}
 		}
 	}

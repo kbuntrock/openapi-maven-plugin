@@ -7,6 +7,7 @@ import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.OperationType;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.reflection.ClassGenericityResolver;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.ParameterLocation;
 import java.lang.annotation.Annotation;
@@ -70,18 +71,20 @@ public class JavaxRsReader extends AstractLibraryReader {
 	}
 
 	@Override
-	public void computeAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations, final Tag tag)
-		throws MojoFailureException {
+	public void computeAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations, final Tag tag,
+		final ClassGenericityResolver genericityResolver) throws MojoFailureException {
 
 		final MergedAnnotation<Path> requestMappingMergedAnnotation = mergedAnnotations.get(Path.class);
 		if(requestMappingMergedAnnotation.isPresent()) {
+
+			genericityResolver.initForMethod(method);
 
 			for(final JavaxRsHttpVerb verb : JavaxRsHttpVerb.values()) {
 				final MergedAnnotation m = mergedAnnotations.get(verb.getAnnotationClass());
 				if(m.isPresent()) {
 					final String methodIdentifier = JavaClassAnalyser.createIdentifier(method);
-					final List<ParameterObject> parameterObjects = readParameters(method);
-					final DataObject responseObject = readResponseObject(method);
+					final List<ParameterObject> parameterObjects = readParameters(method, genericityResolver);
+					final DataObject responseObject = readResponseObject(method, genericityResolver);
 					final int responseCode = readResponseCode(null);
 					final String path = readEndpointPaths(basePath, requestMappingMergedAnnotation).get(0);
 					final Endpoint endpoint = new Endpoint();
@@ -103,7 +106,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 	}
 
 	@Override
-	protected List<ParameterObject> readParameters(final Method originalMethod) {
+	protected List<ParameterObject> readParameters(final Method originalMethod, final ClassGenericityResolver genericityResolver) {
 		logger.debug("Reading parameters from " + originalMethod.getName());
 
 		// Set of the method in the original class and eventually the methods in the parent classes / interfaces
@@ -123,7 +126,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 				logger.debug("Parameter : " + parameter.getName());
 
 				final ParameterObject paramObj = parameters.computeIfAbsent(parameter.getName(),
-					(name) -> new ParameterObject(name, parameter.getParameterizedType()));
+					(name) -> new ParameterObject(name, genericityResolver.getContextualType(parameter.getParameterizedType(), method)));
 
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
 					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);

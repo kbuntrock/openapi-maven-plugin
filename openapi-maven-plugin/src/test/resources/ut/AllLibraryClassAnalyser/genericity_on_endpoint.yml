@@ -1,0 +1,109 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: ActionResource
+paths:
+  /actions/all/{since}:
+    get:
+      tags:
+        - ActionResource
+      operationId: ActionResource.getAll
+      parameters:
+        - name: since
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActionDto'
+      x-operation-name: getAll
+  /actions/push:
+    post:
+      tags:
+        - ActionResource
+      operationId: ActionResource.postEntityDtos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ActionDto'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      x-operation-name: postEntityDtos
+  /actions/push-one:
+    post:
+      tags:
+        - ActionResource
+      operationId: ActionResource.postOnlyOne
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActionDto'
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      x-operation-name: postOnlyOne
+  /actions/status:
+    get:
+      tags:
+        - ActionResource
+      operationId: ActionResource.getStatus
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusImplDto'
+      x-operation-name: getStatus
+components:
+  schemas:
+    ActionDto:
+      type: object
+      properties:
+        creationDate:
+          type: string
+          format: date-time
+        changeDate:
+          type: string
+          format: date-time
+        uuid:
+          type: string
+          minLength: 14
+          maxLength: 15
+        title:
+          type: string
+          minLength: 0
+          maxLength: 15
+    Response:
+      type: object
+    StatusImplDto:
+      type: object
+      properties:
+        statusText:
+          type: string
