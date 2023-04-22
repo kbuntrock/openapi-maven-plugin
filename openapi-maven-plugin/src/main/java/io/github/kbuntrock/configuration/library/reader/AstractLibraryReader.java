@@ -5,6 +5,7 @@ import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.reflection.ClassGenericityResolver;
 import io.github.kbuntrock.utils.Logger;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -22,7 +23,7 @@ import org.springframework.http.HttpEntity;
 public abstract class AstractLibraryReader {
 
 	protected final Log logger = Logger.INSTANCE.getLogger();
-	
+
 	protected final ApiConfiguration apiConfiguration;
 
 	public AstractLibraryReader(final ApiConfiguration apiConfiguration) {
@@ -43,12 +44,13 @@ public abstract class AstractLibraryReader {
 		return result;
 	}
 
-	protected DataObject readResponseObject(final Method method) {
+	protected DataObject readResponseObject(final Method method, final ClassGenericityResolver genericityResolver) {
 		final Class<?> returnType = method.getReturnType();
 		if(Void.class == returnType || Void.TYPE == returnType) {
 			return null;
 		}
-		DataObject dataObject = new DataObject(method.getGenericReturnType());
+
+		DataObject dataObject = new DataObject(genericityResolver.getContextualType(method.getGenericReturnType(), method));
 		dataObject = computeFrameworkReturnObject(dataObject);
 		logger.debug(dataObject.toString());
 		return dataObject;
@@ -82,9 +84,9 @@ public abstract class AstractLibraryReader {
 	public abstract List<String> readBasePaths(final Class<?> clazz, final MergedAnnotations mergedAnnotations);
 
 	public abstract void computeAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations,
-		final Tag tag) throws MojoFailureException;
+		final Tag tag, final ClassGenericityResolver genericityResolver) throws MojoFailureException;
 
-	protected abstract List<ParameterObject> readParameters(Method originalMethod);
+	protected abstract List<ParameterObject> readParameters(Method originalMethod, final ClassGenericityResolver genericityResolver);
 
 	protected abstract List<String> readEndpointPaths(String basePath,
 		MergedAnnotation<? extends Annotation> requestMappingMergedAnnotation);

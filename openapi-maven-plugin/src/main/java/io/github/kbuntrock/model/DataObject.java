@@ -313,6 +313,20 @@ public class DataObject {
 				}
 
 			}
+		} else if(genericType instanceof ParameterizedType) {
+			// Here we handle "Class<? extends XXX> which can not be substituted locally.
+			final ParameterizedType parameterizedType = (ParameterizedType) genericType;
+			if(parameterizedType.getRawType() == Class.class && parameterizedType.getActualTypeArguments().length == 1
+				&& parameterizedType.getActualTypeArguments()[0] instanceof WildcardType) {
+				final WildcardType wt = (WildcardType) parameterizedType.getActualTypeArguments()[0];
+				if(wt.getLowerBounds().length == 0 && wt.getUpperBounds().length == 1) {
+					// Return "XXX" as the only type we can determine for this object.
+					// The implementation surely will be a child of this type but we can't guess it.
+					return wt.getUpperBounds()[0];
+				}
+
+			}
+
 		}
 		return genericType;
 	}

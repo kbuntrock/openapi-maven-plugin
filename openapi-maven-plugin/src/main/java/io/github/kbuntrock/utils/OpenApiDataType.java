@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Date;
 import org.springframework.core.io.InputStreamSource;
 
 public enum OpenApiDataType {
@@ -48,7 +49,7 @@ public enum OpenApiDataType {
 			return NUMBER_DOUBLE;
 		} else if(String.class == clazz) {
 			return STRING;
-		} else if(LocalDateTime.class == clazz || Instant.class == clazz) {
+		} else if(LocalDateTime.class == clazz || Instant.class == clazz || Date.class == clazz) {
 			return STRING_DATE_TIME;
 		} else if(LocalDate.class == clazz) {
 			return STRING_DATE;

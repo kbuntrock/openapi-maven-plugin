@@ -22,9 +22,11 @@ import io.github.kbuntrock.resources.endpoint.error.SameOperationController;
 import io.github.kbuntrock.resources.endpoint.file.FileUploadController;
 import io.github.kbuntrock.resources.endpoint.file.StreamResponseController;
 import io.github.kbuntrock.resources.endpoint.generic.GenericDataController;
+import io.github.kbuntrock.resources.endpoint.generic.GenericityTestEight;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestFive;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestFour;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestOne;
+import io.github.kbuntrock.resources.endpoint.generic.GenericityTestSeven;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestSix;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestThree;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTwo;
@@ -146,6 +148,31 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	}
 
 	@Test
+	public void genericity_extends_class_in_parameter() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(GenericityTestSeven.class.getCanonicalName());
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/genericity_extends_class_in_parameter.yml", generated.get(0));
+	}
+
+	/**
+	 * A different way to achieve almost the same output than the previous test
+	 *
+	 * @throws MojoFailureException
+	 * @throws IOException
+	 * @throws MojoExecutionException
+	 */
+	@Test
+	public void genericity_extends_class_in_parameter_v2() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(GenericityTestEight.class.getCanonicalName());
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/genericity_extends_class_in_parameter_v2.yml", generated.get(0));
+	}
+
+	@Test
 	public void file_upload() throws MojoFailureException, IOException, MojoExecutionException {
 
 		final DocumentationMojo mojo = createBasicMojo(FileUploadController.class.getCanonicalName());
@@ -225,7 +252,6 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		enumConfig.setCanonicalName(TerritoryEnum.class.getCanonicalName());
 		enumConfig.setValueField("code");
 		mojo.getApiConfiguration().setEnumConfigList(Arrays.asList(enumConfig));
-		System.out.println("incroyable");
 		final List<File> generated = mojo.documentProject();
 		checkGenerationResult("ut/SpringClassAnalyserTest/enumeration_test_7.yml", generated.get(0));
 	}
@@ -522,6 +548,8 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		blackList.add(".*\\.GenericityTestF.*$");
 		blackList.add(".*\\.GenericityTestT.*$");
 		blackList.add(".*\\.GenericityTestS.*$");
+		blackList.add(".*\\.GenericityTestE.*$");
+		blackList.add(".*\\.ActionResource");
 		blackList.add(".*\\.GenericDataController");
 		mojo.getApiConfiguration().setBlackList(blackList);
 
