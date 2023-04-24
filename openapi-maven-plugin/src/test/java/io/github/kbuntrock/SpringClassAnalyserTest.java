@@ -23,12 +23,16 @@ import io.github.kbuntrock.resources.endpoint.file.FileUploadController;
 import io.github.kbuntrock.resources.endpoint.file.StreamResponseController;
 import io.github.kbuntrock.resources.endpoint.generic.GenericDataController;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestEight;
+import io.github.kbuntrock.resources.endpoint.generic.GenericityTestEleven;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestFive;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestFour;
+import io.github.kbuntrock.resources.endpoint.generic.GenericityTestNine;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestOne;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestSeven;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestSix;
+import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTen;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestThree;
+import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTwelve;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTwo;
 import io.github.kbuntrock.resources.endpoint.ignore.JsonIgnoreController;
 import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
@@ -170,6 +174,42 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
 		final List<File> generated = mojo.documentProject();
 		checkGenerationResult("ut/SpringClassAnalyserTest/genericity_extends_class_in_parameter_v2.yml", generated.get(0));
+	}
+
+	@Test
+	public void genericity_reference_self_class() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(GenericityTestNine.class.getCanonicalName());
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/genericity_reference_self_class.yml", generated.get(0));
+	}
+
+	@Test
+	public void genericity_cross_reference() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(GenericityTestTen.class.getCanonicalName());
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/genericity_cross_reference.yml", generated.get(0));
+	}
+
+	@Test
+	public void genericity_cross_reference_in_super_constructor() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(GenericityTestTwelve.class.getCanonicalName());
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/genericity_cross_reference_in_super_constructor.yml", generated.get(0));
+	}
+
+	@Test
+	public void genericity_in_super_constructor() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(GenericityTestEleven.class.getCanonicalName());
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/genericity_in_super_constructor.yml", generated.get(0));
 	}
 
 	@Test
@@ -549,6 +589,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		blackList.add(".*\\.GenericityTestT.*$");
 		blackList.add(".*\\.GenericityTestS.*$");
 		blackList.add(".*\\.GenericityTestE.*$");
+		blackList.add(".*\\.GenericityTestN.*$");
 		blackList.add(".*\\.ActionResource");
 		blackList.add(".*\\.GenericDataController");
 		mojo.getApiConfiguration().setBlackList(blackList);

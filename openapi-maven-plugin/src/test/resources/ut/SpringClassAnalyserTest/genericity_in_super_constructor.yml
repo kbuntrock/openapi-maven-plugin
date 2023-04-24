@@ -1,0 +1,48 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: GenericityTestEleven
+paths:
+  /api/genericity-test-eleven/search:
+    post:
+      tags:
+        - GenericityTestEleven
+      operationId: search
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/SearchCriteriaChildV6'
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+components:
+  schemas:
+    CriteriaDateType:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          format: int32
+    SearchCriteriaChildV6:
+      type: object
+      properties:
+        dateCriteria:
+          $ref: '#/components/schemas/CriteriaDateType'
+        myString:
+          type: string
+        self:
+          $ref: '#/components/schemas/SearchCriteriaChildV6'
+        someBoolean:
+          type: boolean
+        anotherThing:
+          type: boolean

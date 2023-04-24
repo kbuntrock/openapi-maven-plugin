@@ -1,0 +1,46 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: GenericityTestNine
+paths:
+  /api/genericity-test-nine/search:
+    post:
+      tags:
+        - GenericityTestNine
+      operationId: findTerritoireGeographiqueByCriteria
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/SearchCriteriaV3'
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+components:
+  schemas:
+    CriteriaDateType:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          format: int32
+    SearchCriteriaV3:
+      type: object
+      properties:
+        dateCriteria:
+          $ref: '#/components/schemas/CriteriaDateType'
+        myString:
+          type: string
+        self:
+          $ref: '#/components/schemas/SearchCriteriaV3'
+        someBoolean:
+          type: boolean

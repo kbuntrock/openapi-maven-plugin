@@ -15,5 +15,10 @@ public enum Authority {
 	/**
 	 * Access to the application (the most basic permission)
 	 */
-	ACCES_APP
+	ACCES_APP;
+
+	@Override
+	public String toString() {
+		return "Permission : " + name();
+	}
 }
