@@ -140,13 +140,19 @@ public class JavadocParser {
 
 	private void exploreJavaFile(final File javaFile) throws FileNotFoundException {
 
-		final ParseResult<CompilationUnit> parseResult = javaParser.parse(javaFile);
-		if(!parseResult.isSuccessful()) {
-			throw new ParseProblemException(parseResult.getProblems());
+		try {
+			final ParseResult<CompilationUnit> parseResult = javaParser.parse(javaFile);
+			if(!parseResult.isSuccessful()) {
+				throw new ParseProblemException(parseResult.getProblems());
+			}
+			final CompilationUnit compilationUnit = parseResult.getResult().get();
+			final JavadocVisitor visitor = new JavadocVisitor();
+			visitor.visit(compilationUnit, null);
+		} catch(final ParseProblemException ex) {
+			throw new RuntimeException("Error while parsing javadoc of file " + javaFile.getName() + " -> "
+				+ ex.getMessage());
 		}
-		final CompilationUnit compilationUnit = parseResult.getResult().get();
-		final JavadocVisitor visitor = new JavadocVisitor();
-		visitor.visit(compilationUnit, null);
+
 	}
 
 	private Optional<ClassDocumentation> findClassDocumentationForNode(final Node commentedNode) {
