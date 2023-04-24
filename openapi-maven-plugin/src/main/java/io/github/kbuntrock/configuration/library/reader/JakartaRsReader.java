@@ -35,9 +35,11 @@ public class JakartaRsReader extends AstractLibraryReader {
 
 	private static final String PATH_CNAME = "jakarta.ws.rs.Path";
 	public static final String NOT_NULL_CNAME = "jakarta.validation.constraints.NotNull";
+	public static final String BEAN_PARAM_CNAME = "jakarta.ws.rs.BeanParam";
 	public static final String HttpServletRequest_CNAME = "jakarta.servlet.http.HttpServletRequest";
 	private Class jakartaPath;
 	private Class jakartaNotNull;
+	private Class jakartaBeanParam;
 	private Class jakartaHttpServletRequest;
 
 	public JakartaRsReader(final ApiConfiguration apiConfiguration) {
@@ -48,6 +50,8 @@ public class JakartaRsReader extends AstractLibraryReader {
 	private void initClasses() {
 		// If the jakarta path class is not present, there is a configuration error
 		jakartaPath = ClassLoaderUtils.getByNameRuntimeEx(PATH_CNAME);
+		// The BeanParam class is in the same jar than the Path annotation
+		jakartaBeanParam = ClassLoaderUtils.getByNameRuntimeEx(BEAN_PARAM_CNAME);
 		try {
 			// For the validation constraint, there should be no problem if the dependency is not present.
 			jakartaNotNull = ClassLoaderUtils.getByName(NOT_NULL_CNAME);
@@ -129,11 +133,16 @@ public class JakartaRsReader extends AstractLibraryReader {
 				}
 				logger.debug("Parameter : " + parameter.getName());
 
-				final ParameterObject paramObj = parameters.computeIfAbsent(parameter.getName(),
-					(name) -> new ParameterObject(name, genericityResolver.getContextualType(parameter.getParameterizedType(), method)));
+				final ParameterObject paramObj = new ParameterObject(parameter.getName(),
+					genericityResolver.getContextualType(parameter.getParameterizedType(), method));
 
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
 					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+
+				if(mergedAnnotations.get(jakartaBeanParam).isPresent()) {
+					continue;
+				}
+				parameters.putIfAbsent(paramObj.getName(), paramObj);
 
 				final MergedAnnotation<NotNull> notnullMA = mergedAnnotations.get(NotNull.class);
 				// Detect if required
