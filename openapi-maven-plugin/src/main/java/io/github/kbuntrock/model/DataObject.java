@@ -1,12 +1,15 @@
 package io.github.kbuntrock.model;
 
+import com.google.common.reflect.TypeToken;
 import io.github.kbuntrock.configuration.EnumConfigHolder;
 import io.github.kbuntrock.reflection.GenericArrayTypeImpl;
 import io.github.kbuntrock.reflection.ParameterizedTypeImpl;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
+import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -67,6 +70,7 @@ public class DataObject {
 
 	public DataObject(final Type originalType) {
 		Type type = originalType;
+
 		try {
 			if(type instanceof WildcardType) {
 				// This block is in charge of handling the "? extends XX" syntax
@@ -131,7 +135,7 @@ public class DataObject {
 				javaClass = (Class<?>) type;
 			} else {
 				throw new RuntimeException(
-					"Type " + originalType.getTypeName() + " (+" + originalType.getClass().getSimpleName() + " is not supported yet");
+					"Type " + originalType.getTypeName() + " (+" + originalType.getClass().getSimpleName() + " is not supported yet.");
 			}
 
 			this.openApiType = OpenApiDataType.fromJavaClass(javaClass);
@@ -146,12 +150,12 @@ public class DataObject {
 					ReflectionUtils.makeAccessible(field);
 					this.openApiType = OpenApiDataType.fromJavaClass(field.getType());
 					for(final Object value : values) {
-						this.enumItemNames.add(value.toString());
+						this.enumItemNames.add(((Enum) value).name());
 						this.enumItemValues.add(field.get(value).toString());
 					}
 				} else {
 					for(final Object value : values) {
-						this.enumItemValues.add(value.toString());
+						this.enumItemValues.add(((Enum) value).name());
 					}
 				}
 
@@ -309,22 +313,52 @@ public class DataObject {
 					}
 				} else {
 					throw new RuntimeException("Type : " + ((GenericArrayType) genericType).getGenericComponentType().getClass().toString()
-						+ " not handled in generic array contextual substitution.");
+						+ " not handled in generic array contextual substitution. Scanned object is : " + this.getJavaClass().getName());
 				}
 
 			}
-		} else if(genericType instanceof ParameterizedType) {
-			// Here we handle "Class<? extends XXX> which can not be substituted locally.
-			final ParameterizedType parameterizedType = (ParameterizedType) genericType;
-			if(parameterizedType.getRawType() == Class.class && parameterizedType.getActualTypeArguments().length == 1
-				&& parameterizedType.getActualTypeArguments()[0] instanceof WildcardType) {
-				final WildcardType wt = (WildcardType) parameterizedType.getActualTypeArguments()[0];
-				if(wt.getLowerBounds().length == 0 && wt.getUpperBounds().length == 1) {
-					// Return "XXX" as the only type we can determine for this object.
-					// The implementation surely will be a child of this type but we can't guess it.
-					return wt.getUpperBounds()[0];
+		} else {
+			// A not generic object type does not mean we are free from genericity ...
+			if(genericType instanceof ParameterizedType) {
+				// Here we handle "Class<? extends XXX> which can not be substituted locally.
+				final ParameterizedType parameterizedType = (ParameterizedType) genericType;
+				if(parameterizedType.getRawType() == Class.class && parameterizedType.getActualTypeArguments().length == 1
+					&& parameterizedType.getActualTypeArguments()[0] instanceof WildcardType) {
+					final WildcardType wt = (WildcardType) parameterizedType.getActualTypeArguments()[0];
+					if(wt.getLowerBounds().length == 0 && wt.getUpperBounds().length == 1) {
+						// Return "XXX" as the only type we can determine for this object.
+						// The implementation surely will be a child of this type but we can't guess it.
+						return wt.getUpperBounds()[0];
+					}
 				}
+			} else if(genericType instanceof TypeVariable) {
 
+				// We are in presence of a generic type variable not coming from the outside. Might be coming from generic typing at a parent level.
+				final TypeVariable typeVariable = (TypeVariable) genericType;
+				GenericDeclaration genericDeclaration = typeVariable.getGenericDeclaration();
+				Class superClass = this.getJavaClass().getSuperclass();
+				Type genericSuperClass = this.getJavaClass().getGenericSuperclass();
+				while(!genericDeclaration.equals(superClass) && !superClass.isAssignableFrom(Object.class)) {
+					genericDeclaration = typeVariable.getGenericDeclaration();
+					superClass = superClass.getSuperclass();
+					genericSuperClass = superClass.getGenericSuperclass();
+				}
+				superClass.getDeclaredConstructors();
+				if(genericDeclaration.equals(typeVariable.getGenericDeclaration())) {
+					int i;
+					for(i = 0; i < superClass.getTypeParameters().length; i++) {
+						if(typeVariable.getName().equals(superClass.getTypeParameters()[i].getName())) {
+							if(genericSuperClass instanceof ParameterizedType) {
+								return ((ParameterizedType) genericSuperClass).getActualTypeArguments()[i];
+							}
+						}
+					}
+					// If no substitution has been found yet, the generic type could have been set by a contructor
+					return TypeToken.of(genericType).resolveType(javaType).getType();
+
+				} else {
+					Logger.INSTANCE.getLogger().warn("No generic substitution found for object " + this.getJavaClass().getName());
+				}
 			}
 
 		}

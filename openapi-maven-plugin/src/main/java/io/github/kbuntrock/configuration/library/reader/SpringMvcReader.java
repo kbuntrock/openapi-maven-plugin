@@ -62,7 +62,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 		final ClassGenericityResolver genericityResolver) throws MojoFailureException {
 
 		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
-		if(requestMappingMergedAnnotation.isPresent()) {
+		if(requestMappingMergedAnnotation.isPresent() && !excludedByReturnType(method)) {
 
 			genericityResolver.initForMethod(method);
 
@@ -92,6 +92,10 @@ public class SpringMvcReader extends AstractLibraryReader {
 				}
 			}
 		}
+	}
+
+	private boolean excludedByReturnType(final Method method) {
+		return "org.springframework.web.servlet.ModelAndView".equals(method.getReturnType().getCanonicalName());
 	}
 
 	@Override

@@ -1,0 +1,57 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: GenericityTestTwelve
+paths:
+  /api/genericity-test-twelve/search:
+    post:
+      tags:
+        - GenericityTestTwelve
+      operationId: findTerritoireGeographiqueByCriteria
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/SearchCriteriaV42'
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+components:
+  schemas:
+    CriteriaDateType:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          format: int32
+    SearchCriteriaV42:
+      type: object
+      properties:
+        dateCriteria:
+          $ref: '#/components/schemas/CriteriaDateType'
+        myString:
+          type: string
+        self:
+          $ref: '#/components/schemas/SearchCriteriaV52'
+        toto:
+          type: string
+    SearchCriteriaV52:
+      type: object
+      properties:
+        dateCriteria:
+          $ref: '#/components/schemas/CriteriaDateType'
+        myString:
+          type: string
+        self:
+          $ref: '#/components/schemas/SearchCriteriaV42'
+        tata:
+          type: boolean
