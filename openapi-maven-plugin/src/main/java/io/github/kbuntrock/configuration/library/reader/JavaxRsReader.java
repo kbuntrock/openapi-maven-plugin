@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -125,11 +126,16 @@ public class JavaxRsReader extends AstractLibraryReader {
 				}
 				logger.debug("Parameter : " + parameter.getName());
 
-				final ParameterObject paramObj = parameters.computeIfAbsent(parameter.getName(),
-					(name) -> new ParameterObject(name, genericityResolver.getContextualType(parameter.getParameterizedType(), method)));
+				final ParameterObject paramObj = new ParameterObject(parameter.getName(),
+					genericityResolver.getContextualType(parameter.getParameterizedType(), method));
 
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
 					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+
+				if(mergedAnnotations.get(BeanParam.class).isPresent()) {
+					continue;
+				}
+				parameters.putIfAbsent(paramObj.getName(), paramObj);
 
 				final MergedAnnotation<NotNull> notnullMA = mergedAnnotations.get(NotNull.class);
 				// Detect if required
