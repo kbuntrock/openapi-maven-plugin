@@ -86,6 +86,11 @@
                         <operationId>{method_name}</operationId>
                         <loopbackOperationName>false</loopbackOperationName>
                     </apiConfiguration>
+					<javadocConfiguration>
+						<scanLocations>
+							<location>src/main/java</location>
+						</scanLocations>
+					</javadocConfiguration>
                     <apis>
                         <api>
                             <locations>
