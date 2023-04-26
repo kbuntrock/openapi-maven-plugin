@@ -13,9 +13,11 @@ import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.RecordDeclaration;
 import com.github.javaparser.ast.comments.JavadocComment;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.javadoc.Javadoc;
+import com.github.javaparser.javadoc.JavadocBlockTag;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.utils.Logger;
 import java.io.File;
@@ -146,10 +148,11 @@ public class JavadocParser {
 				throw new ParseProblemException(parseResult.getProblems());
 			}
 			final CompilationUnit compilationUnit = parseResult.getResult().get();
+			// TODO : ne pas créer un visiteur par classe
 			final JavadocVisitor visitor = new JavadocVisitor();
 			visitor.visit(compilationUnit, null);
 		} catch(final ParseProblemException ex) {
-			throw new RuntimeException("Error while parsing javadoc of file " + javaFile.getName() + " -> "
+			Logger.INSTANCE.getLogger().warn("Error while parsing javadoc of file " + javaFile.getName() + " -> "
 				+ ex.getMessage());
 		}
 
@@ -167,6 +170,13 @@ public class JavadocParser {
 			return Optional.of(javadocMap.computeIfAbsent(dec.getFullyQualifiedName().get(),
 				key -> new ClassDocumentation(dec.getFullyQualifiedName().get(), dec.getName().asString())));
 		}
+		if(commentedNode instanceof RecordDeclaration) {
+			final String fullName = ((RecordDeclaration) commentedNode).getFullyQualifiedName().get();
+			final RecordDeclaration dec = (RecordDeclaration) commentedNode;
+			return Optional.of(javadocMap.computeIfAbsent(fullName,
+				key -> new ClassDocumentation(fullName, dec.getName().asString())));
+		}
+
 		EnumDeclaration enumDeclaration = null;
 		if(commentedNode instanceof EnumDeclaration) {
 			enumDeclaration = (EnumDeclaration) commentedNode;
@@ -204,6 +214,15 @@ public class JavadocParser {
 							classDocumentation.get().getFieldsJavadoc().put(
 								((FieldDeclaration) comment.getCommentedNode().get()).getVariable(0).getNameAsString(),
 								new JavadocWrapper(javadoc));
+							break;
+						case RECORD:
+							classDocumentation.get().setJavadoc(javadoc);
+							for(final JavadocBlockTag parameter : javadoc.getBlockTags()) {
+								if(!parameter.getContent().isEmpty()) {
+									classDocumentation.get().getFieldsJavadoc().put(parameter.getName().get(),
+										new JavadocWrapper(new Javadoc(parameter.getContent())));
+								}
+							}
 							break;
 						case ENUM_VALUE:
 							// Save an enum constant as a field
