@@ -39,6 +39,7 @@ public class JavadocParser {
 	private final Log logger = Logger.INSTANCE.getLogger();
 	private final Map<String, ClassDocumentation> javadocMap = new HashMap<>();
 	private final List<File> filesToScan;
+	private final JavadocVisitor visitor = new JavadocVisitor();
 
 	private final boolean debugScan;
 
@@ -148,8 +149,6 @@ public class JavadocParser {
 				throw new ParseProblemException(parseResult.getProblems());
 			}
 			final CompilationUnit compilationUnit = parseResult.getResult().get();
-			// TODO : ne pas créer un visiteur par classe
-			final JavadocVisitor visitor = new JavadocVisitor();
 			visitor.visit(compilationUnit, null);
 		} catch(final ParseProblemException ex) {
 			Logger.INSTANCE.getLogger().warn("Error while parsing javadoc of file " + javaFile.getName() + " -> "
