@@ -336,14 +336,14 @@ public class YamlWriter {
 
 	private Map<String, Schema> createSchemaSection(final TagLibrary library) {
 		final List<DataObject> ordered = library.getSchemaObjects().stream()
-			.sorted(Comparator.comparing(p -> p.getJavaClass().getSimpleName())).collect(Collectors.toList());
+			.sorted(Comparator.comparing(p -> p.getSchemaReferenceName())).collect(Collectors.toList());
 
 		// LinkedHashMap to keep alphabetical order
 		final Map<String, Schema> schemas = new LinkedHashMap<>();
 		for(final DataObject dataObject : ordered) {
 			final Set<String> exploredSignatures = new HashSet<>();
 			final Schema schema = new Schema(dataObject, true, exploredSignatures, null, null);
-			schemas.put(dataObject.getJavaClass().getSimpleName(), schema);
+			schemas.put(dataObject.getSchemaReferenceName(), schema);
 		}
 		// Add the additional eventual recursive entries.
 		for(final Map.Entry<String, DataObject> entry : AdditionnalSchemaLibrary.getMap().entrySet()) {

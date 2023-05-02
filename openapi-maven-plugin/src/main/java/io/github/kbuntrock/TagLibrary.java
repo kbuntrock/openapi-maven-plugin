@@ -10,10 +10,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.maven.plugin.MojoFailureException;
 
 /**
@@ -29,6 +32,7 @@ public class TagLibrary {
 	private final List<Tag> tags = new ArrayList<>();
 	private final Set<DataObject> schemaObjects = new HashSet<>();
 	private final Set<String> exploredSignatures = new HashSet<>();
+	final Map<Class, DataObject> classToSchemaObject = new HashMap<>();
 
 	public void addTag(final Tag tag) throws MojoFailureException {
 		tags.add(tag);
@@ -120,5 +124,39 @@ public class TagLibrary {
 
 	public Set<DataObject> getSchemaObjects() {
 		return schemaObjects;
+	}
+
+	public Map<Class, DataObject> getClassToSchemaObject() {
+		return classToSchemaObject;
+	}
+
+	/**
+	 * Find a short name for all dataObjects in the schema section
+	 */
+	public void resolveSchemaReferenceNames() {
+		// Find all short names in the schema section
+		final Set<String> referenceNames = new HashSet<>();
+		// We want a deterministic order when renaming classes for reference with "_x". That's why we order by canonical name.
+		final List<DataObject> orderedSchemaObjects = schemaObjects.stream()
+			.sorted(Comparator.comparing(o -> o.getJavaClass().getCanonicalName())).collect(Collectors.toList());
+
+		for(final DataObject object : orderedSchemaObjects) {
+			final String basicShortName = object.getJavaClass().getSimpleName();
+			String shortName = basicShortName;
+			if(!referenceNames.contains(shortName)) {
+				object.setSchemaReferenceName(shortName);
+				referenceNames.add(shortName);
+				classToSchemaObject.put(object.getJavaClass(), object);
+			} else {
+				int i = 1;
+				while(referenceNames.contains(shortName)) {
+					shortName = basicShortName + "_" + i;
+					i++;
+				}
+				object.setSchemaReferenceName(shortName);
+				referenceNames.add(shortName);
+				classToSchemaObject.put(object.getJavaClass(), object);
+			}
+		}
 	}
 }

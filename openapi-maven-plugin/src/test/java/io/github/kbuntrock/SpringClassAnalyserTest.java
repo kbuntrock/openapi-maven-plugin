@@ -11,6 +11,8 @@ import io.github.kbuntrock.resources.dto.TerritoryEnum;
 import io.github.kbuntrock.resources.endpoint.account.AccountController;
 import io.github.kbuntrock.resources.endpoint.annotation.AnnotatedController;
 import io.github.kbuntrock.resources.endpoint.collection.CollectionController;
+import io.github.kbuntrock.resources.endpoint.collision.FirstEndpoint;
+import io.github.kbuntrock.resources.endpoint.collision.SecondEndpoint;
 import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration1Controller;
 import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration2Controller;
 import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration3Controller;
@@ -78,11 +80,11 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		return mavenProjet;
 	}
 
-	private DocumentationMojo createBasicMojo(final String apiLocation) {
+	private DocumentationMojo createBasicMojo(final String... apiLocation) {
 		final DocumentationMojo mojo = new DocumentationMojo();
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
 		apiConfiguration.setAttachArtifact(false);
-		apiConfiguration.setLocations(Collections.singletonList(apiLocation));
+		apiConfiguration.setLocations(Arrays.asList(apiLocation));
 		apiConfiguration.setDefaultProduceConsumeGuessing(false);
 		apiConfiguration.setOperationId("{method_name}");
 		apiConfiguration.setLoopbackOperationName(false);
@@ -665,6 +667,16 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		// The result should be the same as the white list method test
 		final List<File> generated = mojo.documentProject();
 		checkGenerationResult("ut/SpringClassAnalyserTest/extra_classes.yml", generated.get(0));
+	}
+
+	@Test
+	public void name_collision() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(FirstEndpoint.class.getCanonicalName(),
+			SecondEndpoint.class.getCanonicalName());
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/name_collision.yml", generated.get(0));
 	}
 
 }

@@ -67,6 +67,11 @@ public class DataObject {
 	 */
 	private Map<String, Type> genericNameToTypeMap;
 
+	/**
+	 * The name to use in the schema section. Is only set when needed.
+	 */
+	private String schemaReferenceName;
+
 
 	public DataObject(final Type originalType) {
 		Type type = originalType;
@@ -373,6 +378,14 @@ public class DataObject {
 			}
 			substitution.getActualTypeArguments()[i] = getContextualType(substitution.getActualTypeArguments()[i]);
 		}
+	}
+
+	public String getSchemaReferenceName() {
+		return schemaReferenceName;
+	}
+
+	public void setSchemaReferenceName(final String schemaReferenceName) {
+		this.schemaReferenceName = schemaReferenceName;
 	}
 
 	@Override

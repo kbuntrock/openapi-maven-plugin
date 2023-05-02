@@ -1,13 +1,11 @@
 package io.github.kbuntrock.model;
 
-import io.github.kbuntrock.configuration.ApiConfiguration;
-import io.github.kbuntrock.configuration.Substitution;
 import java.util.List;
 
 public class Endpoint {
 
 	private String path;
-	
+
 	private OperationType type;
 
 	private String name;
@@ -31,7 +29,7 @@ public class Endpoint {
 		return path;
 	}
 
-	public void setPath(String path) {
+	public void setPath(final String path) {
 		this.path = path;
 	}
 
@@ -39,7 +37,7 @@ public class Endpoint {
 		return type;
 	}
 
-	public void setType(OperationType type) {
+	public void setType(final OperationType type) {
 		this.type = type;
 	}
 
@@ -47,25 +45,15 @@ public class Endpoint {
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
-	}
-
-	public String computeConfiguredName(ApiConfiguration apiConfiguration) {
-		if(computedName == null) {
-			computedName = getName();
-			for(Substitution substitution : apiConfiguration.getOperation().getSubstitutionsByType(getType().toString().toLowerCase())) {
-				computedName = computedName.replaceAll(substitution.getRegex(), substitution.getSubstitute());
-			}
-		}
-		return computedName;
 	}
 
 	public List<ParameterObject> getParameters() {
 		return parameters;
 	}
 
-	public void setParameters(List<ParameterObject> parameters) {
+	public void setParameters(final List<ParameterObject> parameters) {
 		this.parameters = parameters;
 	}
 
@@ -73,7 +61,7 @@ public class Endpoint {
 		return responseCode;
 	}
 
-	public void setResponseCode(Integer responseCode) {
+	public void setResponseCode(final Integer responseCode) {
 		this.responseCode = responseCode;
 	}
 
@@ -81,7 +69,7 @@ public class Endpoint {
 		return responseObject;
 	}
 
-	public void setResponseObject(DataObject responseObject) {
+	public void setResponseObject(final DataObject responseObject) {
 		this.responseObject = responseObject;
 	}
 
@@ -89,7 +77,7 @@ public class Endpoint {
 		return responseFormats;
 	}
 
-	public void setResponseFormats(List<String> responseFormats) {
+	public void setResponseFormats(final List<String> responseFormats) {
 		this.responseFormats = responseFormats;
 	}
 
@@ -97,7 +85,7 @@ public class Endpoint {
 		return identifier;
 	}
 
-	public void setIdentifier(String identifier) {
+	public void setIdentifier(final String identifier) {
 		this.identifier = identifier;
 	}
 
@@ -105,7 +93,7 @@ public class Endpoint {
 		return deprecated;
 	}
 
-	public void setDeprecated(boolean deprecated) {
+	public void setDeprecated(final boolean deprecated) {
 		this.deprecated = deprecated;
 	}
 }

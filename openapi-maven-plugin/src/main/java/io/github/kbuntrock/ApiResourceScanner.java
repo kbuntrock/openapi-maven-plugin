@@ -58,6 +58,7 @@ public class ApiResourceScanner {
 	public TagLibrary scanRestControllers() throws MojoFailureException {
 
 		final TagLibrary library = new TagLibrary();
+		TagLibraryHolder.INSTANCE.setTagLibrary(library);
 
 		final Library framework = apiConfiguration.getLibrary();
 		final List<Class<? extends Annotation>> annotatedElementList = new ArrayList<>();
@@ -99,6 +100,10 @@ public class ApiResourceScanner {
 				}
 			}
 		}
+
+		// When all scans are done, we set a short name for all reference objects
+		library.resolveSchemaReferenceNames();
+
 		return library;
 	}
 
