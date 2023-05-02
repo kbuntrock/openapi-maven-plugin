@@ -5,6 +5,7 @@ import io.github.kbuntrock.configuration.Substitution;
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.resources.endpoint.account.AccountJakartaController;
 import io.github.kbuntrock.resources.endpoint.account.AccountJaxrsController;
+import io.github.kbuntrock.resources.endpoint.jaxrs.ResponseJaxrsController;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -73,6 +74,24 @@ public class JaxrsClassAnalyserTest extends AbstractTest {
 		final List<File> generated = mojo.documentProject();
 		// The result should be exactly the same beetween the jaxrs or the jakarta rs generation thanks to the configured "substitutions"
 		checkGenerationResult("ut/JaxrsClassAnalyserTest/jaxrs_basic.yml", generated.get(0));
+	}
+
+	@Test
+	public void response_jaxrs() throws MojoFailureException, MojoExecutionException, IOException {
+
+		DocumentationMojo mojo = createBasicMojo(ResponseJaxrsController.class.getCanonicalName());
+		mojo.getApis().get(0).setLibrary(Library.JAVAX_RS.name());
+		mojo.getApiConfiguration().setCustomResponseTypeAnnotation("io.github.kbuntrock.resources.endpoint.jaxrs.ResponseType");
+
+		List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/JaxrsClassAnalyserTest/response_jaxrs.yml", generated.get(0));
+
+		mojo = createBasicMojo(ResponseJaxrsController.class.getCanonicalName());
+		mojo.getApis().get(0).setLibrary(Library.JAKARTA_RS.name());
+		mojo.getApiConfiguration().setCustomResponseTypeAnnotation("io.github.kbuntrock.resources.endpoint.jaxrs.ResponseType");
+
+		generated = mojo.documentProject();
+		checkGenerationResult("ut/JaxrsClassAnalyserTest/response_jaxrs.yml", generated.get(0));
 	}
 
 }

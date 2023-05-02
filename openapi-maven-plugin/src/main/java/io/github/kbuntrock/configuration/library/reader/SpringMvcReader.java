@@ -71,7 +71,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 				logger.debug("Parsing request method : " + method.getName());
 				final String methodIdentifier = JavaClassAnalyser.createIdentifier(method);
 				final List<ParameterObject> parameterObjects = readParameters(method, genericityResolver);
-				final DataObject responseObject = readResponseObject(method, genericityResolver);
+				final DataObject responseObject = readResponseObject(method, genericityResolver, mergedAnnotations);
 				final int responseCode = readResponseCode(mergedAnnotations);
 				final List<String> paths = readEndpointPaths(basePath, requestMappingMergedAnnotation);
 				for(final RequestMethod requestMethod : requestMethods) {

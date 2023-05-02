@@ -79,6 +79,9 @@ public class CommonApiConfiguration {
 	@Parameter
 	protected List<String> extraSchemaClasses = new ArrayList<>();
 
+	@Parameter
+	protected String customResponseTypeAnnotation;
+
 	public CommonApiConfiguration() {
 	}
 
@@ -93,6 +96,7 @@ public class CommonApiConfiguration {
 		this.operationId = commonApiConfiguration.operationId;
 		this.freeFields = commonApiConfiguration.freeFields;
 		this.library = commonApiConfiguration.library;
+		this.customResponseTypeAnnotation = commonApiConfiguration.customResponseTypeAnnotation;
 		for(final String tagAnnotation : commonApiConfiguration.tagAnnotations) {
 			this.tagAnnotations.add(tagAnnotation);
 		}
@@ -263,5 +267,13 @@ public class CommonApiConfiguration {
 
 	public void setExtraSchemaClasses(final List<String> extraSchemaClasses) {
 		this.extraSchemaClasses = extraSchemaClasses;
+	}
+
+	public String getCustomResponseTypeAnnotation() {
+		return customResponseTypeAnnotation;
+	}
+
+	public void setCustomResponseTypeAnnotation(final String customResponseTypeAnnotation) {
+		this.customResponseTypeAnnotation = customResponseTypeAnnotation;
 	}
 }

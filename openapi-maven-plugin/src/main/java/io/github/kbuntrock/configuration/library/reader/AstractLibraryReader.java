@@ -9,6 +9,7 @@ import io.github.kbuntrock.reflection.ClassGenericityResolver;
 import io.github.kbuntrock.utils.Logger;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -44,16 +45,22 @@ public abstract class AstractLibraryReader {
 		return result;
 	}
 
-	protected DataObject readResponseObject(final Method method, final ClassGenericityResolver genericityResolver) {
+	protected DataObject readResponseObject(final Method method, final ClassGenericityResolver genericityResolver,
+		final MergedAnnotations mergedAnnotations) {
 		final Class<?> returnType = method.getReturnType();
 		if(Void.class == returnType || Void.TYPE == returnType) {
 			return null;
 		}
 
-		DataObject dataObject = new DataObject(genericityResolver.getContextualType(method.getGenericReturnType(), method));
+		DataObject dataObject = new DataObject(
+			genericityResolver.getContextualType(readResponseMethodType(method, mergedAnnotations), method));
 		dataObject = computeFrameworkReturnObject(dataObject);
 		logger.debug(dataObject.toString());
 		return dataObject;
+	}
+
+	protected Type readResponseMethodType(final Method method, final MergedAnnotations mergedAnnotations) {
+		return method.getGenericReturnType();
 	}
 
 	/**
