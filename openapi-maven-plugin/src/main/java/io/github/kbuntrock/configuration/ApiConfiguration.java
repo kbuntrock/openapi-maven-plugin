@@ -68,6 +68,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.blackList = copy.blackList;
 		merged.enumConfigList = copy.enumConfigList;
 		merged.extraSchemaClasses = copy.extraSchemaClasses;
+		merged.customResponseTypeAnnotation = copy.customResponseTypeAnnotation;
 		// End copy properties
 
 		merged.setLocations(locations);
@@ -120,6 +121,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		}
 		if(extraSchemaClasses != null && !extraSchemaClasses.isEmpty()) {
 			merged.setExtraSchemaClasses(extraSchemaClasses);
+		}
+		if(customResponseTypeAnnotation != null) {
+			merged.setCustomResponseTypeAnnotation(customResponseTypeAnnotation);
 		}
 
 		merged.operationIdHelper = new OperationIdHelper(merged.operationId);

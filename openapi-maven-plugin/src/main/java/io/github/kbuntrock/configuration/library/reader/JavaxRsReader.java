@@ -13,6 +13,7 @@ import io.github.kbuntrock.utils.ParameterLocation;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -42,6 +43,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 
 	private Class jakartaNotNull;
 	private Class jakartaHttpServletRequest;
+	private Class responseAnnotation;
 
 	public JavaxRsReader(final ApiConfiguration apiConfiguration) {
 		super(apiConfiguration);
@@ -55,6 +57,28 @@ public class JavaxRsReader extends AstractLibraryReader {
 			jakartaHttpServletRequest = ClassLoaderUtils.getByName(JakartaRsReader.HttpServletRequest_CNAME);
 		} catch(final ClassNotFoundException e) {
 			// Nothing to do, could be normal since it is in the servlet api
+		}
+		initCustomResponseAnnotation(apiConfiguration);
+	}
+
+	private void initCustomResponseAnnotation(final ApiConfiguration apiConfiguration) {
+
+		if(apiConfiguration.getCustomResponseTypeAnnotation() != null) {
+			final String annotationName = apiConfiguration.getCustomResponseTypeAnnotation();
+			try {
+				responseAnnotation = ClassLoaderUtils.getByName(annotationName);
+				try {
+					final Method responseAnnotationMethod = responseAnnotation.getMethod("value");
+					if(responseAnnotationMethod.getReturnType() != Class.class) {
+						throw new RuntimeException("Annotation " + annotationName + " does not declare a method called value()");
+					}
+				} catch(final NoSuchMethodException e) {
+					throw new RuntimeException("Annotation " + annotationName + " does not declare a method value() returning a Class");
+				}
+			} catch(final ClassNotFoundException e) {
+				throw new RuntimeException("Could not load annotation class " + annotationName);
+			}
+
 		}
 	}
 
@@ -85,7 +109,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 				if(m.isPresent()) {
 					final String methodIdentifier = JavaClassAnalyser.createIdentifier(method);
 					final List<ParameterObject> parameterObjects = readParameters(method, genericityResolver);
-					final DataObject responseObject = readResponseObject(method, genericityResolver);
+					final DataObject responseObject = readResponseObject(method, genericityResolver, mergedAnnotations);
 					final int responseCode = readResponseCode(null);
 					final String path = readEndpointPaths(basePath, requestMappingMergedAnnotation).get(0);
 					final Endpoint endpoint = new Endpoint();
@@ -254,5 +278,13 @@ public class JavaxRsReader extends AstractLibraryReader {
 		public Class getAnnotationClass() {
 			return annotationClass;
 		}
+	}
+
+	@Override
+	protected Type readResponseMethodType(final Method method, final MergedAnnotations mergedAnnotations) {
+		if(responseAnnotation != null && mergedAnnotations.isPresent(responseAnnotation)) {
+			return (Class) mergedAnnotations.get(responseAnnotation).getValue("value").get();
+		}
+		return method.getGenericReturnType();
 	}
 }
