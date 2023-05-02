@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.kbuntrock.JavaClassAnalyser;
+import io.github.kbuntrock.TagLibraryHolder;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.JavadocMap;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
@@ -109,7 +110,8 @@ public class Schema {
 			items = new Schema(dataObject.getArrayItemDataObject(), false, exploredSignatures, parentDataObject, parentFieldName);
 
 		} else if(!mainReference && dataObject.isReferenceObject()) {
-			reference = OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getJavaClass().getSimpleName();
+			reference = OpenApiConstants.OBJECT_REFERENCE_PREFIX +
+				TagLibraryHolder.INSTANCE.getTagLibrary().getClassToSchemaObject().get(dataObject.getJavaClass()).getSchemaReferenceName();
 
 		} else if((mainReference && dataObject.isReferenceObject() || dataObject.isGenericallyTypedObject())) {
 

@@ -1,0 +1,130 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: FirstEndpoint
+  - name: SecondEndpoint
+paths:
+  /api/first-ws:
+    get:
+      tags:
+        - FirstEndpoint
+      operationId: getCompleteAccounts
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountDto'
+  /api/first-ws/authority:
+    post:
+      tags:
+        - FirstEndpoint
+      operationId: findByAuthority
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/Authority_2'
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountDto'
+  /api/second-ws/light:
+    get:
+      tags:
+        - SecondEndpoint
+      operationId: getPartialAccounts
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountDto_1'
+components:
+  schemas:
+    AccountDto:
+      required:
+        - login
+        - firstName
+        - lastName
+        - email
+        - activated
+        - langKey
+        - authorities
+      type: object
+      properties:
+        login:
+          type: string
+          minLength: 1
+          maxLength: 50
+        firstName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        lastName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        email:
+          type: string
+          minLength: 5
+          maxLength: 254
+        imageUrl:
+          type: string
+          minLength: 0
+          maxLength: 256
+        activated:
+          type: boolean
+        langKey:
+          type: string
+          minLength: 2
+          maxLength: 10
+        authorities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Authority'
+          uniqueItems: true
+    AccountDto_1:
+      type: object
+      properties:
+        pseudo:
+          type: string
+        authorityList:
+          type: array
+          items:
+            $ref: '#/components/schemas/Authority_1'
+          uniqueItems: true
+    Authority:
+      type: string
+      enum:
+        - READ_USER
+        - WRITE_USER
+        - ACCES_APP
+    Authority_1:
+      type: string
+      enum:
+        - ACCES_APP
+    Authority_2:
+      type: object
+      properties:
+        name:
+          type: string
+        level:
+          type: integer
+          format: int32
