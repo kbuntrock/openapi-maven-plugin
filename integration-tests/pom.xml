@@ -17,7 +17,7 @@
         <java.version>1.8</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <spring.version>5.3.22</spring.version>
+        <spring.version>5.3.27</spring.version>
     </properties>
 
     <dependencies>
