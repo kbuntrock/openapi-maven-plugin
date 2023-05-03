@@ -198,7 +198,7 @@ It is not mandatory to fill both entry parts. See the following examples.
 
 - Type : `json string`
 
-Allow to add some documentation values which can not be filled by the project code scanning. Overroding the documentation name and it's version is possible. By default, it is the project name and version.
+Allow to add some documentation values which can not be filled by the project code scanning. Overriding the documentation name and it's version is possible. By default, it is the project name and version.
 
 ```xml
 <freeFields>
@@ -250,6 +250,10 @@ Allow to add some documentation values which can not be filled by the project co
 - Type: `section`
 - Required: `false`
 
+Section defining tag configuration. We will find there the following sub-sections
+
+#### substitutions
+
 Define a substitution list to adapt the tag name, based on the class name.
 
 A substitution accept two parameters:
@@ -258,7 +262,7 @@ A substitution accept two parameters:
 
 If several substitutions are configured, they will be applied sequentially.
 
-Ex: The class name "IImportController" with the following configuration:
+Ex: The class name "IImportUserController" with the following configuration:
 
 ```xml
 <substitutions>
@@ -268,12 +272,17 @@ Ex: The class name "IImportController" with the following configuration:
 	</sub>
 	<sub>
 		<regex>Controller$</regex>
-		<substitute>_ws</substitute>
+		<substitute>Webservice</substitute>
+	</sub>
+	<sub>
+		<!-- Split with a space each time an uppercase character is found -->
+		<regex>(?&lt;!^)[A-Z]</regex>
+		<substitute xml:space="preserve"> $0</substitute>
 	</sub>
 </substitutions>
 ```
 
-Will give the tag name : "Import_ws"
+Will give the tag name : "Import User Webservice"
 
 ### extraSchemaClasses
 
@@ -332,7 +341,7 @@ Encoding of the source code.
 
 Specific configuration for each generated openapi documentation.
 
-!> At least one entry should be configured if you want this plugin to fulfil its purpose.
+!> At least one entry should be configured if you want this plugin to fulfill its purpose.
 
 !> All parameters from the "apiConfiguration" section can be overriden here. Ex:
 
@@ -373,7 +382,7 @@ Specific configuration for each generated openapi documentation.
 
 Package names or canonical classes names to document.
 
-!> At least one entry should be configured if you want this plugin to fulfil its purpose.
+!> At least one entry should be configured if you want this plugin to fulfill its purpose.
 
 ```xml
 <locations>

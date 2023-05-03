@@ -247,7 +247,12 @@ Permet de renseigner des champs de la spécification qui ne peuvent pas être re
 
 ### tag
 
-- Type : `section`
+- Type: `section`
+- Présence: `optionnelle`
+
+Section permettant de définir la configuration des tags. Doit englober les sous-sections qui suivent.
+
+#### substitutions
 
 Permet de définir une liste de substitutions afin d'adapter le nom d'un tag à partir du nom de la classe rencontrée.
 
@@ -257,7 +262,7 @@ Une substitution accepte deux paramètres :
 
 Si plusieurs substitutions sont renseignées, elles seront appliquées séquentiellement.
 
-Exemple : Le nom de classe IImportController et la configuration suivante : 
+Exemple : Le nom de classe IImportUserController et la configuration suivante : 
 
 ```xml
 <substitutions>
@@ -267,12 +272,17 @@ Exemple : Le nom de classe IImportController et la configuration suivante :
 	</sub>
 	<sub>
 		<regex>Controller$</regex>
-		<substitute>_ws</substitute>
+		<substitute>Webservice</substitute>
+	</sub>
+	<sub>
+		<!-- Split with a space each time an uppercase character is found -->
+		<regex>(?&lt;!^)[A-Z]</regex>
+		<substitute xml:space="preserve"> $0</substitute>
 	</sub>
 </substitutions>
 ```
 
-Génèrera le tag suivant : Import_ws
+Génèrera le tag suivant : Import User Webservice
 
 ### extraSchemaClasses
 
