@@ -174,6 +174,13 @@ public class DocumentationMojo extends AbstractMojo {
 				generatedFiles.add(generatedFile);
 
 				final int nbTagsGenerated = tagLibrary.getTags().size();
+
+				if(nbTagsGenerated == 0) {
+					throw new MojoFailureException(
+						"There is nothing to document. Please check if you have correctly configured the plugin or if the "
+							+ "java version used by maven is high enough to read the compiled project classes (maven toolchain is not supported yet)");
+				}
+
 				final int nbOperationsGenerated = tagLibrary.getTags().stream().map(t -> t.getEndpoints().size())
 					.collect(Collectors.summingInt(Integer::intValue));
 				getLog().info(
