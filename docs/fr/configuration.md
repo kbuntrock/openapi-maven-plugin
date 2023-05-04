@@ -298,6 +298,43 @@ Définie une liste d'objets (classe java) qui seront à inclure dans le schema, 
 </extraSchemaClasses>
 ```
 
+### customResponseTypeAnnotation
+
+- Type : `string`
+- Présence : `optionelle`
+
+Nom canonique d'une annotation définie dans votre projet qui permettra de surcharger le type de réponse envoyé par un endpoint.
+Utile pour les projets JaxRS ou JakartaRS utilisant l'objet "Response", qui ne peut pas être génériquement typé.
+
+```xml
+<customResponseTypeAnnotation>io.github.kbuntrock.resources.endpoint.jaxrs.ResponseType</customResponseTypeAnnotation>
+```
+
+Cette annotation doit implémenter une fonction "Class value()".
+
+Exemple : 
+
+```java
+@Target(ElementType.METHOD)
+public @interface ResponseType {
+
+	Class value();
+
+}
+```
+
+Et l'utilisation se fera comme suit : 
+
+```java
+@ResponseType(AccountDto.class)
+@GET
+@Path("/getAccount")
+public Response getAccount() {
+	// ...
+}
+```
+
+
 ## javadocConfiguration
 
 - Type: `balise de section`
