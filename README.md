@@ -1,7 +1,6 @@
 # Openapi maven plugin
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.kbuntrock/openapi-maven-plugin.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.kbuntrock%22%20AND%20a:%22openapi-maven-plugin%22)
-![Maven Central](https://img.shields.io/maven-central/v/io.github.kbuntrock/openapi-maven-plugin)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.kbuntrock/openapi-maven-plugin.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.kbuntrock/openapi-maven-plugin)
 [![CircleCI](https://circleci.com/gh/kbuntrock/openapi-maven-plugin/tree/dev.svg?style=shield)](https://circleci.com/gh/kbuntrock/openapi-maven-plugin/tree/dev)
 ![GitHub](https://img.shields.io/github/license/kbuntrock/openapi-maven-plugin?color=blue)
 
