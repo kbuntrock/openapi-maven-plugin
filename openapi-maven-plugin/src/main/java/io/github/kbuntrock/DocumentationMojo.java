@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +33,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
 
 /**
  * Goal which touches a timestamp file.
@@ -196,6 +196,8 @@ public class DocumentationMojo extends AbstractMojo {
 	/**
 	 * Create a classloader for the classes and dependencies of the project
 	 *
+	 * For more informations, see https://maven.apache.org/guides/mini/guide-maven-classloading.html
+	 *
 	 * @return the classloader to use
 	 * @throws MojoExecutionException
 	 */
@@ -212,9 +214,15 @@ public class DocumentationMojo extends AbstractMojo {
 			final URL[] urlsForClassLoader = pathUrls.toArray(new URL[pathUrls.size()]);
 			getLog().debug("urls for URLClassLoader: " + Arrays.asList(urlsForClassLoader));
 
-			// We need to define parent classloader which is the plugin classloader, in order to not mix up
-			// the project and the plugin classes.
-			return new URLClassLoader(urlsForClassLoader, DocumentationMojo.class.getClassLoader());
+			// We could use a completely separated Classword but is had too much complexity while scanning the project classes since
+			// we can't use Class loaded in the pluging Classloader. We should then use classes of the project classLoader and handle cases
+			// when there are not present
+			// We prefer add projet url to the plugin classLoader.
+			final ClassRealm classRealm = (ClassRealm) DocumentationMojo.class.getClassLoader();
+			for(final URL url : urlsForClassLoader) {
+				classRealm.addURL(url);
+			}
+			return classRealm;
 		} catch(final DependencyResolutionRequiredException | MalformedURLException ex) {
 			throw new MojoExecutionException("Cannot create project dependencies classloader", ex);
 		}
