@@ -71,6 +71,7 @@ public class ApiResourceScanner {
 
 			final ConfigurationBuilder configurationBuilder = ReflectionsUtils.createConfigurationBuilder();
 			configurationBuilder.filterInputsBy(new FilterBuilder().includePackage(apiLocation));
+			configurationBuilder.setClassLoaders(new ClassLoader[]{ReflectionsUtils.getProjectClassLoader()});
 
 			configurationBuilder.setScanners(TypesAnnotated);
 			final Reflections reflections = new Reflections(configurationBuilder);
