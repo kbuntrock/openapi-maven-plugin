@@ -298,6 +298,42 @@ Define a list of java objects not referenced by a documented endpoint, but which
 </extraSchemaClasses>
 ```
 
+### customResponseTypeAnnotation
+
+- Type : `string`
+- Required : `false`
+
+Canonical name of an annotation defined in your project. It will allow you to override the response type of a endpoint.
+Useful for JaxRS or JakartaRS project using the "Response" class (this class can't be generically typed).
+
+```xml
+<customResponseTypeAnnotation>io.github.kbuntrock.resources.endpoint.jaxrs.ResponseType</customResponseTypeAnnotation>
+```
+
+This annotation have to implement a function "Class value()".
+
+Example : 
+
+```java
+@Target(ElementType.METHOD)
+public @interface ResponseType {
+
+	Class value();
+
+}
+```
+
+And then you can use it like this:
+
+```java
+@ResponseType(AccountDto.class)
+@GET
+@Path("/getAccount")
+public Response getAccount() {
+	// ...
+}
+```
+
 ## javadocConfiguration
 
 - Type: `section`
