@@ -26,7 +26,7 @@ A la suite, ajoutez dans votre pom.xml les lignes suivantes en les adaptant au b
 <plugin>
 	<groupId>io.github.kbuntrock</groupId>
 	<artifactId>openapi-maven-plugin</artifactId>
-	<version>0.0.13</version>
+	<version>0.0.14</version>
 	<executions>
 		<execution>
 			<id>documentation</id>
