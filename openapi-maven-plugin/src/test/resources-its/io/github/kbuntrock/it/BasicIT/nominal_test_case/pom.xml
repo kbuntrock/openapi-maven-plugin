@@ -169,7 +169,7 @@
     <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <openapi-plugin-project-version>0.0.14-SNAPSHOT</openapi-plugin-project-version>
+    <openapi-plugin-project-version>0.0.14</openapi-plugin-project-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
   </properties>
