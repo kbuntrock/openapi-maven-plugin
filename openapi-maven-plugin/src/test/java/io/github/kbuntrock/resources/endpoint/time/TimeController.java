@@ -1,7 +1,7 @@
 package io.github.kbuntrock.resources.endpoint.time;
 
 import io.github.kbuntrock.resources.Constants;
-import io.github.kbuntrock.resources.dto.TimeDto;
+import io.github.kbuntrock.resources.dto.TimeDtoV2;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -9,5 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface TimeController {
 
 	@GetMapping("/get-timedto")
-	TimeDto getTimeDto();
+	TimeDtoV2 getTimeDto();
+
 }

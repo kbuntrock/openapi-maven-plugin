@@ -8,6 +8,7 @@ public enum OpenApiDataFormat {
 	INT64("int64"),
 	DATE("date"),
 	DATE_TIME("date-time"),
+	TIME("time"),
 	BYTE("byte"),
 	BINARY("binary"),
 	EMAIL("email"),
@@ -16,7 +17,7 @@ public enum OpenApiDataFormat {
 
 	private final String value;
 
-	OpenApiDataFormat(String value) {
+	OpenApiDataFormat(final String value) {
 		this.value = value;
 	}
 
