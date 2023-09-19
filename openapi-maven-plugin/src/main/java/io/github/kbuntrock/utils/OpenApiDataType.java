@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.Date;
 import org.springframework.core.io.InputStreamSource;
@@ -16,6 +17,7 @@ public enum OpenApiDataType {
 	STRING_BINARY("string", OpenApiDataFormat.BINARY),
 	STRING_DATE("string", OpenApiDataFormat.DATE),
 	STRING_DATE_TIME("string", OpenApiDataFormat.DATE_TIME),
+	STRING_TIME("string", OpenApiDataFormat.TIME),
 	BOOLEAN("boolean"),
 	INTEGER_32("integer", OpenApiDataFormat.INT32),
 	INTEGER_64("integer", OpenApiDataFormat.INT64),
@@ -53,6 +55,8 @@ public enum OpenApiDataType {
 			return STRING_DATE_TIME;
 		} else if(LocalDate.class == clazz) {
 			return STRING_DATE;
+		} else if(LocalTime.class == clazz) {
+			return STRING_TIME;
 		} else if(InputStreamSource.class.isAssignableFrom(clazz) || InputStream.class.isAssignableFrom(clazz)) {
 			return STRING_BINARY;
 		} else if(clazz.isArray() || Collection.class.isAssignableFrom(clazz)) {

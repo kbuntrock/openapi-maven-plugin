@@ -20,7 +20,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/TimeDto'
+                $ref: '#/components/schemas/TimeDtoV2'
   /api/file-upload/the-number:
     get:
       tags:
@@ -75,7 +75,7 @@ components:
         theDouble:
           type: number
           format: double
-    TimeDto:
+    TimeDtoV2:
       type: object
       properties:
         instant:
@@ -87,3 +87,6 @@ components:
         dateTime:
           type: string
           format: date-time
+        time:
+          type: string
+          format: time

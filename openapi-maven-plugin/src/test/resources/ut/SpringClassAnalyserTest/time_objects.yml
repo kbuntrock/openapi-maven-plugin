@@ -19,10 +19,10 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/TimeDto'
+                $ref: '#/components/schemas/TimeDtoV2'
 components:
   schemas:
-    TimeDto:
+    TimeDtoV2:
       type: object
       properties:
         instant:
@@ -34,3 +34,6 @@ components:
         dateTime:
           type: string
           format: date-time
+        time:
+          type: string
+          format: time
