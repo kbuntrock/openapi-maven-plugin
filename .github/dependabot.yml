@@ -1,0 +1,9 @@
+# Configure the github "dependabot" for :
+#  - Disables npm security scan (the angular sample projet does not need security updates since it is not part of the product)
+
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/something-not-existing"
+    schedule:
+      interval: "weekly"
