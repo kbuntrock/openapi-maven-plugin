@@ -16,7 +16,6 @@ public class CommonApiConfiguration {
 	public static String DEFAULT_OPERATION_ID = "{class_name}.{method_name}";
 	public static String DEFAULT_LIBRARY = Library.SPRING_MVC.name();
 	public static List<String> DEFAULT_TAG_ANNOTATIONS = new ArrayList<>();
-	protected static String DEFAULT_SUCCESSFUL_OPERATION_DESCRIPTION = "successful operation";
 
 	static {
 		DEFAULT_TAG_ANNOTATIONS.add(TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName());
