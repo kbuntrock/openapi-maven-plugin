@@ -14,9 +14,10 @@ paths:
       tags:
         - InterfaceController
       operationId: getInterfaceDto
+      description: This endpoint returns an interface
       responses:
         200:
-          description: successful operation
+          description: the returned interface
           content:
             '*/*':
               schema:
@@ -37,6 +38,7 @@ paths:
                         $ref: '#/components/schemas/Authority'
                     uniqueItems: true
                   parentId:
+                    description: Get the parent id
                     type: integer
                     format: int32
                   returned3:

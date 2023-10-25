@@ -11,7 +11,6 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -71,17 +70,14 @@ public class JavaClassAnalyser {
 	private static String createTypeIdentifier(final String typeName) {
 
 		String returnTypeName = typeName;
-		final Matcher matcher = BEGINNING.matcher(returnTypeName);
-		if(matcher.find() && matcher.group().contains(".")) {
-			returnTypeName = returnTypeName.replace(matcher.group(), "");
+		final String[] toReplace = typeName.split("<|>|,");
+		final List<Pair<String, String>> replacementList = new ArrayList<>();
+		for(final String s : toReplace) {
+			final String[] replacementArray = s.split("\\.");
+			replacementList.add(Pair.of(s, replacementArray[replacementArray.length - 1]));
 		}
-		final Matcher matcher2 = FIRST_GENERIC.matcher(returnTypeName);
-		if(matcher2.find() && matcher2.group().contains(".")) {
-			returnTypeName = returnTypeName.replace(matcher2.group(), "<");
-		}
-		final Matcher matcher3 = OTHER_GENERIC.matcher(returnTypeName);
-		if(matcher3.find() && matcher3.group().contains(".")) {
-			returnTypeName = returnTypeName.replace(matcher3.group(), ",");
+		for(final Pair<String, String> pair : replacementList) {
+			returnTypeName = returnTypeName.replace(pair.getLeft(), pair.getRight());
 		}
 
 		return returnTypeName;

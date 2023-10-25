@@ -36,6 +36,7 @@ import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTen;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestThree;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTwelve;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTwo;
+import io.github.kbuntrock.resources.endpoint.generic.Issue89;
 import io.github.kbuntrock.resources.endpoint.ignore.JsonIgnoreController;
 import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
 import io.github.kbuntrock.resources.endpoint.map.MapController;
@@ -212,6 +213,19 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
 		final List<File> generated = mojo.documentProject();
 		checkGenerationResult("ut/SpringClassAnalyserTest/genericity_in_super_constructor.yml", generated.get(0));
+	}
+
+	@Test
+	public void issue_89() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(Issue89.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/generic",
+			"src/test/java/io/github/kbuntrock/resources/dto/genericity/issue89"));
+		mojo.setJavadocConfiguration(javadocConfig);
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/issue_89.yml", generated.get(0));
 	}
 
 	@Test
@@ -592,6 +606,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		blackList.add(".*\\.GenericityTestS.*$");
 		blackList.add(".*\\.GenericityTestE.*$");
 		blackList.add(".*\\.GenericityTestN.*$");
+		blackList.add(".*\\.Issue89.*$");
 		blackList.add(".*\\.ActionResource");
 		blackList.add(".*\\.GenericDataController");
 		mojo.getApiConfiguration().setBlackList(blackList);

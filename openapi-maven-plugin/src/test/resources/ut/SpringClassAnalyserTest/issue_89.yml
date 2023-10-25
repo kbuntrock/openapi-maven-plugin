@@ -1,0 +1,124 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: Issue89
+    description: Webservices about the issue number 89
+paths:
+  /issue89/youAreAwesome-applications:
+    post:
+      tags:
+        - Issue89
+      operationId: youAreAwesome
+      description: This api test the issue n°89
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/Bar'
+        description: my awesome parameter
+      responses:
+        200:
+          description: my also awesome response
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IBar'
+components:
+  schemas:
+    Bar:
+      description: This is the Bar object
+      type: object
+      properties:
+        a:
+          description: the a attribute
+          $ref: '#/components/schemas/Foo'
+        b:
+          description: the b attribute
+          $ref: '#/components/schemas/Boo'
+        foo:
+          description: the foo integer
+          type: integer
+          format: int32
+        boo:
+          description: the boo boolean
+          type: boolean
+        bar:
+          description: the bar string
+          type: string
+    Boo:
+      description: This is the Boo object
+      type: object
+      properties:
+        a:
+          description: the a attribute
+          $ref: '#/components/schemas/Foo'
+        b:
+          description: the b attribute
+          $ref: '#/components/schemas/Boo'
+        foo:
+          description: the foo integer
+          type: integer
+          format: int32
+        boo:
+          description: the boo boolean
+          type: boolean
+    Foo:
+      description: This is the Foo object
+      type: object
+      properties:
+        a:
+          description: the a attribute
+          $ref: '#/components/schemas/Foo'
+        b:
+          description: the b attribute
+          $ref: '#/components/schemas/Boo'
+        foo:
+          description: the foo integer
+          type: integer
+          format: int32
+    IBar:
+      description: This is the IBar object
+      type: object
+      properties:
+        a:
+          description: get the A attribute
+          $ref: '#/components/schemas/IFoo'
+        b:
+          description: Get the B attribute
+          $ref: '#/components/schemas/IBoo'
+        bar:
+          description: The bar string
+          type: string
+        boo:
+          description: The boo boolean
+          type: boolean
+        foo:
+          description: The foo integer
+          type: integer
+          format: int32
+    IBoo:
+      description: This is the IBoo object
+      type: object
+      properties:
+        boo:
+          description: The boo boolean
+          type: boolean
+        foo:
+          description: The foo integer
+          type: integer
+          format: int32
+    IFoo:
+      description: The IFoo object
+      type: object
+      properties:
+        foo:
+          description: The foo integer
+          type: integer
+          format: int32
