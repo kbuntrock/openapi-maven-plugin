@@ -139,9 +139,14 @@ public class YamlWriter {
 			specification.getComponents().put("schemas", schemaSection);
 		}
 
-		if(freefields.isPresent() && freefields.get().get("components") != null &&
-			freefields.get().get("components").get("securitySchemes") != null) {
-			specification.getComponents().put("securitySchemes", freefields.get().get("components").get("securitySchemes"));
+		if(freefields.isPresent() && freefields.get().get("components") != null) {
+
+			if(freefields.get().get("components").get("securitySchemes") != null) {
+				specification.getComponents().put("securitySchemes", freefields.get().get("components").get("securitySchemes"));
+			}
+			if(freefields.get().get("components").get("responses") != null) {
+				specification.getComponents().put("responses", freefields.get().get("components").get("responses"));
+			}
 		}
 
 		om.writeValue(file, specification);

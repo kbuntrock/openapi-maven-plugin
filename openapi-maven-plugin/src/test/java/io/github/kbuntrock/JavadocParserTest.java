@@ -3,14 +3,18 @@ package io.github.kbuntrock;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
+import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration1Controller;
 import io.github.kbuntrock.resources.endpoint.javadoc.inheritance.ChildClassOne;
 import io.github.kbuntrock.resources.endpoint.javadoc.inheritance.two.ChildClassTwo;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
@@ -127,6 +131,21 @@ public class JavadocParserTest extends AbstractTest {
 
 		final List<File> generated = mojo.documentProject();
 		checkGenerationResult("ut/JavadocParserTest/inheritance_test_three.yml", generated.get(0));
+	}
+
+	@Test
+	public void default_error_responses() throws MojoFailureException, MojoExecutionException, IOException {
+
+		final DocumentationMojo mojo = createBasicMojo(TestEnumeration1Controller.class.getCanonicalName());
+		final ApiConfiguration apiConfiguration = mojo.getApis().get(0);
+
+		final InputStream freeFieldsFileStream = this.getClass().getClassLoader()
+			.getResourceAsStream("ut/JavadocParserTest/freeFields/default_error_responses_free_fields.txt");
+		apiConfiguration.setFreeFields(IOUtils.toString(freeFieldsFileStream, StandardCharsets.UTF_8));
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/enumeration_test_1_with_default_errors.yml", generated.get(0));
+
 	}
 
 }
