@@ -41,8 +41,19 @@ components:
         myString:
           type: string
         self:
-          $ref: '#/components/schemas/SearchCriteriaChildV6'
+          $ref: '#/components/schemas/SearchCriteriaV6'
         someBoolean:
           type: boolean
         anotherThing:
+          type: boolean
+    SearchCriteriaV6:
+      type: object
+      properties:
+        dateCriteria:
+          $ref: '#/components/schemas/CriteriaDateType'
+        myString:
+          type: string
+        self:
+          $ref: '#/components/schemas/SearchCriteriaV6'
+        someBoolean:
           type: boolean

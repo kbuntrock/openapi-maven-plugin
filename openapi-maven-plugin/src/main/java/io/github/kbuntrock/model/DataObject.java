@@ -5,11 +5,9 @@ import io.github.kbuntrock.configuration.EnumConfigHolder;
 import io.github.kbuntrock.reflection.GenericArrayTypeImpl;
 import io.github.kbuntrock.reflection.ParameterizedTypeImpl;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
-import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -339,31 +337,7 @@ public class DataObject {
 			} else if(genericType instanceof TypeVariable) {
 
 				// We are in presence of a generic type variable not coming from the outside. Might be coming from generic typing at a parent level.
-				final TypeVariable typeVariable = (TypeVariable) genericType;
-				GenericDeclaration genericDeclaration = typeVariable.getGenericDeclaration();
-				Class superClass = this.getJavaClass().getSuperclass();
-				Type genericSuperClass = this.getJavaClass().getGenericSuperclass();
-				while(!genericDeclaration.equals(superClass) && !superClass.isAssignableFrom(Object.class)) {
-					genericDeclaration = typeVariable.getGenericDeclaration();
-					superClass = superClass.getSuperclass();
-					genericSuperClass = superClass.getGenericSuperclass();
-				}
-				superClass.getDeclaredConstructors();
-				if(genericDeclaration.equals(typeVariable.getGenericDeclaration())) {
-					int i;
-					for(i = 0; i < superClass.getTypeParameters().length; i++) {
-						if(typeVariable.getName().equals(superClass.getTypeParameters()[i].getName())) {
-							if(genericSuperClass instanceof ParameterizedType) {
-								return ((ParameterizedType) genericSuperClass).getActualTypeArguments()[i];
-							}
-						}
-					}
-					// If no substitution has been found yet, the generic type could have been set by a contructor
-					return TypeToken.of(genericType).resolveType(javaType).getType();
-
-				} else {
-					Logger.INSTANCE.getLogger().warn("No generic substitution found for object " + this.getJavaClass().getName());
-				}
+				return TypeToken.of(this.getJavaClass()).resolveType(genericType).getType();
 			}
 
 		}

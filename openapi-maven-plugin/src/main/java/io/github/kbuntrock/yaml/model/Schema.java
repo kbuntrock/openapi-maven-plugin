@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.TagLibraryHolder;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
+import io.github.kbuntrock.javadoc.ClassDocumentation.EnhancementType;
 import io.github.kbuntrock.javadoc.JavadocMap;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
 import io.github.kbuntrock.model.DataObject;
@@ -91,7 +92,7 @@ public class Schema {
 		if(JavadocMap.INSTANCE.isPresent()) {
 			classDocumentation = JavadocMap.INSTANCE.getJavadocMap().get(dataObject.getJavaClass().getCanonicalName());
 			if(classDocumentation != null) {
-				classDocumentation.inheritanceEnhancement(dataObject.getJavaClass(), ClassDocumentation.EnhancementType.FIELDS);
+				classDocumentation.inheritanceEnhancement(dataObject.getJavaClass(), EnhancementType.BOTH);
 			}
 			if(classDocumentation != null && mainReference) {
 				final Optional<String> optionalDescription = classDocumentation.getDescription();
