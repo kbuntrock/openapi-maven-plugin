@@ -48,6 +48,12 @@ public class CommonApiConfiguration {
 	protected Boolean pathEnhancement;
 
 	/**
+	 * Add a prefix to any path value (there are plenty of options to add a prefix to an api path for a webapp and it cannot be guessed by the plugin)
+	 */
+	@Parameter
+	protected String pathPrefix;
+
+	/**
 	 * If true, return a short operation name for code generation, as described here :
 	 * https://loopback.io/doc/en/lb4/Decorators_openapi.html
 	 */
@@ -91,6 +97,7 @@ public class CommonApiConfiguration {
 		this.defaultSuccessfulOperationDescription = commonApiConfiguration.defaultSuccessfulOperationDescription;
 		this.defaultProduceConsumeGuessing = commonApiConfiguration.defaultProduceConsumeGuessing;
 		this.pathEnhancement = commonApiConfiguration.pathEnhancement;
+		this.pathPrefix = commonApiConfiguration.pathPrefix;
 		this.loopbackOperationName = commonApiConfiguration.loopbackOperationName;
 		this.operationId = commonApiConfiguration.operationId;
 		this.freeFields = commonApiConfiguration.freeFields;
@@ -136,6 +143,9 @@ public class CommonApiConfiguration {
 		}
 		if(pathEnhancement == null) {
 			pathEnhancement = true;
+		}
+		if(pathPrefix == null) {
+			pathPrefix = "";
 		}
 		if(defaultProduceConsumeGuessing == null) {
 			defaultProduceConsumeGuessing = true;
@@ -186,6 +196,14 @@ public class CommonApiConfiguration {
 
 	public void setPathEnhancement(final boolean pathEnhancement) {
 		this.pathEnhancement = pathEnhancement;
+	}
+
+	public String getPathPrefix() {
+		return pathPrefix;
+	}
+
+	public void setPathPrefix(final String pathPrefix) {
+		this.pathPrefix = pathPrefix;
 	}
 
 	public String getDefaultSuccessfulOperationDescription() {

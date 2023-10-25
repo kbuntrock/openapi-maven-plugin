@@ -173,7 +173,7 @@ public class YamlWriter {
 				final Operation operation = new Operation();
 				operations.add(operation);
 				operation.setName(endpoint.getType().name());
-				operation.setPath(endpoint.getPath());
+				operation.setPath(this.apiConfiguration.getPathPrefix() + endpoint.getPath());
 				final String computedTagName = tag.computeConfiguredName(apiConfiguration);
 				operation.getTags().add(computedTagName);
 				operation.setOperationId(
