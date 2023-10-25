@@ -59,6 +59,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.defaultSuccessfulOperationDescription = copy.defaultSuccessfulOperationDescription;
 		merged.defaultProduceConsumeGuessing = copy.defaultProduceConsumeGuessing;
 		merged.pathEnhancement = copy.pathEnhancement;
+		merged.pathPrefix = copy.pathPrefix;
 		merged.loopbackOperationName = copy.loopbackOperationName;
 		merged.operationId = copy.operationId;
 		merged.freeFields = copy.freeFields;
@@ -91,6 +92,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		}
 		if(pathEnhancement != null) {
 			merged.setPathEnhancement(pathEnhancement);
+		}
+		if(pathPrefix != null) {
+			merged.setPathPrefix(pathPrefix);
 		}
 		if(loopbackOperationName != null) {
 			merged.setLoopbackOperationName(loopbackOperationName);
