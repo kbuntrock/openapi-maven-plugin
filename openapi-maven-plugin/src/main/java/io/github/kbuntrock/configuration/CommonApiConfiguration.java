@@ -87,6 +87,9 @@ public class CommonApiConfiguration {
 	@Parameter
 	protected String customResponseTypeAnnotation;
 
+	@Parameter
+	protected String defaultErrors;
+
 	public CommonApiConfiguration() {
 	}
 
@@ -103,6 +106,7 @@ public class CommonApiConfiguration {
 		this.freeFields = commonApiConfiguration.freeFields;
 		this.library = commonApiConfiguration.library;
 		this.customResponseTypeAnnotation = commonApiConfiguration.customResponseTypeAnnotation;
+		this.defaultErrors = commonApiConfiguration.defaultErrors;
 		for(final String tagAnnotation : commonApiConfiguration.tagAnnotations) {
 			this.tagAnnotations.add(tagAnnotation);
 		}
@@ -292,5 +296,13 @@ public class CommonApiConfiguration {
 
 	public void setCustomResponseTypeAnnotation(final String customResponseTypeAnnotation) {
 		this.customResponseTypeAnnotation = customResponseTypeAnnotation;
+	}
+
+	public String getDefaultErrors() {
+		return defaultErrors;
+	}
+
+	public void setDefaultErrors(final String defaultErrors) {
+		this.defaultErrors = defaultErrors;
 	}
 }

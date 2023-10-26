@@ -70,6 +70,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.enumConfigList = copy.enumConfigList;
 		merged.extraSchemaClasses = copy.extraSchemaClasses;
 		merged.customResponseTypeAnnotation = copy.customResponseTypeAnnotation;
+		merged.defaultErrors = copy.defaultErrors;
 		// End copy properties
 
 		merged.setLocations(locations);
@@ -128,6 +129,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		}
 		if(customResponseTypeAnnotation != null) {
 			merged.setCustomResponseTypeAnnotation(customResponseTypeAnnotation);
+		}
+		if(defaultErrors != null) {
+			merged.setDefaultErrors(defaultErrors);
 		}
 
 		merged.operationIdHelper = new OperationIdHelper(merged.operationId);

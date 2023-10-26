@@ -143,6 +143,12 @@ public class JavadocParserTest extends AbstractTest {
 			.getResourceAsStream("ut/JavadocParserTest/freeFields/default_error_responses_free_fields.txt");
 		apiConfiguration.setFreeFields(IOUtils.toString(freeFieldsFileStream, StandardCharsets.UTF_8));
 
+		final InputStream defaultErrorsFileStream = this.getClass().getClassLoader()
+			.getResourceAsStream("ut/JavadocParserTest/freeFields/default_error_responses.txt");
+		apiConfiguration.setDefaultErrors(IOUtils.toString(defaultErrorsFileStream, StandardCharsets.UTF_8));
+
+		apiConfiguration.setPathPrefix("/v1");
+
 		final List<File> generated = mojo.documentProject();
 		checkGenerationResult("ut/SpringClassAnalyserTest/enumeration_test_1_with_default_errors.yml", generated.get(0));
 

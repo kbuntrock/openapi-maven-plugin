@@ -1,6 +1,5 @@
 package io.github.kbuntrock.yaml;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -9,6 +8,7 @@ import com.github.javaparser.javadoc.JavadocBlockTag;
 import io.github.kbuntrock.MojoRuntimeException;
 import io.github.kbuntrock.TagLibrary;
 import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.configuration.JsonConfigurationParserUtils;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.JavadocMap;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
@@ -18,6 +18,7 @@ import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
 import io.github.kbuntrock.utils.Logger;
+import io.github.kbuntrock.utils.OpenApiConstants;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.ParameterLocation;
 import io.github.kbuntrock.utils.ProduceConsumeUtils;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -45,7 +47,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
@@ -53,7 +54,6 @@ public class YamlWriter {
 
 	private static final ObjectMapper om = new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
 		.enable(YAMLGenerator.Feature.INDENT_ARRAYS_WITH_INDICATOR));
-	private static final ObjectMapper jsonObjectMapper = new ObjectMapper();
 	private static final String SERVERS_FIELD = "servers";
 	private static final String SECURITY_FIELD = "security";
 	private static final String EXTERNAL_DOC_FIELD = "externalDocs";
@@ -64,26 +64,17 @@ public class YamlWriter {
 	private final MavenProject mavenProject;
 
 	private Optional<JsonNode> freefields = Optional.empty();
+	private Map<String, JsonNode> defaultErrors;
 
 	public YamlWriter(final MavenProject mavenProject, final ApiConfiguration apiConfiguration) {
 		this.apiConfiguration = apiConfiguration;
 		this.mavenProject = mavenProject;
 	}
 
-	private void parseFreeFields() {
-		if(!StringUtils.isEmpty(apiConfiguration.getFreeFields())) {
-			try {
-				freefields = Optional.ofNullable(jsonObjectMapper.readTree(apiConfiguration.getFreeFields()));
-			} catch(final JsonProcessingException e) {
-				throw new MojoRuntimeException("Free fields json configuration cannot be read", e);
-			}
-		}
-	}
-
 	private void populateSpecificationFreeFields(final Specification specification, final Optional<JsonNode> freefields) {
 
-		if(freefields.isPresent() && freefields.get().get("servers") != null) {
-			specification.setServers(freefields.get().get("servers"));
+		if(freefields.isPresent() && freefields.get().get(SERVERS_FIELD) != null) {
+			specification.setServers(freefields.get().get(SERVERS_FIELD));
 		} else {
 			final Server server = new Server();
 			server.setUrl("");
@@ -91,18 +82,24 @@ public class YamlWriter {
 		}
 
 		if(freefields.isPresent()) {
-			if(freefields.get().get("security") != null) {
-				specification.setSecurity(freefields.get().get("security"));
+			if(freefields.get().get(SECURITY_FIELD) != null) {
+				specification.setSecurity(freefields.get().get(SECURITY_FIELD));
 			}
-			if(freefields.get().get("externalDocs") != null) {
-				specification.setExternalDocs(freefields.get().get("externalDocs"));
+			if(freefields.get().get(EXTERNAL_DOC_FIELD) != null) {
+				specification.setExternalDocs(freefields.get().get(EXTERNAL_DOC_FIELD));
 			}
 		}
 	}
 
 	public void write(final File file, final TagLibrary tagLibrary) throws IOException {
 
-		parseFreeFields();
+		freefields = JsonConfigurationParserUtils.parse(mavenProject, apiConfiguration.getFreeFields());
+		final Optional<JsonNode> defaultErrorsNode = JsonConfigurationParserUtils.parse(mavenProject, apiConfiguration.getDefaultErrors());
+		if(defaultErrorsNode.isPresent()) {
+			defaultErrors = new LinkedHashMap<>();
+			final Iterator<Map.Entry<String, JsonNode>> iterator = defaultErrorsNode.get().fields();
+			iterator.forEachRemaining(entry -> defaultErrors.put(entry.getKey(), entry.getValue()));
+		}
 
 		final Specification specification = new Specification();
 		final Info info = new Info(mavenProject.getName(), mavenProject.getVersion(), freefields);
@@ -134,18 +131,36 @@ public class YamlWriter {
 
 		specification.setPaths(createPaths(tagLibrary));
 
-		final Map<String, Schema> schemaSection = createSchemaSection(tagLibrary);
+		final Map<String, Object> schemaSection = createSchemaSection(tagLibrary);
+		boolean schemaSectionCreated = false;
 		if(!schemaSection.isEmpty()) {
 			specification.getComponents().put("schemas", schemaSection);
+			schemaSectionCreated = true;
 		}
 
 		if(freefields.isPresent() && freefields.get().get("components") != null) {
 
-			if(freefields.get().get("components").get("securitySchemes") != null) {
-				specification.getComponents().put("securitySchemes", freefields.get().get("components").get("securitySchemes"));
+			final JsonNode componentsNode = freefields.get().get("components");
+			if(componentsNode.get(OpenApiConstants.SCHEMAS) != null) {
+				if(schemaSectionCreated) {
+					// Adding elements to the schema section
+					final Map<String, Object> createdSchema = (Map<String, Object>) specification.getComponents()
+						.get(OpenApiConstants.SCHEMAS);
+
+					final Iterator<Map.Entry<String, JsonNode>> iterator = componentsNode.get(OpenApiConstants.SCHEMAS).fields();
+					iterator.forEachRemaining(entry -> {
+						createdSchema.put(entry.getKey(), entry.getValue());
+					});
+				} else {
+					// Creating the schemas section from scratch
+					specification.getComponents().put(OpenApiConstants.SCHEMAS, componentsNode.get(OpenApiConstants.SCHEMAS));
+				}
 			}
-			if(freefields.get().get("components").get("responses") != null) {
-				specification.getComponents().put("responses", freefields.get().get("components").get("responses"));
+
+			for(final String section : OpenApiConstants.COMPONENTS_STRUCTURE) {
+				if(componentsNode.get(section) != null) {
+					specification.getComponents().put(section, componentsNode.get(section));
+				}
 			}
 		}
 
@@ -173,12 +188,14 @@ public class YamlWriter {
 
 			for(final Endpoint endpoint : tag.getEndpoints().stream().sorted(Comparator.comparing(Endpoint::getPath))
 				.collect(Collectors.toList())) {
-				paths.computeIfAbsent(endpoint.getPath(), k -> new LinkedHashMap<>());
+
+				final String enhancedPath = this.apiConfiguration.getPathPrefix() + endpoint.getPath();
+				paths.computeIfAbsent(enhancedPath, k -> new LinkedHashMap<>());
 
 				final Operation operation = new Operation();
 				operations.add(operation);
 				operation.setName(endpoint.getType().name());
-				operation.setPath(this.apiConfiguration.getPathPrefix() + endpoint.getPath());
+				operation.setPath(enhancedPath);
 				final String computedTagName = tag.computeConfiguredName(apiConfiguration);
 				operation.getTags().add(computedTagName);
 				operation.setOperationId(
@@ -321,6 +338,13 @@ public class YamlWriter {
 
 				operation.getResponses().put(response.getCode(), response);
 
+				// Adding default responses
+				if(defaultErrors != null) {
+					defaultErrors.entrySet().forEach(entry -> {
+						operation.getResponses().put(entry.getKey(), entry.getValue());
+					});
+				}
+
 			}
 
 			// We now order operations by types :
@@ -339,12 +363,12 @@ public class YamlWriter {
 		return paths;
 	}
 
-	private Map<String, Schema> createSchemaSection(final TagLibrary library) {
+	private Map<String, Object> createSchemaSection(final TagLibrary library) {
 		final List<DataObject> ordered = library.getSchemaObjects().stream()
 			.sorted(Comparator.comparing(p -> p.getSchemaReferenceName())).collect(Collectors.toList());
 
 		// LinkedHashMap to keep alphabetical order
-		final Map<String, Schema> schemas = new LinkedHashMap<>();
+		final Map<String, Object> schemas = new LinkedHashMap<>();
 		for(final DataObject dataObject : ordered) {
 			final Set<String> exploredSignatures = new HashSet<>();
 			final Schema schema = new Schema(dataObject, true, exploredSignatures, null, null);

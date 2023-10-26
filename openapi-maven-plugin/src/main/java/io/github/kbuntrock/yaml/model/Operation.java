@@ -29,7 +29,7 @@ public class Operation {
 	private RequestBody requestBody;
 
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
-	private final Map<Object, Response> responses = new LinkedHashMap<>();
+	private final Map<Object, Object> responses = new LinkedHashMap<>();
 
 	public String getName() {
 		return name;
@@ -75,7 +75,7 @@ public class Operation {
 		this.requestBody = requestBody;
 	}
 
-	public Map<Object, Response> getResponses() {
+	public Map<Object, Object> getResponses() {
 		return responses;
 	}
 
