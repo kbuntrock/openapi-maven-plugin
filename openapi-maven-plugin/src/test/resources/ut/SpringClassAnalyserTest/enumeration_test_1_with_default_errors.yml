@@ -1,14 +1,24 @@
 ---
 openapi: 3.0.3
 info:
-  title: My Project
+  title: This is a title
+  description: This is a sample server.
+  termsOfService: http://example.com/terms/
+  contact:
+    name: API Support
+    url: http://www.example.com/support
+    email: support@example.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
   version: 10.5.36
 servers:
-  - url: ""
+  - url: https://development.test.com/v1
+    description: Development server
 tags:
   - name: TestEnumeration1Controller
 paths:
-  /api/test-enum-1:
+  /v1/api/test-enum-1:
     get:
       tags:
         - TestEnumeration1Controller
@@ -21,6 +31,10 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/EnumTest1Dto'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
 components:
   schemas:
     Authority:
@@ -37,3 +51,46 @@ components:
           items:
             $ref: '#/components/schemas/Authority'
           uniqueItems: true
+    Error:
+      type: object
+      description: An error object
+      properties:
+        code:
+          type: string
+          description: A technical error code
+        message:
+          type: string
+          description: A human readable error message
+      required:
+        - code
+        - message
+    CodeLibelle:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+  securitySchemes:
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+security:
+  - jwt: []
+externalDocs:
+  description: Find more info here
+  url: https://example.com
