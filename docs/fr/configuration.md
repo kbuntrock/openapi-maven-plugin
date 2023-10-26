@@ -104,6 +104,17 @@ ex : "api" + "status" donneront le path suivant : "/api/status".
 <pathEnhancement>false</pathEnhancement>
 ```
 
+### pathPrefix
+
+- Type : `string`
+- Valeur par défaut : vide
+
+Applique un préfixe aux urls (car il est possibe dans une application web de préfixer n'importe quelle url par un moyen inconnu du plugin).
+
+```xml
+<pathPrefix>/v1</pathPrefix>
+```
+
 ### operationId
 
 - Type : `string`
@@ -196,9 +207,12 @@ Il n'est pas obligatoire de renseigner les deux parties en même temps. Voir les
 
 ### freeFields
 
-- Type : `json string`
+- Type : `string`
 
 Permet de renseigner des champs de la spécification qui ne peuvent pas être renseignés par le générateur. La surcharge du nom de la documentation et de sa version est également possible. Par défaut, il s'agît du nom de projet et de la version du projet.
+Ajouter des éléments à la section "schemas" est possible via cette configuration.
+
+!> Il est possible de renseigner une string au format json, ou le chemin vers un fichier json (le chemin est relatif par rapport à la racine du projet).
 
 ```xml
 <freeFields>
@@ -233,6 +247,48 @@ Permet de renseigner des champs de la spécification qui ne peuvent pas être re
     "url": "https://example.com"
   },
   "components": {
+	"responses": {
+      "NotFound": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "description": "The specified resource was not found"
+      },
+      "Unauthorized": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "description": "Unauthorized"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "description": "An error object",
+        "properties": {
+          "code": {
+            "description": "A technical error code",
+            "type": "string"
+          },
+          "message": {
+            "description": "A human readable error message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "type": "object"
+      }
+    },
     "securitySchemes": {
       "jwt": {
         "type": "http",
@@ -243,6 +299,25 @@ Permet de renseigner des champs de la spécification qui ne peuvent pas être re
   }
 }
 </freeFields>
+```
+
+### defaultErrors
+
+- Type : `json string`
+
+Ajoute une section erreurs à chaque opération générée dans la documentation. Peut référencer des éléments déclarés dans le champs de configuration "freeFields".
+
+```xml
+<defaultErrors>
+{
+  "401": {
+    "$ref": "#/components/responses/Unauthorized"
+  },
+  "404": {
+    "$ref": "#/components/responses/NotFound"
+  }
+}
+</defaultErrors>
 ```
 
 ### tag

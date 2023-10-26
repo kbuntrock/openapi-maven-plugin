@@ -104,6 +104,17 @@ ex: "api" + "status" will give the following path : "/api/status".
 <pathEnhancement>false</pathEnhancement>
 ```
 
+### pathPrefix
+
+- Type: `string`
+- Default value: empty
+
+Apply a prefix to all path urls (since it's possible for a webapp to prefix any url in a way not known by the plugin).
+
+```xml
+<pathPrefix>/v1</pathPrefix>
+```
+
 ### operationId
 
 - Type: `string`
@@ -196,9 +207,12 @@ It is not mandatory to fill both entry parts. See the following examples.
 
 ### freeFields
 
-- Type : `json string`
+- Type : `string`
 
 Allow to add some documentation values which can not be filled by the project code scanning. Overriding the documentation name and it's version is possible. By default, it is the project name and version.
+Adding extra elements in the "schemas" section is also possible.
+
+!> It is possible to configure a json string, or a path to a json file (path is relative to the project base directory).
 
 ```xml
 <freeFields>
@@ -233,6 +247,48 @@ Allow to add some documentation values which can not be filled by the project co
     "url": "https://example.com"
   },
   "components": {
+	"responses": {
+      "NotFound": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "description": "The specified resource was not found"
+      },
+      "Unauthorized": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "description": "Unauthorized"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "description": "An error object",
+        "properties": {
+          "code": {
+            "description": "A technical error code",
+            "type": "string"
+          },
+          "message": {
+            "description": "A human readable error message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "type": "object"
+      }
+    },
     "securitySchemes": {
       "jwt": {
         "type": "http",
@@ -243,6 +299,25 @@ Allow to add some documentation values which can not be filled by the project co
   }
 }
 </freeFields>
+```
+
+### defaultErrors
+
+- Type : `json string`
+
+Add an error section to every operation generated in the documentation. Can reference elements declared in the "freeFields" configuration.
+
+```xml
+<defaultErrors>
+{
+  "401": {
+    "$ref": "#/components/responses/Unauthorized"
+  },
+  "404": {
+    "$ref": "#/components/responses/NotFound"
+  }
+}
+</defaultErrors>
 ```
 
 ### tag
