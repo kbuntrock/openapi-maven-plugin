@@ -137,8 +137,11 @@ public class DataObject {
 				// Anything simplier ...
 				javaClass = (Class<?>) type;
 			} else {
+
+				//	TypeToken.of(this.getJavaClass()).resolveType(genericType).getType();
+				
 				throw new RuntimeException(
-					"Type " + originalType.getTypeName() + " (+" + originalType.getClass().getSimpleName() + " is not supported yet.");
+					"Type " + originalType.getTypeName() + " (+" + originalType.getClass().getSimpleName() + ") is not supported yet.");
 			}
 
 			this.openApiType = OpenApiDataType.fromJavaClass(javaClass);
