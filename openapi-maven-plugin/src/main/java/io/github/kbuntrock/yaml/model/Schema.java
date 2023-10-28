@@ -111,8 +111,14 @@ public class Schema {
 			items = new Schema(dataObject.getArrayItemDataObject(), false, exploredSignatures, parentDataObject, parentFieldName);
 
 		} else if(!mainReference && dataObject.isReferenceObject()) {
-			reference = OpenApiConstants.OBJECT_REFERENCE_PREFIX +
-				TagLibraryHolder.INSTANCE.getTagLibrary().getClassToSchemaObject().get(dataObject.getJavaClass()).getSchemaReferenceName();
+			final DataObject referenceDataObject = TagLibraryHolder.INSTANCE.getTagLibrary().getClassToSchemaObject()
+				.get(dataObject.getJavaClass());
+			if(referenceDataObject == null) {
+				// Investigation on a rare bug where the reference is not found.
+				throw new RuntimeException(
+					"Writing schema but could not find a reference for class " + dataObject.getJavaClass().getSimpleName());
+			}
+			reference = OpenApiConstants.OBJECT_REFERENCE_PREFIX + referenceDataObject.getSchemaReferenceName();
 
 		} else if((mainReference && dataObject.isReferenceObject() || dataObject.isGenericallyTypedObject())) {
 
