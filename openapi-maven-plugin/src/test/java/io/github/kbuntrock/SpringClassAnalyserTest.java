@@ -234,8 +234,8 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
 		final DocumentationMojo mojo = createBasicMojo(Issue95.class.getCanonicalName());
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
-//		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/generic",
-//			"src/test/java/io/github/kbuntrock/resources/dto/genericity/issue89"));
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/generic",
+			"src/test/java/io/github/kbuntrock/resources/dto/genericity/issue95"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
 		final List<File> generated = mojo.documentProject();
@@ -620,7 +620,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		blackList.add(".*\\.GenericityTestS.*$");
 		blackList.add(".*\\.GenericityTestE.*$");
 		blackList.add(".*\\.GenericityTestN.*$");
-		blackList.add(".*\\.Issue89.*$");
+		blackList.add(".*\\.Issue.*$");
 		blackList.add(".*\\.ActionResource");
 		blackList.add(".*\\.GenericDataController");
 		mojo.getApiConfiguration().setBlackList(blackList);
