@@ -139,7 +139,7 @@ public class DataObject {
 			} else {
 
 				//	TypeToken.of(this.getJavaClass()).resolveType(genericType).getType();
-				
+
 				throw new RuntimeException(
 					"Type " + originalType.getTypeName() + " (+" + originalType.getClass().getSimpleName() + ") is not supported yet.");
 			}
@@ -323,27 +323,26 @@ public class DataObject {
 				}
 
 			}
-		} else {
-			// A not generic object type does not mean we are free from genericity ...
-			if(genericType instanceof ParameterizedType) {
-				// Here we handle "Class<? extends XXX> which can not be substituted locally.
-				final ParameterizedType parameterizedType = (ParameterizedType) genericType;
-				if(parameterizedType.getRawType() == Class.class && parameterizedType.getActualTypeArguments().length == 1
-					&& parameterizedType.getActualTypeArguments()[0] instanceof WildcardType) {
-					final WildcardType wt = (WildcardType) parameterizedType.getActualTypeArguments()[0];
-					if(wt.getLowerBounds().length == 0 && wt.getUpperBounds().length == 1) {
-						// Return "XXX" as the only type we can determine for this object.
-						// The implementation surely will be a child of this type but we can't guess it.
-						return wt.getUpperBounds()[0];
-					}
-				}
-			} else if(genericType instanceof TypeVariable) {
-
-				// We are in presence of a generic type variable not coming from the outside. Might be coming from generic typing at a parent level.
-				return TypeToken.of(this.getJavaClass()).resolveType(genericType).getType();
-			}
-
 		}
+		// A not generic object type does not mean we are free from genericity ...
+		if(genericType instanceof ParameterizedType) {
+			// Here we handle "Class<? extends XXX> which can not be substituted locally.
+			final ParameterizedType parameterizedType = (ParameterizedType) genericType;
+			if(parameterizedType.getRawType() == Class.class && parameterizedType.getActualTypeArguments().length == 1
+				&& parameterizedType.getActualTypeArguments()[0] instanceof WildcardType) {
+				final WildcardType wt = (WildcardType) parameterizedType.getActualTypeArguments()[0];
+				if(wt.getLowerBounds().length == 0 && wt.getUpperBounds().length == 1) {
+					// Return "XXX" as the only type we can determine for this object.
+					// The implementation surely will be a child of this type but we can't guess it.
+					return wt.getUpperBounds()[0];
+				}
+			}
+		} else if(genericType instanceof TypeVariable) {
+
+			// We are in presence of a generic type variable not coming from the outside. Might be coming from generic typing at a parent level.
+			return TypeToken.of(this.getJavaClass()).resolveType(genericType).getType();
+		}
+		
 		return genericType;
 	}
 

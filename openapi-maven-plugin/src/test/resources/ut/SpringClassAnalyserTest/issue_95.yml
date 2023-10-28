@@ -1,0 +1,42 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: Issue95
+paths:
+  /issue95/error:
+    put:
+      tags:
+        - Issue95
+      operationId: error
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorDto'
+components:
+  schemas:
+    ErrorDto:
+      description: This is the ErrorDto declaration
+      type: object
+      properties:
+        foo:
+          description: Get the foo
+          type: object
+          properties:
+            unit:
+              description: Get the unit!
+              type: object
+              properties:
+                value:
+                  type: string
+            value:
+              description: Get the value!
+              type: number
+              format: double
