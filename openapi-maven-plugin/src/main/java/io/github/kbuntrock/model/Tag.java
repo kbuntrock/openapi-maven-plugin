@@ -3,13 +3,14 @@ package io.github.kbuntrock.model;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.Substitution;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * A group of endpoints, found in the same rest controller annotated class
  */
-public class Tag {
+public class Tag implements Comparable<Tag> {
 
 	private final List<Endpoint> endpoints = new ArrayList<>();
 	private String name;
@@ -57,5 +58,13 @@ public class Tag {
 			"name='" + name + '\'' +
 			", endpoints=" + endpoints.stream().map(Endpoint::toString).collect(Collectors.joining(", ")) +
 			'}';
+	}
+
+	@Override
+	public int compareTo(Tag o) {
+		return Comparator
+				.comparing((Tag t) -> t.computedName)
+				.thenComparing(t->t.name)
+				.compare(this, o);
 	}
 }
