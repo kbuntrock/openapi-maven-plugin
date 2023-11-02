@@ -186,8 +186,7 @@ public class YamlWriter {
 			// List of operations, which will be sorted before storing them by path. In order to keep a deterministic generation.
 			List<Operation> operations = new ArrayList<>();
 
-			for(final Endpoint endpoint : tag.getEndpoints().stream().sorted(Comparator.comparing(Endpoint::getPath))
-				.collect(Collectors.toList())) {
+			for (final Endpoint endpoint : tag.getEndpoints()) {
 
 				final String enhancedPath = this.apiConfiguration.getPathPrefix() + endpoint.getPath();
 				paths.computeIfAbsent(enhancedPath, k -> new LinkedHashMap<>());

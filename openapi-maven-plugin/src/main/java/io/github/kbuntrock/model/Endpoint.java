@@ -1,8 +1,9 @@
 package io.github.kbuntrock.model;
 
+import java.util.Comparator;
 import java.util.List;
 
-public class Endpoint {
+public class Endpoint implements Comparable<Endpoint> {
 
 	private String path;
 
@@ -95,5 +96,15 @@ public class Endpoint {
 
 	public void setDeprecated(final boolean deprecated) {
 		this.deprecated = deprecated;
+	}
+
+	@Override
+	public int compareTo(Endpoint o) {
+		return Comparator
+				.comparing((Endpoint endpoint) -> endpoint.type)
+				.thenComparing(e -> e.path)
+				.thenComparing(e -> e.computedName)
+				.thenComparing(e -> e.name)
+				.compare(this, o);
 	}
 }
