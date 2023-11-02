@@ -3,6 +3,7 @@ package io.github.kbuntrock.model;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.Substitution;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,6 +42,7 @@ public class Tag implements Comparable<Tag> {
 	}
 
 	public List<Endpoint> getEndpoints() {
+		Collections.sort(endpoints);
 		return endpoints;
 	}
 
