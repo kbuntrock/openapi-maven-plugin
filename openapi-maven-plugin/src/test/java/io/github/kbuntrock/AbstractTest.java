@@ -34,7 +34,7 @@ public class AbstractTest {
 	}
 
 	protected void checkGenerationResult(final String expectedFilePath, final File generatedFile) throws IOException {
-		var expected = this.getClass().getClassLoader().getResourceAsStream(expectedFilePath);
+		InputStream expected = this.getClass().getClassLoader().getResourceAsStream(expectedFilePath);
 		assertThat(new FileInputStream(generatedFile)).hasSameContentAs(expected);
 	}
 
