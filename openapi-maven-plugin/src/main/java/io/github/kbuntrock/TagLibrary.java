@@ -23,7 +23,7 @@ public class TagLibrary {
 	public static final String METHOD_IS_PREFIX = "is";
 	public static final int METHOD_IS_PREFIX_SIZE = METHOD_IS_PREFIX.length();
 
-	private final List<Tag> tags = new ArrayList<>();
+	private final SortedSet<Tag> tags = new TreeSet<>();
 	private final Set<DataObject> schemaObjects = new HashSet<>();
 	private final Set<String> exploredSignatures = new HashSet<>();
 	final Map<Class, DataObject> classToSchemaObject = new HashMap<>();
@@ -112,8 +112,7 @@ public class TagLibrary {
 
 	}
 
-	public List<Tag> getTags() {
-		Collections.sort(tags);
+	public Collection<Tag> getTags() {
 		return tags;
 	}
 

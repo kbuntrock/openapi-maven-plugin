@@ -2,6 +2,7 @@ package io.github.kbuntrock.model;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.Comparator.nullsLast;
 
@@ -98,6 +99,28 @@ public class Endpoint implements Comparable<Endpoint> {
 
 	public void setDeprecated(final boolean deprecated) {
 		this.deprecated = deprecated;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Endpoint endpoint = (Endpoint) o;
+
+		if (!Objects.equals(path, endpoint.path)) return false;
+		if (type != endpoint.type) return false;
+		if (!Objects.equals(name, endpoint.name)) return false;
+		return Objects.equals(computedName, endpoint.computedName);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = path != null ? path.hashCode() : 0;
+		result = 31 * result + (type != null ? type.hashCode() : 0);
+		result = 31 * result + (name != null ? name.hashCode() : 0);
+		result = 31 * result + (computedName != null ? computedName.hashCode() : 0);
+		return result;
 	}
 
 	@Override
