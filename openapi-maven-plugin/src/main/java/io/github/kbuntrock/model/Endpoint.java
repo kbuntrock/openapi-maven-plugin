@@ -101,8 +101,8 @@ public class Endpoint implements Comparable<Endpoint> {
 	@Override
 	public int compareTo(Endpoint o) {
 		return Comparator
-				.comparing((Endpoint endpoint) -> endpoint.type)
-				.thenComparing(e -> e.path)
+				.comparing((Endpoint endpoint) -> endpoint.path)
+				.thenComparing(e -> e.type)
 				.thenComparing(e -> e.computedName)
 				.thenComparing(e -> e.name)
 				.compare(this, o);
