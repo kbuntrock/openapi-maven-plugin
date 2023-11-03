@@ -2,10 +2,8 @@ package io.github.kbuntrock.model;
 
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.Substitution;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Comparator.nullsLast;
@@ -15,7 +13,7 @@ import static java.util.Comparator.nullsLast;
  */
 public class Tag implements Comparable<Tag> {
 
-	private final List<Endpoint> endpoints = new ArrayList<>();
+	private final SortedSet<Endpoint> endpoints = new TreeSet<>();
 	private String name;
 	private final Class<?> clazz;
 	private String computedName;
@@ -43,8 +41,7 @@ public class Tag implements Comparable<Tag> {
 		return computedName;
 	}
 
-	public List<Endpoint> getEndpoints() {
-		Collections.sort(endpoints);
+	public Collection<Endpoint> getEndpoints() {
 		return endpoints;
 	}
 
@@ -62,6 +59,22 @@ public class Tag implements Comparable<Tag> {
 			"name='" + name + '\'' +
 			", endpoints=" + endpoints.stream().map(Endpoint::toString).collect(Collectors.joining(", ")) +
 			'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Tag tag = (Tag) o;
+
+		if (!Objects.equals(name, tag.name)) return false;
+		return Objects.equals(computedName, tag.computedName);
+	}
+
+	@Override
+	public int hashCode() {
+		return name != null ? name.hashCode() : 0;
 	}
 
 	@Override
