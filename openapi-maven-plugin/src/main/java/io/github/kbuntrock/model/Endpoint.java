@@ -3,6 +3,8 @@ package io.github.kbuntrock.model;
 import java.util.Comparator;
 import java.util.List;
 
+import static java.util.Comparator.nullsLast;
+
 public class Endpoint implements Comparable<Endpoint> {
 
 	private String path;
@@ -101,10 +103,10 @@ public class Endpoint implements Comparable<Endpoint> {
 	@Override
 	public int compareTo(Endpoint o) {
 		return Comparator
-				.comparing((Endpoint endpoint) -> endpoint.path)
-				.thenComparing(e -> e.type)
-				.thenComparing(e -> e.computedName)
-				.thenComparing(e -> e.name)
+				.comparing((Endpoint endpoint) -> endpoint.path, nullsLast(String::compareTo))
+				.thenComparing(e -> e.type, nullsLast(OperationType::compareTo))
+				.thenComparing(e -> e.computedName, nullsLast(String::compareTo))
+				.thenComparing(e -> e.name, nullsLast(String::compareTo))
 				.compare(this, o);
 	}
 }
