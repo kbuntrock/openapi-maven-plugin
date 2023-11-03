@@ -95,7 +95,7 @@ public class JavadocParserTest extends AbstractTest {
 			exception = ex;
 		}
 		Assertions.assertNotNull(exception);
-		Assertions.assertEquals("More than one operation mapped on GET : /api/child-class-two/age-plus-one in tag ChildClassTwo",
+		Assertions.assertEquals("More than one operation mapped on GET : /api/child-class-two/age-plus-one in tag IChildClassTwo",
 			exception.getMessage());
 	}
 

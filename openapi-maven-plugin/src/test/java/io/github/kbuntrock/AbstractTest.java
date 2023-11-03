@@ -7,12 +7,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.HashMap;
 import org.apache.maven.plugin.logging.Log;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.util.DigestUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AbstractTest {
 
@@ -30,13 +34,8 @@ public class AbstractTest {
 	}
 
 	protected void checkGenerationResult(final String expectedFilePath, final File generatedFile) throws IOException {
-		try(final InputStream generatedFileStream = new FileInputStream(generatedFile);
-			final InputStream resourceFileStream = this.getClass().getClassLoader().getResourceAsStream(expectedFilePath)) {
-			final String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-			final String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-			Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
-		}
+		var expected = this.getClass().getClassLoader().getResourceAsStream(expectedFilePath);
+		assertThat(new FileInputStream(generatedFile)).hasSameContentAs(expected);
 	}
 
 	protected void checkGenerationResult(final File expectedFile, final File generatedFile) throws IOException {
@@ -45,7 +44,7 @@ public class AbstractTest {
 			final String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
 			final String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
 
-			Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
+			assertEquals(md5ResourceHex, md5GeneratedHex);
 		}
 	}
 
