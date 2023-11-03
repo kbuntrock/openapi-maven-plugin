@@ -39,13 +39,7 @@ public class AbstractTest {
 	}
 
 	protected void checkGenerationResult(final File expectedFile, final File generatedFile) throws IOException {
-		try(final InputStream generatedFileStream = new FileInputStream(generatedFile);
-			final InputStream resourceFileStream = new FileInputStream(expectedFile)) {
-			final String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-			final String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-			assertEquals(md5ResourceHex, md5GeneratedHex);
-		}
+		assertThat(generatedFile).hasSameTextualContentAs(generatedFile);
 	}
 
 
