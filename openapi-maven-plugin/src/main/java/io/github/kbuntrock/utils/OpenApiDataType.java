@@ -7,12 +7,11 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.springframework.core.io.InputStreamSource;
+
+import static java.util.Collections.unmodifiableMap;
 
 public enum OpenApiDataType {
 
@@ -47,7 +46,7 @@ public enum OpenApiDataType {
             // clazzMappers = { A: B, B: A }
             Map<Class<?>, Class<?>> clazzMappersWithoutClass = new HashMap<>(clazzMappers);
             Class<?> newClazz = clazzMappersWithoutClass.remove(clazz);
-            return fromJavaClass(newClazz, clazzMappersWithoutClass);
+            return fromJavaClass(newClazz, unmodifiableMap(clazzMappersWithoutClass));
         }
 		if(Boolean.class == clazz || Boolean.TYPE == clazz) {
 			return BOOLEAN;
