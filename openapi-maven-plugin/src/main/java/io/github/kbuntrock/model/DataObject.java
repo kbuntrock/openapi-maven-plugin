@@ -40,6 +40,7 @@ public class DataObject {
 	 * The original java type
 	 */
 	private final Type javaType;
+	private final Map<Class<?>, Class<?>> clazzMappers;
 	/**
 	 * The corresponding openapi type
 	 */
@@ -71,7 +72,8 @@ public class DataObject {
 	private String schemaReferenceName;
 
 
-	public DataObject(final Type originalType) {
+	public DataObject(final Type originalType, final Map<Class<?>, Class<?>> clazzMappers) {
+		this.clazzMappers = clazzMappers;
 		Type type = originalType;
 
 		try {
@@ -98,10 +100,10 @@ public class DataObject {
 				}
 
 				if(Collection.class.isAssignableFrom(javaClass)) {
-					arrayItemDataObject = new DataObject(pt.getActualTypeArguments()[0]);
+					arrayItemDataObject = new DataObject(pt.getActualTypeArguments()[0], clazzMappers);
 				} else if(Map.class.isAssignableFrom(javaClass)) {
-					mapKeyValueDataObjects[0] = new DataObject(pt.getActualTypeArguments()[0]);
-					mapKeyValueDataObjects[1] = new DataObject(pt.getActualTypeArguments()[1]);
+					mapKeyValueDataObjects[0] = new DataObject(pt.getActualTypeArguments()[0], clazzMappers);
+					mapKeyValueDataObjects[1] = new DataObject(pt.getActualTypeArguments()[1], clazzMappers);
 				}
 
 			} else if(type instanceof GenericArrayType) {
@@ -122,12 +124,12 @@ public class DataObject {
 						this.genericNameToTypeMap.put(rawJavaClass.getTypeParameters()[i].getTypeName(),
 							gpt.getActualTypeArguments()[i]);
 					}
-					this.arrayItemDataObject = new DataObject(gpt);
+					this.arrayItemDataObject = new DataObject(gpt, clazzMappers);
 				} else if(gat.getGenericComponentType() instanceof Class<?>) {
 					final Class<?> clazz = (Class<?>) gat.getGenericComponentType();
 					javaClass = Class.forName("[L" + ReflectionsUtils.getClassNameFromType(clazz) + ";",
 						true, ReflectionsUtils.getProjectClassLoader());
-					this.arrayItemDataObject = new DataObject(clazz);
+					this.arrayItemDataObject = new DataObject(clazz, clazzMappers);
 				} else {
 					throw new RuntimeException(
 						"A GenericArrayType with a " + gat.getGenericComponentType().getClass().toString() + " is not and handled case.");
@@ -144,7 +146,7 @@ public class DataObject {
 					"Type " + originalType.getTypeName() + " (+" + originalType.getClass().getSimpleName() + ") is not supported yet.");
 			}
 
-			this.openApiType = OpenApiDataType.fromJavaClass(javaClass);
+			this.openApiType = OpenApiDataType.fromJavaClass(javaClass, clazzMappers);
 			if(javaClass.isEnum()) {
 				final Object[] values = javaClass.getEnumConstants();
 				this.enumItemValues = new ArrayList<>();
@@ -154,7 +156,7 @@ public class DataObject {
 
 					final Field field = javaClass.getDeclaredField(valueField);
 					ReflectionUtils.makeAccessible(field);
-					this.openApiType = OpenApiDataType.fromJavaClass(field.getType());
+					this.openApiType = OpenApiDataType.fromJavaClass(field.getType(), clazzMappers);
 					for(final Object value : values) {
 						this.enumItemNames.add(((Enum) value).name());
 						this.enumItemValues.add(field.get(value).toString());
@@ -167,7 +169,7 @@ public class DataObject {
 
 
 			} else if(javaClass.isArray() && !genericallyTyped) {
-				arrayItemDataObject = new DataObject(javaClass.getComponentType());
+				arrayItemDataObject = new DataObject(javaClass.getComponentType(), clazzMappers);
 			}
 
 		} catch(final ClassNotFoundException ex) {
@@ -362,6 +364,10 @@ public class DataObject {
 
 	public void setSchemaReferenceName(final String schemaReferenceName) {
 		this.schemaReferenceName = schemaReferenceName;
+	}
+
+	public Map<Class<?>, Class<?>> getClazzMappers() {
+		return clazzMappers;
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package io.github.kbuntrock.model;
 import io.github.kbuntrock.utils.ParameterLocation;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 
 public class ParameterObject extends DataObject {
 
@@ -12,8 +13,8 @@ public class ParameterObject extends DataObject {
 	// Set only if it is a "body" parameter : json, xml, plain text, ...
 	private List<String> formats;
 
-	public ParameterObject(String name, Type type) {
-		super(type);
+    public ParameterObject(String name, Type type, final Map<Class<?>, Class<?>> clazzMappers) {
+        super(type, clazzMappers);
 		this.name = name;
 	}
 

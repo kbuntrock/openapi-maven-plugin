@@ -10,10 +10,7 @@ import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.Logger;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.maven.plugin.MojoFailureException;
@@ -55,7 +52,7 @@ public class ApiResourceScanner {
 		}
 	}
 
-	public TagLibrary scanRestControllers() throws MojoFailureException {
+	public TagLibrary scanRestControllers(final Map<Class<?>, Class<?>> clazzMappers) throws MojoFailureException {
 
 		final TagLibrary library = new TagLibrary();
 		TagLibraryHolder.INSTANCE.setTagLibrary(library);
@@ -85,7 +82,7 @@ public class ApiResourceScanner {
 			final JavaClassAnalyser javaClassAnalyser = new JavaClassAnalyser(apiConfiguration);
 			for(final Class clazz : classes) {
 				if(validateWhiteList(clazz) && validateBlackList(clazz)) {
-					final Optional<Tag> optTag = javaClassAnalyser.getTagFromClass(clazz);
+					final Optional<Tag> optTag = javaClassAnalyser.getTagFromClass(clazz, apiConfiguration.buildClazzMappers());
 					if(optTag.isPresent()) {
 						library.addTag(optTag.get());
 					}
@@ -95,7 +92,7 @@ public class ApiResourceScanner {
 			// Possibly add extra data objets to the future schema section (objets which are not explicitely used by a endpoint)
 			for(final String className : apiConfiguration.getExtraSchemaClasses()) {
 				try {
-					library.addExtraClass(ReflectionsUtils.getProjectClassLoader().loadClass(className));
+					library.addExtraClass(ReflectionsUtils.getProjectClassLoader().loadClass(className), clazzMappers);
 				} catch(final ClassNotFoundException e) {
 					throw new MojoRuntimeException("Cannot load extra class " + className, e);
 				}

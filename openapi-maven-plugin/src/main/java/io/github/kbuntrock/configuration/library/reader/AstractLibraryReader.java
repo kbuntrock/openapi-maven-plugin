@@ -11,6 +11,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.ClassUtils;
@@ -46,15 +47,16 @@ public abstract class AstractLibraryReader {
 	}
 
 	protected DataObject readResponseObject(final Method method, final ClassGenericityResolver genericityResolver,
-		final MergedAnnotations mergedAnnotations) {
+                                            final MergedAnnotations mergedAnnotations,
+                                            final Map<Class<?>, Class<?>> clazzMappers) {
 		final Class<?> returnType = method.getReturnType();
 		if(Void.class == returnType || Void.TYPE == returnType) {
 			return null;
 		}
 
 		DataObject dataObject = new DataObject(
-			genericityResolver.getContextualType(readResponseMethodType(method, mergedAnnotations), method));
-		dataObject = computeFrameworkReturnObject(dataObject);
+                genericityResolver.getContextualType(readResponseMethodType(method, mergedAnnotations), method), clazzMappers);
+        dataObject = computeFrameworkReturnObject(dataObject, clazzMappers);
 		logger.debug(dataObject.toString());
 		return dataObject;
 	}
@@ -70,10 +72,10 @@ public abstract class AstractLibraryReader {
 	 * @param dataObject source
 	 * @return return DataObject
 	 */
-	private DataObject computeFrameworkReturnObject(final DataObject dataObject) {
+    private DataObject computeFrameworkReturnObject(final DataObject dataObject, final Map<Class<?>, Class<?>> clazzMappers) {
 		if(Optional.class.isAssignableFrom(dataObject.getJavaClass()) ||
 			HttpEntity.class.isAssignableFrom(dataObject.getJavaClass())) {
-			return new DataObject(dataObject.getGenericNameToTypeMap().get("T"));
+            return new DataObject(dataObject.getGenericNameToTypeMap().get("T"), clazzMappers);
 		}
 		return dataObject;
 	}
@@ -91,9 +93,9 @@ public abstract class AstractLibraryReader {
 	public abstract List<String> readBasePaths(final Class<?> clazz, final MergedAnnotations mergedAnnotations);
 
 	public abstract void computeAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations,
-		final Tag tag, final ClassGenericityResolver genericityResolver) throws MojoFailureException;
+                                            final Tag tag, final ClassGenericityResolver genericityResolver, final Map<Class<?>, Class<?>> clazzMappers) throws MojoFailureException;
 
-	protected abstract List<ParameterObject> readParameters(Method originalMethod, final ClassGenericityResolver genericityResolver);
+    protected abstract List<ParameterObject> readParameters(Method originalMethod, final ClassGenericityResolver genericityResolver, final Map<Class<?>, Class<?>> clazzMappers);
 
 	protected abstract List<String> readEndpointPaths(String basePath,
 		MergedAnnotation<? extends Annotation> requestMappingMergedAnnotation);

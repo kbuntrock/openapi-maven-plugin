@@ -38,8 +38,8 @@ public class TagLibrary {
 	 *
 	 * @param clazz
 	 */
-	public void addExtraClass(final Class clazz) {
-		final DataObject dataObject = new DataObject(clazz);
+    public void addExtraClass(final Class clazz, final Map<Class<?>, Class<?>> clazzMappers) {
+        final DataObject dataObject = new DataObject(clazz, clazzMappers);
 		exploreDataObject(dataObject);
 	}
 
@@ -74,7 +74,7 @@ public class TagLibrary {
 //            // Eventually analyse instead the generic types
 			if(dataObject.getGenericNameToTypeMap() != null) {
 				for(final Map.Entry<String, Type> entry : dataObject.getGenericNameToTypeMap().entrySet()) {
-					final DataObject genericObject = new DataObject(dataObject.getContextualType(entry.getValue()));
+                    final DataObject genericObject = new DataObject(dataObject.getContextualType(entry.getValue()), dataObject.getClazzMappers());
 					exploreDataObject(genericObject);
 				}
 			}
@@ -94,7 +94,7 @@ public class TagLibrary {
 				// Field is tagged ignore. No need to document it.
 				continue;
 			}
-			final DataObject dataObject = new DataObject(explored.getContextualType(field.getGenericType()));
+            final DataObject dataObject = new DataObject(explored.getContextualType(field.getGenericType()), explored.getClazzMappers());
 			exploreDataObject(dataObject);
 		}
 		if(explored.getJavaClass().isInterface()) {
@@ -104,7 +104,7 @@ public class TagLibrary {
 				if(method.getParameters().length == 0
 					&& ((method.getName().startsWith(METHOD_GET_PREFIX) && method.getName().length() != METHOD_GET_PREFIX_SIZE) ||
 					(method.getName().startsWith(METHOD_IS_PREFIX)) && method.getName().length() != METHOD_IS_PREFIX_SIZE)) {
-					final DataObject dataObject = new DataObject(explored.getContextualType(method.getGenericReturnType()));
+                    final DataObject dataObject = new DataObject(explored.getContextualType(method.getGenericReturnType()), explored.getClazzMappers());
 					exploreDataObject(dataObject);
 				}
 			}

@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
@@ -102,7 +103,7 @@ public class JavaClassAnalyser {
 	 * @return an tag (if there is at least one declared endpoint)
 	 * @throws MojoFailureException
 	 */
-	public Optional<Tag> getTagFromClass(final Class<?> clazz) throws MojoFailureException {
+	public Optional<Tag> getTagFromClass(final Class<?> clazz, final Map<Class<?>, Class<?>> clazzMappers) throws MojoFailureException {
 		final Tag tag = new Tag(clazz);
 		logger.debug("Parsing tag : " + tag.getName());
 
@@ -110,7 +111,7 @@ public class JavaClassAnalyser {
 		final List<String> basePaths = libraryReader.readBasePaths(clazz, mergedAnnotations);
 
 		for(final String basePath : basePaths) {
-			parseEndpoints(tag, basePath, clazz);
+			parseEndpoints(tag, basePath, clazz, clazzMappers);
 		}
 
 		if(tag.getEndpoints().isEmpty()) {
@@ -122,7 +123,7 @@ public class JavaClassAnalyser {
 
 	}
 
-	private void parseEndpoints(final Tag tag, final String basePath, final Class<?> clazz) throws MojoFailureException {
+	private void parseEndpoints(final Tag tag, final String basePath, final Class<?> clazz, final Map<Class<?>, Class<?>> clazzMappers) throws MojoFailureException {
 
 		logger.debug("Parsing endpoint " + clazz.getSimpleName());
 
@@ -133,7 +134,7 @@ public class JavaClassAnalyser {
 
 			if(validateWhiteList(clazz, method) && validateBlackList(clazz, method)) {
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
-				libraryReader.computeAnnotations(basePath, method, mergedAnnotations, tag, genericityResolver);
+				libraryReader.computeAnnotations(basePath, method, mergedAnnotations, tag, genericityResolver, clazzMappers);
 			}
 		}
 	}

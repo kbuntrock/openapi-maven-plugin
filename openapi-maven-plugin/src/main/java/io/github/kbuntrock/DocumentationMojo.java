@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
@@ -142,7 +143,7 @@ public class DocumentationMojo extends AbstractMojo {
 			final ApiConfiguration apiConfig = initialApiConfiguration.mergeWithCommonApiConfiguration(this.apiConfiguration);
 			final ApiResourceScanner apiResourceScanner = new ApiResourceScanner(apiConfig);
 			getLog().debug("Prepare to scan");
-			final TagLibrary tagLibrary = apiResourceScanner.scanRestControllers();
+			final TagLibrary tagLibrary = apiResourceScanner.scanRestControllers(apiConfig.buildClazzMappers());
 			getLog().debug("Scan done");
 
 			File generatedFile = null;
@@ -155,7 +156,7 @@ public class DocumentationMojo extends AbstractMojo {
 				}
 				getLog().debug("Prepared to write : " + generatedFile.getAbsolutePath());
 
-				new YamlWriter(project, apiConfig).write(generatedFile, tagLibrary);
+				new YamlWriter(project, apiConfig).write(generatedFile, tagLibrary, apiConfig.buildClazzMappers());
 
 				if(apiConfig.isAttachArtifact()) {
 					String artifactType = "yaml";

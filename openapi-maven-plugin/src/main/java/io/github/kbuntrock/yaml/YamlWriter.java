@@ -91,7 +91,7 @@ public class YamlWriter {
 		}
 	}
 
-	public void write(final File file, final TagLibrary tagLibrary) throws IOException {
+	public void write(final File file, final TagLibrary tagLibrary, final Map<Class<?>, Class<?>> clazzMappers) throws IOException {
 
 		freefields = JsonConfigurationParserUtils.parse(mavenProject, apiConfiguration.getFreeFields());
 		final Optional<JsonNode> defaultErrorsNode = JsonConfigurationParserUtils.parse(mavenProject, apiConfiguration.getDefaultErrors());
@@ -131,7 +131,7 @@ public class YamlWriter {
 
 		specification.setPaths(createPaths(tagLibrary));
 
-		final Map<String, Object> schemaSection = createSchemaSection(tagLibrary);
+		final Map<String, Object> schemaSection = createSchemaSection(tagLibrary, clazzMappers);
 		boolean schemaSectionCreated = false;
 		if(!schemaSection.isEmpty()) {
 			specification.getComponents().put("schemas", schemaSection);
@@ -362,7 +362,7 @@ public class YamlWriter {
 		return paths;
 	}
 
-	private Map<String, Object> createSchemaSection(final TagLibrary library) {
+	private Map<String, Object> createSchemaSection(final TagLibrary library, final Map<Class<?>, Class<?>> clazzMappers) {
 		final List<DataObject> ordered = library.getSchemaObjects().stream()
 			.sorted(Comparator.comparing(p -> p.getSchemaReferenceName())).collect(Collectors.toList());
 

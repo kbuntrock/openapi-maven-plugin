@@ -151,7 +151,7 @@ public class Schema {
 							continue;
 						}
 
-						final DataObject propertyObject = new DataObject(dataObject.getContextualType(field.getGenericType()));
+						final DataObject propertyObject = new DataObject(dataObject.getContextualType(field.getGenericType()), dataObject.getClazzMappers());
 						final Property property = new Property(propertyObject, false, field.getName(), exploredSignatures, dataObject);
 						extractConstraints(field, property);
 						properties.put(property.getName(), property);
@@ -186,7 +186,7 @@ public class Schema {
 								.debug(dataObject.getJavaClass().getSimpleName() + " method name : " + method.getName() + " - " + name);
 							name = name.substring(0, 1).toLowerCase() + name.substring(1);
 
-							final DataObject propertyObject = new DataObject(dataObject.getContextualType(method.getGenericReturnType()));
+							final DataObject propertyObject = new DataObject(dataObject.getContextualType(method.getGenericReturnType()), dataObject.getClazzMappers());
 							final Property property = new Property(propertyObject, false, name, exploredSignatures, dataObject);
 							properties.put(property.getName(), property);
 

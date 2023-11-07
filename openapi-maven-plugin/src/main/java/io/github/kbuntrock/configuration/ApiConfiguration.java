@@ -2,11 +2,17 @@ package io.github.kbuntrock.configuration;
 
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import io.github.kbuntrock.utils.Logger;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Parameter;
 
 public class ApiConfiguration extends CommonApiConfiguration {
+	private final Log logger = Logger.INSTANCE.getLogger();
 
 	/**
 	 * A list of location to find api endpoints. A location could be a class or a package
@@ -71,6 +77,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.extraSchemaClasses = copy.extraSchemaClasses;
 		merged.customResponseTypeAnnotation = copy.customResponseTypeAnnotation;
 		merged.defaultErrors = copy.defaultErrors;
+		merged.modelSubstitutions = copy.modelSubstitutions;
 		// End copy properties
 
 		merged.setLocations(locations);
@@ -137,13 +144,34 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.operationIdHelper = new OperationIdHelper(merged.operationId);
 
 		for(int i = 0; i < merged.tagAnnotations.size(); i++) {
-			if("requestmapping".equals(merged.tagAnnotations.get(i).toLowerCase())) {
+			if ("requestmapping".equalsIgnoreCase(merged.tagAnnotations.get(i))) {
 				merged.tagAnnotations.set(i, TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName());
-			} else if("restcontroller".equals(merged.tagAnnotations.get(i).toLowerCase())) {
+			} else if ("restcontroller".equalsIgnoreCase(merged.tagAnnotations.get(i))) {
 				merged.tagAnnotations.set(i, TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName());
 			}
+		}
+		if (modelSubstitutions != null) {
+			merged.modelSubstitutions.addAll(modelSubstitutions);
 		}
 		return merged;
 	}
 
+	public Map<Class<?>, Class<?>> buildClazzMappers() {
+		return modelSubstitutions.stream()
+				.distinct()
+				.map(modelSubstitution -> Pair.of(loadClass(modelSubstitution.from), loadClass(modelSubstitution.to)))
+				.filter(pair -> pair.getLeft().isPresent())
+				.filter(pair -> pair.getRight().isPresent())
+				.map(pair -> Pair.of(pair.getLeft().get(), pair.getRight().get()))
+				.collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+	}
+
+	private Optional<Class<?>> loadClass(String clazz) {
+		try {
+			return Optional.of(Class.forName(clazz));
+		} catch (ClassNotFoundException e) {
+			logger.warn("Cannot load class " + clazz, e);
+			return Optional.empty();
+		}
+	}
 }

@@ -97,7 +97,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 
 	@Override
 	public void computeAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations, final Tag tag,
-		final ClassGenericityResolver genericityResolver) throws MojoFailureException {
+                                   final ClassGenericityResolver genericityResolver, final Map<Class<?>, Class<?>> clazzMappers) throws MojoFailureException {
 
 		final MergedAnnotation<Path> requestMappingMergedAnnotation = mergedAnnotations.get(Path.class);
 		if(requestMappingMergedAnnotation.isPresent()) {
@@ -108,8 +108,8 @@ public class JavaxRsReader extends AstractLibraryReader {
 				final MergedAnnotation m = mergedAnnotations.get(verb.getAnnotationClass());
 				if(m.isPresent()) {
 					final String methodIdentifier = JavaClassAnalyser.createIdentifier(method);
-					final List<ParameterObject> parameterObjects = readParameters(method, genericityResolver);
-					final DataObject responseObject = readResponseObject(method, genericityResolver, mergedAnnotations);
+                    final List<ParameterObject> parameterObjects = readParameters(method, genericityResolver, clazzMappers);
+                    final DataObject responseObject = readResponseObject(method, genericityResolver, mergedAnnotations, clazzMappers);
 					final int responseCode = readResponseCode(null);
 					final String path = readEndpointPaths(basePath, requestMappingMergedAnnotation).get(0);
 					final Endpoint endpoint = new Endpoint();
@@ -131,7 +131,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 	}
 
 	@Override
-	protected List<ParameterObject> readParameters(final Method originalMethod, final ClassGenericityResolver genericityResolver) {
+    protected List<ParameterObject> readParameters(final Method originalMethod, final ClassGenericityResolver genericityResolver, final Map<Class<?>, Class<?>> clazzMappers) {
 		logger.debug("Reading parameters from " + originalMethod.getName());
 
 		// Set of the method in the original class and eventually the methods in the parent classes / interfaces
@@ -151,7 +151,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 				logger.debug("Parameter : " + parameter.getName());
 
 				final ParameterObject paramObj = new ParameterObject(parameter.getName(),
-					genericityResolver.getContextualType(parameter.getParameterizedType(), method));
+                        genericityResolver.getContextualType(parameter.getParameterizedType(), method), clazzMappers);
 
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
 					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);

@@ -59,7 +59,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 
 	@Override
 	public void computeAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations, final Tag tag,
-		final ClassGenericityResolver genericityResolver) throws MojoFailureException {
+								   final ClassGenericityResolver genericityResolver, final Map<Class<?>, Class<?>> clazzMappers) throws MojoFailureException {
 
 		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
 		if(requestMappingMergedAnnotation.isPresent() && !excludedByReturnType(method)) {
@@ -70,8 +70,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 			if(requestMethods.length > 0) {
 				logger.debug("Parsing request method : " + method.getName());
 				final String methodIdentifier = JavaClassAnalyser.createIdentifier(method);
-				final List<ParameterObject> parameterObjects = readParameters(method, genericityResolver);
-				final DataObject responseObject = readResponseObject(method, genericityResolver, mergedAnnotations);
+				final List<ParameterObject> parameterObjects = readParameters(method, genericityResolver, clazzMappers);
+				final DataObject responseObject = readResponseObject(method, genericityResolver, mergedAnnotations, clazzMappers);
 				final int responseCode = readResponseCode(mergedAnnotations);
 				final List<String> paths = readEndpointPaths(basePath, requestMappingMergedAnnotation);
 				for(final RequestMethod requestMethod : requestMethods) {
@@ -99,7 +99,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 	}
 
 	@Override
-	protected List<ParameterObject> readParameters(final Method originalMethod, final ClassGenericityResolver genericityResolver) {
+	protected List<ParameterObject> readParameters(final Method originalMethod, final ClassGenericityResolver genericityResolver, final Map<Class<?>, Class<?>> clazzMappers) {
 		logger.debug("Reading parameters from " + originalMethod.getName());
 
 		// Set of the method in the original class and eventually the methods in the parent classes / interfaces
@@ -115,7 +115,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 				logger.debug("Parameter : " + parameter.getName());
 
 				final ParameterObject paramObj = parameters.computeIfAbsent(parameter.getName(),
-					(name) -> new ParameterObject(name, genericityResolver.getContextualType(parameter.getParameterizedType(), method)));
+						(name) -> new ParameterObject(name, genericityResolver.getContextualType(parameter.getParameterizedType(), method), clazzMappers));
 
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
 					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);

@@ -90,6 +90,9 @@ public class CommonApiConfiguration {
 	@Parameter
 	protected String defaultErrors;
 
+	@Parameter
+	protected List<ModelSubstitution> modelSubstitutions = new ArrayList<>();
+
 	public CommonApiConfiguration() {
 	}
 
@@ -107,9 +110,7 @@ public class CommonApiConfiguration {
 		this.library = commonApiConfiguration.library;
 		this.customResponseTypeAnnotation = commonApiConfiguration.customResponseTypeAnnotation;
 		this.defaultErrors = commonApiConfiguration.defaultErrors;
-		for(final String tagAnnotation : commonApiConfiguration.tagAnnotations) {
-			this.tagAnnotations.add(tagAnnotation);
-		}
+		this.tagAnnotations.addAll(commonApiConfiguration.tagAnnotations);
 		if(commonApiConfiguration.whiteList != null) {
 			this.whiteList = new ArrayList<>();
 			this.whiteList.addAll(commonApiConfiguration.whiteList);
@@ -124,6 +125,7 @@ public class CommonApiConfiguration {
 		if(!commonApiConfiguration.extraSchemaClasses.isEmpty()) {
 			this.extraSchemaClasses.addAll(commonApiConfiguration.extraSchemaClasses);
 		}
+		this.modelSubstitutions.addAll(commonApiConfiguration.modelSubstitutions);
 	}
 
 	public void initDefaultValues() {
