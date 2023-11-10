@@ -197,8 +197,8 @@ public class JakartaRsReader extends AstractLibraryReader {
 				if(requestParamMA.isPresent()) {
 
 					final boolean isMultipartFile = MultipartFile.class == paramObj.getJavaClass() ||
-						(OpenApiDataType.ARRAY == paramObj.getOpenApiType() && MultipartFile.class == paramObj.getArrayItemDataObject()
-							.getJavaClass());
+						(OpenApiDataType.ARRAY == paramObj.getOpenApiResolvedType().getType()
+							&& MultipartFile.class == paramObj.getArrayItemDataObject().getJavaClass());
 					if(isMultipartFile) {
 						// MultipartFile parameters are considered as a requestBody)
 						paramObj.setLocation(ParameterLocation.BODY);

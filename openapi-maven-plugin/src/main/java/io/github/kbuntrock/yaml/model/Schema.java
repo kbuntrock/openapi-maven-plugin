@@ -5,9 +5,10 @@ import static io.github.kbuntrock.TagLibrary.METHOD_GET_PREFIX_SIZE;
 import static io.github.kbuntrock.TagLibrary.METHOD_IS_PREFIX;
 import static io.github.kbuntrock.TagLibrary.METHOD_IS_PREFIX_SIZE;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.TagLibraryHolder;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
@@ -19,7 +20,7 @@ import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiConstants;
-import io.github.kbuntrock.utils.OpenApiDataFormat;
+import io.github.kbuntrock.utils.OpenApiResolvedType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -28,39 +29,37 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import org.apache.commons.lang3.StringUtils;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Schema {
 
-	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@JsonIgnore
 	protected String description;
-	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	@JsonIgnore
 	protected List<String> required;
-	@JsonInclude(JsonInclude.Include.NON_EMPTY)
-	protected String type;
-	@JsonInclude(JsonInclude.Include.NON_EMPTY)
-	protected String format;
-	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	// The type is unwrapped
+	@JsonIgnore
+	protected OpenApiResolvedType type;
+	@JsonIgnore
 	protected Map<String, Property> properties;
-	@JsonInclude(JsonInclude.Include.NON_EMPTY)
-	@JsonProperty("enum")
+	@JsonIgnore
 	protected List<String> enumValues;
-	@JsonInclude(JsonInclude.Include.NON_EMPTY)
-	@JsonProperty("x-enumNames")
+	@JsonIgnore
 	protected List<String> enumNames;
 	// Used in case of a Map object
-	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@JsonIgnore
 	protected Schema additionalProperties;
-	@JsonInclude(JsonInclude.Include.NON_EMPTY)
-	@JsonProperty(OpenApiConstants.OBJECT_REFERENCE_DECLARATION)
+	@JsonIgnore
 	protected String reference;
 	// Used in case of an array object
-	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@JsonIgnore
 	protected Schema items;
 
 	/**
@@ -103,11 +102,11 @@ public class Schema {
 		}
 
 		if(dataObject.isMap()) {
-			type = dataObject.getOpenApiType().getValue();
+			type = dataObject.getOpenApiResolvedType();
 			additionalProperties = new Schema(dataObject.getMapValueType(), false, exploredSignatures, parentDataObject, parentFieldName);
 
 		} else if(dataObject.isOpenApiArray()) {
-			type = dataObject.getOpenApiType().getValue();
+			type = dataObject.getOpenApiResolvedType();
 			items = new Schema(dataObject.getArrayItemDataObject(), false, exploredSignatures, parentDataObject, parentFieldName);
 
 		} else if(!mainReference && dataObject.isReferenceObject()) {
@@ -137,7 +136,7 @@ public class Schema {
 			}
 
 			if(!forcedReference) {
-				type = dataObject.getOpenApiType().getValue();
+				type = dataObject.getOpenApiResolvedType();
 
 				// LinkedHashMap to keep the order of the class
 				properties = new LinkedHashMap<>();
@@ -244,11 +243,7 @@ public class Schema {
 			}
 
 		} else {
-			type = dataObject.getOpenApiType().getValue();
-			final OpenApiDataFormat openApiDataFormat = dataObject.getOpenApiType().getFormat();
-			if(OpenApiDataFormat.NONE != openApiDataFormat && OpenApiDataFormat.UNKNOWN != openApiDataFormat) {
-				this.format = openApiDataFormat.getValue();
-			}
+			type = dataObject.getOpenApiResolvedType();
 		}
 	}
 
@@ -275,11 +270,11 @@ public class Schema {
 		this.required = required;
 	}
 
-	public String getType() {
+	public OpenApiResolvedType getType() {
 		return type;
 	}
 
-	public void setType(final String type) {
+	public void setType(final OpenApiResolvedType type) {
 		this.type = type;
 	}
 
@@ -297,14 +292,6 @@ public class Schema {
 
 	public void setEnumValues(final List<String> enumValues) {
 		this.enumValues = enumValues;
-	}
-
-	public String getFormat() {
-		return format;
-	}
-
-	public void setFormat(final String format) {
-		this.format = format;
 	}
 
 	public Schema getAdditionalProperties() {
@@ -337,6 +324,48 @@ public class Schema {
 
 	public void setDescription(final String description) {
 		this.description = description;
+	}
+
+	/**
+	 * It is impossible to mix @JsonAnyGetter + regular fields with a defined order.
+	 * Therefore, the json object is manually crafted.
+	 *
+	 * @return
+	 */
+	@JsonAnyGetter
+	public Map<String, Object> getJsonObject() {
+
+		final Map<String, Object> map = new LinkedHashMap<>();
+		if(description != null) {
+			map.put("description", description);
+		}
+		if(required != null && !required.isEmpty()) {
+			map.put("required", required);
+		}
+		if(type != null) {
+			for(final Entry<String, JsonNode> entry : type.getSchemaTypeSection().entrySet()) {
+				map.put(entry.getKey(), entry.getValue());
+			}
+		}
+		if(properties != null && !properties.isEmpty()) {
+			map.put("properties", properties);
+		}
+		if(enumValues != null && !enumValues.isEmpty()) {
+			map.put("enum", enumValues);
+		}
+		if(enumNames != null && !enumNames.isEmpty()) {
+			map.put("x-enumNames", enumNames);
+		}
+		if(additionalProperties != null) {
+			map.put("additionalProperties", additionalProperties);
+		}
+		if(StringUtils.isNotBlank(reference)) {
+			map.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, reference);
+		}
+		if(items != null) {
+			map.put("items", items);
+		}
+		return map;
 	}
 
 }

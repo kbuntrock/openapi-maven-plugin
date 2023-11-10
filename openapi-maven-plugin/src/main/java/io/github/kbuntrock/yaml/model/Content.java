@@ -3,7 +3,7 @@ package io.github.kbuntrock.yaml.model;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.utils.OpenApiDataType;
-import java.util.Arrays;
+import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -15,27 +15,27 @@ public class Content {
 
 	private Schema schema;
 
-	public static Content fromDataObject(ParameterObject parameterObject) {
+	public static Content fromDataObject(final ParameterObject parameterObject) {
 
-		Content content = fromDataObject((DataObject) parameterObject);
+		final Content content = fromDataObject((DataObject) parameterObject);
 
-		boolean isMultipartFile = MultipartFile.class == parameterObject.getJavaClass() ||
-			(OpenApiDataType.ARRAY == parameterObject.getOpenApiType() && MultipartFile.class == parameterObject.getArrayItemDataObject()
-				.getJavaClass());
+		final boolean isMultipartFile = MultipartFile.class == parameterObject.getJavaClass() ||
+			(OpenApiDataType.ARRAY == parameterObject.getOpenApiResolvedType().getType()
+				&& MultipartFile.class == parameterObject.getArrayItemDataObject().getJavaClass());
 
 		if(isMultipartFile) {
 			// the MultipartFile must be named in the body.
-			Content multipartContent = new Content();
-			Schema schema = new Schema();
+			final Content multipartContent = new Content();
+			final Schema schema = new Schema();
 			multipartContent.schema = schema;
 			if(parameterObject.isRequired()) {
 				schema.setRequired(Collections.singletonList(parameterObject.getName()));
 			}
-			schema.setType(OpenApiDataType.OBJECT.getValue());
-			Map<String, Property> propertyMap = new LinkedHashMap<>();
+			schema.setType(OpenApiTypeResolver.INSTANCE.resolveFromJavaClass(Object.class));
+			final Map<String, Property> propertyMap = new LinkedHashMap<>();
 			schema.setProperties(propertyMap);
-			Property property = new Property(content.getSchema());
-			if(OpenApiDataType.ARRAY.getValue().equals(property.getType())) {
+			final Property property = new Property(content.getSchema());
+			if(OpenApiDataType.ARRAY == property.getType().getType()) {
 				property.setUniqueItems(true);
 			}
 			propertyMap.put(parameterObject.getName(), property);
@@ -44,12 +44,12 @@ public class Content {
 		return content;
 	}
 
-	public static Content fromDataObject(DataObject dataObject) {
+	public static Content fromDataObject(final DataObject dataObject) {
 		if(dataObject == null) {
 			return null;
 		}
-		Set<String> exploredSignatures = new HashSet<>();
-		Content content = new Content();
+		final Set<String> exploredSignatures = new HashSet<>();
+		final Content content = new Content();
 		content.schema = new Schema(dataObject, exploredSignatures);
 		return content;
 	}

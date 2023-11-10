@@ -1,0 +1,33 @@
+---
+boolean:
+  type: boolean
+integer-32:
+  type: integer
+  format: int32
+integer-64:
+  type: integer
+  format: int64
+number-float:
+  type: number
+  format: float
+number-double:
+  type: number
+  format: double
+string:
+  type: string
+string-date:
+  type: string
+  format: date
+string-date-time:
+  type: string
+  format: date-time
+string-time:
+  type: string
+  format: time
+string-binary:
+  type: string
+  format: binary
+array:
+  type: array
+object:
+  type: object

@@ -69,6 +69,7 @@ components:
           * `READ_USER` - Can read user informations
           * `UPDATE_USER` - Can update user informations
       type: integer
+      format: int32
       enum:
         - 1000
         - 2000

@@ -254,7 +254,8 @@ public class YamlWriter {
 					final Property schema = new Property(Content.fromDataObject(parameter).getSchema());
 
 					// array in path parameters are not supported
-					if(OpenApiDataType.ARRAY == parameter.getOpenApiType() && ParameterLocation.PATH == parameter.getLocation()) {
+					if(OpenApiDataType.ARRAY == parameter.getOpenApiResolvedType().getType()
+						&& ParameterLocation.PATH == parameter.getLocation()) {
 						logger.warn("Array types in path or query parameter are not allowed : "
 							+ endpoint.getPath() + " - " + endpoint.getType());
 					}
