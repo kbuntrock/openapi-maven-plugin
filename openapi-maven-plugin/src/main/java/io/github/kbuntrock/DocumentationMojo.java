@@ -12,6 +12,7 @@ import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.FileUtils;
 import io.github.kbuntrock.utils.Logger;
+import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.yaml.YamlWriter;
 import java.io.File;
 import java.io.IOException;
@@ -140,6 +141,7 @@ public class DocumentationMojo extends AbstractMojo {
 		for(final ApiConfiguration initialApiConfiguration : apis) {
 			AdditionnalSchemaLibrary.reset();
 			final ApiConfiguration apiConfig = initialApiConfiguration.mergeWithCommonApiConfiguration(this.apiConfiguration);
+			initObjectMapperFactory(apiConfig);
 			final ApiResourceScanner apiResourceScanner = new ApiResourceScanner(apiConfig);
 			getLog().debug("Prepare to scan");
 			final TagLibrary tagLibrary = apiResourceScanner.scanRestControllers();
@@ -187,10 +189,14 @@ public class DocumentationMojo extends AbstractMojo {
 					apiConfig.getFilename() + " : " + nbTagsGenerated + " tags and " + nbOperationsGenerated + " operations generated.");
 			} catch(final IOException e) {
 				throw new MojoFailureException("Cannot write file specification file : " + (generatedFile == null ? "temporary test file"
-					: generatedFile.getAbsolutePath()));
+					: generatedFile.getAbsolutePath()), e);
 			}
 		}
 		return generatedFiles;
+	}
+
+	private void initObjectMapperFactory(final ApiConfiguration apiConfig) {
+		OpenApiTypeResolver.INSTANCE.init();
 	}
 
 	/**

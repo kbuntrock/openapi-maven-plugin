@@ -6,6 +6,8 @@ import io.github.kbuntrock.reflection.GenericArrayTypeImpl;
 import io.github.kbuntrock.reflection.ParameterizedTypeImpl;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.OpenApiDataType;
+import io.github.kbuntrock.utils.OpenApiResolvedType;
+import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -43,7 +45,7 @@ public class DataObject {
 	/**
 	 * The corresponding openapi type
 	 */
-	private OpenApiDataType openApiType;
+	private OpenApiResolvedType openApiResolvedType;
 	/**
 	 * The type of the items if this data object represent a java Collection or java array
 	 */
@@ -137,14 +139,11 @@ public class DataObject {
 				// Anything simplier ...
 				javaClass = (Class<?>) type;
 			} else {
-
-				//	TypeToken.of(this.getJavaClass()).resolveType(genericType).getType();
-
 				throw new RuntimeException(
 					"Type " + originalType.getTypeName() + " (+" + originalType.getClass().getSimpleName() + ") is not supported yet.");
 			}
 
-			this.openApiType = OpenApiDataType.fromJavaClass(javaClass);
+			this.openApiResolvedType = OpenApiTypeResolver.INSTANCE.resolveFromJavaClass(javaClass);
 			if(javaClass.isEnum()) {
 				final Object[] values = javaClass.getEnumConstants();
 				this.enumItemValues = new ArrayList<>();
@@ -154,7 +153,7 @@ public class DataObject {
 
 					final Field field = javaClass.getDeclaredField(valueField);
 					ReflectionUtils.makeAccessible(field);
-					this.openApiType = OpenApiDataType.fromJavaClass(field.getType());
+					this.openApiResolvedType = OpenApiTypeResolver.INSTANCE.resolveFromJavaClass(field.getType());
 					for(final Object value : values) {
 						this.enumItemNames.add(((Enum) value).name());
 						this.enumItemValues.add(field.get(value).toString());
@@ -198,7 +197,7 @@ public class DataObject {
 	 * @return true if the object should be considered as a "reference object", in order to get its own schema section
 	 */
 	public boolean isReferenceObject() {
-		return isEnum() || (!genericallyTyped && OpenApiDataType.OBJECT == openApiType);
+		return isEnum() || (!genericallyTyped && OpenApiDataType.OBJECT == openApiResolvedType.getType());
 	}
 
 	/**
@@ -208,22 +207,22 @@ public class DataObject {
 	 * @return true if the object should be described in the content or reponse parts
 	 */
 	public boolean isGenericallyTypedObject() {
-		return OpenApiDataType.OBJECT == openApiType && genericallyTyped;
+		return OpenApiDataType.OBJECT == openApiResolvedType.getType() && genericallyTyped;
 	}
 
 	/**
 	 * @return true if the object is an array in the open api way
 	 */
 	public boolean isOpenApiArray() {
-		return OpenApiDataType.ARRAY == openApiType;
+		return OpenApiDataType.ARRAY == openApiResolvedType.getType();
 	}
 
 	public boolean isJavaArray() {
 		return arrayItemDataObject != null && !genericallyTyped;
 	}
 
-	public OpenApiDataType getOpenApiType() {
-		return openApiType;
+	public OpenApiResolvedType getOpenApiResolvedType() {
+		return openApiResolvedType;
 	}
 
 	public DataObject getArrayItemDataObject() {
@@ -236,10 +235,6 @@ public class DataObject {
 
 	public List<String> getEnumItemNames() {
 		return enumItemNames;
-	}
-
-	public DataObject getMapKeyType() {
-		return mapKeyValueDataObjects[0];
 	}
 
 	public DataObject getMapValueType() {
@@ -342,7 +337,7 @@ public class DataObject {
 			// We are in presence of a generic type variable not coming from the outside. Might be coming from generic typing at a parent level.
 			return TypeToken.of(this.getJavaClass()).resolveType(genericType).getType();
 		}
-		
+
 		return genericType;
 	}
 
@@ -384,7 +379,7 @@ public class DataObject {
 	@Override
 	public String toString() {
 		return "DataObject{" +
-			"openApiType=" + openApiType +
+			"openApiType=" + openApiResolvedType +
 			", arrayItemDataObject=" + arrayItemDataObject +
 			'}';
 	}

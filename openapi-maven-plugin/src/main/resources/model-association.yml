@@ -1,0 +1,22 @@
+---
+equality:
+  java.lang.Boolean: boolean
+  java.lang.Integer: integer-32
+  java.lang.Short: integer-32
+  java.lang.Long: integer-64
+  java.math.BigInteger: integer-64
+  java.lang.Float: number-float
+  java.lang.Double: number-double
+  java.math.BigDecimal: number-double
+  java.lang.String: string
+  java.lang.Character: string
+  java.time.LocalDateTime: string-date-time
+  java.time.Instant: string-date-time
+  java.util.Date: string-date-time
+  java.time.LocalDate: string-date
+  java.time.LocalTime: string-time
+assignability:
+  java.io.InputStream: string-binary
+  org.springframework.core.io.InputStreamSource: string-binary
+  java.util.Collection: array
+
