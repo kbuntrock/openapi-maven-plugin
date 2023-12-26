@@ -5,6 +5,7 @@ info:
   version: 10.5.36
 servers:
   - url: ""
+    description: ""
 tags:
   - name: Issue89
     description: Webservices about the issue number 89

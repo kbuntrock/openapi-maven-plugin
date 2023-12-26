@@ -1,6 +1,7 @@
 package io.github.kbuntrock;
 
 import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.configuration.Server;
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
 import io.github.kbuntrock.resources.endpoint.generic.ActionResource;
@@ -82,6 +83,32 @@ public class AllLibraryClassAnalyser extends AbstractTest {
 		final DocumentationMojo mojoSpringMvc = createBasicSpringMvcMojo(ActionResource.class.getCanonicalName());
 		final List<File> generatedSpringMvc = mojoSpringMvc.documentProject();
 		checkGenerationResult("ut/AllLibraryClassAnalyser/genericity_on_endpoint.yml", generatedSpringMvc.get(0));
+	}
+
+	@Test
+	public void set_custom_fields() throws MojoFailureException, MojoExecutionException, IOException {
+
+		final DocumentationMojo mojoJaxRs = createBasicJaxRsMojoWithCustomFields(ActionResource.class.getCanonicalName());
+		final List<File> generatedJaxRs = mojoJaxRs.documentProject();
+		checkGenerationResult("ut/AllLibraryClassAnalyser/custom_fields.yml", generatedJaxRs.get(0));
+	}
+
+	private DocumentationMojo createBasicJaxRsMojoWithCustomFields(String apiLocation) {
+		final DocumentationMojo mojo = new DocumentationMojo();
+		final ApiConfiguration apiConfiguration = new ApiConfiguration();
+		apiConfiguration.setLibrary(Library.JAKARTA_RS.name());
+		apiConfiguration.setAttachArtifact(false);
+		apiConfiguration.setTitle("Custom Title");
+		apiConfiguration.setVersion("Custom Version");
+		Server server = new Server();
+		server.setUrl("http://localhost");
+		server.setDescription("Find me here");
+		apiConfiguration.setServers(Collections.singletonList(server));
+		apiConfiguration.setLocations(Collections.singletonList(apiLocation));
+		mojo.setTestMode(true);
+		mojo.setApis(Collections.singletonList(apiConfiguration));
+		mojo.setProject(createBasicMavenProject());
+		return mojo;
 	}
 
 }

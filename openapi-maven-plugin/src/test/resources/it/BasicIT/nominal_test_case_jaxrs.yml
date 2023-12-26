@@ -5,6 +5,7 @@ info:
   version: 23.5.2
 servers:
   - url: ""
+    description: ""
 tags:
   - name: UserController
     description: User controller interface

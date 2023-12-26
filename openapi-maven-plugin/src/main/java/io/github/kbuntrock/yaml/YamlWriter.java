@@ -47,6 +47,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
@@ -71,13 +73,16 @@ public class YamlWriter {
 		this.mavenProject = mavenProject;
 	}
 
-	private void populateSpecificationFreeFields(final Specification specification, final Optional<JsonNode> freefields) {
+	private void populateSpecificationFreeFields(final Specification specification, List<io.github.kbuntrock.configuration.Server> servers, final Optional<JsonNode> freefields) {
 
-		if(freefields.isPresent() && freefields.get().get(SERVERS_FIELD) != null) {
+		if(servers != null && !servers.isEmpty()) {
+			specification.setServers(servers.stream().map(server -> new Server(server.getUrl(), server.getDescription())).collect(Collectors.toSet()));
+		} else if(freefields.isPresent() && freefields.get().get(SERVERS_FIELD) != null) {
 			specification.setServers(freefields.get().get(SERVERS_FIELD));
 		} else {
 			final Server server = new Server();
 			server.setUrl("");
+			server.setDescription("");
 			specification.setServers(Collections.singletonList(server));
 		}
 
@@ -102,10 +107,13 @@ public class YamlWriter {
 		}
 
 		final Specification specification = new Specification();
-		final Info info = new Info(mavenProject.getName(), mavenProject.getVersion(), freefields);
+		final String title = StringUtils.isNotBlank(apiConfiguration.getTitle()) ? apiConfiguration.getTitle() : mavenProject.getName();
+		final String version = StringUtils.isNotBlank(apiConfiguration.getVersion()) ? apiConfiguration.getVersion() : mavenProject.getVersion();
+
+		final Info info = new Info(title, version, freefields);
 		specification.setInfo(info);
 
-		populateSpecificationFreeFields(specification, freefields);
+		populateSpecificationFreeFields(specification, apiConfiguration.getServers(), freefields);
 
 		specification.setTags(tagLibrary.getTags().stream()
 			.map(x -> {

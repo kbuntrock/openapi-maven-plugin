@@ -5,6 +5,7 @@ info:
   version: 10.5.36
 servers:
   - url: ""
+    description: ""
 tags:
   - name: GenericRecursiveListDtoController
 paths:

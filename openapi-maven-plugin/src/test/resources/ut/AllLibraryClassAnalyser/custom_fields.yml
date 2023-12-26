@@ -1,11 +1,11 @@
 ---
 openapi: 3.0.3
 info:
-  title: My Project
-  version: 10.5.36
+  title: Custom Title
+  version: Custom Version
 servers:
-  - url: ""
-    description: ""
+  - url: http://localhost
+    description: Find me here
 tags:
   - name: ActionResource
 paths:

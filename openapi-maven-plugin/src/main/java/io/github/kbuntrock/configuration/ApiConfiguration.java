@@ -17,6 +17,12 @@ public class ApiConfiguration extends CommonApiConfiguration {
 	@Parameter
 	private String filename = "spec-open-api.yml";
 
+	@Parameter
+	private String title;
+
+	@Parameter
+	private String version;
+
 	private OperationIdHelper operationIdHelper;
 
 	public List<String> getLocations() {
@@ -33,6 +39,22 @@ public class ApiConfiguration extends CommonApiConfiguration {
 
 	public void setFilename(final String filename) {
 		this.filename = filename;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 	public OperationIdHelper getOperationIdHelper() {
@@ -71,13 +93,19 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.extraSchemaClasses = copy.extraSchemaClasses;
 		merged.customResponseTypeAnnotation = copy.customResponseTypeAnnotation;
 		merged.defaultErrors = copy.defaultErrors;
+		merged.servers = copy.servers;
 		// End copy properties
 
 		merged.setLocations(locations);
 		merged.setFilename(filename);
+		merged.setTitle(title);
+		merged.setVersion(version);
 
 		if(!tag.getSubstitutions().isEmpty()) {
 			merged.getTag().setSubstitutions(tag.getSubstitutions());
+		}
+		if(servers != null && !servers.isEmpty()) {
+			merged.servers = servers;
 		}
 		if(!operation.getSubstitutions().isEmpty()) {
 			merged.getOperation().setSubstitutions(operation.getSubstitutions());

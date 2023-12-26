@@ -22,6 +22,9 @@ public class CommonApiConfiguration {
 	}
 
 	@Parameter
+	protected List<Server> servers;
+
+	@Parameter
 	protected Tag tag = new Tag();
 
 	@Parameter
@@ -95,6 +98,7 @@ public class CommonApiConfiguration {
 
 	public CommonApiConfiguration(final CommonApiConfiguration commonApiConfiguration) {
 		this.tag = new Tag(commonApiConfiguration.tag);
+		this.servers = commonApiConfiguration.servers;
 		this.operation = new Operation(commonApiConfiguration.operation);
 		this.attachArtifact = commonApiConfiguration.attachArtifact;
 		this.defaultSuccessfulOperationDescription = commonApiConfiguration.defaultSuccessfulOperationDescription;
@@ -168,6 +172,14 @@ public class CommonApiConfiguration {
 
 	public void setTag(final Tag tag) {
 		this.tag = tag;
+	}
+
+	public List<Server> getServers() {
+		return servers;
+	}
+
+	public void setServers(List<Server> servers) {
+		this.servers = servers;
 	}
 
 	public Operation getOperation() {
