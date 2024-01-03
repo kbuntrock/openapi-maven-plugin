@@ -90,6 +90,12 @@ public class CommonApiConfiguration {
 	@Parameter
 	protected String defaultErrors;
 
+	@Parameter
+	protected String openapiModelsPath;
+
+	@Parameter
+	protected String modelsAssociationsPath;
+
 	public CommonApiConfiguration() {
 	}
 
@@ -107,6 +113,8 @@ public class CommonApiConfiguration {
 		this.library = commonApiConfiguration.library;
 		this.customResponseTypeAnnotation = commonApiConfiguration.customResponseTypeAnnotation;
 		this.defaultErrors = commonApiConfiguration.defaultErrors;
+		this.openapiModelsPath = commonApiConfiguration.openapiModelsPath;
+		this.modelsAssociationsPath = commonApiConfiguration.modelsAssociationsPath;
 		for(final String tagAnnotation : commonApiConfiguration.tagAnnotations) {
 			this.tagAnnotations.add(tagAnnotation);
 		}
@@ -304,5 +312,21 @@ public class CommonApiConfiguration {
 
 	public void setDefaultErrors(final String defaultErrors) {
 		this.defaultErrors = defaultErrors;
+	}
+
+	public String getOpenapiModelsPath() {
+		return openapiModelsPath;
+	}
+
+	public void setOpenapiModelsPath(final String openapiModelsPath) {
+		this.openapiModelsPath = openapiModelsPath;
+	}
+
+	public String getModelsAssociationsPath() {
+		return modelsAssociationsPath;
+	}
+
+	public void setModelsAssociationsPath(final String modelsAssociationsPath) {
+		this.modelsAssociationsPath = modelsAssociationsPath;
 	}
 }

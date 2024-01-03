@@ -196,7 +196,7 @@ public class DocumentationMojo extends AbstractMojo {
 	}
 
 	private void initObjectMapperFactory(final ApiConfiguration apiConfig) {
-		OpenApiTypeResolver.INSTANCE.init();
+		OpenApiTypeResolver.INSTANCE.init(project, apiConfig);
 	}
 
 	/**

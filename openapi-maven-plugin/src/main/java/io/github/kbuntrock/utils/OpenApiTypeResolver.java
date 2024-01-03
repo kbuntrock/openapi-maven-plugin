@@ -1,12 +1,15 @@
 package io.github.kbuntrock.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.YamlParserUtils;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
+import java.nio.file.FileSystems;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.apache.maven.project.MavenProject;
 
 /**
  * @author Kévin Buntrock
@@ -20,25 +23,31 @@ public enum OpenApiTypeResolver {
 	private static final String ARRAY = "array";
 	private static final String STRING = "string";
 
-	private Map<String, OpenApiResolvedType> model;
-	private Map<String, OpenApiResolvedType> equalityMap;
-	private Map<Class<?>, OpenApiResolvedType> assignabilityMap;
+	private final Map<String, OpenApiResolvedType> model = new HashMap<>();
+	private final Map<String, OpenApiResolvedType> equalityMap = new HashMap<>();
+	private final Map<Class<?>, OpenApiResolvedType> assignabilityMap = new HashMap<>();
 
 
-	public void init() {
+	public void init(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
 		// Loading model definition
-		initModel();
+		initModel(mavenProject, apiConfig);
 		// Loading associations
-
-		assignabilityMap = new HashMap<>();
-		final JsonNode root = YamlParserUtils.readResourceFile("/model-association.yml");
-		initModelAssociationForEquality(root);
-		initModelAssociationForAssignability(root);
+		initModelAssociation(mavenProject, apiConfig);
 	}
 
-	private void initModel() {
-		model = new HashMap<>();
+	private void initModel(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
+		model.clear();
 		final JsonNode root = YamlParserUtils.readResourceFile("/openapi-model.yml");
+		initModelFromNode(root);
+		// Init now the possible overriding / additions by api
+		if(apiConfig.getOpenapiModelsPath() != null) {
+			final JsonNode customRoot = YamlParserUtils.readFile(
+				mavenProject.getBasedir() + FileSystems.getDefault().getSeparator() + apiConfig.getOpenapiModelsPath());
+			initModelFromNode(customRoot);
+		}
+	}
+
+	private void initModelFromNode(final JsonNode root) {
 		final Iterator<Entry<String, JsonNode>> iterator = root.fields();
 		iterator.forEachRemaining(entry -> {
 			final JsonNode modelNode = entry.getValue();
@@ -47,8 +56,24 @@ public enum OpenApiTypeResolver {
 		});
 	}
 
+	private void initModelAssociation(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
+		equalityMap.clear();
+		assignabilityMap.clear();
+		final JsonNode root = YamlParserUtils.readResourceFile("/model-association.yml");
+		initModelAssociationForEquality(root);
+		initModelAssociationForAssignability(root);
+
+		// Init now the possible overriding / additions by api
+		if(apiConfig.getModelsAssociationsPath() != null) {
+			final JsonNode customRoot = YamlParserUtils.readFile(
+				mavenProject.getBasedir() + FileSystems.getDefault().getSeparator() + apiConfig.getModelsAssociationsPath());
+			initModelAssociationForEquality(customRoot);
+			initModelAssociationForAssignability(customRoot);
+		}
+	}
+
+
 	private void initModelAssociationForEquality(final JsonNode root) {
-		equalityMap = new HashMap<>();
 		final JsonNode equalityNode = root.get(EQUALITY);
 		final Iterator<Entry<String, JsonNode>> iteratorEquality = equalityNode.fields();
 		iteratorEquality.forEachRemaining(entry -> {
@@ -67,7 +92,6 @@ public enum OpenApiTypeResolver {
 	}
 
 	private void initModelAssociationForAssignability(final JsonNode root) {
-		assignabilityMap = new HashMap<>();
 		final JsonNode rootNode = root.get(ASSIGNABILITY);
 		final ClassLoader classLoader = ReflectionsUtils.getProjectClassLoader();
 
