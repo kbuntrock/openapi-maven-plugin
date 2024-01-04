@@ -107,7 +107,7 @@ public class YamlWriter {
 
 		populateSpecificationFreeFields(specification, freefields);
 
-		specification.setTags(tagLibrary.getTags().stream()
+		specification.setTags(tagLibrary.getSortedTags().stream()
 			.map(x -> {
 				if(JavadocMap.INSTANCE.isPresent()) {
 					ClassDocumentation classDocumentation = JavadocMap.INSTANCE.getJavadocMap().get(x.getClazz().getCanonicalName());
@@ -172,7 +172,7 @@ public class YamlWriter {
 
 		final Set<String> operationIds = new HashSet<>();
 
-		for(final Tag tag : tagLibrary.getTags()) {
+		for(final Tag tag : tagLibrary.getSortedTags()) {
 
 			final ClassDocumentation classDocumentation = JavadocMap.INSTANCE.isPresent() ?
 				JavadocMap.INSTANCE.getJavadocMap().get(tag.getClazz().getCanonicalName()) : null;
@@ -183,10 +183,10 @@ public class YamlWriter {
 			// There is no need to try to enhance with the abstract or interfaces classes the documentation here.
 			// It has already been made when we were writing the tags
 
-			// List of operations, which will be sorted before storing them by path. In order to keep a deterministic generation.
-			List<Operation> operations = new ArrayList<>();
+			// List of operations, already sorted via the Endpoint comparable implementation. In order to keep a deterministic generation.
+			final List<Operation> operations = new ArrayList<>();
 
-			for (final Endpoint endpoint : tag.getEndpoints()) {
+			for(final Endpoint endpoint : tag.getSortedEndpoints()) {
 
 				final String enhancedPath = this.apiConfiguration.getPathPrefix() + endpoint.getPath();
 				paths.computeIfAbsent(enhancedPath, k -> new LinkedHashMap<>());
@@ -346,9 +346,7 @@ public class YamlWriter {
 
 			}
 
-			// We now order operations by types :
-			operations = operations.stream().sorted(Comparator.comparing(Operation::getName)).collect(Collectors.toList());
-			// And map them to their path
+			// Map operations to their path
 			for(final Operation operation : operations) {
 				final Operation previousOperation = paths.get(operation.getPath()).put(operation.getName().toLowerCase(), operation);
 				if(previousOperation != null) {

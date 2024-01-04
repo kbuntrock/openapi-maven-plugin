@@ -1,10 +1,9 @@
 package io.github.kbuntrock.model;
 
+import static java.util.Comparator.nullsLast;
+
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-
-import static java.util.Comparator.nullsLast;
 
 public class Endpoint implements Comparable<Endpoint> {
 
@@ -13,8 +12,6 @@ public class Endpoint implements Comparable<Endpoint> {
 	private OperationType type;
 
 	private String name;
-
-	private String computedName;
 
 	private List<ParameterObject> parameters;
 
@@ -102,34 +99,11 @@ public class Endpoint implements Comparable<Endpoint> {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-
-		Endpoint endpoint = (Endpoint) o;
-
-		if (!Objects.equals(path, endpoint.path)) return false;
-		if (type != endpoint.type) return false;
-		if (!Objects.equals(name, endpoint.name)) return false;
-		return Objects.equals(computedName, endpoint.computedName);
-	}
-
-	@Override
-	public int hashCode() {
-		int result = path != null ? path.hashCode() : 0;
-		result = 31 * result + (type != null ? type.hashCode() : 0);
-		result = 31 * result + (name != null ? name.hashCode() : 0);
-		result = 31 * result + (computedName != null ? computedName.hashCode() : 0);
-		return result;
-	}
-
-	@Override
-	public int compareTo(Endpoint o) {
+	public int compareTo(final Endpoint o) {
 		return Comparator
-				.comparing((Endpoint endpoint) -> endpoint.path, nullsLast(String::compareTo))
-				.thenComparing(e -> e.type, nullsLast(OperationType::compareTo))
-				.thenComparing(e -> e.computedName, nullsLast(String::compareTo))
-				.thenComparing(e -> e.name, nullsLast(String::compareTo))
-				.compare(this, o);
+			.comparing((Endpoint endpoint) -> endpoint.path, nullsLast(String::compareTo))
+			.thenComparing(e -> e.type.getSchemaOrder())
+			.thenComparing(e -> e.name)
+			.compare(this, o);
 	}
 }

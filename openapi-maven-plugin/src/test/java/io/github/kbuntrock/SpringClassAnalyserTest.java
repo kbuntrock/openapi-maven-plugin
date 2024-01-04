@@ -708,4 +708,33 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		checkGenerationResult("ut/SpringClassAnalyserTest/name_collision.yml", generated.get(0));
 	}
 
+	@Test
+	public void tag_name_collision() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(
+			io.github.kbuntrock.resources.endpoint.namecollision.one.MyController.class.getCanonicalName(),
+			io.github.kbuntrock.resources.endpoint.namecollision.two.MyController.class.getCanonicalName());
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/tag_name_collision.yml", generated.get(0));
+	}
+
+	@Test
+	public void enpoint_path_collision() throws MojoFailureException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(
+			io.github.kbuntrock.resources.endpoint.namecollision.three.MyController.class.getCanonicalName());
+
+		MojoRuntimeException exception = null;
+		try {
+			mojo.documentProject();
+		} catch(final MojoRuntimeException ex) {
+			exception = ex;
+		}
+		Assertions.assertNotNull(exception);
+		Assertions.assertEquals("More than one operation mapped on GET : /api/controller-3/info in tag MyController",
+			exception.getMessage());
+	}
+
+
 }

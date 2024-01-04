@@ -1,0 +1,123 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: MyController
+  - name: MyController
+paths:
+  /api/controller-1/info:
+    get:
+      tags:
+        - MyController
+      operationId: getInfo
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+    post:
+      tags:
+        - MyController
+      operationId: setInfo
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+    put:
+      tags:
+        - MyController
+      operationId: putInfo
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+    patch:
+      tags:
+        - MyController
+      operationId: patchInfo
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+    delete:
+      tags:
+        - MyController
+      operationId: deleteInfo
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/controller-2/info:
+    get:
+      tags:
+        - MyController
+      operationId: getInfo
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+    post:
+      tags:
+        - MyController
+      operationId: setInfo
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+    put:
+      tags:
+        - MyController
+      operationId: putInfo
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+    patch:
+      tags:
+        - MyController
+      operationId: patchInfo
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+    delete:
+      tags:
+        - MyController
+      operationId: deleteInfo
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
