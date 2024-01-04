@@ -9,7 +9,14 @@ import io.github.kbuntrock.reflection.ReflectionsUtils;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.maven.plugin.MojoFailureException;
 
@@ -23,7 +30,7 @@ public class TagLibrary {
 	public static final String METHOD_IS_PREFIX = "is";
 	public static final int METHOD_IS_PREFIX_SIZE = METHOD_IS_PREFIX.length();
 
-	private final SortedSet<Tag> tags = new TreeSet<>();
+	private final List<Tag> tags = new ArrayList<>();
 	private final Set<DataObject> schemaObjects = new HashSet<>();
 	private final Set<String> exploredSignatures = new HashSet<>();
 	final Map<Class, DataObject> classToSchemaObject = new HashMap<>();
@@ -114,6 +121,10 @@ public class TagLibrary {
 
 	public Collection<Tag> getTags() {
 		return tags;
+	}
+
+	public Collection<Tag> getSortedTags() {
+		return tags.stream().sorted().collect(Collectors.toList());
 	}
 
 	public Set<DataObject> getSchemaObjects() {
