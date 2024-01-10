@@ -1,5 +1,7 @@
 package io.github.kbuntrock;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.EnumConfig;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
@@ -725,15 +727,10 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final DocumentationMojo mojo = createBasicMojo(
 			io.github.kbuntrock.resources.endpoint.namecollision.three.MyController.class.getCanonicalName());
 
-		MojoRuntimeException exception = null;
-		try {
+		assertThatThrownBy(() -> {
 			mojo.documentProject();
-		} catch(final MojoRuntimeException ex) {
-			exception = ex;
-		}
-		Assertions.assertNotNull(exception);
-		Assertions.assertEquals("More than one operation mapped on GET : /api/controller-3/info in tag MyController",
-			exception.getMessage());
+		}).isInstanceOf(MojoRuntimeException.class)
+			.hasMessageContaining("More than one operation mapped on GET : /api/controller-3/info in tag MyController");
 	}
 
 

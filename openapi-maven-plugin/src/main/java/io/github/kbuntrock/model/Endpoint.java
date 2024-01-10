@@ -102,7 +102,7 @@ public class Endpoint implements Comparable<Endpoint> {
 	public int compareTo(final Endpoint o) {
 		return Comparator
 			.comparing((Endpoint endpoint) -> endpoint.path, nullsLast(String::compareTo))
-			.thenComparing(e -> e.type.getSchemaOrder())
+			.thenComparing(e -> e.type)
 			.thenComparing(e -> e.name)
 			.compare(this, o);
 	}
