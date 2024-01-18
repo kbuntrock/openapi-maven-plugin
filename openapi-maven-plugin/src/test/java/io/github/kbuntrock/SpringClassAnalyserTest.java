@@ -2,11 +2,7 @@ package io.github.kbuntrock;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
-import io.github.kbuntrock.configuration.ApiConfiguration;
-import io.github.kbuntrock.configuration.EnumConfig;
-import io.github.kbuntrock.configuration.JavadocConfiguration;
-import io.github.kbuntrock.configuration.OperationIdHelper;
-import io.github.kbuntrock.configuration.Substitution;
+import io.github.kbuntrock.configuration.*;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.resources.dto.TerritoryEnum;
@@ -43,6 +39,7 @@ import io.github.kbuntrock.resources.endpoint.generic.Issue95;
 import io.github.kbuntrock.resources.endpoint.ignore.JsonIgnoreController;
 import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
 import io.github.kbuntrock.resources.endpoint.map.MapController;
+import io.github.kbuntrock.resources.endpoint.nullable.NullableController;
 import io.github.kbuntrock.resources.endpoint.number.NumberController;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementOneController;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementTwoController;
@@ -732,6 +729,53 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		}).isInstanceOf(MojoRuntimeException.class)
 			.hasMessageContaining("More than one operation mapped on GET : /api/controller-3/info in tag MyController");
 	}
+
+	@Test
+	public void nullable_default() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(NullableController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		mojo.setApiConfiguration(commonApiConfiguration);
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/nullable_default.yml", generated.get(0));
+	}
+
+	@Test
+	public void nullable_default_custom_annotation() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(NullableController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		commonApiConfiguration.setNonNullableAnnotation("io.github.kbuntrock.resources.dto.nullable.MyNotNull");
+		commonApiConfiguration.setNullableAnnotation("io.github.kbuntrock.resources.dto.nullable.MyNullable");
+		mojo.setApiConfiguration(commonApiConfiguration);
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/nullable_default_custom_annotation.yml", generated.get(0));
+	}
+
+	@Test
+	public void nullable_default_non_nullable() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(NullableController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		commonApiConfiguration.setDefaultNonNullableFields(true);
+		mojo.setApiConfiguration(commonApiConfiguration);
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/nullable_default_non_nullable.yml", generated.get(0));
+	}
+
+	@Test
+	public void nullable_default_non_nullable_custom_annotation() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(NullableController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		commonApiConfiguration.setDefaultNonNullableFields(true);
+		commonApiConfiguration.setNonNullableAnnotation("io.github.kbuntrock.resources.dto.nullable.MyNotNull");
+		commonApiConfiguration.setNullableAnnotation("io.github.kbuntrock.resources.dto.nullable.MyNullable");
+		mojo.setApiConfiguration(commonApiConfiguration);
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/nullable_default_non_nullable_custom_annotation.yml", generated.get(0));
+	}
+
 
 
 }
