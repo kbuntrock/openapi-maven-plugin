@@ -88,6 +88,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.defaultErrors = copy.defaultErrors;
 		merged.openapiModels = copy.openapiModels;
 		merged.modelsAssociations = copy.modelsAssociations;
+		merged.defaultNonNullableFields = copy.defaultNonNullableFields;
+		merged.nonNullableAnnotation = copy.nonNullableAnnotation;
+		merged.nullableAnnotation = copy.nullableAnnotation;
 		// End copy properties
 
 		merged.setLocations(locations);
@@ -159,6 +162,15 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		}
 		if(modelsAssociations != null) {
 			merged.setModelsAssociations(modelsAssociations);
+		}
+		if(defaultNonNullableFields != null) {
+			merged.setDefaultNonNullableFields(defaultNonNullableFields);
+		}
+		if(nonNullableAnnotation != null) {
+			merged.setNonNullableAnnotation(nonNullableAnnotation);
+		}
+		if(nullableAnnotation != null) {
+			merged.setNullableAnnotation(nullableAnnotation);
 		}
 
 		merged.operationIdHelper = new OperationIdHelper(merged.operationId);

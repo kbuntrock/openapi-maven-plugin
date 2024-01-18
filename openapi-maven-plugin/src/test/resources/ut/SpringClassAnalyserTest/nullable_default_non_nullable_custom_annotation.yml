@@ -1,0 +1,49 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: NullableController
+paths:
+  /nullable/{id}:
+    get:
+      tags:
+        - NullableController
+      operationId: getById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/NullableDto'
+components:
+  schemas:
+    NullableDto:
+      required:
+        - defaultValue
+        - notNullableValue
+        - nullableValue
+        - myNotNull
+      type: object
+      properties:
+        defaultValue:
+          type: string
+        notNullableValue:
+          type: string
+        nullableValue:
+          type: string
+        myNotNull:
+          type: string
+        myNullable:
+          type: string

@@ -56,6 +56,7 @@
               <attachArtifact>true</attachArtifact>
               <defaultProduceConsumeGuessing>true</defaultProduceConsumeGuessing>
               <pathPrefix>/my-prefix</pathPrefix>
+              <nonNullableAnnotation>io.github.kbuntrock.sample.annotation.MyNotNull</nonNullableAnnotation>
               <locations>
                 <location>io.github.kbuntrock.sample.enpoint</location>
               </locations>

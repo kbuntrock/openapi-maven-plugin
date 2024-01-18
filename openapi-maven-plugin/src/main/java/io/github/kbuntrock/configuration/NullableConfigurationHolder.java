@@ -1,30 +1,52 @@
 package io.github.kbuntrock.configuration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NullableConfigurationHolder {
 
-    private static String nullableAnnotation;
+	private static final String defaultJakartaNullable = "jakarta.annotation.Nullable";
+	private static final String defaultJavaxNullable = "javax.annotation.Nullable";
 
-    private static String nonNullAnnotation;
+	private static final String defaultJakartaNotNull = "jakarta.validation.constraints.NotNull";
+	private static final String defaultJavaxNotNull = "javax.validation.constraints.NotNull";
 
-    private static boolean defaultNonNullableFields;
+	private static List<String> nullableAnnotations;
 
-    public static void storeConfig(final CommonApiConfiguration commonApiConfiguration) {
-        nullableAnnotation = commonApiConfiguration.nullableAnnotation;
-        nonNullAnnotation = commonApiConfiguration.nonNullableAnnotation;
-        defaultNonNullableFields = commonApiConfiguration.defaultNonNullableFields != null
-                && commonApiConfiguration.defaultNonNullableFields;
+	private static List<String> nonNullAnnotations;
 
-    }
+	private static boolean defaultNonNullableFields;
 
-    public static String getNullableAnnotation() {
-        return nullableAnnotation;
-    }
+	public static void storeConfig(final CommonApiConfiguration commonApiConfiguration) {
+		defaultNonNullableFields = commonApiConfiguration.defaultNonNullableFields != null
+			&& commonApiConfiguration.defaultNonNullableFields;
 
-    public static String getNonNullAnnotation() {
-        return nonNullAnnotation;
-    }
+		nullableAnnotations = new ArrayList<>();
+		if(commonApiConfiguration.nullableAnnotation != null) {
+			nullableAnnotations.add(commonApiConfiguration.nullableAnnotation);
+		} else {
+			nullableAnnotations.add(defaultJakartaNullable);
+			nullableAnnotations.add(defaultJavaxNullable);
+		}
+		nonNullAnnotations = new ArrayList<>();
+		if(commonApiConfiguration.nonNullableAnnotation != null) {
+			nonNullAnnotations.add(commonApiConfiguration.nonNullableAnnotation);
+		} else {
+			nonNullAnnotations.add(defaultJakartaNotNull);
+			nonNullAnnotations.add(defaultJavaxNotNull);
+		}
 
-    public static boolean isDefaultNonNullableFields() {
-        return defaultNonNullableFields;
-    }
+	}
+
+	public static List<String> getNullableAnnotations() {
+		return nullableAnnotations;
+	}
+
+	public static List<String> getNonNullAnnotations() {
+		return nonNullAnnotations;
+	}
+
+	public static boolean isDefaultNonNullableFields() {
+		return defaultNonNullableFields;
+	}
 }
