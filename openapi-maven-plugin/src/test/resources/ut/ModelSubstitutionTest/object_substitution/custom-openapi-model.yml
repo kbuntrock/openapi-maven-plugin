@@ -1,0 +1,18 @@
+---
+CustomAccountDto:
+  description: Custom version of the accountDto
+  required:
+    - email
+    - token
+  type: object
+  properties:
+    email:
+      type: string
+      format: email
+      minLength: 5
+      maxLength: 254
+    token:
+      type: number
+      format: double
+    activated:
+      type: boolean

@@ -1,0 +1,4 @@
+---
+equality:
+  io.github.kbuntrock.resources.dto.Authority: CustomAuthority
+

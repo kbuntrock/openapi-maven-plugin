@@ -153,7 +153,7 @@ public class DataObject {
 
 					final Field field = javaClass.getDeclaredField(valueField);
 					ReflectionUtils.makeAccessible(field);
-					this.openApiResolvedType = OpenApiTypeResolver.INSTANCE.resolveFromJavaClass(field.getType());
+					this.openApiResolvedType = OpenApiTypeResolver.INSTANCE.resolveFromJavaClass(field.getType(), false);
 					for(final Object value : values) {
 						this.enumItemNames.add(((Enum) value).name());
 						this.enumItemValues.add(field.get(value).toString());

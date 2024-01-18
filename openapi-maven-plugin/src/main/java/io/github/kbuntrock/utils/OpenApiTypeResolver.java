@@ -21,9 +21,15 @@ public enum OpenApiTypeResolver {
 	private static final String ASSIGNABILITY = "assignability";
 	private static final String OBJECT = "object";
 	private static final String ARRAY = "array";
-	private static final String STRING = "string";
+	private static final String ENUM = "enum";
+	public static final String JAVA_UTIL_COLLECTION = "java.util.Collection";
 
-	private final Map<String, OpenApiResolvedType> model = new HashMap<>();
+	private final Map<String, OpenApiResolvedType> modelMap = new HashMap<>();
+
+	/**
+	 * Model map storing any partially resolved models (arrays, objects, enums)
+	 */
+	private final Map<String, OpenApiResolvedType> nonCompleteModelMap = new HashMap<>();
 	private final Map<String, OpenApiResolvedType> equalityMap = new HashMap<>();
 	private final Map<Class<?>, OpenApiResolvedType> assignabilityMap = new HashMap<>();
 
@@ -36,9 +42,11 @@ public enum OpenApiTypeResolver {
 	}
 
 	private void initModel(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
-		model.clear();
+		modelMap.clear();
+
 		final JsonNode root = YamlParserUtils.readResourceFile("/openapi-model.yml");
 		initModelFromNode(root);
+
 		// Init now the possible overriding / additions by api
 		if(apiConfig.getOpenapiModelsPath() != null) {
 			final JsonNode customRoot = YamlParserUtils.readFile(
@@ -51,8 +59,8 @@ public enum OpenApiTypeResolver {
 		final Iterator<Entry<String, JsonNode>> iterator = root.fields();
 		iterator.forEachRemaining(entry -> {
 			final JsonNode modelNode = entry.getValue();
-			final OpenApiResolvedType type = new OpenApiResolvedType(OpenApiDataType.fromJsonNode(modelNode), modelNode);
-			model.put(entry.getKey(), type);
+			final OpenApiResolvedType type = new OpenApiResolvedType(OpenApiDataType.fromJsonNode(modelNode), modelNode, entry.getKey());
+			modelMap.put(entry.getKey(), type);
 		});
 	}
 
@@ -75,12 +83,17 @@ public enum OpenApiTypeResolver {
 
 	private void initModelAssociationForEquality(final JsonNode root) {
 		final JsonNode equalityNode = root.get(EQUALITY);
+		if(equalityNode == null) {
+			// A model association file does not require to define an equality section
+			return;
+		}
+
 		final Iterator<Entry<String, JsonNode>> iteratorEquality = equalityNode.fields();
 		iteratorEquality.forEachRemaining(entry -> {
 			if(entry.getValue() == null) {
 				equalityMap.remove(entry.getKey());
 			} else {
-				final OpenApiResolvedType resolvedType = model.get(entry.getValue().asText());
+				final OpenApiResolvedType resolvedType = modelMap.get(entry.getValue().asText());
 				if(resolvedType == null) {
 					throw new RuntimeException(
 						"There is no model definition to honor association : " + entry.getKey() + " -> " + entry.getValue().asText());
@@ -93,6 +106,10 @@ public enum OpenApiTypeResolver {
 
 	private void initModelAssociationForAssignability(final JsonNode root) {
 		final JsonNode rootNode = root.get(ASSIGNABILITY);
+		if(rootNode == null) {
+			// A model association file does not require to define an assignability section
+			return;
+		}
 		final ClassLoader classLoader = ReflectionsUtils.getProjectClassLoader();
 
 		final Iterator<Entry<String, JsonNode>> iteratorEquality = rootNode.fields();
@@ -109,7 +126,7 @@ public enum OpenApiTypeResolver {
 				if(entry.getValue() == null) {
 					assignabilityMap.remove(clazz);
 				} else {
-					final OpenApiResolvedType resolvedType = model.get(entry.getValue().asText());
+					final OpenApiResolvedType resolvedType = modelMap.get(entry.getValue().asText());
 					if(resolvedType == null) {
 						throw new RuntimeException(
 							"There is no model definition to honor association : " + entry.getKey() + " -> " + entry.getValue().asText());
@@ -121,23 +138,50 @@ public enum OpenApiTypeResolver {
 	}
 
 	public OpenApiResolvedType resolveFromJavaClass(final Class<?> clazz) {
+		return resolveFromJavaClass(clazz, true);
+	}
+
+	public OpenApiResolvedType resolveFromJavaClass(final Class<?> clazz, final boolean completeVersion) {
 		final String canonicalName = resolveCanonicalName(clazz);
 		final OpenApiResolvedType resolvedType = equalityMap.get(canonicalName);
 		if(resolvedType != null) {
+			if(!completeVersion) {
+				return nonCompleteModelMap.computeIfAbsent(canonicalName, k -> {
+					final OpenApiResolvedType nonCompleteVersion = resolvedType.copy();
+					nonCompleteVersion.setCompleteNode(false);
+					return nonCompleteVersion;
+				});
+			}
 			return resolvedType;
 		}
 		for(final Class<?> c : assignabilityMap.keySet()) {
 			if(c.isAssignableFrom(clazz)) {
-				return assignabilityMap.get(c);
+				final OpenApiResolvedType resolvedAssignability = assignabilityMap.get(c);
+				if(!completeVersion || JAVA_UTIL_COLLECTION.equals(c.getCanonicalName())) {
+					return nonCompleteModelMap.computeIfAbsent(canonicalName, k -> {
+						final OpenApiResolvedType nonCompleteVersion = resolvedAssignability.copy();
+						nonCompleteVersion.setCompleteNode(false);
+						return nonCompleteVersion;
+					});
+				}
+				return resolvedAssignability;
 			}
 		}
 		if(clazz.isArray()) {
-			return model.get(ARRAY);
+			return resolveNonCompleteModel(ARRAY);
 		} else if(clazz.isEnum()) {
-			return model.get(STRING);
+			return resolveNonCompleteModel(ENUM);
 		}
 
-		return model.get(OBJECT);
+		return resolveNonCompleteModel(OBJECT);
+	}
+
+	private OpenApiResolvedType resolveNonCompleteModel(final String key) {
+		return nonCompleteModelMap.computeIfAbsent(key, k -> {
+			final OpenApiResolvedType completeVersion = modelMap.get(k).copy();
+			completeVersion.setCompleteNode(false);
+			return completeVersion;
+		});
 	}
 
 	/**
