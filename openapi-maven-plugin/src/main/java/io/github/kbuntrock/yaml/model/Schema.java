@@ -117,7 +117,11 @@ public class Schema {
 				throw new RuntimeException(
 					"Writing schema but could not find a reference for class " + dataObject.getJavaClass().getSimpleName());
 			}
-			reference = OpenApiConstants.OBJECT_REFERENCE_PREFIX + referenceDataObject.getSchemaReferenceName();
+			if(dataObject.getOpenApiResolvedType().isCompleteNode()) {
+				reference = OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getOpenApiResolvedType().getModelName();
+			} else {
+				reference = OpenApiConstants.OBJECT_REFERENCE_PREFIX + referenceDataObject.getSchemaReferenceName();
+			}
 
 		} else if((mainReference && dataObject.isReferenceObject() || dataObject.isGenericallyTypedObject())) {
 
@@ -138,61 +142,28 @@ public class Schema {
 			if(!forcedReference) {
 				type = dataObject.getOpenApiResolvedType();
 
-				// LinkedHashMap to keep the order of the class
-				properties = new LinkedHashMap<>();
+				if(!type.isCompleteNode()) {
 
-				final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), dataObject.getJavaClass());
-				if(!fields.isEmpty() && !dataObject.isEnum()) {
+					// LinkedHashMap to keep the order of the class
+					properties = new LinkedHashMap<>();
 
-					for(final Field field : fields) {
-						if(field.isAnnotationPresent(JsonIgnore.class)) {
-							// Field is tagged ignore. No need to document it.
-							continue;
-						}
+					final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), dataObject.getJavaClass());
+					if(!fields.isEmpty() && !dataObject.isEnum()) {
 
-						final DataObject propertyObject = new DataObject(dataObject.getContextualType(field.getGenericType()));
-						final Property property = new Property(propertyObject, false, field.getName(), exploredSignatures, dataObject);
-						extractConstraints(field, property);
-						properties.put(property.getName(), property);
-
-						// Javadoc handling
-						if(classDocumentation != null) {
-							final JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(field.getName());
-							if(javadocWrapper != null) {
-								final Optional<String> desc = javadocWrapper.getDescription();
-								property.setDescription(desc.get());
+						for(final Field field : fields) {
+							if(field.isAnnotationPresent(JsonIgnore.class)) {
+								// Field is tagged ignore. No need to document it.
+								continue;
 							}
-						}
-					}
-				}
-				if(dataObject.getJavaClass().isInterface()) {
-					final List<Method> methods = Arrays.stream(dataObject.getJavaClass().getMethods()).collect(Collectors.toList());
-					methods.sort(Comparator.comparing(a -> a.getName()));
-					for(final Method method : methods) {
-						final boolean methodStartWithGet =
-							method.getName().startsWith(METHOD_GET_PREFIX) && method.getName().length() != METHOD_GET_PREFIX_SIZE;
-						if(method.getParameters().length == 0 && method.getGenericReturnType() != null
-							&& (methodStartWithGet || (method.getName().startsWith(METHOD_IS_PREFIX)
-							&& method.getName().length() != METHOD_IS_PREFIX_SIZE))) {
 
-							String name;
-							if(methodStartWithGet) {
-								name = method.getName().replaceFirst("get", "");
-							} else {
-								name = method.getName().replaceFirst("is", "");
-							}
-							Logger.INSTANCE.getLogger()
-								.debug(dataObject.getJavaClass().getSimpleName() + " method name : " + method.getName() + " - " + name);
-							name = name.substring(0, 1).toLowerCase() + name.substring(1);
-
-							final DataObject propertyObject = new DataObject(dataObject.getContextualType(method.getGenericReturnType()));
-							final Property property = new Property(propertyObject, false, name, exploredSignatures, dataObject);
+							final DataObject propertyObject = new DataObject(dataObject.getContextualType(field.getGenericType()));
+							final Property property = new Property(propertyObject, false, field.getName(), exploredSignatures, dataObject);
+							extractConstraints(field, property);
 							properties.put(property.getName(), property);
 
 							// Javadoc handling
 							if(classDocumentation != null) {
-								final JavadocWrapper javadocWrapper = classDocumentation.getMethodsJavadoc()
-									.get(JavaClassAnalyser.createIdentifier(method));
+								final JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(field.getName());
 								if(javadocWrapper != null) {
 									final Optional<String> desc = javadocWrapper.getDescription();
 									property.setDescription(desc.get());
@@ -200,43 +171,80 @@ public class Schema {
 							}
 						}
 					}
+					if(dataObject.getJavaClass().isInterface()) {
+						final List<Method> methods = Arrays.stream(dataObject.getJavaClass().getMethods()).collect(Collectors.toList());
+						methods.sort(Comparator.comparing(a -> a.getName()));
+						for(final Method method : methods) {
+							final boolean methodStartWithGet =
+								method.getName().startsWith(METHOD_GET_PREFIX) && method.getName().length() != METHOD_GET_PREFIX_SIZE;
+							if(method.getParameters().length == 0 && method.getGenericReturnType() != null
+								&& (methodStartWithGet || (method.getName().startsWith(METHOD_IS_PREFIX)
+								&& method.getName().length() != METHOD_IS_PREFIX_SIZE))) {
 
-				}
+								String name;
+								if(methodStartWithGet) {
+									name = method.getName().replaceFirst("get", "");
+								} else {
+									name = method.getName().replaceFirst("is", "");
+								}
+								Logger.INSTANCE.getLogger()
+									.debug(dataObject.getJavaClass().getSimpleName() + " method name : " + method.getName() + " - " + name);
+								name = name.substring(0, 1).toLowerCase() + name.substring(1);
 
-				final List<String> enumItemValues = dataObject.getEnumItemValues();
-				if(enumItemValues != null && !enumItemValues.isEmpty()) {
-					enumValues = enumItemValues;
-					enumNames = dataObject.getEnumItemNames();
-					if(classDocumentation != null) {
-						final StringBuilder sb = new StringBuilder();
-						if(description != null) {
-							sb.append(description);
-							sb.append("\n");
-						} else {
-							sb.append(dataObject.getJavaClass().getSimpleName());
-							sb.append("\n");
-						}
-						for(int i = 0; i < enumItemValues.size(); i++) {
-							final String value = enumNames == null ? enumItemValues.get(i) : enumNames.get(i);
-							final JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(value);
-							if(javadocWrapper != null) {
-								final Optional<String> desc = javadocWrapper.getDescription();
-								if(desc.isPresent()) {
-									sb.append("  * ");
-									sb.append("`");
-									sb.append(value);
-									sb.append("` - ");
-									sb.append(desc.get());
-									sb.append("\n");
+								final DataObject propertyObject = new DataObject(
+									dataObject.getContextualType(method.getGenericReturnType()));
+								final Property property = new Property(propertyObject, false, name, exploredSignatures, dataObject);
+								properties.put(property.getName(), property);
+
+								// Javadoc handling
+								if(classDocumentation != null) {
+									final JavadocWrapper javadocWrapper = classDocumentation.getMethodsJavadoc()
+										.get(JavaClassAnalyser.createIdentifier(method));
+									if(javadocWrapper != null) {
+										final Optional<String> desc = javadocWrapper.getDescription();
+										property.setDescription(desc.get());
+									}
 								}
 							}
 						}
-						description = sb.toString();
-					}
-				}
 
-				required = properties.values().stream()
-					.filter(Property::isRequired).map(Property::getName).collect(Collectors.toList());
+					}
+
+					final List<String> enumItemValues = dataObject.getEnumItemValues();
+					if(enumItemValues != null && !enumItemValues.isEmpty()) {
+						enumValues = enumItemValues;
+						enumNames = dataObject.getEnumItemNames();
+						if(classDocumentation != null) {
+							final StringBuilder sb = new StringBuilder();
+							if(description != null) {
+								sb.append(description);
+								sb.append("\n");
+							} else {
+								sb.append(dataObject.getJavaClass().getSimpleName());
+								sb.append("\n");
+							}
+							for(int i = 0; i < enumItemValues.size(); i++) {
+								final String value = enumNames == null ? enumItemValues.get(i) : enumNames.get(i);
+								final JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(value);
+								if(javadocWrapper != null) {
+									final Optional<String> desc = javadocWrapper.getDescription();
+									if(desc.isPresent()) {
+										sb.append("  * ");
+										sb.append("`");
+										sb.append(value);
+										sb.append("` - ");
+										sb.append(desc.get());
+										sb.append("\n");
+									}
+								}
+							}
+							description = sb.toString();
+						}
+					}
+
+					required = properties.values().stream()
+						.filter(Property::isRequired).map(Property::getName).collect(Collectors.toList());
+				}
 			} else {
 				// We are in a recursive loop case. We write the object as reference and we will have to add it to the schema section
 				reference = OpenApiConstants.OBJECT_REFERENCE_PREFIX + referenceSignature;
@@ -336,6 +344,8 @@ public class Schema {
 	public Map<String, Object> getJsonObject() {
 
 		final Map<String, Object> map = new LinkedHashMap<>();
+
+		// Elsewhere, resolved type only describe vaguely the type (object or array), and we write all the infos
 		if(description != null) {
 			map.put("description", description);
 		}
@@ -343,7 +353,7 @@ public class Schema {
 			map.put("required", required);
 		}
 		if(type != null) {
-			for(final Entry<String, JsonNode> entry : type.getSchemaTypeSection().entrySet()) {
+			for(final Entry<String, JsonNode> entry : type.getSchemaSection().entrySet()) {
 				map.put(entry.getKey(), entry.getValue());
 			}
 		}

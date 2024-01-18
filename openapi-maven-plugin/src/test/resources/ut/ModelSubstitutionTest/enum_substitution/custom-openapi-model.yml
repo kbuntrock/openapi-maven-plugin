@@ -1,0 +1,8 @@
+---
+CustomAuthority:
+  description: Permissions enumeration
+  type: string
+  enum:
+    - READ_CUSTOM
+    - WRITE_CUSTOM
+

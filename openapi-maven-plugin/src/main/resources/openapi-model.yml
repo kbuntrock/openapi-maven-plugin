@@ -27,6 +27,8 @@ string-time:
 string-binary:
   type: string
   format: binary
+enum:
+  type: string
 array:
   type: array
 object:

@@ -78,7 +78,7 @@ public class TagLibrary {
 				inspectObject(dataObject);
 			}
 		} else if(dataObject.isGenericallyTyped()) {
-//            // Eventually analyse instead the generic types
+			// Eventually analyse instead the generic types
 			if(dataObject.getGenericNameToTypeMap() != null) {
 				for(final Map.Entry<String, Type> entry : dataObject.getGenericNameToTypeMap().entrySet()) {
 					final DataObject genericObject = new DataObject(dataObject.getContextualType(entry.getValue()));
@@ -92,7 +92,7 @@ public class TagLibrary {
 	}
 
 	private void inspectObject(final DataObject explored) {
-		if(explored.getJavaClass().isEnum()) {
+		if(explored.getJavaClass().isEnum() || explored.getOpenApiResolvedType().isCompleteNode()) {
 			return;
 		}
 		final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), explored.getJavaClass());
