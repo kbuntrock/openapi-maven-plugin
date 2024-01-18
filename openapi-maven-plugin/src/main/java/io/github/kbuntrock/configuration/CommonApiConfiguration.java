@@ -61,6 +61,15 @@ public class CommonApiConfiguration {
 	protected Boolean loopbackOperationName;
 
 	@Parameter
+	protected Boolean defaultNonNullableFields;
+
+	@Parameter
+	protected String nonNullableAnnotation;
+
+	@Parameter
+	protected String nullableAnnotation;
+
+	@Parameter
 	protected String operationId;
 
 	@Parameter
@@ -115,6 +124,9 @@ public class CommonApiConfiguration {
 		this.defaultErrors = commonApiConfiguration.defaultErrors;
 		this.openapiModels = commonApiConfiguration.openapiModels;
 		this.modelsAssociations = commonApiConfiguration.modelsAssociations;
+		this.defaultNonNullableFields = commonApiConfiguration.defaultNonNullableFields;
+		this.nonNullableAnnotation = commonApiConfiguration.nonNullableAnnotation;
+		this.nullableAnnotation = commonApiConfiguration.nullableAnnotation;
 		for(final String tagAnnotation : commonApiConfiguration.tagAnnotations) {
 			this.tagAnnotations.add(tagAnnotation);
 		}
@@ -328,5 +340,29 @@ public class CommonApiConfiguration {
 
 	public void setModelsAssociations(final String modelsAssociations) {
 		this.modelsAssociations = modelsAssociations;
+	}
+
+	public Boolean getDefaultNonNullableFields() {
+		return defaultNonNullableFields;
+	}
+
+	public void setDefaultNonNullableFields(final Boolean defaultNonNullableFields) {
+		this.defaultNonNullableFields = defaultNonNullableFields;
+	}
+
+	public String getNonNullableAnnotation() {
+		return nonNullableAnnotation;
+	}
+
+	public void setNonNullableAnnotation(final String nonNullableAnnotation) {
+		this.nonNullableAnnotation = nonNullableAnnotation;
+	}
+
+	public String getNullableAnnotation() {
+		return nullableAnnotation;
+	}
+
+	public void setNullableAnnotation(final String nullableAnnotation) {
+		this.nullableAnnotation = nullableAnnotation;
 	}
 }
