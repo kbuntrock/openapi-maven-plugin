@@ -1,10 +1,7 @@
 package io.github.kbuntrock;
 
 
-import io.github.kbuntrock.configuration.ApiConfiguration;
-import io.github.kbuntrock.configuration.CommonApiConfiguration;
-import io.github.kbuntrock.configuration.EnumConfigHolder;
-import io.github.kbuntrock.configuration.JavadocConfiguration;
+import io.github.kbuntrock.configuration.*;
 import io.github.kbuntrock.javadoc.JavadocMap;
 import io.github.kbuntrock.javadoc.JavadocParser;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
@@ -119,6 +116,7 @@ public class DocumentationMojo extends AbstractMojo {
 		}
 		this.getApiConfiguration().initDefaultValues();
 		EnumConfigHolder.storeConfig(this.getApiConfiguration().getEnumConfigList());
+		NullableConfigurationHolder.storeConfig(this.getApiConfiguration());
 
 		for(final ApiConfiguration apiConfiguration : apis) {
 			if(apiConfiguration.getLocations() == null || apiConfiguration.getLocations().isEmpty()) {
