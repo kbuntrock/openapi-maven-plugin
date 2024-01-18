@@ -61,6 +61,15 @@ public class CommonApiConfiguration {
 	protected Boolean loopbackOperationName;
 
 	@Parameter
+	protected Boolean defaultNonNullableFields;
+
+	@Parameter
+	protected String nonNullableAnnotation;
+
+	@Parameter
+	protected String nullableAnnotation;
+
+	@Parameter
 	protected String operationId;
 
 	@Parameter
@@ -107,6 +116,9 @@ public class CommonApiConfiguration {
 		this.library = commonApiConfiguration.library;
 		this.customResponseTypeAnnotation = commonApiConfiguration.customResponseTypeAnnotation;
 		this.defaultErrors = commonApiConfiguration.defaultErrors;
+		this.defaultNonNullableFields = commonApiConfiguration.defaultNonNullableFields;
+		this.nonNullableAnnotation = commonApiConfiguration.nonNullableAnnotation;
+		this.nullableAnnotation = commonApiConfiguration.nullableAnnotation;
 		for(final String tagAnnotation : commonApiConfiguration.tagAnnotations) {
 			this.tagAnnotations.add(tagAnnotation);
 		}
@@ -304,5 +316,29 @@ public class CommonApiConfiguration {
 
 	public void setDefaultErrors(final String defaultErrors) {
 		this.defaultErrors = defaultErrors;
+	}
+
+	public Boolean getDefaultNonNullableFields() {
+		return defaultNonNullableFields;
+	}
+
+	public void setDefaultNonNullableFields(Boolean defaultNonNullableFields) {
+		this.defaultNonNullableFields = defaultNonNullableFields;
+	}
+
+	public String getNonNullableAnnotation() {
+		return nonNullableAnnotation;
+	}
+
+	public void setNonNullableAnnotation(String nonNullableAnnotation) {
+		this.nonNullableAnnotation = nonNullableAnnotation;
+	}
+
+	public String getNullableAnnotation() {
+		return nullableAnnotation;
+	}
+
+	public void setNullableAnnotation(String nullableAnnotation) {
+		this.nullableAnnotation = nullableAnnotation;
 	}
 }
