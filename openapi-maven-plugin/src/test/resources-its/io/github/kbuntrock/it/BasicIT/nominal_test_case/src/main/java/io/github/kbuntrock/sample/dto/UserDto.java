@@ -2,6 +2,7 @@ package io.github.kbuntrock.sample.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.github.kbuntrock.sample.Constants;
+import io.github.kbuntrock.sample.annotation.MyNotNull;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -19,6 +20,7 @@ public class UserDto {
 	/**
 	 * Id of the user
 	 */
+	@MyNotNull
 	private Long id;
 
 	/**

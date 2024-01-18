@@ -5,6 +5,7 @@ import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.EnumConfigHolder;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
+import io.github.kbuntrock.configuration.NullableConfigurationHolder;
 import io.github.kbuntrock.javadoc.JavadocMap;
 import io.github.kbuntrock.javadoc.JavadocParser;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
@@ -142,6 +143,8 @@ public class DocumentationMojo extends AbstractMojo {
 			AdditionnalSchemaLibrary.reset();
 			final ApiConfiguration apiConfig = initialApiConfiguration.mergeWithCommonApiConfiguration(this.apiConfiguration);
 			initObjectMapperFactory(apiConfig);
+			NullableConfigurationHolder.storeConfig(apiConfig);
+
 			final ApiResourceScanner apiResourceScanner = new ApiResourceScanner(apiConfig);
 			getLog().debug("Prepare to scan");
 			final TagLibrary tagLibrary = apiResourceScanner.scanRestControllers();

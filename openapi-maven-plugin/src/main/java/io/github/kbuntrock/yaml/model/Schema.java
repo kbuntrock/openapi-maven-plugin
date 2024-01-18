@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.TagLibraryHolder;
+import io.github.kbuntrock.configuration.NullableConfigurationHolder;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.ClassDocumentation.EnhancementType;
 import io.github.kbuntrock.javadoc.JavadocMap;
@@ -36,7 +37,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import org.apache.commons.lang3.StringUtils;
 
@@ -278,10 +278,26 @@ public class Schema {
 			}
 		}
 
-		final NotNull notNull = field.getAnnotation(NotNull.class);
-		if(notNull != null) {
+		if(hasNonNullAnnotation(field)) {
 			property.setRequired(true);
+		} else if(hasNullableAnnotation(field)) {
+			property.setRequired(false);
+		} else {
+			property.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
 		}
+	}
+
+	private boolean hasNullableAnnotation(final Field field) {
+		return Arrays.stream(field.getAnnotations())
+			.map(annotation -> annotation.annotationType().getName())
+			.anyMatch(name -> NullableConfigurationHolder.getNullableAnnotations().contains(name));
+	}
+
+
+	private boolean hasNonNullAnnotation(final Field field) {
+		return Arrays.stream(field.getAnnotations())
+			.map(annotation -> annotation.annotationType().getName())
+			.anyMatch(name -> NullableConfigurationHolder.getNonNullAnnotations().contains(name));
 	}
 
 	public List<String> getRequired() {
