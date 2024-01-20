@@ -66,6 +66,7 @@ components:
             $ref: '#/components/schemas/CustomAuthority'
           uniqueItems: true
     CustomAuthority:
+      description: Permissions enumeration
       type: string
       enum:
         - READ_CUSTOM
