@@ -86,4 +86,30 @@ public class BasicIT {
 
 	}
 
+	@MavenTest
+	@MavenGoal("install")
+	public void sealed_class(final MavenExecutionResult result) throws IOException {
+		final MavenExecutionResultAssert resultAssert = assertThat(result);
+		resultAssert.isSuccessful().out().info().contains("spec-open-api.yml : 1 tags and 2 operations generated.");
+
+		final File target = new File(result.getMavenProjectResult().getTargetProjectDirectory(), "target");
+		final File generatedFile = new File(target, "spec-open-api.yml");
+		Assertions.assertTrue(target.exists());
+		Assertions.assertTrue(generatedFile.exists());
+
+		final File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory();
+		final File generatedArtifactFile = new File(m2Directory,
+			"/io/github/kbuntrock/openapi/it/openapi-sealed-class-it/1.0.0/openapi-sealed-class-it-1.0.0-spec-open-api.yml");
+		Assertions.assertTrue(generatedArtifactFile.exists());
+
+		try(final InputStream generatedFileStream = new FileInputStream(generatedArtifactFile);
+			final InputStream resourceFileStream = BasicIT.class.getClassLoader().getResourceAsStream("it/BasicIT/sealed_class" +
+				".yml")) {
+			final String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
+			final String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
+
+			Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
+		}
+	}
+
 }

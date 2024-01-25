@@ -48,7 +48,7 @@ public class JavadocParser {
 		this.filesToScan = filesToScan;
 		final ParserConfiguration parserConfiguration = new ParserConfiguration();
 
-		parserConfiguration.setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17);
+		parserConfiguration.setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_18);
 
 		Charset charset = StandardCharsets.UTF_8;
 		if(Charset.isSupported(javadocConfiguration.getEncoding())) {
@@ -217,7 +217,9 @@ public class JavadocParser {
 						case RECORD:
 							classDocumentation.get().setJavadoc(javadoc);
 							for(final JavadocBlockTag parameter : javadoc.getBlockTags()) {
-								if(!parameter.getContent().isEmpty()) {
+								if(!parameter.getContent().isEmpty() && parameter.getName().isPresent()) {
+									// Parameters with no name are not taken into account (as for class) since they are not translated into documentation
+									// ex of no name parameter : @author
 									classDocumentation.get().getFieldsJavadoc().put(parameter.getName().get(),
 										new JavadocWrapper(new Javadoc(parameter.getContent())));
 								}

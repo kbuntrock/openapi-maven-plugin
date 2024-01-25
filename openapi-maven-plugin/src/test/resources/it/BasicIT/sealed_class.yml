@@ -1,0 +1,64 @@
+---
+openapi: 3.0.3
+info:
+  title: Basic integration test
+  version: 1.0.0
+servers:
+  - url: ""
+tags:
+  - name: ShapeController
+    description: Shape rest controller
+paths:
+  /api/shape/circle:
+    get:
+      tags:
+        - ShapeController
+      operationId: ShapeController.getCircle
+      description: Get a circle
+      responses:
+        200:
+          description: the circle object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CircleDto'
+      x-operation-name: getCircle
+  /api/shape/status:
+    get:
+      tags:
+        - ShapeController
+      operationId: ShapeController.getStatus
+      description: Get the api status
+      responses:
+        200:
+          description: the status of the shape api
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordStatusDto'
+      x-operation-name: getStatus
+components:
+  schemas:
+    CircleDto:
+      description: Circle shape object as a datatransfer object
+      type: object
+      properties:
+        centerX:
+          description: Center of the shape on the X axis
+          type: integer
+          format: int32
+        centerY:
+          description: Center of the shape on the Y axis
+          type: integer
+          format: int32
+        radius:
+          description: Radius of the circle in mm
+          type: number
+          format: double
+    RecordStatusDto:
+      description: Represent a service status
+      type: object
+      properties:
+        up:
+          description: Indicate if the service is ok (= true) or not ok (= false)
+          type: boolean
