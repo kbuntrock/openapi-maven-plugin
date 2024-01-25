@@ -10,6 +10,7 @@
   <modules>
     <module>BasicIT/nominal_test_case</module>
     <module>BasicIT/nominal_test_case_jaxrs</module>
+    <module>BasicIT/sealed_class</module>
   </modules>
   <packaging>pom</packaging>
 

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>openapi-sealed-class-it</artifactId>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-toolchains-plugin</artifactId>
+        <configuration>
+          <toolchains>
+            <jdk>
+              <version>${java.version}</version>
+            </jdk>
+          </toolchains>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>toolchain</goal>
+            </goals>
+          </execution>
+        </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>3.0.0</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
+        </configuration>
+        <version>${maven-compiler-plugin.version}</version>
+      </plugin>
+      <plugin>
+        <artifactId>openapi-maven-plugin</artifactId>
+        <configuration>
+          <apis>
+            <api>
+              <tagAnnotations>
+                <annotation>RequestMapping</annotation>
+              </tagAnnotations>
+              <locations>
+                <location>io.github.kbuntrock.sample.enpoint</location>
+              </locations>
+            </api>
+          </apis>
+          <javadocConfiguration>
+            <scanLocations>
+              <project>src/main/java</project>
+            </scanLocations>
+          </javadocConfiguration>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>documentation</goal>
+            </goals>
+            <id>documentation</id>
+          </execution>
+        </executions>
+        <groupId>io.github.kbuntrock</groupId>
+        <version>${openapi-plugin-project-version}</version>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <version>2.5.12</version>
+    </dependency>
+    <dependency>
+      <artifactId>javax.servlet-api</artifactId>
+      <groupId>javax.servlet</groupId>
+      <version>4.0.1</version>
+    </dependency>
+    <dependency>
+      <artifactId>validation-api</artifactId>
+      <groupId>javax.validation</groupId>
+      <version>2.0.1.Final</version>
+    </dependency>
+  </dependencies>
+  <groupId>io.github.kbuntrock.openapi.it</groupId>
+  <modelVersion>4.0.0</modelVersion>
+
+  <name>Basic integration test</name>
+
+  <properties>
+    <java.version>17</java.version>
+    <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <openapi-plugin-project-version>0.0.18-SNAPSHOT</openapi-plugin-project-version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+  </properties>
+
+  <version>1.0.0</version>
+</project>
