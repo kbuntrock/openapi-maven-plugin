@@ -11,6 +11,7 @@ equality:
   java.lang.String: string
   java.lang.Character: string
   java.time.LocalDateTime: string-date-time
+  java.time.ZonedDateTime: string-date-time
   java.time.Instant: string-date-time
   java.util.Date: string-date-time
   java.time.LocalDate: string-date

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -20,7 +21,7 @@ public class YamlParserUtils {
 		try(final InputStream in = YamlParserUtils.class.getResourceAsStream(path)) {
 			return mapper.readTree(in);
 		} catch(final IOException e) {
-			throw new RuntimeException("Impossible to read yml resource from path " + path, e);
+			throw new UncheckedIOException("Impossible to read yml resource from path " + path, e);
 		}
 	}
 
@@ -28,7 +29,7 @@ public class YamlParserUtils {
 		try(final InputStream in = Files.newInputStream(Paths.get(path))) {
 			return mapper.readTree(in);
 		} catch(final IOException e) {
-			throw new RuntimeException("Impossible to read yml file from path " + path, e);
+			throw new UncheckedIOException("Impossible to read yml file from path " + path, e);
 		}
 	}
 
