@@ -13,9 +13,12 @@ public class ApiConfiguration extends CommonApiConfiguration {
 	 */
 	@Parameter(required = true)
 	private List<String> locations;
-
 	@Parameter
 	private String filename = "spec-open-api.yml";
+
+	protected String baseFreeField;
+	@Parameter
+	private boolean mergeFreeFields;
 
 	private OperationIdHelper operationIdHelper;
 
@@ -41,6 +44,18 @@ public class ApiConfiguration extends CommonApiConfiguration {
 
 	public void setOperationIdHelper(final OperationIdHelper operationIdHelper) {
 		this.operationIdHelper = operationIdHelper;
+	}
+
+	public boolean isMergeFreeFields() {
+		return mergeFreeFields;
+	}
+
+	public void setMergeFreeFields(final boolean mergeFreeFields) {
+		this.mergeFreeFields = mergeFreeFields;
+	}
+
+	public String getBaseFreeField() {
+		return baseFreeField;
 	}
 
 	/**
@@ -75,6 +90,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 
 		merged.setLocations(locations);
 		merged.setFilename(filename);
+		merged.setMergeFreeFields(mergeFreeFields);
 
 		if(!tag.getSubstitutions().isEmpty()) {
 			merged.getTag().setSubstitutions(tag.getSubstitutions());
@@ -117,6 +133,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		}
 		if(freeFields != null) {
 			merged.setFreeFields(freeFields);
+			if(mergeFreeFields && commonApiConfiguration.freeFields != null) {
+				merged.baseFreeField = commonApiConfiguration.freeFields;
+			}
 		}
 		if(whiteList != null) {
 			merged.setWhiteList(whiteList);

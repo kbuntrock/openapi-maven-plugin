@@ -9,6 +9,12 @@
     </option>
     <option name="RIGHT_MARGIN" value="140" />
     <option name="FORMATTER_TAGS_ENABLED" value="true" />
+    <option name="DO_NOT_FORMAT">
+      <list>
+        <fileSet type="globPattern" pattern="it/**/*.yml" />
+        <fileSet type="globPattern" pattern="src/test/resources/ut/**/*.json" />
+      </list>
+    </option>
     <AndroidXmlCodeStyleSettings>
       <option name="USE_CUSTOM_SETTINGS" value="true" />
       <option name="LAYOUT_SETTINGS">

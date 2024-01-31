@@ -1,0 +1,32 @@
+{
+  "info" : {
+    "title" : "This is a title",
+    "description" : "This is a sample server.",
+    "termsOfService" : "http://example.com/terms/",
+    "contact" : { },
+    "license" : {
+      "name" : "Apache 2.0",
+      "url" : "https://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers" : [ {
+    "url" : "https://development.test.com/v1",
+    "description" : "Development server"
+  } ],
+  "security" : [ {
+    "jwt" : [ ]
+  } ],
+  "externalDocs" : {
+    "description" : "Find more info here",
+    "url" : "https://example.com"
+  },
+  "components" : {
+    "securitySchemes" : {
+      "jwt" : {
+        "type" : "http",
+        "scheme" : "bearer",
+        "bearerFormat" : "JWT"
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 ---
 openapi: 3.0.3
 info:
-  title: This is a title
+  title: Modified title
   description: This is a sample server.
   termsOfService: http://example.com/terms/
   contact:
@@ -11,12 +11,9 @@ info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 23.5.2
+  version: v0.3-M5
 servers:
-  - description: Development server
-    url: https://development.gigantic-server.com/v1
-  - description: Production server
-    url: https://prod.gigantic-server.com/v1
+  - url: https://modified-server.com
 tags:
   - name: UserController
     description: User controller interface
