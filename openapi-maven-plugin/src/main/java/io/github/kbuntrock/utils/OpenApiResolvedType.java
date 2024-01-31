@@ -1,10 +1,8 @@
 package io.github.kbuntrock.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * The node to write in the documentation with a denormalisation on the type attribute
@@ -46,8 +44,7 @@ public class OpenApiResolvedType {
 		this.node = node;
 		this.modelName = modelName;
 		if(node != null) {
-			final Iterator<Entry<String, JsonNode>> iterator = node.fields();
-			iterator.forEachRemaining(entry -> {
+			node.fields().forEachRemaining(entry -> {
 				schemaSection.put(entry.getKey(), entry.getValue());
 			});
 		}

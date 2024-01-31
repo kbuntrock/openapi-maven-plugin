@@ -6,9 +6,7 @@ import io.github.kbuntrock.configuration.YamlParserUtils;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import java.nio.file.FileSystems;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import org.apache.maven.project.MavenProject;
 
 /**
@@ -56,8 +54,7 @@ public enum OpenApiTypeResolver {
 	}
 
 	private void initModelFromNode(final JsonNode root) {
-		final Iterator<Entry<String, JsonNode>> iterator = root.fields();
-		iterator.forEachRemaining(entry -> {
+		root.fields().forEachRemaining(entry -> {
 			final JsonNode modelNode = entry.getValue();
 			final OpenApiResolvedType type = new OpenApiResolvedType(OpenApiDataType.fromJsonNode(modelNode), modelNode, entry.getKey());
 			modelMap.put(entry.getKey(), type);
@@ -88,8 +85,7 @@ public enum OpenApiTypeResolver {
 			return;
 		}
 
-		final Iterator<Entry<String, JsonNode>> iteratorEquality = equalityNode.fields();
-		iteratorEquality.forEachRemaining(entry -> {
+		equalityNode.fields().forEachRemaining(entry -> {
 			if(entry.getValue() == null) {
 				equalityMap.remove(entry.getKey());
 			} else {
@@ -112,8 +108,7 @@ public enum OpenApiTypeResolver {
 		}
 		final ClassLoader classLoader = ReflectionsUtils.getProjectClassLoader();
 
-		final Iterator<Entry<String, JsonNode>> iteratorEquality = rootNode.fields();
-		iteratorEquality.forEachRemaining(entry -> {
+		rootNode.fields().forEachRemaining(entry -> {
 
 			Class<?> clazz = null;
 			try {
