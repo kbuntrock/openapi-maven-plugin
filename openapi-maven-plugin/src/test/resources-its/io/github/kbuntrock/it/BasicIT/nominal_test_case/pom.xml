@@ -62,6 +62,8 @@
             </api>
             <api>
               <attachArtifact>true</attachArtifact>
+              <freeFields>openapi/merged_free_fields.json</freeFields>
+              <mergeFreeFields>true</mergeFreeFields>
               <defaultProduceConsumeGuessing>true</defaultProduceConsumeGuessing>
               <filename>spec-open-api-impl.yml</filename>
               <locations>

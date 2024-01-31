@@ -1,0 +1,5 @@
+{
+  "servers" : [ {
+    "url" : "https://other-url.test"
+  } ]
+}

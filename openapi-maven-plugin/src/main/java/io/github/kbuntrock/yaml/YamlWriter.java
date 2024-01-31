@@ -91,10 +91,23 @@ public class YamlWriter {
 		}
 	}
 
+	private String computeFreeFields(final MavenProject mavenProject, final ApiConfiguration apiConfiguration) {
+		if(apiConfiguration.isMergeFreeFields() && apiConfiguration.getBaseFreeField() != null) {
+			final String baseContent = JsonConfigurationParserUtils.getJsonContentFromParameter(mavenProject,
+				apiConfiguration.getBaseFreeField());
+			final String mergingContent = JsonConfigurationParserUtils.getJsonContentFromParameter(mavenProject,
+				apiConfiguration.getFreeFields());
+			return JsonConfigurationParserUtils.merge(baseContent, mergingContent);
+		}
+
+		return JsonConfigurationParserUtils.getJsonContentFromParameter(mavenProject, apiConfiguration.getFreeFields());
+	}
+
 	public void write(final File file, final TagLibrary tagLibrary) throws IOException {
 
-		freefields = JsonConfigurationParserUtils.parse(mavenProject, apiConfiguration.getFreeFields());
-		final Optional<JsonNode> defaultErrorsNode = JsonConfigurationParserUtils.parse(mavenProject, apiConfiguration.getDefaultErrors());
+		freefields = JsonConfigurationParserUtils.parse(computeFreeFields(mavenProject, apiConfiguration));
+		final Optional<JsonNode> defaultErrorsNode = JsonConfigurationParserUtils.parse(
+			JsonConfigurationParserUtils.getJsonContentFromParameter(mavenProject, apiConfiguration.getDefaultErrors()));
 		if(defaultErrorsNode.isPresent()) {
 			defaultErrors = new LinkedHashMap<>();
 			final Iterator<Map.Entry<String, JsonNode>> iterator = defaultErrorsNode.get().fields();

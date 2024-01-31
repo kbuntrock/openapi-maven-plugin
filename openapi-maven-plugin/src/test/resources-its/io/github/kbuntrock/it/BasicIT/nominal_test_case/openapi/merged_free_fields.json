@@ -1,0 +1,11 @@
+{
+  "info": {
+    "title": "Modified title",
+    "version": "v0.3-M5"
+  },
+  "servers": [
+    {
+      "url": "https://modified-server.com"
+    }
+  ]
+}
