@@ -1,6 +1,6 @@
 package io.github.kbuntrock.json;
 
-import io.github.kbuntrock.configuration.JsonConfigurationParserUtils;
+import io.github.kbuntrock.configuration.parser.JsonParserUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +38,7 @@ public class JsonMergingTest {
 		final String baseContent = readFile("ut/json/merging/base_file.json");
 		final String toMergeContent = readFile("ut/json/merging/title/to_merge.json");
 
-		final String merged = JsonConfigurationParserUtils.merge(baseContent, toMergeContent);
+		final String merged = JsonParserUtils.merge(baseContent, toMergeContent);
 		checkFileStringEquality("ut/json/merging/title/merged.json", merged);
 
 	}
@@ -49,7 +49,7 @@ public class JsonMergingTest {
 		final String baseContent = readFile("ut/json/merging/base_file.json");
 		final String toMergeContent = readFile("ut/json/merging/server_full/to_merge.json");
 
-		final String merged = JsonConfigurationParserUtils.merge(baseContent, toMergeContent);
+		final String merged = JsonParserUtils.merge(baseContent, toMergeContent);
 		checkFileStringEquality("ut/json/merging/server_full/merged.json", merged);
 	}
 
@@ -59,7 +59,7 @@ public class JsonMergingTest {
 		final String baseContent = readFile("ut/json/merging/base_file.json");
 		final String toMergeContent = readFile("ut/json/merging/non_existing_contact/to_merge.json");
 
-		final String merged = JsonConfigurationParserUtils.merge(baseContent, toMergeContent);
+		final String merged = JsonParserUtils.merge(baseContent, toMergeContent);
 		checkFileStringEquality("ut/json/merging/non_existing_contact/merged.json", merged);
 	}
 
@@ -69,7 +69,7 @@ public class JsonMergingTest {
 		final String baseContent = readFile("ut/json/merging/semi_existing_contact/base_file.json");
 		final String toMergeContent = readFile("ut/json/merging/semi_existing_contact/to_merge.json");
 
-		final String merged = JsonConfigurationParserUtils.merge(baseContent, toMergeContent);
+		final String merged = JsonParserUtils.merge(baseContent, toMergeContent);
 		checkFileStringEquality("ut/json/merging/semi_existing_contact/merged.json", merged);
 	}
 

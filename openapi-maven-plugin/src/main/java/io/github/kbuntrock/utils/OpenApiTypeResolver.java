@@ -2,9 +2,9 @@ package io.github.kbuntrock.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.kbuntrock.configuration.ApiConfiguration;
-import io.github.kbuntrock.configuration.YamlParserUtils;
+import io.github.kbuntrock.configuration.parser.CommonParserUtils;
+import io.github.kbuntrock.configuration.parser.YamlParserUtils;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
-import java.nio.file.FileSystems;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.maven.project.MavenProject;
@@ -47,8 +47,7 @@ public enum OpenApiTypeResolver {
 
 		// Init now the possible overriding / additions by api
 		if(apiConfig.getOpenapiModelsPath() != null) {
-			final JsonNode customRoot = YamlParserUtils.readFile(
-				mavenProject.getBasedir() + FileSystems.getDefault().getSeparator() + apiConfig.getOpenapiModelsPath());
+			final JsonNode customRoot = CommonParserUtils.parse(mavenProject, apiConfig.getOpenapiModelsPath()).get();
 			initModelFromNode(customRoot);
 		}
 	}
@@ -70,8 +69,7 @@ public enum OpenApiTypeResolver {
 
 		// Init now the possible overriding / additions by api
 		if(apiConfig.getModelsAssociationsPath() != null) {
-			final JsonNode customRoot = YamlParserUtils.readFile(
-				mavenProject.getBasedir() + FileSystems.getDefault().getSeparator() + apiConfig.getModelsAssociationsPath());
+			final JsonNode customRoot = CommonParserUtils.parse(mavenProject, apiConfig.getModelsAssociationsPath()).get();
 			initModelAssociationForEquality(customRoot);
 			initModelAssociationForAssignability(customRoot);
 		}
