@@ -8,7 +8,8 @@ import com.github.javaparser.javadoc.JavadocBlockTag;
 import io.github.kbuntrock.MojoRuntimeException;
 import io.github.kbuntrock.TagLibrary;
 import io.github.kbuntrock.configuration.ApiConfiguration;
-import io.github.kbuntrock.configuration.JsonConfigurationParserUtils;
+import io.github.kbuntrock.configuration.parser.CommonParserUtils;
+import io.github.kbuntrock.configuration.parser.JsonParserUtils;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.JavadocMap;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
@@ -93,21 +94,21 @@ public class YamlWriter {
 
 	private String computeFreeFields(final MavenProject mavenProject, final ApiConfiguration apiConfiguration) {
 		if(apiConfiguration.isMergeFreeFields() && apiConfiguration.getBaseFreeField() != null) {
-			final String baseContent = JsonConfigurationParserUtils.getJsonContentFromParameter(mavenProject,
+			final String baseContent = CommonParserUtils.getContentFromFileOrText(mavenProject,
 				apiConfiguration.getBaseFreeField());
-			final String mergingContent = JsonConfigurationParserUtils.getJsonContentFromParameter(mavenProject,
+			final String mergingContent = CommonParserUtils.getContentFromFileOrText(mavenProject,
 				apiConfiguration.getFreeFields());
-			return JsonConfigurationParserUtils.merge(baseContent, mergingContent);
+			return JsonParserUtils.merge(baseContent, mergingContent);
 		}
 
-		return JsonConfigurationParserUtils.getJsonContentFromParameter(mavenProject, apiConfiguration.getFreeFields());
+		return CommonParserUtils.getContentFromFileOrText(mavenProject, apiConfiguration.getFreeFields());
 	}
 
 	public void write(final File file, final TagLibrary tagLibrary) throws IOException {
 
-		freefields = JsonConfigurationParserUtils.parse(computeFreeFields(mavenProject, apiConfiguration));
-		final Optional<JsonNode> defaultErrorsNode = JsonConfigurationParserUtils.parse(
-			JsonConfigurationParserUtils.getJsonContentFromParameter(mavenProject, apiConfiguration.getDefaultErrors()));
+		freefields = JsonParserUtils.parse(computeFreeFields(mavenProject, apiConfiguration));
+		final Optional<JsonNode> defaultErrorsNode = JsonParserUtils.parse(
+			CommonParserUtils.getContentFromFileOrText(mavenProject, apiConfiguration.getDefaultErrors()));
 		if(defaultErrorsNode.isPresent()) {
 			defaultErrors = new LinkedHashMap<>();
 			final Iterator<Map.Entry<String, JsonNode>> iterator = defaultErrorsNode.get().fields();

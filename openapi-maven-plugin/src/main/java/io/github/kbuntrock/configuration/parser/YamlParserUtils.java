@@ -1,4 +1,4 @@
-package io.github.kbuntrock.configuration;
+package io.github.kbuntrock.configuration.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
