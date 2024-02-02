@@ -91,10 +91,10 @@ public class CommonApiConfiguration {
 	protected String defaultErrors;
 
 	@Parameter
-	protected String openapiModelsPath;
+	protected String openapiModels;
 
 	@Parameter
-	protected String modelsAssociationsPath;
+	protected String modelsAssociations;
 
 	public CommonApiConfiguration() {
 	}
@@ -113,8 +113,8 @@ public class CommonApiConfiguration {
 		this.library = commonApiConfiguration.library;
 		this.customResponseTypeAnnotation = commonApiConfiguration.customResponseTypeAnnotation;
 		this.defaultErrors = commonApiConfiguration.defaultErrors;
-		this.openapiModelsPath = commonApiConfiguration.openapiModelsPath;
-		this.modelsAssociationsPath = commonApiConfiguration.modelsAssociationsPath;
+		this.openapiModels = commonApiConfiguration.openapiModels;
+		this.modelsAssociations = commonApiConfiguration.modelsAssociations;
 		for(final String tagAnnotation : commonApiConfiguration.tagAnnotations) {
 			this.tagAnnotations.add(tagAnnotation);
 		}
@@ -314,19 +314,19 @@ public class CommonApiConfiguration {
 		this.defaultErrors = defaultErrors;
 	}
 
-	public String getOpenapiModelsPath() {
-		return openapiModelsPath;
+	public String getOpenapiModels() {
+		return openapiModels;
 	}
 
-	public void setOpenapiModelsPath(final String openapiModelsPath) {
-		this.openapiModelsPath = openapiModelsPath;
+	public void setOpenapiModels(final String openapiModels) {
+		this.openapiModels = openapiModels;
 	}
 
-	public String getModelsAssociationsPath() {
-		return modelsAssociationsPath;
+	public String getModelsAssociations() {
+		return modelsAssociations;
 	}
 
-	public void setModelsAssociationsPath(final String modelsAssociationsPath) {
-		this.modelsAssociationsPath = modelsAssociationsPath;
+	public void setModelsAssociations(final String modelsAssociations) {
+		this.modelsAssociations = modelsAssociations;
 	}
 }

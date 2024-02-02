@@ -86,8 +86,8 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.extraSchemaClasses = copy.extraSchemaClasses;
 		merged.customResponseTypeAnnotation = copy.customResponseTypeAnnotation;
 		merged.defaultErrors = copy.defaultErrors;
-		merged.openapiModelsPath = copy.openapiModelsPath;
-		merged.modelsAssociationsPath = copy.modelsAssociationsPath;
+		merged.openapiModels = copy.openapiModels;
+		merged.modelsAssociations = copy.modelsAssociations;
 		// End copy properties
 
 		merged.setLocations(locations);
@@ -154,11 +154,11 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		if(defaultErrors != null) {
 			merged.setDefaultErrors(defaultErrors);
 		}
-		if(openapiModelsPath != null) {
-			merged.setOpenapiModelsPath(openapiModelsPath);
+		if(openapiModels != null) {
+			merged.setOpenapiModels(openapiModels);
 		}
-		if(modelsAssociationsPath != null) {
-			merged.setModelsAssociationsPath(modelsAssociationsPath);
+		if(modelsAssociations != null) {
+			merged.setModelsAssociations(modelsAssociations);
 		}
 
 		merged.operationIdHelper = new OperationIdHelper(merged.operationId);

@@ -46,8 +46,8 @@ public enum OpenApiTypeResolver {
 		initModelFromNode(root);
 
 		// Init now the possible overriding / additions by api
-		if(apiConfig.getOpenapiModelsPath() != null) {
-			final JsonNode customRoot = CommonParserUtils.parse(mavenProject, apiConfig.getOpenapiModelsPath()).get();
+		if(apiConfig.getOpenapiModels() != null) {
+			final JsonNode customRoot = CommonParserUtils.parse(mavenProject, apiConfig.getOpenapiModels()).get();
 			initModelFromNode(customRoot);
 		}
 	}
@@ -68,8 +68,8 @@ public enum OpenApiTypeResolver {
 		initModelAssociationForAssignability(root);
 
 		// Init now the possible overriding / additions by api
-		if(apiConfig.getModelsAssociationsPath() != null) {
-			final JsonNode customRoot = CommonParserUtils.parse(mavenProject, apiConfig.getModelsAssociationsPath()).get();
+		if(apiConfig.getModelsAssociations() != null) {
+			final JsonNode customRoot = CommonParserUtils.parse(mavenProject, apiConfig.getModelsAssociations()).get();
 			initModelAssociationForEquality(customRoot);
 			initModelAssociationForAssignability(customRoot);
 		}
