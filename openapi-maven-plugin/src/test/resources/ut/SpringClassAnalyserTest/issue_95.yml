@@ -32,10 +32,7 @@ components:
           properties:
             unit:
               description: Get the unit!
-              type: object
-              properties:
-                value:
-                  type: string
+              type: string
             value:
               description: Get the value!
               type: number

@@ -1,0 +1,46 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: OptionalController
+paths:
+  /api/optional-controller/class-value:
+    get:
+      tags:
+        - OptionalController
+      operationId: getClassValue
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/OptionalClassDto'
+  /api/optional-controller/interface-value:
+    get:
+      tags:
+        - OptionalController
+      operationId: getInterfaceValue
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/OptionalInterfaceDto'
+components:
+  schemas:
+    OptionalClassDto:
+      type: object
+      properties:
+        myValue:
+          type: string
+    OptionalInterfaceDto:
+      type: object
+      properties:
+        myValue:
+          type: string

@@ -150,8 +150,9 @@ public class JavaxRsReader extends AstractLibraryReader {
 				}
 				logger.debug("Parameter : " + parameter.getName());
 
-				final ParameterObject paramObj = new ParameterObject(parameter.getName(),
+				ParameterObject paramObj = new ParameterObject(parameter.getName(),
 					genericityResolver.getContextualType(parameter.getParameterizedType(), method));
+				paramObj = unwrapParameterObject(paramObj);
 
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
 					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);

@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.parser.CommonParserUtils;
 import io.github.kbuntrock.configuration.parser.YamlParserUtils;
+import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.maven.project.MavenProject;
 
 /**
@@ -31,12 +33,21 @@ public enum OpenApiTypeResolver {
 	private final Map<String, OpenApiResolvedType> equalityMap = new HashMap<>();
 	private final Map<Class<?>, OpenApiResolvedType> assignabilityMap = new HashMap<>();
 
+	/**
+	 * Unwrapping section
+	 */
+	private final Map<Class<?>, UnwrappingEntry> responseUnwrappingMap = new HashMap<>();
+	private final Map<Class<?>, UnwrappingEntry> parametersUnwrappingMap = new HashMap<>();
+	private final Map<Class<?>, UnwrappingEntry> schemaUnwrappingMap = new HashMap<>();
+
 
 	public void init(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
 		// Loading model definition
 		initModel(mavenProject, apiConfig);
 		// Loading associations
 		initModelAssociation(mavenProject, apiConfig);
+		// Loading unwrapping definitions
+		initUnwrappingDefinitions(mavenProject, apiConfig);
 	}
 
 	private void initModel(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
@@ -203,6 +214,75 @@ public enum OpenApiTypeResolver {
 			return Byte.class.getCanonicalName();
 		}
 		return clazz.getCanonicalName();
+	}
+
+	private void initUnwrappingDefinitions(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
+		responseUnwrappingMap.clear();
+		parametersUnwrappingMap.clear();
+		schemaUnwrappingMap.clear();
+
+		final ClassLoader classLoader = ReflectionsUtils.getProjectClassLoader();
+
+		final JsonNode root = YamlParserUtils.readResourceFile("/unwrapping-configuration.yml");
+		root.get("response").fields().forEachRemaining(entry -> {
+			registerUnwrappingEntry(classLoader, entry, responseUnwrappingMap, true);
+		});
+		root.get("parameter").fields().forEachRemaining(entry -> {
+			registerUnwrappingEntry(classLoader, entry, parametersUnwrappingMap, true);
+		});
+		root.get("schema").fields().forEachRemaining(entry -> {
+			registerUnwrappingEntry(classLoader, entry, schemaUnwrappingMap, true);
+		});
+	}
+
+	/**
+	 * Register an unwrapping entry in the resolver
+	 *
+	 * @param classLoader
+	 * @param entry
+	 * @param unwrappingMap the map to add the entry
+	 * @param debug         true for default plugin configuration, false for user configuration to explicitely point errors
+	 */
+	private void registerUnwrappingEntry(final ClassLoader classLoader, final Map.Entry<String, JsonNode> entry,
+		final Map<Class<?>, UnwrappingEntry> unwrappingMap, final boolean debug) {
+		try {
+			final Class<?> clazz = classLoader.loadClass(entry.getKey());
+			final UnwrappingEntry unwrappingEntry = new UnwrappingEntry(clazz);
+			unwrappingEntry.setTypeName(entry.getValue().get("typeName").asText());
+			final JsonNode requiredNode = entry.getValue().get("required");
+			if(requiredNode != null) {
+				unwrappingEntry.setRequired(Boolean.valueOf(requiredNode.asText()));
+			}
+			unwrappingMap.put(clazz, unwrappingEntry);
+		} catch(final ClassNotFoundException e) {
+			final String message = "Cannot load unwrapping class " + entry.getKey() + "(normal if associated with a non used library)";
+			if(debug) {
+				Logger.INSTANCE.getLogger().debug(message);
+			} else {
+				throw new RuntimeException(message, e);
+			}
+		}
+	}
+
+	public DataObject unwrapDataObject(final DataObject dataObject, final UnwrappingType type) {
+		Map<Class<?>, UnwrappingEntry> unwrappingMap = schemaUnwrappingMap;
+		if(UnwrappingType.RESPONSE == type) {
+			unwrappingMap = responseUnwrappingMap;
+		} else if(UnwrappingType.PARAMETER == type) {
+			unwrappingMap = parametersUnwrappingMap;
+		}
+		return unwrapDataObject(dataObject, unwrappingMap);
+	}
+
+	private DataObject unwrapDataObject(final DataObject dataObject, final Map<Class<?>, UnwrappingEntry> unwrappingMap) {
+		for(final Entry<Class<?>, UnwrappingEntry> entry : unwrappingMap.entrySet()) {
+			if(entry.getKey().isAssignableFrom(dataObject.getJavaClass())) {
+				final DataObject unwrapped = new DataObject(
+					dataObject.getGenericNameToTypeMap().get(entry.getValue().getTypeName()));
+				return unwrapDataObject(unwrapped, unwrappingMap);
+			}
+		}
+		return dataObject;
 	}
 
 }

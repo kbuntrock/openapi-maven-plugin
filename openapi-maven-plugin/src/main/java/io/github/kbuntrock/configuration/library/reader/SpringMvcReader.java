@@ -114,8 +114,9 @@ public class SpringMvcReader extends AstractLibraryReader {
 				}
 				logger.debug("Parameter : " + parameter.getName());
 
-				final ParameterObject paramObj = parameters.computeIfAbsent(parameter.getName(),
+				ParameterObject paramObj = parameters.computeIfAbsent(parameter.getName(),
 					(name) -> new ParameterObject(name, genericityResolver.getContextualType(parameter.getParameterizedType(), method)));
+				paramObj = unwrapParameterObject(paramObj);
 
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
 					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);

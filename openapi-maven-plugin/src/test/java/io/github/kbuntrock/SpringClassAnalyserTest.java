@@ -740,12 +740,21 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final DocumentationMojo mojo = createBasicMojo(JacksonJsonPropertyController.class.getCanonicalName());
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
 		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/jackson",
-				"src/test/java/io/github/kbuntrock/resources/dto/jackson"));
+			"src/test/java/io/github/kbuntrock/resources/dto/jackson"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
 		final List<File> generated = mojo.documentProject();
 		checkGenerationResult("ut/SpringClassAnalyserTest/jackson_json_property.yml", generated.get(0));
 	}
 
+	@Test
+	public void optional_unmapping() throws IOException, MojoExecutionException, MojoFailureException {
+
+		final DocumentationMojo mojo = createBasicMojo(
+			io.github.kbuntrock.resources.endpoint.optional.object.OptionalController.class.getCanonicalName());
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/optional_unmapping.yml", generated.get(0));
+	}
 
 }
