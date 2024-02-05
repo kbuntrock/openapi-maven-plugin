@@ -22,6 +22,8 @@ import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiConstants;
 import io.github.kbuntrock.utils.OpenApiResolvedType;
+import io.github.kbuntrock.utils.OpenApiTypeResolver;
+import io.github.kbuntrock.utils.UnwrappingType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -81,9 +83,11 @@ public class Schema {
 		this(dataObject, false, exploredSignatures, null, null);
 	}
 
-	public Schema(final DataObject dataObject, final boolean mainReference, final Set<String> exploredSignatures,
+	public Schema(final DataObject wrappedDataObject, final boolean mainReference, final Set<String> exploredSignatures,
 		final DataObject parentDataObject,
 		final String parentFieldName) {
+
+		final DataObject dataObject = OpenApiTypeResolver.INSTANCE.unwrapDataObject(wrappedDataObject, UnwrappingType.SCHEMA);
 
 		this.mainReference = mainReference;
 
@@ -162,7 +166,10 @@ public class Schema {
 							if(jsonPropertyField != null && !jsonPropertyField.value().isEmpty()) {
 								propertyFieldName = jsonPropertyField.value();
 							}
-							final DataObject propertyObject = new DataObject(dataObject.getContextualType(field.getGenericType()));
+
+							final DataObject wrappedPropertyObject = new DataObject(dataObject.getContextualType(field.getGenericType()));
+							final DataObject propertyObject = OpenApiTypeResolver.INSTANCE.unwrapDataObject(wrappedPropertyObject,
+								UnwrappingType.SCHEMA);
 							final Property property = new Property(propertyObject, false, propertyFieldName, exploredSignatures,
 								dataObject);
 							extractConstraints(field, property);

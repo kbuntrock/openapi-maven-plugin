@@ -1,0 +1,15 @@
+---
+response:
+  java.util.Optional:
+    typeName: T
+    required: false
+  org.springframework.http.HttpEntity:
+    typeName: T
+parameter:
+  java.util.Optional:
+    typeName: T
+    required: false
+schema:
+  java.util.Optional:
+    typeName: T
+    required: false

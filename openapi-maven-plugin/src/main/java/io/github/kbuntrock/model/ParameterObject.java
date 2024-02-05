@@ -12,7 +12,7 @@ public class ParameterObject extends DataObject {
 	// Set only if it is a "body" parameter : json, xml, plain text, ...
 	private List<String> formats;
 
-	public ParameterObject(String name, Type type) {
+	public ParameterObject(final String name, final Type type) {
 		super(type);
 		this.name = name;
 	}
@@ -21,7 +21,7 @@ public class ParameterObject extends DataObject {
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
@@ -29,15 +29,15 @@ public class ParameterObject extends DataObject {
 		return required;
 	}
 
-	public void setRequired(boolean required) {
+	public void setRequired(final boolean required) {
 		this.required = required;
 	}
-	
+
 	public ParameterLocation getLocation() {
 		return location;
 	}
 
-	public void setLocation(ParameterLocation location) {
+	public void setLocation(final ParameterLocation location) {
 		this.location = location;
 	}
 
@@ -45,7 +45,7 @@ public class ParameterObject extends DataObject {
 		return formats;
 	}
 
-	public void setFormats(List<String> formats) {
+	public void setFormats(final List<String> formats) {
 		this.formats = formats;
 	}
 }
