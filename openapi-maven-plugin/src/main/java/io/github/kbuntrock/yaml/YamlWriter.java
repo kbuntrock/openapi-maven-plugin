@@ -207,6 +207,7 @@ public class YamlWriter {
 
 				final Operation operation = new Operation();
 				operations.add(operation);
+				operation.setExternalDocs(endpoint.getComputedExternalDocs().orElse(null));
 				operation.setName(endpoint.getType().name());
 				operation.setPath(enhancedPath);
 				final String computedTagName = tag.computeConfiguredName(apiConfiguration);

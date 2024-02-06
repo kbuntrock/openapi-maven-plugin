@@ -33,6 +33,9 @@ public class Operation {
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private final Map<Object, Object> responses = new LinkedHashMap<>();
 
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private ExternalDocs externalDocs;
+
 	public String getName() {
 		return name;
 	}
@@ -110,5 +113,13 @@ public class Operation {
 
 	public void setLoopbackOperationName(final String loopbackOperationName) {
 		this.loopbackOperationName = loopbackOperationName;
+	}
+
+	public ExternalDocs getExternalDocs() {
+		return externalDocs;
+	}
+
+	public void setExternalDocs(ExternalDocs externalDocs) {
+		this.externalDocs = externalDocs;
 	}
 }

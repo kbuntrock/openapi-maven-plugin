@@ -1,5 +1,7 @@
 package io.github.kbuntrock.model;
 
+import io.github.kbuntrock.yaml.model.ExternalDocs;
+import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import static java.util.Comparator.nullsLast;
 
@@ -45,6 +47,18 @@ public class Endpoint implements Comparable<Endpoint> {
 	public Optional<String> getComputedSummary() {
 		if (method.isAnnotationPresent(Operation.class)) {
 			return Optional.of(method.getAnnotation(Operation.class).summary());
+		}
+		return Optional.empty();
+	}
+
+	public Optional<ExternalDocs> getComputedExternalDocs() {
+		if (method.isAnnotationPresent(Operation.class)) {
+			ExternalDocumentation externalDocumentation = method.getAnnotation(Operation.class).externalDocs();
+			if (!externalDocumentation.description().isEmpty() || !externalDocumentation.url().isEmpty()) {
+				return Optional.of(new ExternalDocs(
+						!externalDocumentation.url().isEmpty() ? externalDocumentation.url() : null,
+						!externalDocumentation.description().isEmpty() ? externalDocumentation.description() : null));
+			}
 		}
 		return Optional.empty();
 	}

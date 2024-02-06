@@ -24,3 +24,6 @@ paths:
             application/json:
               schema:
                 type: boolean
+      externalDocs:
+        url: External docs URL
+        description: External docs description
