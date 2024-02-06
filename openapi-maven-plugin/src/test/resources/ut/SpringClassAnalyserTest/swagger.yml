@@ -13,7 +13,7 @@ paths:
     get:
       tags:
         - SwaggerTagName
-      operationId: getWhatever
+      operationId: documentedEndpoint
       description: Operation description
       summary: Operation summary
       deprecated: true
@@ -25,5 +25,16 @@ paths:
               schema:
                 type: boolean
       externalDocs:
-        url: External docs URL
+        url: https://github.com/kbuntrock/openapi-maven-plugin/
         description: External docs description
+    post:
+      tags:
+        - SwaggerTagName
+      operationId: nonDocumentedEndpoint
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: boolean

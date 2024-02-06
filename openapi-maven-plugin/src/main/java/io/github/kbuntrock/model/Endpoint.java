@@ -39,14 +39,16 @@ public class Endpoint implements Comparable<Endpoint> {
 
 	public Optional<String> getComputedDescription() {
 		if (method.isAnnotationPresent(Operation.class)) {
-			return Optional.of(method.getAnnotation(Operation.class).description());
+			final String description = method.getAnnotation(Operation.class).description();
+			return !description.isEmpty() ? Optional.of(description) : Optional.empty();
 		}
 		return Optional.empty();
 	}
 
 	public Optional<String> getComputedSummary() {
 		if (method.isAnnotationPresent(Operation.class)) {
-			return Optional.of(method.getAnnotation(Operation.class).summary());
+			final String summary = method.getAnnotation(Operation.class).summary();
+			return !summary.isEmpty() ? Optional.of(summary) : Optional.empty();
 		}
 		return Optional.empty();
 	}
