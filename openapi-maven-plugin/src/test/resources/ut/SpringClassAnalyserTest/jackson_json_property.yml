@@ -1,0 +1,41 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: JacksonJsonPropertyController
+    description: Jackson Json property controller
+paths:
+  /api/users:
+    get:
+      tags:
+        - JacksonJsonPropertyController
+      operationId: findAll
+      description: "{@code GET  /users} : get the list of users"
+      responses:
+        200:
+          description: the list of users.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimpleUserDto'
+components:
+  schemas:
+    SimpleUserDto:
+      description: A simple user
+      type: object
+      properties:
+        username:
+          description: User firstname
+          type: string
+        isActive:
+          description: Whether the user is active or not
+          type: boolean
+        admin:
+          description: Whether the user is an admin or not
+          type: boolean

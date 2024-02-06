@@ -8,6 +8,7 @@ import static io.github.kbuntrock.TagLibrary.METHOD_IS_PREFIX_SIZE;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.TagLibraryHolder;
@@ -155,9 +156,16 @@ public class Schema {
 								// Field is tagged ignore. No need to document it.
 								continue;
 							}
-
+							// Jackson @JsonProperty annotation handling
+							String propertyFieldName = field.getName();
+							if (field.isAnnotationPresent(JsonProperty.class)) {
+								final JsonProperty jsonPropertyField = field.getAnnotation(JsonProperty.class);
+								if (!jsonPropertyField.value().isEmpty()) {
+									propertyFieldName = jsonPropertyField.value();
+								}
+							}
 							final DataObject propertyObject = new DataObject(dataObject.getContextualType(field.getGenericType()));
-							final Property property = new Property(propertyObject, false, field.getName(), exploredSignatures, dataObject);
+							final Property property = new Property(propertyObject, false, propertyFieldName, exploredSignatures, dataObject);
 							extractConstraints(field, property);
 							properties.put(property.getName(), property);
 

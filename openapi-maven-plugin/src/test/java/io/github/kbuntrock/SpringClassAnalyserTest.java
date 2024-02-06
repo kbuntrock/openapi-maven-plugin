@@ -42,6 +42,7 @@ import io.github.kbuntrock.resources.endpoint.generic.Issue89;
 import io.github.kbuntrock.resources.endpoint.generic.Issue95;
 import io.github.kbuntrock.resources.endpoint.ignore.JsonIgnoreController;
 import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
+import io.github.kbuntrock.resources.endpoint.jackson.JacksonJsonPropertyController;
 import io.github.kbuntrock.resources.endpoint.map.MapController;
 import io.github.kbuntrock.resources.endpoint.number.NumberController;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementOneController;
@@ -731,6 +732,19 @@ public class SpringClassAnalyserTest extends AbstractTest {
 			mojo.documentProject();
 		}).isInstanceOf(MojoRuntimeException.class)
 			.hasMessageContaining("More than one operation mapped on GET : /api/controller-3/info in tag MyController");
+	}
+
+	@Test
+	public void jacksonJsonProperty() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(JacksonJsonPropertyController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/jackson",
+				"src/test/java/io/github/kbuntrock/resources/dto/jackson"));
+		mojo.setJavadocConfiguration(javadocConfig);
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/jackson_json_property.yml", generated.get(0));
 	}
 
 
