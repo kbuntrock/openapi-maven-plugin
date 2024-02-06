@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +35,11 @@ public class Tag implements Comparable<Tag> {
 	}
 
 	public String computeConfiguredName(final ApiConfiguration apiConfiguration) {
+		// Swagger takes precedence?
+		final Optional<String> swaggerName = getSwaggerName();
+		if (swaggerName.isPresent()) {
+			return swaggerName.get();
+		}
 		if(computedName == null) {
 			computedName = getName();
 			for(final Substitution substitution : apiConfiguration.getTag().getSubstitutions()) {
@@ -41,6 +47,20 @@ public class Tag implements Comparable<Tag> {
 			}
 		}
 		return computedName;
+	}
+
+	public Optional<String> getSwaggerDescription() {
+		if (clazz.isAnnotationPresent(io.swagger.v3.oas.annotations.tags.Tag.class)) {
+			return Optional.of(clazz.getAnnotation(io.swagger.v3.oas.annotations.tags.Tag.class).description());
+		}
+		return Optional.empty();
+	}
+
+	private Optional<String> getSwaggerName() {
+		if (clazz.isAnnotationPresent(io.swagger.v3.oas.annotations.tags.Tag.class)) {
+			return Optional.of(clazz.getAnnotation(io.swagger.v3.oas.annotations.tags.Tag.class).name());
+		}
+		return Optional.empty();
 	}
 
 	public Collection<Endpoint> getEndpoints() {

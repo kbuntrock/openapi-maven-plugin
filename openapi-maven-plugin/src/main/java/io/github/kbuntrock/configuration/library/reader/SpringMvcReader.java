@@ -76,7 +76,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 				final List<String> paths = readEndpointPaths(basePath, requestMappingMergedAnnotation);
 				for(final RequestMethod requestMethod : requestMethods) {
 					for(final String path : paths) {
-						final Endpoint endpoint = new Endpoint();
+						final Endpoint endpoint = new Endpoint(method);
 						endpoint.setType(OperationType.fromJavax(requestMethod));
 						endpoint.setPath(path);
 						endpoint.setName(method.getName());
@@ -87,7 +87,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 						endpoint.setIdentifier(methodIdentifier);
 						endpoint.setDeprecated(isDeprecated(method));
 						tag.addEndpoint(endpoint);
-						logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
+						logger.debug("Finished parsing endpoint : " + endpoint.getComputedName() + " - " + endpoint.getType().name());
 					}
 				}
 			}

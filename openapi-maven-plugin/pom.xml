@@ -117,6 +117,13 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- Swagger -->
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-ui</artifactId>
+      <version>1.7.0</version>
+    </dependency>
+
     <!-- Documentation mojo dependencies -->
     <dependency>
       <groupId>org.springframework</groupId>

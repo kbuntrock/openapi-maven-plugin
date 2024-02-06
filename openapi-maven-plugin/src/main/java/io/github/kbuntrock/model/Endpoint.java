@@ -2,6 +2,7 @@ package io.github.kbuntrock.model;
 
 import static java.util.Comparator.nullsLast;
 
+import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.List;
 
@@ -26,6 +27,28 @@ public class Endpoint implements Comparable<Endpoint> {
 	 */
 	private String identifier;
 
+    private final Method method;
+
+    public Endpoint(Method method) {
+        this.method = method;
+    }
+
+    public String getComputedName() {
+        // Swagger takes precedence ?
+        final String swaggerName = getSwaggerName();
+        if (swaggerName != null) {
+            return swaggerName;
+        }
+        return name;
+    }
+
+    private String getSwaggerName() {
+        if (method.isAnnotationPresent(io.swagger.v3.oas.annotations.tags.Tag.class)) {
+            return method.getAnnotation(io.swagger.v3.oas.annotations.tags.Tag.class).name();
+        }
+        return null;
+    }
+
 	public String getPath() {
 		return path;
 	}
@@ -40,10 +63,6 @@ public class Endpoint implements Comparable<Endpoint> {
 
 	public void setType(final OperationType type) {
 		this.type = type;
-	}
-
-	public String getName() {
-		return name;
 	}
 
 	public void setName(final String name) {

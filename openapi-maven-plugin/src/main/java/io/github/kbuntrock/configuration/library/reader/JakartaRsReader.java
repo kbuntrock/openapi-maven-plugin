@@ -119,7 +119,7 @@ public class JakartaRsReader extends AstractLibraryReader {
 					final DataObject responseObject = readResponseObject(method, genericityResolver, mergedAnnotations);
 					final int responseCode = readResponseCode(null);
 					final String path = readEndpointPaths(basePath, requestMappingMergedAnnotation).get(0);
-					final Endpoint endpoint = new Endpoint();
+					final Endpoint endpoint = new Endpoint(method);
 					endpoint.setType(OperationType.fromJakarta(verb.getAnnotationClass().getCanonicalName()));
 					endpoint.setPath(path);
 					endpoint.setName(method.getName());
@@ -130,7 +130,7 @@ public class JakartaRsReader extends AstractLibraryReader {
 					endpoint.setIdentifier(methodIdentifier);
 					endpoint.setDeprecated(isDeprecated(method));
 					tag.addEndpoint(endpoint);
-					logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
+					logger.debug("Finished parsing endpoint : " + endpoint.getComputedName() + " - " + endpoint.getType().name());
 				}
 			}
 		}

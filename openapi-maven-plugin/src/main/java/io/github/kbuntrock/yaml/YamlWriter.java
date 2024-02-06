@@ -123,6 +123,7 @@ public class YamlWriter {
 
 		specification.setTags(tagLibrary.getSortedTags().stream()
 			.map(x -> {
+                String description = null;
 				if(JavadocMap.INSTANCE.isPresent()) {
 					ClassDocumentation classDocumentation = JavadocMap.INSTANCE.getJavadocMap().get(x.getClazz().getCanonicalName());
 					// Even if there is no declared class documentation, we may enhance it with javadoc on interface and/or abstract classes
@@ -134,13 +135,12 @@ public class YamlWriter {
 						"Class documentation found for tag " + x.getClazz().getSimpleName() + " ? " + (classDocumentation != null));
 
 					classDocumentation.inheritanceEnhancement(x.getClazz(), ClassDocumentation.EnhancementType.METHODS);
-					final Optional<String> description = classDocumentation.getDescription();
-					if(description.isPresent()) {
-						return new TagElement(x.computeConfiguredName(apiConfiguration), description.get());
-					}
+					description = classDocumentation.getDescription().orElse(null);
 				}
+                // Swagger takes precedence?
+                final Optional<String> swaggerDescription = x.getSwaggerDescription();
 
-				return new TagElement(x.computeConfiguredName(apiConfiguration), null);
+				return new TagElement(x.computeConfiguredName(apiConfiguration), swaggerDescription.orElse(description));
 			}).collect(Collectors.toList()));
 
 		specification.setPaths(createPaths(tagLibrary));
@@ -210,11 +210,12 @@ public class YamlWriter {
 				operation.setName(endpoint.getType().name());
 				operation.setPath(enhancedPath);
 				final String computedTagName = tag.computeConfiguredName(apiConfiguration);
+				final String computedEndpointName = endpoint.getComputedName();
 				operation.getTags().add(computedTagName);
 				operation.setOperationId(
-					apiConfiguration.getOperationIdHelper().toOperationId(tag.getName(), computedTagName, endpoint.getName()));
+					apiConfiguration.getOperationIdHelper().toOperationId(tag.getName(), computedTagName, computedEndpointName));
 				if(apiConfiguration.isLoopbackOperationName()) {
-					operation.setLoopbackOperationName(endpoint.getName());
+					operation.setLoopbackOperationName(computedEndpointName);
 				}
 				operation.setDeprecated(endpoint.isDeprecated());
 
