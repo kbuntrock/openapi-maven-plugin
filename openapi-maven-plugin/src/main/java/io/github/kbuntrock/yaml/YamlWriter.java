@@ -210,26 +210,32 @@ public class YamlWriter {
 				operation.setName(endpoint.getType().name());
 				operation.setPath(enhancedPath);
 				final String computedTagName = tag.computeConfiguredName(apiConfiguration);
-				final String computedEndpointName = endpoint.getComputedName();
 				operation.getTags().add(computedTagName);
+				final String computedEndpointName = endpoint.getComputedName();
+
 				operation.setOperationId(
 					apiConfiguration.getOperationIdHelper().toOperationId(tag.getName(), computedTagName, computedEndpointName));
 				if(apiConfiguration.isLoopbackOperationName()) {
 					operation.setLoopbackOperationName(computedEndpointName);
 				}
-				operation.setDeprecated(endpoint.isDeprecated());
+				operation.setDeprecated(endpoint.getComputedDeprecated());
+				operation.setSummary(endpoint.getComputedSummary().orElse(null));
 
+				String javadocDescription = null;
 				// Javadoc to description
 				JavadocWrapper methodJavadoc = null;
 				if(classDocumentation != null) {
 					methodJavadoc = classDocumentation.getMethodsJavadoc().get(endpoint.getIdentifier());
 					if(methodJavadoc != null) {
 						methodJavadoc.sortTags();
-						operation.setDescription(methodJavadoc.getJavadoc().getDescription().toText());
+						javadocDescription = methodJavadoc.getJavadoc().getDescription().toText();
 					}
 					logger.debug(
 						"Method documentation found for endpoint method " + endpoint.getIdentifier() + " ? " + (methodJavadoc != null));
 				}
+				// Swagger takes precedence?
+				operation.setDescription(endpoint.getComputedDescription().orElse(javadocDescription));
+
 
 				// Warning on paths
 				if(!operation.getPath().startsWith("/")) {

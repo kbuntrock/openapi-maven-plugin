@@ -1,10 +1,12 @@
 package io.github.kbuntrock.model;
 
+import io.swagger.v3.oas.annotations.Operation;
 import static java.util.Comparator.nullsLast;
 
 import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 public class Endpoint implements Comparable<Endpoint> {
 
@@ -33,20 +35,40 @@ public class Endpoint implements Comparable<Endpoint> {
         this.method = method;
     }
 
+	public Optional<String> getComputedDescription() {
+		if (method.isAnnotationPresent(Operation.class)) {
+			return Optional.of(method.getAnnotation(Operation.class).description());
+		}
+		return Optional.empty();
+	}
+
+	public Optional<String> getComputedSummary() {
+		if (method.isAnnotationPresent(Operation.class)) {
+			return Optional.of(method.getAnnotation(Operation.class).summary());
+		}
+		return Optional.empty();
+	}
+
+	public boolean getComputedDeprecated() {
+		// Swagger takes precedence ?
+		if (method.isAnnotationPresent(Operation.class)) {
+			return method.getAnnotation(Operation.class).deprecated();
+		}
+		return deprecated;
+	}
+
     public String getComputedName() {
         // Swagger takes precedence ?
-        final String swaggerName = getSwaggerName();
-        if (swaggerName != null) {
-            return swaggerName;
-        }
-        return name;
+		return getSwaggerName()
+				.orElse(name);
     }
 
-    private String getSwaggerName() {
+
+    private Optional<String> getSwaggerName() {
         if (method.isAnnotationPresent(io.swagger.v3.oas.annotations.tags.Tag.class)) {
-            return method.getAnnotation(io.swagger.v3.oas.annotations.tags.Tag.class).name();
+            return Optional.of(method.getAnnotation(io.swagger.v3.oas.annotations.tags.Tag.class).name());
         }
-        return null;
+        return Optional.empty();
     }
 
 	public String getPath() {
@@ -107,10 +129,6 @@ public class Endpoint implements Comparable<Endpoint> {
 
 	public void setIdentifier(final String identifier) {
 		this.identifier = identifier;
-	}
-
-	public boolean isDeprecated() {
-		return deprecated;
 	}
 
 	public void setDeprecated(final boolean deprecated) {

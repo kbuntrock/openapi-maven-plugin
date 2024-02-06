@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
 
-@Tag(name = "SwaggerTagName", description = "SwaggerTagDescription")
+@Tag(name = "SwaggerTagName", description = "Swagger Tag Description")
 @RequestMapping(Constants.BASE_API + "/swagger")
 public interface SwaggerController {
 
-	@Operation(summary = "Swagger GET endpoint")
+	@Operation(summary = "Operation summary", description = "Operation description", deprecated = true)
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "successful operation")})
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)

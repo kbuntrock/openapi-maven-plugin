@@ -21,6 +21,8 @@ public class Operation {
 	private String loopbackOperationName;
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String description;
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String summary;
 	@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 	private boolean deprecated;
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -85,6 +87,13 @@ public class Operation {
 
 	public void setDescription(final String description) {
 		this.description = description;
+	}
+	public String getSummary() {
+		return summary;
+	}
+
+	public void setSummary(final String summary) {
+		this.summary = summary;
 	}
 
 	public boolean isDeprecated() {

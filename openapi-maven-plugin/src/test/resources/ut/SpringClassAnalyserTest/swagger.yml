@@ -7,13 +7,16 @@ servers:
   - url: ""
 tags:
   - name: SwaggerTagName
-    description: SwaggerTagDescription
+    description: Swagger Tag Description
 paths:
   /api/swagger:
     get:
       tags:
         - SwaggerTagName
       operationId: getWhatever
+      description: Operation description
+      summary: Operation summary
+      deprecated: true
       responses:
         200:
           description: successful operation
