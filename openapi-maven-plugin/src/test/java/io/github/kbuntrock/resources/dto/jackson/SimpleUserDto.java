@@ -21,5 +21,6 @@ public class SimpleUserDto {
     /**
      * Whether the user is an admin or not
      */
+    @JsonProperty
     private boolean admin;
 }
