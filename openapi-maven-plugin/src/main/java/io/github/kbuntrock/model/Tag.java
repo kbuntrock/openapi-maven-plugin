@@ -1,12 +1,12 @@
 package io.github.kbuntrock.model;
 
-import static java.util.Comparator.nullsLast;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.util.Comparator.nullsLast;
 
 /**
  * A group of endpoints, found in the same rest controller annotated class

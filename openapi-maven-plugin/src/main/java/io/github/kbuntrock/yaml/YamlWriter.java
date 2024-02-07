@@ -10,9 +10,6 @@ import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.attribute_getters.tag.name.AbstractTagNameGetter;
 import io.github.kbuntrock.configuration.attribute_getters.tag.name.ApiConfigurationTagNameGetter;
 import io.github.kbuntrock.configuration.attribute_getters.tag.name.SwaggerTagNameGetter;
-import io.github.kbuntrock.configuration.attribute_getters.tag.summary.AbstractTagDescriptionGetter;
-import io.github.kbuntrock.configuration.attribute_getters.tag.summary.JavadocTagDescriptionGetter;
-import io.github.kbuntrock.configuration.attribute_getters.tag.summary.SwaggerTagDescriptionGetter;
 import io.github.kbuntrock.configuration.parser.CommonParserUtils;
 import io.github.kbuntrock.configuration.parser.JsonParserUtils;
 import io.github.kbuntrock.model.DataObject;
@@ -37,6 +34,9 @@ import io.github.kbuntrock.yaml.model.Schema;
 import io.github.kbuntrock.yaml.model.Server;
 import io.github.kbuntrock.yaml.model.Specification;
 import io.github.kbuntrock.yaml.model.TagElement;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.MavenProject;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,8 +53,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.project.MavenProject;
 
 public class YamlWriter {
 
@@ -126,10 +124,6 @@ public class YamlWriter {
 
 		populateSpecificationFreeFields(specification, freefields);
 
-		final List<AbstractTagDescriptionGetter> tagDescriptionGetters = Arrays.asList(
-				new SwaggerTagDescriptionGetter(),
-				new JavadocTagDescriptionGetter()
-		);
 		final List<AbstractTagNameGetter> tagNameGetters = Arrays.asList(
 				new SwaggerTagNameGetter(),
 				new ApiConfigurationTagNameGetter(apiConfiguration)
@@ -145,16 +139,8 @@ public class YamlWriter {
 					.orElse(tag.getName()));
 		}
 		specification.setTags(tagLibrary.getSortedTags().stream()
-			.map(tag -> {
-				final String description = tagDescriptionGetters
-						.stream()
-						.map(e -> e.getTagDescription(tag))
-						.filter(Optional::isPresent)
-						.findFirst()
-						.flatMap(Function.identity())
-						.orElse(null);
-				return new TagElement(tag.getComputedName(), description);
-			}).collect(Collectors.toList()));
+			.map(tag -> new TagElement(tag.getComputedName(), tag.getDescription()))
+										.collect(Collectors.toList()));
 
 		specification.setPaths(createPaths(tagLibrary));
 

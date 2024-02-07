@@ -8,6 +8,9 @@ import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.configuration.attribute_setters.endpoint.AbstractEndpointAttributeSetter;
 import io.github.kbuntrock.configuration.attribute_setters.endpoint.JavadocEndpointAttributeSetter;
 import io.github.kbuntrock.configuration.attribute_setters.endpoint.SwaggerEndpointAttributeSetter;
+import io.github.kbuntrock.configuration.attribute_setters.tag.AbstractTagAttributeSetter;
+import io.github.kbuntrock.configuration.attribute_setters.tag.JavadocTagAttributeSetter;
+import io.github.kbuntrock.configuration.attribute_setters.tag.SwaggerTagAttributeSetter;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.JavadocMap;
 import io.github.kbuntrock.javadoc.JavadocParser;
@@ -206,17 +209,22 @@ public class DocumentationMojo extends AbstractMojo {
 		for (Tag tag: tagLibrary.getTags()) {
 			final ClassDocumentation classDocumentation = JavadocMap.INSTANCE.isPresent() ?
 					JavadocMap.INSTANCE.getJavadocMap().get(tag.getClazz().getCanonicalName()) : null;
-
+			if (classDocumentation != null) {
+				classDocumentation.inheritanceEnhancement(tag.getClazz(), ClassDocumentation.EnhancementType.BOTH);
+			}
 			getLog().debug(
 					"Class documentation found for tag paths section " + tag.getClazz().getSimpleName() + " ? " + (classDocumentation != null));
-
+			final List<AbstractTagAttributeSetter> tagAttributeSetters = Arrays.asList(
+					new JavadocTagAttributeSetter(classDocumentation),
+					new SwaggerTagAttributeSetter()
+			);
+			for (AbstractTagAttributeSetter tagAttributeSetter: tagAttributeSetters) {
+				tagAttributeSetter.process(tag);
+			}
 			final List<AbstractEndpointAttributeSetter> endpointAttributeSetters = Arrays.asList(
 					new JavadocEndpointAttributeSetter(classDocumentation),
 					new SwaggerEndpointAttributeSetter()
 			);
-			if (classDocumentation != null) {
-				classDocumentation.inheritanceEnhancement(tag.getClazz(), ClassDocumentation.EnhancementType.BOTH);
-			}
 			for (final Endpoint endpoint: tag.getEndpoints()) {
 				for (AbstractEndpointAttributeSetter endpointAttributeSetter: endpointAttributeSetters) {
 					endpointAttributeSetter.process(endpoint);
