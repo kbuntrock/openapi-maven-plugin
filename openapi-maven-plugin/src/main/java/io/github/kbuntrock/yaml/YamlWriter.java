@@ -137,8 +137,8 @@ public class YamlWriter {
 		populateSpecificationFreeFields(specification, freefields);
 
 		final List<AbstractTagDescriptionGetter> tagDescriptionGetters = Arrays.asList(
-				new JavadocTagDescriptionGetter(),
-				new SwaggerTagDescriptionGetter()
+				new SwaggerTagDescriptionGetter(),
+				new JavadocTagDescriptionGetter()
 		);
 		// Set computed name for each tag
 		for (Tag tag: tagLibrary.getTags()) {
