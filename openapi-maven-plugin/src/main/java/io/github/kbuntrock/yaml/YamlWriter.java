@@ -10,6 +10,7 @@ import io.github.kbuntrock.TagLibrary;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.attribute_getters.tag.name.AbstractTagNameGetter;
 import io.github.kbuntrock.configuration.attribute_getters.tag.name.ApiConfigurationTagNameGetter;
+import io.github.kbuntrock.configuration.attribute_getters.tag.name.SwaggerTagNameGetter;
 import io.github.kbuntrock.configuration.parser.CommonParserUtils;
 import io.github.kbuntrock.configuration.parser.JsonParserUtils;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
@@ -128,6 +129,7 @@ public class YamlWriter {
 		populateSpecificationFreeFields(specification, freefields);
 
 		final List<AbstractTagNameGetter> tagNameGetters = Arrays.asList(
+				new SwaggerTagNameGetter(),
 				new ApiConfigurationTagNameGetter(apiConfiguration)
 		);
 		// Set computed name for each tag
