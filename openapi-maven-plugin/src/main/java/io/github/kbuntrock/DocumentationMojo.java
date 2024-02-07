@@ -207,22 +207,22 @@ public class DocumentationMojo extends AbstractMojo {
 
 	private void overrideModelAttributes(final TagLibrary tagLibrary) {
 		for (Tag tag: tagLibrary.getTags()) {
-			final ClassDocumentation classDocumentation = JavadocMap.INSTANCE.isPresent() ?
-					JavadocMap.INSTANCE.getJavadocMap().get(tag.getClazz().getCanonicalName()) : null;
-			if (classDocumentation != null) {
-				classDocumentation.inheritanceEnhancement(tag.getClazz(), ClassDocumentation.EnhancementType.BOTH);
-			}
-			getLog().debug(
-					"Class documentation found for tag paths section " + tag.getClazz().getSimpleName() + " ? " + (classDocumentation != null));
+//			final ClassDocumentation classDocumentation = JavadocMap.INSTANCE.isPresent() ?
+//					JavadocMap.INSTANCE.getJavadocMap().get(tag.getClazz().getCanonicalName()) : null;
+//			if (classDocumentation != null) {
+//				classDocumentation.inheritanceEnhancement(tag.getClazz(), ClassDocumentation.EnhancementType.BOTH);
+//			}
+//			getLog().debug(
+//					"Class documentation found for tag paths section " + tag.getClazz().getSimpleName() + " ? " + (classDocumentation != null));
 			final List<AbstractTagAttributeSetter> tagAttributeSetters = Arrays.asList(
-					new JavadocTagAttributeSetter(classDocumentation),
+//					new JavadocTagAttributeSetter(classDocumentation),
 					new SwaggerTagAttributeSetter()
 			);
 			for (AbstractTagAttributeSetter tagAttributeSetter: tagAttributeSetters) {
 				tagAttributeSetter.process(tag);
 			}
 			final List<AbstractEndpointAttributeSetter> endpointAttributeSetters = Arrays.asList(
-					new JavadocEndpointAttributeSetter(classDocumentation),
+//					new JavadocEndpointAttributeSetter(classDocumentation),
 					new SwaggerEndpointAttributeSetter()
 			);
 			for (final Endpoint endpoint: tag.getEndpoints()) {

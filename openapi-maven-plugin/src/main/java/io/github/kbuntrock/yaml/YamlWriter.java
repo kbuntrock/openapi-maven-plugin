@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.github.javaparser.javadoc.JavadocBlockTag;
 import io.github.kbuntrock.MojoRuntimeException;
 import io.github.kbuntrock.TagLibrary;
 import io.github.kbuntrock.configuration.ApiConfiguration;
@@ -12,6 +13,9 @@ import io.github.kbuntrock.configuration.attribute_getters.tag.name.ApiConfigura
 import io.github.kbuntrock.configuration.attribute_getters.tag.name.SwaggerTagNameGetter;
 import io.github.kbuntrock.configuration.parser.CommonParserUtils;
 import io.github.kbuntrock.configuration.parser.JsonParserUtils;
+import io.github.kbuntrock.javadoc.ClassDocumentation;
+import io.github.kbuntrock.javadoc.JavadocMap;
+import io.github.kbuntrock.javadoc.JavadocWrapper;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.ParameterObject;
@@ -139,7 +143,25 @@ public class YamlWriter {
 					.orElse(tag.getName()));
 		}
 		specification.setTags(tagLibrary.getSortedTags().stream()
-			.map(tag -> new TagElement(tag.getComputedName(), tag.getDescription()))
+			.map(tag -> {
+				String description = tag.getDescription();
+				if(JavadocMap.INSTANCE.isPresent()) {
+                    ClassDocumentation classDocumentation = JavadocMap.INSTANCE.getJavadocMap().get(tag.getClazz().getCanonicalName());
+                    // Even if there is no declared class documentation, we may enhance it with javadoc on interface and/or abstract classes
+                    if(classDocumentation == null) {
+                        classDocumentation = new ClassDocumentation(tag.getClazz().getCanonicalName(), tag.getClazz().getSimpleName());
+                        JavadocMap.INSTANCE.getJavadocMap().put(tag.getClazz().getCanonicalName(), classDocumentation);
+                    }
+                    logger.debug(
+                            "Class documentation found for tag " + tag.getClazz().getSimpleName() + " ? " + (classDocumentation != null));
+
+                    classDocumentation.inheritanceEnhancement(tag.getClazz(), ClassDocumentation.EnhancementType.METHODS);
+                    if(classDocumentation.getDescription().isPresent()) {
+                        description = classDocumentation.getDescription().get();
+                    }
+				}
+				return new TagElement(tag.getComputedName(), description);
+			})
 										.collect(Collectors.toList()));
 
 		specification.setPaths(createPaths(tagLibrary));
@@ -186,6 +208,12 @@ public class YamlWriter {
 		final Set<String> operationIds = new HashSet<>();
 		for(final Tag tag : tagLibrary.getSortedTags()) {
 
+			final ClassDocumentation classDocumentation = JavadocMap.INSTANCE.isPresent() ?
+				JavadocMap.INSTANCE.getJavadocMap().get(tag.getClazz().getCanonicalName()) : null;
+
+			logger.debug(
+				"Class documentation found for tag paths section " + tag.getClazz().getSimpleName() + " ? " + (classDocumentation != null));
+
 			// There is no need to try to enhance with the abstract or interfaces classes the documentation here.
 			// It has already been made when we were writing the tags
 
@@ -215,6 +243,18 @@ public class YamlWriter {
 				operation.setDeprecated(endpoint.isDeprecated());
 				operation.setSummary(endpoint.getSummary());
 				operation.setDescription(endpoint.getDescription());
+				// Javadoc to description
+				JavadocWrapper methodJavadoc = null;
+				if (classDocumentation != null) {
+					methodJavadoc  = classDocumentation.getMethodsJavadoc().get(endpoint.getIdentifier());
+					if(methodJavadoc != null) {
+						methodJavadoc.sortTags();
+						operation.setDescription(methodJavadoc.getJavadoc().getDescription().toText());
+					}
+					logger.debug(
+							"Method documentation found for endpoint method " + endpoint.getIdentifier() + " ? " + (methodJavadoc != null));
+				}
+
 
 
 				// Warning on paths
@@ -249,6 +289,19 @@ public class YamlWriter {
 					}
 					parameterElement.setSchema(schema);
 					parameterElement.setDescription(parameter.getDescription());
+					// Javadoc handling
+					if(methodJavadoc != null) {
+						final Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(parameterElement.getName());
+						if(parameterDoc.isPresent()) {
+							final String description = parameterDoc.get().getContent().toText();
+							if(!description.isEmpty()) {
+								parameterElement.setDescription(parameterDoc.get().getContent().toText());
+							}
+						}
+						logger.debug(
+								"Parameter documentation found for endpoint parameter " + parameterElement.getName() + " ? "
+										+ parameterDoc.isPresent());
+					}
 					operation.getParameters().add(parameterElement);
 				}
 
@@ -275,6 +328,19 @@ public class YamlWriter {
 						requestBody.getContent().put("*/*", requestBodyContent);
 					}
 					requestBody.setDescription(body.getDescription());
+					// Javadoc handling
+					if(methodJavadoc != null) {
+						final Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(body.getName());
+						if(parameterDoc.isPresent()) {
+							final String description = parameterDoc.get().getContent().toText();
+							if(!description.isEmpty()) {
+								requestBody.setDescription(parameterDoc.get().getContent().toText());
+							}
+						}
+						logger.debug(
+								"Parameter documentation found for endpoint body " + body.getName() + " ? "
+										+ parameterDoc.isPresent());
+					}
 				}
 
 				// -------------------------
@@ -296,6 +362,18 @@ public class YamlWriter {
 						}
 					}
 					response.setDescription(modelResponse.getDescription());
+					// Javadoc handling
+					if(methodJavadoc != null) {
+						final Optional<JavadocBlockTag> returnDoc = methodJavadoc.getReturnBlockTag();
+						if(returnDoc.isPresent()) {
+							final String description = returnDoc.get().getContent().toText();
+							if(!description.isEmpty()) {
+								response.setDescription(returnDoc.get().getContent().toText());
+							}
+						}
+						logger.debug(
+								"Return documentation found ? " + returnDoc.isPresent());
+					}
 					response.setCodeAndDefaultDescription(modelResponse.getCode(), apiConfiguration.getDefaultSuccessfulOperationDescription());
 					operation.getResponses().put(response.getCode(), response);
 				}
