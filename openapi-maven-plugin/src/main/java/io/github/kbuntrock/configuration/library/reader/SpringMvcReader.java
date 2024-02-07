@@ -6,6 +6,7 @@ import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.OperationType;
 import io.github.kbuntrock.model.ParameterObject;
+import io.github.kbuntrock.model.Response;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.ClassGenericityResolver;
 import io.github.kbuntrock.utils.OpenApiDataType;
@@ -59,7 +60,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 
 	@Override
 	public void computeAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations, final Tag tag,
-		final ClassGenericityResolver genericityResolver) throws MojoFailureException {
+		final ClassGenericityResolver genericityResolver) {
 
 		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
 		if(requestMappingMergedAnnotation.isPresent() && !excludedByReturnType(method)) {
@@ -81,13 +82,19 @@ public class SpringMvcReader extends AstractLibraryReader {
 						endpoint.setPath(path);
 						endpoint.setName(method.getName());
 						endpoint.setParameters(parameterObjects);
-						endpoint.setResponseObject(responseObject);
-						endpoint.setResponseCode(responseCode);
-						setConsumeProduceProperties(endpoint, mergedAnnotations);
+						Optional<ParameterObject> body = endpoint.getParameters()
+																 .stream()
+																 .filter(x -> ParameterLocation.BODY == x.getLocation())
+																 .findAny();
+						if (body.isPresent()) {
+							final List<String> consumeProperties = readConsumeProperties(endpoint, mergedAnnotations);
+							body.get().setFormats(consumeProperties);
+						}
+						endpoint.addResponse(new Response(responseCode, responseObject, null, readProduceProperties(endpoint, mergedAnnotations)));
 						endpoint.setIdentifier(methodIdentifier);
 						endpoint.setDeprecated(isDeprecated(method));
 						tag.addEndpoint(endpoint);
-						logger.debug("Finished parsing endpoint : " + endpoint.getComputedName() + " - " + endpoint.getType().name());
+						logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
 					}
 				}
 			}
@@ -186,26 +193,19 @@ public class SpringMvcReader extends AstractLibraryReader {
 		return resolvedPaths;
 	}
 
+
 	@Override
-	protected void setConsumeProduceProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations)
-		throws MojoFailureException {
+	protected List<String> readConsumeProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations) {
 
 		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
+		return Arrays.asList(requestMappingMergedAnnotation.getStringArray("consumes"));
+	}
 
-		final Optional<ParameterObject> body = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation())
-			.findAny();
-		if(body.isPresent()) {
-			final String[] consumes = requestMappingMergedAnnotation.getStringArray("consumes");
-			if(consumes.length > 0) {
-				body.get().setFormats(Arrays.asList(consumes));
-			}
-		}
-		if(endpoint.getResponseObject() != null) {
-			final String[] produces = requestMappingMergedAnnotation.getStringArray("produces");
-			if(produces.length > 0) {
-				endpoint.setResponseFormats(Arrays.asList(produces));
-			}
-		}
+	@Override
+	protected List<String> readProduceProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations) {
+
+		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
+		return Arrays.asList(requestMappingMergedAnnotation.getStringArray("produces"));
 	}
 
 	@Override

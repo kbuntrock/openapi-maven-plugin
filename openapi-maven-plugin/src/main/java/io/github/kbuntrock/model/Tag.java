@@ -2,13 +2,10 @@ package io.github.kbuntrock.model;
 
 import static java.util.Comparator.nullsLast;
 
-import io.github.kbuntrock.configuration.ApiConfiguration;
-import io.github.kbuntrock.configuration.Substitution;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -34,34 +31,13 @@ public class Tag implements Comparable<Tag> {
 		this.name = name;
 	}
 
-	public String computeConfiguredName(final ApiConfiguration apiConfiguration) {
-		// Swagger takes precedence?
-		final Optional<String> swaggerName = getSwaggerName();
-		if (swaggerName.isPresent()) {
-			return swaggerName.get();
-		}
-		if(computedName == null) {
-			computedName = getName();
-			for(final Substitution substitution : apiConfiguration.getTag().getSubstitutions()) {
-				computedName = computedName.replaceAll(substitution.getRegex(), substitution.getSubstitute());
-			}
-		}
-		return computedName;
+	public void setComputedName(final String computedName) {
+        this.computedName = computedName;
 	}
 
-	public Optional<String> getSwaggerDescription() {
-		if (clazz.isAnnotationPresent(io.swagger.v3.oas.annotations.tags.Tag.class)) {
-			return Optional.of(clazz.getAnnotation(io.swagger.v3.oas.annotations.tags.Tag.class).description());
-		}
-		return Optional.empty();
-	}
-
-	private Optional<String> getSwaggerName() {
-		if (clazz.isAnnotationPresent(io.swagger.v3.oas.annotations.tags.Tag.class)) {
-			return Optional.of(clazz.getAnnotation(io.swagger.v3.oas.annotations.tags.Tag.class).name());
-		}
-		return Optional.empty();
-	}
+    public String getComputedName() {
+        return computedName;
+    }
 
 	public Collection<Endpoint> getEndpoints() {
 		return endpoints;

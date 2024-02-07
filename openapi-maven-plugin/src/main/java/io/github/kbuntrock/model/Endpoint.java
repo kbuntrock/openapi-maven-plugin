@@ -7,7 +7,9 @@ import static java.util.Comparator.nullsLast;
 
 import java.lang.reflect.Method;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class Endpoint implements Comparable<Endpoint> {
@@ -20,9 +22,7 @@ public class Endpoint implements Comparable<Endpoint> {
 
 	private List<ParameterObject> parameters;
 
-	private Integer responseCode;
-	private DataObject responseObject;
-	private List<String> responseFormats;
+	private final Map<Integer, Response> responses = new HashMap<>(); // Indexed on response's code
 
 	private boolean deprecated = false;
 
@@ -37,21 +37,6 @@ public class Endpoint implements Comparable<Endpoint> {
         this.method = method;
     }
 
-	public Optional<String> getComputedDescription() {
-		if (method.isAnnotationPresent(Operation.class)) {
-			final String description = method.getAnnotation(Operation.class).description();
-			return !description.isEmpty() ? Optional.of(description) : Optional.empty();
-		}
-		return Optional.empty();
-	}
-
-	public Optional<String> getComputedSummary() {
-		if (method.isAnnotationPresent(Operation.class)) {
-			final String summary = method.getAnnotation(Operation.class).summary();
-			return !summary.isEmpty() ? Optional.of(summary) : Optional.empty();
-		}
-		return Optional.empty();
-	}
 
 	public Optional<ExternalDocs> getComputedExternalDocs() {
 		if (method.isAnnotationPresent(Operation.class)) {
@@ -64,28 +49,6 @@ public class Endpoint implements Comparable<Endpoint> {
 		}
 		return Optional.empty();
 	}
-
-	public boolean getComputedDeprecated() {
-		// Swagger takes precedence ?
-		if (method.isAnnotationPresent(Operation.class)) {
-			return method.getAnnotation(Operation.class).deprecated();
-		}
-		return deprecated;
-	}
-
-    public String getComputedName() {
-        // Swagger takes precedence ?
-		return getSwaggerName()
-				.orElse(name);
-    }
-
-
-    private Optional<String> getSwaggerName() {
-        if (method.isAnnotationPresent(io.swagger.v3.oas.annotations.tags.Tag.class)) {
-            return Optional.of(method.getAnnotation(io.swagger.v3.oas.annotations.tags.Tag.class).name());
-        }
-        return Optional.empty();
-    }
 
 	public String getPath() {
 		return path;
@@ -103,40 +66,22 @@ public class Endpoint implements Comparable<Endpoint> {
 		this.type = type;
 	}
 
+	public String getName() {
+		return name;
+	}
 	public void setName(final String name) {
 		this.name = name;
 	}
 
+	public Method getMethod() {
+		return method;
+	}
 	public List<ParameterObject> getParameters() {
 		return parameters;
 	}
 
 	public void setParameters(final List<ParameterObject> parameters) {
 		this.parameters = parameters;
-	}
-
-	public Integer getResponseCode() {
-		return responseCode;
-	}
-
-	public void setResponseCode(final Integer responseCode) {
-		this.responseCode = responseCode;
-	}
-
-	public DataObject getResponseObject() {
-		return responseObject;
-	}
-
-	public void setResponseObject(final DataObject responseObject) {
-		this.responseObject = responseObject;
-	}
-
-	public List<String> getResponseFormats() {
-		return responseFormats;
-	}
-
-	public void setResponseFormats(final List<String> responseFormats) {
-		this.responseFormats = responseFormats;
 	}
 
 	public String getIdentifier() {
@@ -147,6 +92,9 @@ public class Endpoint implements Comparable<Endpoint> {
 		this.identifier = identifier;
 	}
 
+	public boolean getDeprecated() {
+		return deprecated;
+	}
 	public void setDeprecated(final boolean deprecated) {
 		this.deprecated = deprecated;
 	}
@@ -159,4 +107,13 @@ public class Endpoint implements Comparable<Endpoint> {
 			.thenComparing(e -> e.name)
 			.compare(this, o);
 	}
+
+	public Map<Integer, Response> getResponses() {
+		return responses;
+	}
+
+	public void addResponse(Response response) {
+		this.responses.put(response.getCode(), response);
+	}
+
 }

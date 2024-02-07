@@ -98,8 +98,11 @@ public abstract class AstractLibraryReader {
 	protected abstract List<String> readEndpointPaths(String basePath,
 		MergedAnnotation<? extends Annotation> requestMappingMergedAnnotation);
 
-	protected abstract void setConsumeProduceProperties(Endpoint endpoint, final MergedAnnotations mergedAnnotations)
-		throws MojoFailureException;
+	protected abstract List<String> readConsumeProperties(Endpoint endpoint, final MergedAnnotations mergedAnnotations)
+			throws MojoFailureException;
+
+	protected abstract List<String> readProduceProperties(Endpoint endpoint, final MergedAnnotations mergedAnnotations)
+			throws MojoFailureException;
 
 	protected abstract int readResponseCode(MergedAnnotations mergedAnnotations);
 

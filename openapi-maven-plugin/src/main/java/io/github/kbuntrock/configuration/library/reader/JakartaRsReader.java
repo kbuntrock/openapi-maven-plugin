@@ -6,6 +6,7 @@ import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.OperationType;
 import io.github.kbuntrock.model.ParameterObject;
+import io.github.kbuntrock.model.Response;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.ClassGenericityResolver;
 import io.github.kbuntrock.utils.OpenApiDataType;
@@ -30,6 +31,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 public class JakartaRsReader extends AstractLibraryReader {
@@ -104,7 +106,7 @@ public class JakartaRsReader extends AstractLibraryReader {
 
 	@Override
 	public void computeAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations, final Tag tag,
-		final ClassGenericityResolver genericityResolver) throws MojoFailureException {
+		final ClassGenericityResolver genericityResolver) {
 
 		final MergedAnnotation requestMappingMergedAnnotation = mergedAnnotations.get(jakartaPath);
 		if(requestMappingMergedAnnotation.isPresent()) {
@@ -124,13 +126,21 @@ public class JakartaRsReader extends AstractLibraryReader {
 					endpoint.setPath(path);
 					endpoint.setName(method.getName());
 					endpoint.setParameters(parameterObjects);
-					endpoint.setResponseObject(responseObject);
-					endpoint.setResponseCode(responseCode);
-					setConsumeProduceProperties(endpoint, mergedAnnotations);
+
+					Optional<ParameterObject> body = endpoint.getParameters()
+															 .stream()
+															 .filter(x -> ParameterLocation.BODY == x.getLocation())
+															 .findAny();
+					if (body.isPresent()) {
+						final List<String> consumeProperties = readConsumeProperties(endpoint, mergedAnnotations);
+						body.get().setFormats(consumeProperties);
+					}
+					endpoint.addResponse(new Response(responseCode, responseObject, null, readProduceProperties(endpoint, mergedAnnotations)));
+
 					endpoint.setIdentifier(methodIdentifier);
 					endpoint.setDeprecated(isDeprecated(method));
 					tag.addEndpoint(endpoint);
-					logger.debug("Finished parsing endpoint : " + endpoint.getComputedName() + " - " + endpoint.getType().name());
+					logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
 				}
 			}
 		}
@@ -242,28 +252,26 @@ public class JakartaRsReader extends AstractLibraryReader {
 		return Arrays.asList(concatenateBasePathAndMethodPath(basePath, path, apiConfiguration.getPathEnhancement()));
 	}
 
-	@Override
-	protected void setConsumeProduceProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations)
-		throws MojoFailureException {
-		final MergedAnnotation consumesMergedAnnotation = mergedAnnotations.get(
-			ClassLoaderUtils.getByNameRuntimeEx("jakarta.ws.rs.Consumes"));
-		final MergedAnnotation producesMergedAnnotation = mergedAnnotations.get(
-			ClassLoaderUtils.getByNameRuntimeEx("jakarta.ws.rs.Produces"));
 
-		final Optional<ParameterObject> body = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation())
-			.findAny();
-		if(body.isPresent() && consumesMergedAnnotation.isPresent()) {
-			final String[] consumes = consumesMergedAnnotation.getStringArray("value");
-			if(consumes.length > 0) {
-				body.get().setFormats(Arrays.asList(consumes));
-			}
+	@Override
+	protected List<String> readConsumeProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations) {
+
+		final MergedAnnotation consumesMergedAnnotation = mergedAnnotations.get(
+				ClassLoaderUtils.getByNameRuntimeEx("jakarta.ws.rs.Consumes"));
+		if (!consumesMergedAnnotation.isPresent()) {
+			return Collections.emptyList();
 		}
-		if(endpoint.getResponseObject() != null && producesMergedAnnotation.isPresent()) {
-			final String[] produces = producesMergedAnnotation.getStringArray("value");
-			if(produces.length > 0) {
-				endpoint.setResponseFormats(Arrays.asList(produces));
-			}
+		return Arrays.asList(consumesMergedAnnotation.getStringArray("value"));
+	}
+
+	@Override
+	protected List<String> readProduceProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations) {
+		final MergedAnnotation producesMergedAnnotation = mergedAnnotations.get(
+				ClassLoaderUtils.getByNameRuntimeEx("jakarta.ws.rs.Produces"));
+		if (!producesMergedAnnotation.isPresent()) {
+			return Collections.emptyList();
 		}
+		return Arrays.asList(producesMergedAnnotation.getStringArray("value"));
 	}
 
 	@Override
