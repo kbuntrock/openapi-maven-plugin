@@ -8,7 +8,7 @@ import static java.util.Comparator.nullsLast;
 public class Response implements Comparable<Response> {
     private final Integer code;
     private final DataObject object;
-    private final String description;
+    private String description;
     private final List<String> formats;
 
     public Response(Integer code, DataObject object, String description, List<String> formats) {
@@ -40,4 +40,9 @@ public class Response implements Comparable<Response> {
     public List<String> getFormats() {
         return formats;
     }
+
+    public void setDescription(final String description) {
+        this.description = description;
+    }
+
 }

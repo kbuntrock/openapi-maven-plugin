@@ -2,13 +2,20 @@ package io.github.kbuntrock;
 
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
+import io.github.kbuntrock.configuration.attribute_setters.endpoint.AbstractEndpointAttributeSetter;
+import io.github.kbuntrock.configuration.attribute_setters.endpoint.JavadocEndpointAttributeSetter;
+import io.github.kbuntrock.configuration.attribute_setters.endpoint.SwaggerEndpointAttributeSetter;
 import io.github.kbuntrock.configuration.library.reader.AstractLibraryReader;
+import io.github.kbuntrock.javadoc.ClassDocumentation;
+import io.github.kbuntrock.javadoc.JavadocMap;
+import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.ClassGenericityResolver;
 import io.github.kbuntrock.utils.Logger;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -128,12 +135,29 @@ public class JavaClassAnalyser {
 
 		final Method[] methods = clazz.getMethods();
 		final ClassGenericityResolver genericityResolver = new ClassGenericityResolver(clazz);
-
 		for(final Method method : methods) {
-
 			if(validateWhiteList(clazz, method) && validateBlackList(clazz, method)) {
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
-				libraryReader.computeAnnotations(basePath, method, mergedAnnotations, tag, genericityResolver);
+				final List<Endpoint> tagEndpoints = libraryReader.readAnnotations(basePath, method, mergedAnnotations, genericityResolver);
+				tag.addEndpoints(tagEndpoints);
+			}
+		}
+		final ClassDocumentation classDocumentation = JavadocMap.INSTANCE.isPresent() ?
+				JavadocMap.INSTANCE.getJavadocMap().get(tag.getClazz().getCanonicalName()) : null;
+
+		logger.debug(
+				"Class documentation found for tag paths section " + tag.getClazz().getSimpleName() + " ? " + (classDocumentation != null));
+
+		final List<AbstractEndpointAttributeSetter> endpointAttributeSetters = Arrays.asList(
+				new JavadocEndpointAttributeSetter(classDocumentation),
+				new SwaggerEndpointAttributeSetter()
+		);
+		if (classDocumentation != null) {
+			classDocumentation.inheritanceEnhancement(tag.getClazz(), ClassDocumentation.EnhancementType.METHODS);
+		}
+		for (final Endpoint endpoint: tag.getEndpoints()) {
+			for (AbstractEndpointAttributeSetter endpointAttributeSetter: endpointAttributeSetters) {
+				endpointAttributeSetter.process(endpoint);
 			}
 		}
 	}

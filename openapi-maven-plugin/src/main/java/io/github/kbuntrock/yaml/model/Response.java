@@ -28,9 +28,9 @@ public class Response {
 		return code;
 	}
 
-	public void setCode(Object code, String defaultSuccessfulOperationDescription) {
+	public void setCodeAndDefaultDescription(Object code, String defaultSuccessfulOperationDescription) {
 		this.code = code;
-		if(code instanceof Integer) {
+		if(code instanceof Integer && description == null) {
 			if((Integer) code >= 200 && (Integer) code < 300) {
 				this.description = defaultSuccessfulOperationDescription;
 			}

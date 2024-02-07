@@ -59,10 +59,11 @@ public class SpringMvcReader extends AstractLibraryReader {
 	}
 
 	@Override
-	public void computeAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations, final Tag tag,
-		final ClassGenericityResolver genericityResolver) {
+	public List<Endpoint> readAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations,
+								final ClassGenericityResolver genericityResolver) {
 
 		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
+		final List<Endpoint> returnValue = new ArrayList<>();
 		if(requestMappingMergedAnnotation.isPresent() && !excludedByReturnType(method)) {
 
 			genericityResolver.initForMethod(method);
@@ -93,12 +94,13 @@ public class SpringMvcReader extends AstractLibraryReader {
 						endpoint.addResponse(new Response(responseCode, responseObject, null, readProduceProperties(endpoint, mergedAnnotations)));
 						endpoint.setIdentifier(methodIdentifier);
 						endpoint.setDeprecated(isDeprecated(method));
-						tag.addEndpoint(endpoint);
+						returnValue.add(endpoint);
 						logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
 					}
 				}
 			}
 		}
+		return returnValue;
 	}
 
 	private boolean excludedByReturnType(final Method method) {

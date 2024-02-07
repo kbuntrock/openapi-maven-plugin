@@ -14,6 +14,7 @@ import io.github.kbuntrock.utils.ParameterLocation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -105,10 +106,11 @@ public class JakartaRsReader extends AstractLibraryReader {
 	}
 
 	@Override
-	public void computeAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations, final Tag tag,
-		final ClassGenericityResolver genericityResolver) {
+	public List<Endpoint> readAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations,
+								final ClassGenericityResolver genericityResolver) {
 
 		final MergedAnnotation requestMappingMergedAnnotation = mergedAnnotations.get(jakartaPath);
+		final List<Endpoint> returnValue = new ArrayList<>();
 		if(requestMappingMergedAnnotation.isPresent()) {
 
 			genericityResolver.initForMethod(method);
@@ -139,12 +141,12 @@ public class JakartaRsReader extends AstractLibraryReader {
 
 					endpoint.setIdentifier(methodIdentifier);
 					endpoint.setDeprecated(isDeprecated(method));
-					tag.addEndpoint(endpoint);
+					returnValue.add(endpoint);
 					logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
 				}
 			}
 		}
-
+		return returnValue;
 	}
 
 	@Override

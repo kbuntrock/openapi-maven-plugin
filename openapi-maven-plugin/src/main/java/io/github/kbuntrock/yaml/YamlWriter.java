@@ -4,17 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
-import com.github.javaparser.javadoc.JavadocBlockTag;
 import io.github.kbuntrock.MojoRuntimeException;
 import io.github.kbuntrock.TagLibrary;
 import io.github.kbuntrock.configuration.ApiConfiguration;
-import io.github.kbuntrock.configuration.attribute_getters.endpoint.deprecated.AbstractEndpointDeprecatedGetter;
-import io.github.kbuntrock.configuration.attribute_getters.endpoint.deprecated.SwaggerEndpointDeprecatedGetter;
-import io.github.kbuntrock.configuration.attribute_getters.endpoint.description.AbstractEndpointDescriptionGetter;
-import io.github.kbuntrock.configuration.attribute_getters.endpoint.description.JavadocEndpointDescriptionGetter;
-import io.github.kbuntrock.configuration.attribute_getters.endpoint.description.SwaggerEndpointDescriptionGetter;
-import io.github.kbuntrock.configuration.attribute_getters.endpoint.summary.AbstractEndpointSummaryGetter;
-import io.github.kbuntrock.configuration.attribute_getters.endpoint.summary.SwaggerEndpointSummaryGetter;
 import io.github.kbuntrock.configuration.attribute_getters.tag.name.AbstractTagNameGetter;
 import io.github.kbuntrock.configuration.attribute_getters.tag.name.ApiConfigurationTagNameGetter;
 import io.github.kbuntrock.configuration.attribute_getters.tag.name.SwaggerTagNameGetter;
@@ -23,9 +15,6 @@ import io.github.kbuntrock.configuration.attribute_getters.tag.summary.JavadocTa
 import io.github.kbuntrock.configuration.attribute_getters.tag.summary.SwaggerTagDescriptionGetter;
 import io.github.kbuntrock.configuration.parser.CommonParserUtils;
 import io.github.kbuntrock.configuration.parser.JsonParserUtils;
-import io.github.kbuntrock.javadoc.ClassDocumentation;
-import io.github.kbuntrock.javadoc.JavadocMap;
-import io.github.kbuntrock.javadoc.JavadocWrapper;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.ParameterObject;
@@ -37,6 +26,7 @@ import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.ParameterLocation;
 import io.github.kbuntrock.utils.ProduceConsumeUtils;
 import io.github.kbuntrock.yaml.model.Content;
+import io.github.kbuntrock.yaml.model.ExternalDocs;
 import io.github.kbuntrock.yaml.model.Info;
 import io.github.kbuntrock.yaml.model.Operation;
 import io.github.kbuntrock.yaml.model.ParameterElement;
@@ -140,30 +130,30 @@ public class YamlWriter {
 				new SwaggerTagDescriptionGetter(),
 				new JavadocTagDescriptionGetter()
 		);
+		final List<AbstractTagNameGetter> tagNameGetters = Arrays.asList(
+				new SwaggerTagNameGetter(),
+				new ApiConfigurationTagNameGetter(apiConfiguration)
+		);
 		// Set computed name for each tag
 		for (Tag tag: tagLibrary.getTags()) {
-			final List<AbstractTagNameGetter> tagNameGetters = Arrays.asList(
-					new SwaggerTagNameGetter(tag.getClazz()),
-					new ApiConfigurationTagNameGetter(tag.getName(), apiConfiguration)
-			);
 			tag.setComputedName(tagNameGetters
 					.stream()
-					.map(AbstractTagNameGetter::getTagName)
+					.map(tagNameGetter -> tagNameGetter.getTagName(tag))
 					.filter(Optional::isPresent)
 					.findFirst()
 					.flatMap(Function.identity())
-					.orElse(null));
+					.orElse(tag.getName()));
 		}
 		specification.setTags(tagLibrary.getSortedTags().stream()
-			.map(x -> {
+			.map(tag -> {
 				final String description = tagDescriptionGetters
 						.stream()
-						.map(e -> e.getTagDescription(x.getClazz()))
+						.map(e -> e.getTagDescription(tag))
 						.filter(Optional::isPresent)
 						.findFirst()
 						.flatMap(Function.identity())
 						.orElse(null);
-				return new TagElement(x.getComputedName(), description);
+				return new TagElement(tag.getComputedName(), description);
 			}).collect(Collectors.toList()));
 
 		specification.setPaths(createPaths(tagLibrary));
@@ -208,16 +198,7 @@ public class YamlWriter {
 		final Map<String, Map<String, Operation>> paths = new LinkedHashMap<>();
 
 		final Set<String> operationIds = new HashSet<>();
-		final List<AbstractEndpointSummaryGetter> endpointSummaryGetters = Arrays.asList(
-				new SwaggerEndpointSummaryGetter()
-		);
 		for(final Tag tag : tagLibrary.getSortedTags()) {
-
-			final ClassDocumentation classDocumentation = JavadocMap.INSTANCE.isPresent() ?
-				JavadocMap.INSTANCE.getJavadocMap().get(tag.getClazz().getCanonicalName()) : null;
-
-			logger.debug(
-				"Class documentation found for tag paths section " + tag.getClazz().getSimpleName() + " ? " + (classDocumentation != null));
 
 			// There is no need to try to enhance with the abstract or interfaces classes the documentation here.
 			// It has already been made when we were writing the tags
@@ -232,60 +213,22 @@ public class YamlWriter {
 
 				final Operation operation = new Operation();
 				operations.add(operation);
-				operation.setExternalDocs(endpoint.getComputedExternalDocs().orElse(null));
+				if (endpoint.getExternalDocUrl() != null || endpoint.getExternalDocDescription() != null) {
+					operation.setExternalDocs(new ExternalDocs(endpoint.getExternalDocUrl(), endpoint.getExternalDocDescription()));
+				}
 				operation.setName(endpoint.getType().name());
 				operation.setPath(enhancedPath);
-				final String computedTagName = tag.getComputedName();
-				operation.getTags().add(computedTagName);
+				operation.getTags().add(tag.getComputedName());
 				final String computedEndpointName = endpoint.getName();
 
 				operation.setOperationId(
-					apiConfiguration.getOperationIdHelper().toOperationId(tag.getName(), computedTagName, computedEndpointName));
+					apiConfiguration.getOperationIdHelper().toOperationId(tag.getName(), tag.getComputedName(), computedEndpointName));
 				if(apiConfiguration.isLoopbackOperationName()) {
 					operation.setLoopbackOperationName(computedEndpointName);
 				}
-				final List<AbstractEndpointDeprecatedGetter> endpointDeprecatedGetters = Arrays.asList(
-						new SwaggerEndpointDeprecatedGetter(endpoint.getMethod())
-				);
-				final boolean deprecated = endpointDeprecatedGetters
-						.stream()
-						.map(AbstractEndpointDeprecatedGetter::getEndpointDeprecated)
-						.filter(Optional::isPresent)
-						.findFirst()
-						.flatMap(Function.identity())
-						.orElse(endpoint.getDeprecated());
-				operation.setDeprecated(deprecated);
-				final String summary = endpointSummaryGetters
-						.stream()
-						.map(e -> e.getEndpointSummary(endpoint.getMethod()))
-						.filter(Optional::isPresent)
-						.findFirst()
-						.flatMap(Function.identity())
-						.orElse(null);
-				operation.setSummary(summary);
-
-				// Description
-				final List<AbstractEndpointDescriptionGetter> endpointDescriptionGetters = new ArrayList<>(
-						Arrays.asList(new SwaggerEndpointDescriptionGetter())
-				);
-				JavadocWrapper methodJavadoc = null;
-				if (classDocumentation != null) {
-					methodJavadoc  = classDocumentation.getMethodsJavadoc().get(endpoint.getIdentifier());
-					if(methodJavadoc != null) {
-						methodJavadoc.sortTags();
-						endpointDescriptionGetters.add(new JavadocEndpointDescriptionGetter(methodJavadoc));
-					}
-					logger.debug(
-							"Method documentation found for endpoint method " + endpoint.getIdentifier() + " ? " + (methodJavadoc != null));
-				}
-				final String operationDescription = endpointDescriptionGetters
-						.stream()
-						.map(e -> e.getEndpointDescription(endpoint.getMethod()))
-						.filter(Optional::isPresent)
-						.findFirst()
-						.flatMap(Function.identity())
-						.orElse(null);
-				operation.setDescription(operationDescription);
+				operation.setDeprecated(endpoint.isDeprecated());
+				operation.setSummary(endpoint.getSummary());
+				operation.setDescription(endpoint.getDescription());
 
 
 				// Warning on paths
@@ -319,21 +262,7 @@ public class YamlWriter {
 							+ endpoint.getPath() + " - " + endpoint.getType());
 					}
 					parameterElement.setSchema(schema);
-
-					// Javadoc handling
-					if(methodJavadoc != null) {
-						final Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(parameterElement.getName());
-						if(parameterDoc.isPresent()) {
-							final String description = parameterDoc.get().getContent().toText();
-							if(!description.isEmpty()) {
-								parameterElement.setDescription(parameterDoc.get().getContent().toText());
-							}
-						}
-						logger.debug(
-							"Parameter documentation found for endpoint parameter " + parameterElement.getName() + " ? "
-								+ parameterDoc.isPresent());
-					}
-
+					parameterElement.setDescription(parameter.getDescription());
 					operation.getParameters().add(parameterElement);
 				}
 
@@ -359,21 +288,7 @@ public class YamlWriter {
 					} else {
 						requestBody.getContent().put("*/*", requestBodyContent);
 					}
-
-					// Javadoc handling
-					if(methodJavadoc != null) {
-						final Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(body.getName());
-						if(parameterDoc.isPresent()) {
-							final String description = parameterDoc.get().getContent().toText();
-							if(!description.isEmpty()) {
-								requestBody.setDescription(parameterDoc.get().getContent().toText());
-							}
-						}
-						logger.debug(
-							"Parameter documentation found for endpoint body " + body.getName() + " ? "
-								+ parameterDoc.isPresent());
-					}
-
+					requestBody.setDescription(body.getDescription());
 				}
 
 				// -------------------------
@@ -394,19 +309,8 @@ public class YamlWriter {
 							response.getContent().put("*/*", responseContent);
 						}
 					}
-					response.setCode(modelResponse.getCode(), apiConfiguration.getDefaultSuccessfulOperationDescription());
-					// Apply javadoc to all responses?
-					if(methodJavadoc != null) {
-						final Optional<JavadocBlockTag> returnDoc = methodJavadoc.getReturnBlockTag();
-						if(returnDoc.isPresent()) {
-							final String description = returnDoc.get().getContent().toText();
-							if(!description.isEmpty()) {
-								response.setDescription(returnDoc.get().getContent().toText());
-							}
-						}
-						logger.debug(
-								"Return documentation found ? " + returnDoc.isPresent());
-					}
+					response.setDescription(modelResponse.getDescription());
+					response.setCodeAndDefaultDescription(modelResponse.getCode(), apiConfiguration.getDefaultSuccessfulOperationDescription());
 					operation.getResponses().put(response.getCode(), response);
 				}
 

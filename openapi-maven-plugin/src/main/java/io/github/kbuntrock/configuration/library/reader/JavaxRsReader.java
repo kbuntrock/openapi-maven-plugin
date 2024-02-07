@@ -15,6 +15,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -97,10 +98,11 @@ public class JavaxRsReader extends AstractLibraryReader {
 	}
 
 	@Override
-	public void computeAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations, final Tag tag,
-		final ClassGenericityResolver genericityResolver) {
+	public List<Endpoint> readAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations,
+								final ClassGenericityResolver genericityResolver) {
 
 		final MergedAnnotation<Path> requestMappingMergedAnnotation = mergedAnnotations.get(Path.class);
+		final List<Endpoint> returnValue = new ArrayList<>();
 		if(requestMappingMergedAnnotation.isPresent()) {
 
 			genericityResolver.initForMethod(method);
@@ -130,12 +132,12 @@ public class JavaxRsReader extends AstractLibraryReader {
 					endpoint.addResponse(new Response(responseCode, responseObject, null, readProduceProperties(endpoint, mergedAnnotations)));
 					endpoint.setIdentifier(methodIdentifier);
 					endpoint.setDeprecated(isDeprecated(method));
-					tag.addEndpoint(endpoint);
+					returnValue.add(endpoint);
 					logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
 				}
 			}
 		}
-
+		return returnValue;
 	}
 
 	@Override

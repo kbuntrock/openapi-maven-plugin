@@ -1,8 +1,5 @@
 package io.github.kbuntrock.model;
 
-import io.github.kbuntrock.yaml.model.ExternalDocs;
-import io.swagger.v3.oas.annotations.ExternalDocumentation;
-import io.swagger.v3.oas.annotations.Operation;
 import static java.util.Comparator.nullsLast;
 
 import java.lang.reflect.Method;
@@ -10,7 +7,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public class Endpoint implements Comparable<Endpoint> {
 
@@ -19,6 +15,13 @@ public class Endpoint implements Comparable<Endpoint> {
 	private OperationType type;
 
 	private String name;
+
+	private String description;
+
+	private String summary;
+
+	private String externalDocUrl;
+	private String externalDocDescription;
 
 	private List<ParameterObject> parameters;
 
@@ -37,18 +40,6 @@ public class Endpoint implements Comparable<Endpoint> {
         this.method = method;
     }
 
-
-	public Optional<ExternalDocs> getComputedExternalDocs() {
-		if (method.isAnnotationPresent(Operation.class)) {
-			ExternalDocumentation externalDocumentation = method.getAnnotation(Operation.class).externalDocs();
-			if (!externalDocumentation.description().isEmpty() || !externalDocumentation.url().isEmpty()) {
-				return Optional.of(new ExternalDocs(
-						!externalDocumentation.url().isEmpty() ? externalDocumentation.url() : null,
-						!externalDocumentation.description().isEmpty() ? externalDocumentation.description() : null));
-			}
-		}
-		return Optional.empty();
-	}
 
 	public String getPath() {
 		return path;
@@ -73,6 +64,22 @@ public class Endpoint implements Comparable<Endpoint> {
 		this.name = name;
 	}
 
+	public String getSummary() {
+		return summary;
+	}
+
+	public void setSummary(String summary) {
+		this.summary = summary;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	public Method getMethod() {
 		return method;
 	}
@@ -92,13 +99,28 @@ public class Endpoint implements Comparable<Endpoint> {
 		this.identifier = identifier;
 	}
 
-	public boolean getDeprecated() {
+	public boolean isDeprecated() {
 		return deprecated;
 	}
 	public void setDeprecated(final boolean deprecated) {
 		this.deprecated = deprecated;
 	}
 
+	public String getExternalDocUrl() {
+		return externalDocUrl;
+	}
+
+	public void setExternalDocUrl(String externalDocUrl) {
+		this.externalDocUrl = externalDocUrl;
+	}
+
+	public String getExternalDocDescription() {
+		return externalDocDescription;
+	}
+
+	public void setExternalDocDescription(String externalDocDescription) {
+		this.externalDocDescription = externalDocDescription;
+	}
 	@Override
 	public int compareTo(final Endpoint o) {
 		return Comparator
@@ -115,5 +137,4 @@ public class Endpoint implements Comparable<Endpoint> {
 	public void addResponse(Response response) {
 		this.responses.put(response.getCode(), response);
 	}
-
 }

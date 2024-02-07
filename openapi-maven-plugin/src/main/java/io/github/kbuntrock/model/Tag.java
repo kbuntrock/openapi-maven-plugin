@@ -15,6 +15,7 @@ public class Tag implements Comparable<Tag> {
 
 	private final List<Endpoint> endpoints = new ArrayList<>();
 	private String name;
+	private String description;
 	private final Class<?> clazz;
 	private String computedName;
 
@@ -47,8 +48,8 @@ public class Tag implements Comparable<Tag> {
 		return endpoints.stream().sorted().collect(Collectors.toList());
 	}
 
-	public void addEndpoint(final Endpoint endpoint) {
-		this.endpoints.add(endpoint);
+	public void addEndpoints(final List<Endpoint> endpoint) {
+		this.endpoints.addAll(endpoint);
 	}
 
 	public Class<?> getClazz() {
@@ -70,5 +71,13 @@ public class Tag implements Comparable<Tag> {
 			.thenComparing(t -> t.name, nullsLast(String::compareTo))
 			.thenComparing(t -> t.clazz.getCanonicalName())
 			.compare(this, o);
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

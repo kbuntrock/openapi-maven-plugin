@@ -1,5 +1,6 @@
 package io.github.kbuntrock.configuration.attribute_getters.tag.summary;
 
+import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.utils.Logger;
 import org.apache.maven.plugin.logging.Log;
 
@@ -12,6 +13,6 @@ public abstract class AbstractTagDescriptionGetter {
 	protected AbstractTagDescriptionGetter() {
 	}
 
-	public abstract Optional<String> getTagDescription(final Class<?> clazz);
+	public abstract Optional<String> getTagDescription(final Tag tag);
 
 }
