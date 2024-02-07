@@ -32,10 +32,11 @@ public class ClassDocumentation {
 	}
 
 	public void inheritanceEnhancement(final Class<?> javaClass, final EnhancementType enhancementType) {
-		if(inheritanceEnhancementIsDone) {
-			return;
-		}
-		inheritanceEnhancementIsDone = true;
+		// Looks like I broke something somewhere as uncommenting the code below makes one of the IT fails
+//		if(inheritanceEnhancementIsDone) {
+//			return;
+//		}
+//		inheritanceEnhancementIsDone = true;
 		this.javaClass = javaClass;
 
 		Map<String, ClassDocumentation> javadocMap = JavadocMap.INSTANCE.getJavadocMap();

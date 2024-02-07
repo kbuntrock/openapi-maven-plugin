@@ -5,9 +5,15 @@ import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.EnumConfigHolder;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
+import io.github.kbuntrock.configuration.attribute_setters.endpoint.AbstractEndpointAttributeSetter;
+import io.github.kbuntrock.configuration.attribute_setters.endpoint.JavadocEndpointAttributeSetter;
+import io.github.kbuntrock.configuration.attribute_setters.endpoint.SwaggerEndpointAttributeSetter;
+import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.JavadocMap;
 import io.github.kbuntrock.javadoc.JavadocParser;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
+import io.github.kbuntrock.model.Endpoint;
+import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.FileUtils;
@@ -27,6 +33,7 @@ import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -103,7 +110,7 @@ public class DocumentationMojo extends AbstractMojo {
 
 	}
 
-	public List<File> documentProject() throws MojoFailureException, MojoExecutionException {
+	public List<File> documentProject() throws MojoFailureException {
 
 		// Log the java version
 		final String version = System.getProperty("java.version");
@@ -136,7 +143,6 @@ public class DocumentationMojo extends AbstractMojo {
 	 * @throws MojoExecutionException
 	 */
 	private List<File> scanProjectResourcesAndWriteSpec() throws MojoFailureException {
-
 		final List<File> generatedFiles = new ArrayList<>();
 		for(final ApiConfiguration initialApiConfiguration : apis) {
 			AdditionnalSchemaLibrary.reset();
@@ -146,6 +152,7 @@ public class DocumentationMojo extends AbstractMojo {
 			getLog().debug("Prepare to scan");
 			final TagLibrary tagLibrary = apiResourceScanner.scanRestControllers();
 			getLog().debug("Scan done");
+			overrideModelAttributes(tagLibrary);
 
 			File generatedFile = null;
 			try {
@@ -193,6 +200,29 @@ public class DocumentationMojo extends AbstractMojo {
 			}
 		}
 		return generatedFiles;
+	}
+
+	private void overrideModelAttributes(final TagLibrary tagLibrary) {
+		for (Tag tag: tagLibrary.getTags()) {
+			final ClassDocumentation classDocumentation = JavadocMap.INSTANCE.isPresent() ?
+					JavadocMap.INSTANCE.getJavadocMap().get(tag.getClazz().getCanonicalName()) : null;
+
+			getLog().debug(
+					"Class documentation found for tag paths section " + tag.getClazz().getSimpleName() + " ? " + (classDocumentation != null));
+
+			final List<AbstractEndpointAttributeSetter> endpointAttributeSetters = Arrays.asList(
+					new JavadocEndpointAttributeSetter(classDocumentation),
+					new SwaggerEndpointAttributeSetter()
+			);
+			if (classDocumentation != null) {
+				classDocumentation.inheritanceEnhancement(tag.getClazz(), ClassDocumentation.EnhancementType.BOTH);
+			}
+			for (final Endpoint endpoint: tag.getEndpoints()) {
+				for (AbstractEndpointAttributeSetter endpointAttributeSetter: endpointAttributeSetters) {
+					endpointAttributeSetter.process(endpoint);
+				}
+			}
+		}
 	}
 
 	private void initObjectMapperFactory(final ApiConfiguration apiConfig) {

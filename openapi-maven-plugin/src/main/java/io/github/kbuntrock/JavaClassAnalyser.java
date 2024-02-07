@@ -142,24 +142,6 @@ public class JavaClassAnalyser {
 				tag.addEndpoints(tagEndpoints);
 			}
 		}
-		final ClassDocumentation classDocumentation = JavadocMap.INSTANCE.isPresent() ?
-				JavadocMap.INSTANCE.getJavadocMap().get(tag.getClazz().getCanonicalName()) : null;
-
-		logger.debug(
-				"Class documentation found for tag paths section " + tag.getClazz().getSimpleName() + " ? " + (classDocumentation != null));
-
-		final List<AbstractEndpointAttributeSetter> endpointAttributeSetters = Arrays.asList(
-				new JavadocEndpointAttributeSetter(classDocumentation),
-				new SwaggerEndpointAttributeSetter()
-		);
-		if (classDocumentation != null) {
-			classDocumentation.inheritanceEnhancement(tag.getClazz(), ClassDocumentation.EnhancementType.METHODS);
-		}
-		for (final Endpoint endpoint: tag.getEndpoints()) {
-			for (AbstractEndpointAttributeSetter endpointAttributeSetter: endpointAttributeSetters) {
-				endpointAttributeSetter.process(endpoint);
-			}
-		}
 	}
 
 	private boolean validateWhiteList(final Class<?> clazz, final Method method) {
