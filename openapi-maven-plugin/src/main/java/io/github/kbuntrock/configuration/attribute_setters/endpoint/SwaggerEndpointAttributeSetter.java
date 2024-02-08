@@ -1,6 +1,7 @@
 package io.github.kbuntrock.configuration.attribute_setters.endpoint;
 
 import io.github.kbuntrock.model.Endpoint;
+import io.github.kbuntrock.model.ExternalDocs;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -14,6 +15,10 @@ public class SwaggerEndpointAttributeSetter extends AbstractEndpointAttributeSet
     private void parseOperationAnnotation(final Endpoint endpoint) {
         if (endpoint.getMethod().isAnnotationPresent(Operation.class)) {
             final Operation operation = endpoint.getMethod().getAnnotation(Operation.class);
+            // OperationId
+            if (!operation.operationId().isEmpty()) {
+                endpoint.setOperationId(operation.operationId());
+            }
             // Deprecated
             endpoint.setDeprecated(operation.deprecated());
             // Summary
@@ -28,11 +33,11 @@ public class SwaggerEndpointAttributeSetter extends AbstractEndpointAttributeSet
             }
             // External docs
             ExternalDocumentation externalDocumentation = operation.externalDocs();
-            if (!externalDocumentation.url().isEmpty()) {
-                endpoint.setExternalDocUrl(externalDocumentation.url());
-            }
-            if (!externalDocumentation.description().isEmpty()) {
-                endpoint.setExternalDocDescription(externalDocumentation.description());
+            if (!externalDocumentation.url().isEmpty() || !externalDocumentation.description().isEmpty()) {
+                endpoint.setExternalDocs(new ExternalDocs(
+                        externalDocumentation.url(),
+                        externalDocumentation.description()
+                ));
             }
         }
     }

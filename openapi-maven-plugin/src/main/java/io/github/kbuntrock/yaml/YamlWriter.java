@@ -160,7 +160,11 @@ public class YamlWriter {
                         description = classDocumentation.getDescription().get();
                     }
 				}
-				return new TagElement(tag.getComputedName(), description);
+				ExternalDocs externalDocs = null;
+				if (tag.getExternalDocs() != null) {
+					externalDocs = new ExternalDocs(tag.getExternalDocs().getExternalDocUrl(), tag.getExternalDocs().getExternalDocDescription());
+				}
+				return new TagElement(tag.getComputedName(), description, externalDocs);
 			})
 										.collect(Collectors.toList()));
 
@@ -227,16 +231,20 @@ public class YamlWriter {
 
 				final Operation operation = new Operation();
 				operations.add(operation);
-				if (endpoint.getExternalDocUrl() != null || endpoint.getExternalDocDescription() != null) {
-					operation.setExternalDocs(new ExternalDocs(endpoint.getExternalDocUrl(), endpoint.getExternalDocDescription()));
+				if (endpoint.getExternalDocs() != null) {
+					operation.setExternalDocs(new ExternalDocs(endpoint.getExternalDocs().getExternalDocUrl(),
+							endpoint.getExternalDocs().getExternalDocDescription()));
 				}
 				operation.setName(endpoint.getType().name());
 				operation.setPath(enhancedPath);
 				operation.getTags().add(tag.getComputedName());
 				final String computedEndpointName = endpoint.getName();
-
-				operation.setOperationId(
-					apiConfiguration.getOperationIdHelper().toOperationId(tag.getName(), tag.getComputedName(), computedEndpointName));
+				if (endpoint.getOperationId() != null) {
+					operation.setOperationId(endpoint.getOperationId());
+				} else {
+					operation.setOperationId(
+						apiConfiguration.getOperationIdHelper().toOperationId(tag.getName(), tag.getComputedName(), computedEndpointName));
+				}
 				if(apiConfiguration.isLoopbackOperationName()) {
 					operation.setLoopbackOperationName(computedEndpointName);
 				}

@@ -11,12 +11,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@Tag(name = "SwaggerTagName", description = "Swagger Tag Description")
+@Tag(name = "SwaggerTagName", description = "Swagger Tag Description",
+		externalDocs = @ExternalDocumentation(description = "Tag external docs description", url = "https://github.com/kbuntrock/openapi-maven-plugin/"))
 @RequestMapping(Constants.BASE_API + "/swagger")
 public interface SwaggerController {
 
 	@Operation(summary = "Operation summary", description = "Operation description", deprecated = true,
-			externalDocs = @ExternalDocumentation(description = "External docs description", url = "https://github.com/kbuntrock/openapi-maven-plugin/"))
+			externalDocs = @ExternalDocumentation(description = "Endpoint external docs description", url = "https://github.com/kbuntrock/openapi-maven-plugin/"),
+	operationId = "documentedEndpointCustomOperationId")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "successful operation")})
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)

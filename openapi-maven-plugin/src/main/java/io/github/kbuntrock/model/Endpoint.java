@@ -16,12 +16,13 @@ public class Endpoint implements Comparable<Endpoint> {
 
 	private String name;
 
+	private String operationId;
+
 	private String description;
 
 	private String summary;
 
-	private String externalDocUrl;
-	private String externalDocDescription;
+	private ExternalDocs externalDocs;
 
 	private List<ParameterObject> parameters;
 
@@ -64,6 +65,13 @@ public class Endpoint implements Comparable<Endpoint> {
 		this.name = name;
 	}
 
+	public String getOperationId() {
+		return operationId;
+	}
+
+	public void setOperationId(String operationId) {
+		this.operationId = operationId;
+	}
 	public String getSummary() {
 		return summary;
 	}
@@ -106,21 +114,14 @@ public class Endpoint implements Comparable<Endpoint> {
 		this.deprecated = deprecated;
 	}
 
-	public String getExternalDocUrl() {
-		return externalDocUrl;
+	public ExternalDocs getExternalDocs() {
+		return externalDocs;
 	}
 
-	public void setExternalDocUrl(String externalDocUrl) {
-		this.externalDocUrl = externalDocUrl;
+	public void setExternalDocs(ExternalDocs externalDocs) {
+		this.externalDocs = externalDocs;
 	}
 
-	public String getExternalDocDescription() {
-		return externalDocDescription;
-	}
-
-	public void setExternalDocDescription(String externalDocDescription) {
-		this.externalDocDescription = externalDocDescription;
-	}
 	@Override
 	public int compareTo(final Endpoint o) {
 		return Comparator

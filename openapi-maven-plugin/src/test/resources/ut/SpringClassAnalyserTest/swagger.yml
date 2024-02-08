@@ -8,12 +8,15 @@ servers:
 tags:
   - name: SwaggerTagName
     description: Swagger Tag Description
+    externalDocs:
+      url: https://github.com/kbuntrock/openapi-maven-plugin/
+      description: Tag external docs description
 paths:
   /api/swagger:
     get:
       tags:
         - SwaggerTagName
-      operationId: documentedEndpoint
+      operationId: documentedEndpointCustomOperationId
       description: Operation description
       summary: Operation summary
       deprecated: true
@@ -26,7 +29,7 @@ paths:
                 type: boolean
       externalDocs:
         url: https://github.com/kbuntrock/openapi-maven-plugin/
-        description: External docs description
+        description: Endpoint external docs description
     post:
       tags:
         - SwaggerTagName

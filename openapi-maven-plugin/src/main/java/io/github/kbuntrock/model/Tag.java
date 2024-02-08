@@ -18,6 +18,7 @@ public class Tag implements Comparable<Tag> {
 	private String description;
 	private final Class<?> clazz;
 	private String computedName;
+	private ExternalDocs externalDocs;
 
 	public Tag(final Class<?> clazz) {
 		this.name = clazz.getSimpleName();
@@ -30,6 +31,22 @@ public class Tag implements Comparable<Tag> {
 
 	public void setName(final String name) {
 		this.name = name;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public ExternalDocs getExternalDocs() {
+		return externalDocs;
+	}
+
+	public void setExternalDocs(ExternalDocs externalDocs) {
+		this.externalDocs = externalDocs;
 	}
 
 	public void setComputedName(final String computedName) {
@@ -73,11 +90,4 @@ public class Tag implements Comparable<Tag> {
 			.compare(this, o);
 	}
 
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
 }

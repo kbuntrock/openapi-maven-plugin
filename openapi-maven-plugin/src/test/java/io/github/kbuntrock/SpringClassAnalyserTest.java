@@ -734,7 +734,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	}
 
 	@Test
-	public void swagger() throws MojoFailureException, MojoExecutionException, IOException {
+	public void swagger() throws MojoFailureException, IOException {
 
 		final DocumentationMojo mojo = createBasicMojo(
 				io.github.kbuntrock.resources.endpoint.swagger.SwaggerController.class.getCanonicalName());
