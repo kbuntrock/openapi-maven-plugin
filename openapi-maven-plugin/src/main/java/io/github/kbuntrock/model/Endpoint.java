@@ -2,8 +2,11 @@ package io.github.kbuntrock.model;
 
 import static java.util.Comparator.nullsLast;
 
+import java.lang.reflect.Method;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Endpoint implements Comparable<Endpoint> {
 
@@ -13,11 +16,17 @@ public class Endpoint implements Comparable<Endpoint> {
 
 	private String name;
 
+	private String operationId;
+
+	private String description;
+
+	private String summary;
+
+	private ExternalDocs externalDocs;
+
 	private List<ParameterObject> parameters;
 
-	private Integer responseCode;
-	private DataObject responseObject;
-	private List<String> responseFormats;
+	private final Map<Integer, Response> responses = new HashMap<>(); // Indexed on response's code
 
 	private boolean deprecated = false;
 
@@ -25,6 +34,13 @@ public class Endpoint implements Comparable<Endpoint> {
 	 * Used to identify uniquely a endpoint. Aggregation of the returned type, the name and the parameters types.
 	 */
 	private String identifier;
+
+    private final Method method;
+
+    public Endpoint(Method method) {
+        this.method = method;
+    }
+
 
 	public String getPath() {
 		return path;
@@ -45,41 +61,42 @@ public class Endpoint implements Comparable<Endpoint> {
 	public String getName() {
 		return name;
 	}
-
 	public void setName(final String name) {
 		this.name = name;
 	}
 
+	public String getOperationId() {
+		return operationId;
+	}
+
+	public void setOperationId(String operationId) {
+		this.operationId = operationId;
+	}
+	public String getSummary() {
+		return summary;
+	}
+
+	public void setSummary(String summary) {
+		this.summary = summary;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public Method getMethod() {
+		return method;
+	}
 	public List<ParameterObject> getParameters() {
 		return parameters;
 	}
 
 	public void setParameters(final List<ParameterObject> parameters) {
 		this.parameters = parameters;
-	}
-
-	public Integer getResponseCode() {
-		return responseCode;
-	}
-
-	public void setResponseCode(final Integer responseCode) {
-		this.responseCode = responseCode;
-	}
-
-	public DataObject getResponseObject() {
-		return responseObject;
-	}
-
-	public void setResponseObject(final DataObject responseObject) {
-		this.responseObject = responseObject;
-	}
-
-	public List<String> getResponseFormats() {
-		return responseFormats;
-	}
-
-	public void setResponseFormats(final List<String> responseFormats) {
-		this.responseFormats = responseFormats;
 	}
 
 	public String getIdentifier() {
@@ -93,9 +110,16 @@ public class Endpoint implements Comparable<Endpoint> {
 	public boolean isDeprecated() {
 		return deprecated;
 	}
-
 	public void setDeprecated(final boolean deprecated) {
 		this.deprecated = deprecated;
+	}
+
+	public ExternalDocs getExternalDocs() {
+		return externalDocs;
+	}
+
+	public void setExternalDocs(ExternalDocs externalDocs) {
+		this.externalDocs = externalDocs;
 	}
 
 	@Override
@@ -105,5 +129,13 @@ public class Endpoint implements Comparable<Endpoint> {
 			.thenComparing(e -> e.type)
 			.thenComparing(e -> e.name)
 			.compare(this, o);
+	}
+
+	public Map<Integer, Response> getResponses() {
+		return responses;
+	}
+
+	public void addResponse(Response response) {
+		this.responses.put(response.getCode(), response);
 	}
 }

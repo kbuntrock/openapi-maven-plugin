@@ -1,0 +1,43 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: SwaggerTagName
+    description: Swagger Tag Description
+    externalDocs:
+      url: https://github.com/kbuntrock/openapi-maven-plugin/
+      description: Tag external docs description
+paths:
+  /api/swagger:
+    get:
+      tags:
+        - SwaggerTagName
+      operationId: documentedEndpointCustomOperationId
+      description: Operation description
+      summary: Operation summary
+      deprecated: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: boolean
+      externalDocs:
+        url: https://github.com/kbuntrock/openapi-maven-plugin/
+        description: Endpoint external docs description
+    post:
+      tags:
+        - SwaggerTagName
+      operationId: nonDocumentedEndpoint
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: boolean

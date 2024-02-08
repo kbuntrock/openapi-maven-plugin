@@ -733,5 +733,12 @@ public class SpringClassAnalyserTest extends AbstractTest {
 			.hasMessageContaining("More than one operation mapped on GET : /api/controller-3/info in tag MyController");
 	}
 
+	@Test
+	public void swagger() throws MojoFailureException, IOException {
 
+		final DocumentationMojo mojo = createBasicMojo(
+				io.github.kbuntrock.resources.endpoint.swagger.SwaggerController.class.getCanonicalName());
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/swagger.yml", generated.get(0));
+	}
 }

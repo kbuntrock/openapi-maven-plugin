@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.ParameterObject;
+import io.github.kbuntrock.model.Response;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import java.lang.reflect.Field;
@@ -35,7 +36,7 @@ public class TagLibrary {
 	private final Set<String> exploredSignatures = new HashSet<>();
 	final Map<Class, DataObject> classToSchemaObject = new HashMap<>();
 
-	public void addTag(final Tag tag) throws MojoFailureException {
+	public void addTag(final Tag tag) {
 		tags.add(tag);
 		exploreTagObjects(tag);
 	}
@@ -57,8 +58,10 @@ public class TagLibrary {
 	 */
 	private void exploreTagObjects(final Tag tag) {
 		for(final Endpoint endpoint : tag.getEndpoints()) {
-			if(endpoint.getResponseObject() != null) {
-				exploreDataObject(endpoint.getResponseObject());
+			for (Response response: endpoint.getResponses().values()) {
+				if (response.getObject() != null) {
+					exploreDataObject(response.getObject());
+				}
 			}
 
 			for(final ParameterObject parameterObject : endpoint.getParameters()) {

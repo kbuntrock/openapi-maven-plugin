@@ -9,13 +9,13 @@ public class TagElement {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String description;
 
-	public TagElement() {
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private ExternalDocs externalDocs;
 
-	}
-
-	public TagElement(String name, String description) {
+	public TagElement(String name, String description, ExternalDocs externalDocs) {
 		this.name = name;
 		this.description = description;
+		this.externalDocs = externalDocs;
 	}
 
 	public String getName() {
@@ -32,5 +32,9 @@ public class TagElement {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public ExternalDocs getExternalDocs() {
+		return externalDocs;
 	}
 }

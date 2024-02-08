@@ -7,6 +7,7 @@ import java.util.List;
 public class ParameterObject extends DataObject {
 
 	private String name;
+	private String description;
 	private boolean required;
 	private ParameterLocation location;
 	// Set only if it is a "body" parameter : json, xml, plain text, ...
@@ -47,5 +48,13 @@ public class ParameterObject extends DataObject {
 
 	public void setFormats(List<String> formats) {
 		this.formats = formats;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

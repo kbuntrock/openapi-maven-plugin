@@ -21,6 +21,8 @@ public class Operation {
 	private String loopbackOperationName;
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String description;
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String summary;
 	@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 	private boolean deprecated;
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -30,6 +32,9 @@ public class Operation {
 
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private final Map<Object, Object> responses = new LinkedHashMap<>();
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private ExternalDocs externalDocs;
 
 	public String getName() {
 		return name;
@@ -86,6 +91,13 @@ public class Operation {
 	public void setDescription(final String description) {
 		this.description = description;
 	}
+	public String getSummary() {
+		return summary;
+	}
+
+	public void setSummary(final String summary) {
+		this.summary = summary;
+	}
 
 	public boolean isDeprecated() {
 		return deprecated;
@@ -101,5 +113,13 @@ public class Operation {
 
 	public void setLoopbackOperationName(final String loopbackOperationName) {
 		this.loopbackOperationName = loopbackOperationName;
+	}
+
+	public ExternalDocs getExternalDocs() {
+		return externalDocs;
+	}
+
+	public void setExternalDocs(ExternalDocs externalDocs) {
+		this.externalDocs = externalDocs;
 	}
 }

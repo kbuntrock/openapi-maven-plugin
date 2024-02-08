@@ -6,10 +6,25 @@ import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.OperationType;
 import io.github.kbuntrock.model.ParameterObject;
-import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.model.Response;
 import io.github.kbuntrock.reflection.ClassGenericityResolver;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.ParameterLocation;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
+import org.springframework.core.annotation.MergedAnnotation;
+import org.springframework.core.annotation.MergedAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -22,21 +37,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.reflect.MethodUtils;
-import org.apache.maven.plugin.MojoFailureException;
-import org.springframework.core.annotation.MergedAnnotation;
-import org.springframework.core.annotation.MergedAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.multipart.MultipartFile;
 
 public class SpringMvcReader extends AstractLibraryReader {
 
@@ -58,10 +58,11 @@ public class SpringMvcReader extends AstractLibraryReader {
 	}
 
 	@Override
-	public void computeAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations, final Tag tag,
-		final ClassGenericityResolver genericityResolver) throws MojoFailureException {
+	public List<Endpoint> readAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations,
+								final ClassGenericityResolver genericityResolver) {
 
 		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
+		final List<Endpoint> returnValue = new ArrayList<>();
 		if(requestMappingMergedAnnotation.isPresent() && !excludedByReturnType(method)) {
 
 			genericityResolver.initForMethod(method);
@@ -76,22 +77,29 @@ public class SpringMvcReader extends AstractLibraryReader {
 				final List<String> paths = readEndpointPaths(basePath, requestMappingMergedAnnotation);
 				for(final RequestMethod requestMethod : requestMethods) {
 					for(final String path : paths) {
-						final Endpoint endpoint = new Endpoint();
+						final Endpoint endpoint = new Endpoint(method);
 						endpoint.setType(OperationType.fromJavax(requestMethod));
 						endpoint.setPath(path);
 						endpoint.setName(method.getName());
 						endpoint.setParameters(parameterObjects);
-						endpoint.setResponseObject(responseObject);
-						endpoint.setResponseCode(responseCode);
-						setConsumeProduceProperties(endpoint, mergedAnnotations);
+						Optional<ParameterObject> body = endpoint.getParameters()
+																 .stream()
+																 .filter(x -> ParameterLocation.BODY == x.getLocation())
+																 .findAny();
+						if (body.isPresent()) {
+							final List<String> consumeProperties = readConsumeProperties(endpoint, mergedAnnotations);
+							body.get().setFormats(consumeProperties);
+						}
+						endpoint.addResponse(new Response(responseCode, responseObject, null, readProduceProperties(endpoint, mergedAnnotations)));
 						endpoint.setIdentifier(methodIdentifier);
 						endpoint.setDeprecated(isDeprecated(method));
-						tag.addEndpoint(endpoint);
+						returnValue.add(endpoint);
 						logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
 					}
 				}
 			}
 		}
+		return returnValue;
 	}
 
 	private boolean excludedByReturnType(final Method method) {
@@ -186,26 +194,19 @@ public class SpringMvcReader extends AstractLibraryReader {
 		return resolvedPaths;
 	}
 
+
 	@Override
-	protected void setConsumeProduceProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations)
-		throws MojoFailureException {
+	protected List<String> readConsumeProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations) {
 
 		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
+		return Arrays.asList(requestMappingMergedAnnotation.getStringArray("consumes"));
+	}
 
-		final Optional<ParameterObject> body = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation())
-			.findAny();
-		if(body.isPresent()) {
-			final String[] consumes = requestMappingMergedAnnotation.getStringArray("consumes");
-			if(consumes.length > 0) {
-				body.get().setFormats(Arrays.asList(consumes));
-			}
-		}
-		if(endpoint.getResponseObject() != null) {
-			final String[] produces = requestMappingMergedAnnotation.getStringArray("produces");
-			if(produces.length > 0) {
-				endpoint.setResponseFormats(Arrays.asList(produces));
-			}
-		}
+	@Override
+	protected List<String> readProduceProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations) {
+
+		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
+		return Arrays.asList(requestMappingMergedAnnotation.getStringArray("produces"));
 	}
 
 	@Override

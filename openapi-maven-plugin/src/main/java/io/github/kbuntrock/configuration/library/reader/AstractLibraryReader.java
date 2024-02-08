@@ -90,16 +90,19 @@ public abstract class AstractLibraryReader {
 
 	public abstract List<String> readBasePaths(final Class<?> clazz, final MergedAnnotations mergedAnnotations);
 
-	public abstract void computeAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations,
-		final Tag tag, final ClassGenericityResolver genericityResolver) throws MojoFailureException;
+	public abstract List<Endpoint> readAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations,
+										 final ClassGenericityResolver genericityResolver) throws MojoFailureException;
 
 	protected abstract List<ParameterObject> readParameters(Method originalMethod, final ClassGenericityResolver genericityResolver);
 
 	protected abstract List<String> readEndpointPaths(String basePath,
 		MergedAnnotation<? extends Annotation> requestMappingMergedAnnotation);
 
-	protected abstract void setConsumeProduceProperties(Endpoint endpoint, final MergedAnnotations mergedAnnotations)
-		throws MojoFailureException;
+	protected abstract List<String> readConsumeProperties(Endpoint endpoint, final MergedAnnotations mergedAnnotations)
+			throws MojoFailureException;
+
+	protected abstract List<String> readProduceProperties(Endpoint endpoint, final MergedAnnotations mergedAnnotations)
+			throws MojoFailureException;
 
 	protected abstract int readResponseCode(MergedAnnotations mergedAnnotations);
 
