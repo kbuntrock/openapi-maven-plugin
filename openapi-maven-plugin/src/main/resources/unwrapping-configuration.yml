@@ -1,14 +1,18 @@
 ---
+# The configuration is divided in 3 sections to allow better performances
+# Describe unwrapping in api responses
 response:
   java.util.Optional:
     typeName: T
     required: false
   org.springframework.http.HttpEntity:
     typeName: T
+# Describe unwrapping in api parameters
 parameter:
   java.util.Optional:
     typeName: T
     required: false
+# Describe unwrapping in components schema section
 schema:
   java.util.Optional:
     typeName: T
