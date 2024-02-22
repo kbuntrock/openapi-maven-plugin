@@ -158,14 +158,13 @@ public class Schema {
 							}
 							// Jackson @JsonProperty annotation handling
 							String propertyFieldName = field.getName();
-							if (field.isAnnotationPresent(JsonProperty.class)) {
-								final JsonProperty jsonPropertyField = field.getAnnotation(JsonProperty.class);
-								if (!jsonPropertyField.value().isEmpty()) {
-									propertyFieldName = jsonPropertyField.value();
-								}
+							final JsonProperty jsonPropertyField = field.getAnnotation(JsonProperty.class);
+							if(jsonPropertyField != null && !jsonPropertyField.value().isEmpty()) {
+								propertyFieldName = jsonPropertyField.value();
 							}
 							final DataObject propertyObject = new DataObject(dataObject.getContextualType(field.getGenericType()));
-							final Property property = new Property(propertyObject, false, propertyFieldName, exploredSignatures, dataObject);
+							final Property property = new Property(propertyObject, false, propertyFieldName, exploredSignatures,
+								dataObject);
 							extractConstraints(field, property);
 							properties.put(property.getName(), property);
 
