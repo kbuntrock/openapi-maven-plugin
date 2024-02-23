@@ -279,6 +279,13 @@ public enum OpenApiTypeResolver {
 			if(entry.getKey().isAssignableFrom(dataObject.getJavaClass())) {
 				final DataObject unwrapped = new DataObject(
 					dataObject.getGenericNameToTypeMap().get(entry.getValue().getTypeName()));
+
+				// Instrasic class requirement (ex: Optional) is carried from multiple unwrapping
+				if(dataObject.getClassRequired() != null) {
+					unwrapped.setClassRequired(dataObject.getClassRequired());
+				} else if(entry.getValue().getRequired() != null) {
+					unwrapped.setClassRequired(entry.getValue().getRequired());
+				}
 				return unwrapDataObject(unwrapped, unwrappingMap);
 			}
 		}

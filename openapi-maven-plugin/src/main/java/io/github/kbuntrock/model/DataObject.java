@@ -33,7 +33,7 @@ public class DataObject {
 	 * index 0 : the key type
 	 * index 1 : the value type
 	 */
-	private final DataObject[] mapKeyValueDataObjects = new DataObject[2];
+	private DataObject[] mapKeyValueDataObjects = new DataObject[2];
 	/**
 	 * The original java class
 	 */
@@ -71,6 +71,32 @@ public class DataObject {
 	 * The name to use in the schema section. Is only set when needed.
 	 */
 	private String schemaReferenceName;
+
+	/**
+	 * Sometimes a class intrinsically carry the information of its requirement (ex : optional).
+	 * This attribute is only used in this context (not linked with potential annotations)
+	 * A null value is expected if the class does not carry this information.
+	 */
+	private Boolean classRequired;
+
+	/**
+	 * Shallow copy for Parameter Oject creation
+	 *
+	 * @param dataObject
+	 */
+	public DataObject(final DataObject dataObject) {
+		this.mapKeyValueDataObjects = dataObject.mapKeyValueDataObjects;
+		this.javaClass = dataObject.javaClass;
+		this.javaType = dataObject.javaType;
+		this.openApiResolvedType = dataObject.openApiResolvedType;
+		this.arrayItemDataObject = dataObject.arrayItemDataObject;
+		this.enumItemValues = dataObject.enumItemValues;
+		this.enumItemNames = dataObject.enumItemNames;
+		this.genericallyTyped = dataObject.genericallyTyped;
+		this.genericNameToTypeMap = dataObject.genericNameToTypeMap;
+		this.schemaReferenceName = dataObject.schemaReferenceName;
+		this.classRequired = dataObject.classRequired;
+	}
 
 
 	public DataObject(final Type originalType) {
@@ -255,6 +281,14 @@ public class DataObject {
 
 	public Type getJavaType() {
 		return javaType;
+	}
+
+	public Boolean getClassRequired() {
+		return classRequired;
+	}
+
+	public void setClassRequired(final Boolean classRequired) {
+		this.classRequired = classRequired;
 	}
 
 	public String getSignature() {
