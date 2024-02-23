@@ -17,6 +17,11 @@ public class ParameterObject extends DataObject {
 		this.name = name;
 	}
 
+	public ParameterObject(final String name, final DataObject dataObject) {
+		super(dataObject);
+		this.name = name;
+	}
+
 	public String getName() {
 		return name;
 	}

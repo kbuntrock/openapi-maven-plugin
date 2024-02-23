@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.ValueConstants;
 import org.springframework.web.multipart.MultipartFile;
 
 public class SpringMvcReader extends AstractLibraryReader {
@@ -114,9 +115,9 @@ public class SpringMvcReader extends AstractLibraryReader {
 				}
 				logger.debug("Parameter : " + parameter.getName());
 
-				ParameterObject paramObj = parameters.computeIfAbsent(parameter.getName(),
-					(name) -> new ParameterObject(name, genericityResolver.getContextualType(parameter.getParameterizedType(), method)));
-				paramObj = unwrapParameterObject(paramObj);
+				final ParameterObject paramObj = parameters.computeIfAbsent(parameter.getName(),
+					(name) -> unwrapParameterObject(
+						new ParameterObject(name, genericityResolver.getContextualType(parameter.getParameterizedType(), method))));
 
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
 					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
@@ -147,7 +148,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 					} else {
 						paramObj.setLocation(ParameterLocation.QUERY);
 					}
-					paramObj.setRequired(requestParamMA.getBoolean("required"));
+					paramObj.setRequired(requestParamMA.getBoolean("required") && !requestParamHasDefaultValue(requestParamMA));
 
 					// The value is equivalent to the name (alias for and user of MergedAnnotation)
 					final String value = requestParamMA.getString("value");
@@ -166,10 +167,19 @@ public class SpringMvcReader extends AstractLibraryReader {
 					logger.debug("RequestBody annotation detected, location is " + paramObj.getLocation().toString());
 				}
 
+				// Class "requirement" has precedence on any annotation (we can't force an optional to be required ...)
+				if(paramObj.getClassRequired() != null) {
+					paramObj.setRequired(paramObj.getClassRequired());
+				}
+
 			}
 		}
 
 		return parameters.values().stream().filter(x -> x.getLocation() != null).collect(Collectors.toList());
+	}
+
+	private static boolean requestParamHasDefaultValue(final MergedAnnotation<RequestParam> requestParam) {
+		return !ValueConstants.DEFAULT_NONE.equals(requestParam.getString("defaultValue"));
 	}
 
 	@Override

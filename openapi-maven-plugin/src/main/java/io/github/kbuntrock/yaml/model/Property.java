@@ -44,6 +44,9 @@ public class Property extends Schema {
 		if(dataObject.isOpenApiArray()) {
 			this.setUniqueItems(true);
 		}
+		if(dataObject.getClassRequired() != null) {
+			this.setRequired(dataObject.getClassRequired());
+		}
 		this.name = name;
 	}
 

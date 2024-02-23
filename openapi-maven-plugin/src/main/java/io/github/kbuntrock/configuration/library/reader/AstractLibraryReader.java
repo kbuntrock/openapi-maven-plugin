@@ -105,6 +105,6 @@ public abstract class AstractLibraryReader {
 		if(parameterObject == dataObject) {
 			return parameterObject;
 		}
-		return new ParameterObject(parameterObject.getName(), dataObject.getJavaType());
+		return new ParameterObject(parameterObject.getName(), dataObject);
 	}
 }

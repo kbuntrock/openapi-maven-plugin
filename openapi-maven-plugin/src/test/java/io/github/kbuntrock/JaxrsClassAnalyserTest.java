@@ -94,4 +94,33 @@ public class JaxrsClassAnalyserTest extends AbstractTest {
 		checkGenerationResult("ut/JaxrsClassAnalyserTest/response_jaxrs.yml", generated.get(0));
 	}
 
+	@Test
+	public void optional_unmapping_jaxrs() throws IOException, MojoExecutionException, MojoFailureException {
+
+		final DocumentationMojo mojo = createBasicMojo(
+			io.github.kbuntrock.resources.endpoint.optional.object.OptionalController.class.getCanonicalName());
+		mojo.getApis().get(0).setDefaultProduceConsumeGuessing(false);
+		mojo.getApis().get(0).setOperationId("{method_name}");
+		mojo.getApis().get(0).setLoopbackOperationName(false);
+
+		final List<File> generated = mojo.documentProject();
+		// Same generated file than the Spring one
+		checkGenerationResult("ut/SpringClassAnalyserTest/optional_unmapping.yml", generated.get(0));
+	}
+
+	@Test
+	public void optional_unmapping_jakarta() throws IOException, MojoExecutionException, MojoFailureException {
+
+		final DocumentationMojo mojo = createBasicMojo(
+			io.github.kbuntrock.resources.endpoint.optional.object.OptionalController.class.getCanonicalName());
+		mojo.getApis().get(0).setLibrary(Library.JAKARTA_RS.name());
+		mojo.getApis().get(0).setDefaultProduceConsumeGuessing(false);
+		mojo.getApis().get(0).setOperationId("{method_name}");
+		mojo.getApis().get(0).setLoopbackOperationName(false);
+
+		final List<File> generated = mojo.documentProject();
+		// Same generated file than the Spring one
+		checkGenerationResult("ut/SpringClassAnalyserTest/optional_unmapping.yml", generated.get(0));
+	}
+
 }
