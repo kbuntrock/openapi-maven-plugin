@@ -67,6 +67,10 @@
               <mergeFreeFields>true</mergeFreeFields>
               <defaultProduceConsumeGuessing>true</defaultProduceConsumeGuessing>
               <filename>spec-open-api-impl.yml</filename>
+              <nonNullableAnnotation>
+                <value>io.github.kbuntrock.sample.annotation.MyNotNull</value>
+                <value>javax.validation.constraints.NotBlank</value>
+              </nonNullableAnnotation>
               <locations>
                 <location>io.github.kbuntrock.sample.implementation</location>
               </locations>

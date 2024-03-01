@@ -773,8 +773,8 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	public void nullable_default_custom_annotation() throws MojoExecutionException, MojoFailureException, IOException {
 		final DocumentationMojo mojo = createBasicMojo(NullableController.class.getCanonicalName());
 		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
-		commonApiConfiguration.setNonNullableAnnotation("io.github.kbuntrock.resources.dto.nullable.MyNotNull");
-		commonApiConfiguration.setNullableAnnotation("io.github.kbuntrock.resources.dto.nullable.MyNullable");
+		commonApiConfiguration.setNonNullableAnnotation(Arrays.asList("io.github.kbuntrock.resources.dto.nullable.MyNotNull"));
+		commonApiConfiguration.setNullableAnnotation(Arrays.asList("io.github.kbuntrock.resources.dto.nullable.MyNullable"));
 		mojo.setApiConfiguration(commonApiConfiguration);
 
 		final List<File> generated = mojo.documentProject();
@@ -797,8 +797,8 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final DocumentationMojo mojo = createBasicMojo(NullableController.class.getCanonicalName());
 		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
 		commonApiConfiguration.setDefaultNonNullableFields(true);
-		commonApiConfiguration.setNonNullableAnnotation("io.github.kbuntrock.resources.dto.nullable.MyNotNull");
-		commonApiConfiguration.setNullableAnnotation("io.github.kbuntrock.resources.dto.nullable.MyNullable");
+		commonApiConfiguration.setNonNullableAnnotation(Arrays.asList("io.github.kbuntrock.resources.dto.nullable.MyNotNull"));
+		commonApiConfiguration.setNullableAnnotation(Arrays.asList("io.github.kbuntrock.resources.dto.nullable.MyNullable"));
 		mojo.setApiConfiguration(commonApiConfiguration);
 
 		final List<File> generated = mojo.documentProject();

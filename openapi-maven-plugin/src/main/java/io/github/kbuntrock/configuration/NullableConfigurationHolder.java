@@ -9,7 +9,11 @@ public class NullableConfigurationHolder {
 	private static final String defaultJavaxNullable = "javax.annotation.Nullable";
 
 	private static final String defaultJakartaNotNull = "jakarta.validation.constraints.NotNull";
+	private static final String defaultJakartaNotBlank = "jakarta.validation.constraints.NotBlank";
+	private static final String defaultJakartaNotEmpty = "jakarta.validation.constraints.NotEmpty";
 	private static final String defaultJavaxNotNull = "javax.validation.constraints.NotNull";
+	private static final String defaultJavaxNotBlank = "javax.validation.constraints.NotBlank";
+	private static final String defaultJavaxNotEmpty = "javax.validation.constraints.NotEmpty";
 
 	private static List<String> nullableAnnotations;
 
@@ -23,17 +27,21 @@ public class NullableConfigurationHolder {
 
 		nullableAnnotations = new ArrayList<>();
 		if(commonApiConfiguration.nullableAnnotation != null) {
-			nullableAnnotations.add(commonApiConfiguration.nullableAnnotation);
+			nullableAnnotations.addAll(commonApiConfiguration.nullableAnnotation);
 		} else {
 			nullableAnnotations.add(defaultJakartaNullable);
 			nullableAnnotations.add(defaultJavaxNullable);
 		}
 		nonNullAnnotations = new ArrayList<>();
 		if(commonApiConfiguration.nonNullableAnnotation != null) {
-			nonNullAnnotations.add(commonApiConfiguration.nonNullableAnnotation);
+			nonNullAnnotations.addAll(commonApiConfiguration.nonNullableAnnotation);
 		} else {
 			nonNullAnnotations.add(defaultJakartaNotNull);
+			nonNullAnnotations.add(defaultJakartaNotBlank);
+			nonNullAnnotations.add(defaultJakartaNotEmpty);
 			nonNullAnnotations.add(defaultJavaxNotNull);
+			nonNullAnnotations.add(defaultJavaxNotBlank);
+			nonNullAnnotations.add(defaultJavaxNotEmpty);
 		}
 
 	}

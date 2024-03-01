@@ -64,10 +64,10 @@ public class CommonApiConfiguration {
 	protected Boolean defaultNonNullableFields;
 
 	@Parameter
-	protected String nonNullableAnnotation;
+	protected List<String> nonNullableAnnotation;
 
 	@Parameter
-	protected String nullableAnnotation;
+	protected List<String> nullableAnnotation;
 
 	@Parameter
 	protected String operationId;
@@ -137,6 +137,14 @@ public class CommonApiConfiguration {
 		if(commonApiConfiguration.blackList != null) {
 			this.blackList = new ArrayList<>();
 			this.blackList.addAll(commonApiConfiguration.blackList);
+		}
+		if(commonApiConfiguration.nonNullableAnnotation != null) {
+			this.nonNullableAnnotation = new ArrayList<>();
+			this.nonNullableAnnotation.addAll(commonApiConfiguration.nonNullableAnnotation);
+		}
+		if(commonApiConfiguration.nullableAnnotation != null) {
+			this.nullableAnnotation = new ArrayList<>();
+			this.nullableAnnotation.addAll(commonApiConfiguration.nullableAnnotation);
 		}
 		for(final EnumConfig enumConfig : commonApiConfiguration.enumConfigList) {
 			this.enumConfigList.add(new EnumConfig(enumConfig));
@@ -350,19 +358,19 @@ public class CommonApiConfiguration {
 		this.defaultNonNullableFields = defaultNonNullableFields;
 	}
 
-	public String getNonNullableAnnotation() {
+	public List<String> getNonNullableAnnotation() {
 		return nonNullableAnnotation;
 	}
 
-	public void setNonNullableAnnotation(final String nonNullableAnnotation) {
+	public void setNonNullableAnnotation(final List<String> nonNullableAnnotation) {
 		this.nonNullableAnnotation = nonNullableAnnotation;
 	}
 
-	public String getNullableAnnotation() {
+	public List<String> getNullableAnnotation() {
 		return nullableAnnotation;
 	}
 
-	public void setNullableAnnotation(final String nullableAnnotation) {
+	public void setNullableAnnotation(final List<String> nullableAnnotation) {
 		this.nullableAnnotation = nullableAnnotation;
 	}
 }
