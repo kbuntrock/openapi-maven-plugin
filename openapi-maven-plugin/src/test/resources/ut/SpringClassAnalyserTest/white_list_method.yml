@@ -110,6 +110,8 @@ components:
         - WRITE_USER
         - ACCES_APP
     ManagedUserDto:
+      required:
+        - login
       type: object
       properties:
         id:

@@ -80,6 +80,9 @@ components:
         - UPDATE_USER
     UserDto:
       description: "A DTO representing a user, with his authorities."
+      required:
+        - id
+        - login
       type: object
       properties:
         id:
