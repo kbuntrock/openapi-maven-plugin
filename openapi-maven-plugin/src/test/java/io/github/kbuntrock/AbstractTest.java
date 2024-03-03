@@ -1,5 +1,7 @@
 package io.github.kbuntrock;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import io.github.kbuntrock.javadoc.JavadocMap;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.Logger;
@@ -7,16 +9,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.HashMap;
 import org.apache.maven.plugin.logging.Log;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.util.DigestUtils;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AbstractTest {
 
@@ -34,12 +30,12 @@ public class AbstractTest {
 	}
 
 	protected void checkGenerationResult(final String expectedFilePath, final File generatedFile) throws IOException {
-		InputStream expected = this.getClass().getClassLoader().getResourceAsStream(expectedFilePath);
+		final InputStream expected = this.getClass().getClassLoader().getResourceAsStream(expectedFilePath);
 		assertThat(new FileInputStream(generatedFile)).hasSameContentAs(expected);
 	}
 
 	protected void checkGenerationResult(final File expectedFile, final File generatedFile) throws IOException {
-		assertThat(generatedFile).hasSameTextualContentAs(generatedFile);
+		assertThat(generatedFile).hasSameTextualContentAs(expectedFile);
 	}
 
 
