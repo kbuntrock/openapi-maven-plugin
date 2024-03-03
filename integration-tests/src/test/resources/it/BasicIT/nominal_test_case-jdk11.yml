@@ -48,6 +48,8 @@ components:
         - READ_USER
         - UPDATE_USER
     UserDto:
+      required:
+        - login
       type: object
       properties:
         id:

@@ -49,6 +49,8 @@ components:
         - UPDATE_USER
     UserDto:
       type: object
+      required:
+        - login
       properties:
         id:
           type: integer
