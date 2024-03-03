@@ -65,6 +65,8 @@ components:
         - UPDATE_USER
     RecordDto:
       description: Dto used for a good reason.
+      required:
+        - login
       type: object
       properties:
         counter:
