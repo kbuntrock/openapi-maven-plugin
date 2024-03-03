@@ -66,10 +66,7 @@ public class BasicIT {
 
         try (InputStream generatedFileStream = new FileInputStream(generatedArtifactFile);
              InputStream resourceFileStream = BasicIT.class.getClassLoader().getResourceAsStream("it/BasicIT/nominal_test_case" + suffix + ".yml")) {
-            String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-            String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-            Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
+            assertThat(generatedFileStream).hasSameContentAs(resourceFileStream);
         }
     }
 
