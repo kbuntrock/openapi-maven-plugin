@@ -12,7 +12,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import org.junit.jupiter.api.Assertions;
-import org.springframework.util.DigestUtils;
 
 /**
  * @author Kevin Buntrock
@@ -43,19 +42,13 @@ public class BasicIT {
 
 		try(final InputStream generatedFileStream = new FileInputStream(generatedArtifactFile);
 			final InputStream resourceFileStream = BasicIT.class.getClassLoader().getResourceAsStream("it/BasicIT/nominal_test_case.yml")) {
-			final String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-			final String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-			Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
+			assertThat(generatedFileStream).hasSameContentAs(resourceFileStream);
 		}
 
 		try(final InputStream generatedFileStream = new FileInputStream(generatedArtifactFile2);
 			final InputStream resourceFileStream = BasicIT.class.getClassLoader()
 				.getResourceAsStream("it/BasicIT/nominal_test_case_impl.yml")) {
-			final String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-			final String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-			Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
+			assertThat(generatedFileStream).hasSameContentAs(resourceFileStream);
 		}
 	}
 
@@ -78,10 +71,7 @@ public class BasicIT {
 		try(final InputStream generatedFileStream = new FileInputStream(generatedArtifactFile);
 			final InputStream resourceFileStream = BasicIT.class.getClassLoader().getResourceAsStream("it/BasicIT/nominal_test_case_jaxrs" +
 				".yml")) {
-			final String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-			final String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-			Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
+			assertThat(generatedFileStream).hasSameContentAs(resourceFileStream);
 		}
 
 	}
@@ -105,10 +95,7 @@ public class BasicIT {
 		try(final InputStream generatedFileStream = new FileInputStream(generatedArtifactFile);
 			final InputStream resourceFileStream = BasicIT.class.getClassLoader().getResourceAsStream("it/BasicIT/sealed_class" +
 				".yml")) {
-			final String md5GeneratedHex = DigestUtils.md5DigestAsHex(generatedFileStream);
-			final String md5ResourceHex = DigestUtils.md5DigestAsHex(resourceFileStream);
-
-			Assertions.assertEquals(md5ResourceHex, md5GeneratedHex);
+			assertThat(generatedFileStream).hasSameContentAs(resourceFileStream);
 		}
 	}
 
