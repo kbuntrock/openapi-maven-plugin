@@ -7,7 +7,7 @@
 
   <groupId>io.github.kbuntrock</groupId>
   <artifactId>openapi-maven-plugin</artifactId>
-  <version>0.0.18-SNAPSHOT</version>
+  <version>0.0.18</version>
   <packaging>maven-plugin</packaging>
 
   <name>openapi-maven-plugin Maven Plugin</name>
