@@ -40,10 +40,17 @@ public class BasicIT {
     void nominal_test_case_jdk17(MavenExecutionResult result) throws IOException {
         nominal_test_case(result, "17", "-jdk17");
     }
+	
+	@MavenTest
+    @MavenGoal("install")
+    @MavenOption(MavenCLIOptions.DEBUG)
+    void nominal_test_case_jdk21(MavenExecutionResult result) throws IOException {
+        nominal_test_case(result, "21", "-jdk21");
+    }
 
     private void nominal_test_case(MavenExecutionResult result, final String expectedJavaVersion, final String suffix) throws IOException {
         MavenExecutionResultAssert resultAssert = assertThat(result);
-		if("17".equals(expectedJavaVersion)) {
+		if("17".equals(expectedJavaVersion) || "21".equals(expectedJavaVersion)) {
 			resultAssert.isSuccessful().out().info().contains("spec-open-api.yml : 1 tags and 3 operations generated.");
 		} else {
 			resultAssert.isSuccessful().out().info().contains("spec-open-api.yml : 1 tags and 2 operations generated.");
