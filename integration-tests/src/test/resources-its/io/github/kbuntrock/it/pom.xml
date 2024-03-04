@@ -14,6 +14,7 @@
         <module>BasicIT/nominal_test_case_jdk8</module>
         <module>BasicIT/nominal_test_case_jdk11</module>
         <module>BasicIT/nominal_test_case_jdk17</module>
+		<module>BasicIT/nominal_test_case_jdk21</module>
     </modules>
 
 
