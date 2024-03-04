@@ -89,6 +89,35 @@ Default success description if no javadoc is found.
 <defaultSuccessfulOperationDescription>Great success my friends!</defaultSuccessfulOperationDescription>
 ```
 
+### defaultNonNullableFields
+
+- Type: `boolean`
+- Default value: `false`
+
+If true, all fields without an explicit indication (annotation or optionally wrapped) are considered "required".
+
+### nonNullableAnnotation
+
+- Type : `string list`
+- Required: `false`
+
+List of annotations defining **required** fields. If present, override the following default values:
+- jakarta.validation.constraints.NotNull
+- jakarta.validation.constraints.NotBlank
+- jakarta.validation.constraints.NotEmpty
+- javax.validation.constraints.NotNull
+- javax.validation.constraints.NotBlank
+- javax.validation.constraints.NotEmpty
+
+### nullableAnnotation
+
+- Type : `string list`
+- Required: `false`
+
+List of annotations defining **non required** fields. If present, override the following default values:
+- jakarta.annotation.Nullable
+- javax.annotation.Nullable
+
 ### pathEnhancement
 
 - Type: `boolean`
@@ -409,6 +438,28 @@ public Response getAccount() {
 }
 ```
 
+### openapiModels
+
+- Type : `string`
+- Required : `false`
+
+Relative path to a custom openapi model definitions yaml file.
+Entries can override entries of the default file: https://github.com/kbuntrock/openapi-maven-plugin/blob/dev/openapi-maven-plugin/src/main/resources/openapi-model.yml
+
+**Must be used in conjunction with modelsAssociations**
+
+### modelsAssociations
+
+- Type : `string`
+- Required : `false`
+
+Relative path to a custom yaml file defining the association between java class and openapi models.
+Entries can override entries of the default file: https://github.com/kbuntrock/openapi-maven-plugin/blob/dev/openapi-maven-plugin/src/main/resources/model-association.yml
+
+Entries are divided in two groups:
+- equality: require class equality
+- assignability: require class assignability (`isAssignableFrom(Class<?> cls)`)
+
 ## javadocConfiguration
 
 - Type: `section`
@@ -512,4 +563,15 @@ File name of the generated documentation, with its extension.
 
 ```xml
 <filename>my_file.yaml</filename>
+```
+
+### mergeFreeFields
+
+- Type : `boolean`
+- Default value : `false`
+
+True to activate "free fields" merging between the common and the specific api configuration. Allow to keep commons values and to override / add other values.
+
+```xml
+<mergeFreeFields>true</mergeFreeFields>
 ```

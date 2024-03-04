@@ -89,6 +89,35 @@ Inscrit une description par défaut sur les retours code HTTP 200 lorsqu'aucune 
 <defaultSuccessfulOperationDescription>Opération réalisée avec succès</defaultSuccessfulOperationDescription>
 ```
 
+### defaultNonNullableFields
+
+- Type: `boolean`
+- Valeur par défaut: `false`
+
+Si true, tous les champs sans indication explicite (annotation ou "Optional") sont considérés comme requis.
+
+### nonNullableAnnotation
+
+- Type : `string list`
+- Présence : `optionelle`
+
+Liste d'annotations définissant les champs **requis**. Si présente, écrase la liste par défaut suivante :
+- jakarta.validation.constraints.NotNull
+- jakarta.validation.constraints.NotBlank
+- jakarta.validation.constraints.NotEmpty
+- javax.validation.constraints.NotNull
+- javax.validation.constraints.NotBlank
+- javax.validation.constraints.NotEmpty
+
+### nullableAnnotation
+
+- Type : `string list`
+- Présence : `optionelle`
+
+Liste d'annotations définissant les champs **non requis**. Si présente, écrase la liste par défaut suivante :
+- jakarta.annotation.Nullable
+- javax.annotation.Nullable
+
 ### pathEnhancement
 
 - Type : `boolean`
@@ -409,6 +438,27 @@ public Response getAccount() {
 }
 ```
 
+### openapiModels
+
+- Type : `string`
+- Présence : `optionelle`
+
+Chemin relatif vers un fichier yaml définissant ou redéfinissant des "modèles openapi".
+Les entrées peuvent surcharger les entrées du fichier par défaut : https://github.com/kbuntrock/openapi-maven-plugin/blob/dev/openapi-maven-plugin/src/main/resources/openapi-model.yml
+
+**Doit être utilisé avec le champs modelsAssociations**
+
+### modelsAssociations
+
+- Type : `string`
+- Présence : `optionelle`
+
+Chemin relatif vers un fichier yaml définissant les associations entre les classes java et les modèles openapi.
+Les entrées peuvent surcharger les entrées du fichier par défaut : https://github.com/kbuntrock/openapi-maven-plugin/blob/dev/openapi-maven-plugin/src/main/resources/model-association.yml
+
+Les entrées sont divisées en deux groupes :
+- equality: Demande l'égalité de classe
+- assignability: Demande "l'assignabilité" de classe (via `isAssignableFrom(Class<?> cls)`)
 
 ## javadocConfiguration
 
@@ -511,4 +561,15 @@ Le nom du fichier de documentation généré, sans l'extension.
 
 ```xml
 <filename>mon-fichier</filename>
+```
+
+### mergeFreeFields
+
+- Type : `boolean`
+- Valeur par défaut : `false`
+
+True pour activer la fusion du champs "free fields" entre la section commune et la section spécifique de la configuration des apis. Permet d'avoir des valeurs communes tout en en écrasant / ajoutant d'autres.
+
+```xml
+<mergeFreeFields>true</mergeFreeFields>
 ```

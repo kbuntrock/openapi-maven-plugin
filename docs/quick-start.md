@@ -26,7 +26,7 @@ Then, add the openapi-maven-plugin configuration and adapt the present values wi
 <plugin>
 	<groupId>io.github.kbuntrock</groupId>
 	<artifactId>openapi-maven-plugin</artifactId>
-	<version>0.0.17</version>
+	<version>0.0.18</version>
 	<executions>
 		<execution>
 			<id>documentation</id>
