@@ -76,7 +76,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SubRecordDto'
-          uniqueItems: true
     SubRecordDto:
       description: A record in a record
       type: object
