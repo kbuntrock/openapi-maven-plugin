@@ -50,7 +50,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Authority'
-          uniqueItems: true
     Error:
       type: object
       description: An error object

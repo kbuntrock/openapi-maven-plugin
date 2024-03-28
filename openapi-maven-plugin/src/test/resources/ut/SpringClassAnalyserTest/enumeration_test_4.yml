@@ -40,4 +40,3 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Authority'
-          uniqueItems: true

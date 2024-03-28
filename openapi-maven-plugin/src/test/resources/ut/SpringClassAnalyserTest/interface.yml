@@ -36,7 +36,6 @@ paths:
                       type: array
                       items:
                         $ref: '#/components/schemas/Authority'
-                    uniqueItems: true
                   parentId:
                     description: Get the parent id
                     type: integer

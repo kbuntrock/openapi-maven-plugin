@@ -28,12 +28,10 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/GenericInterfaceRecursiveListDto_AccountDto'
-                        uniqueItems: true
                       name:
                         type: string
                       wrapped:
                         $ref: '#/components/schemas/AccountDto'
-                  uniqueItems: true
                 name:
                   type: string
                 wrapped:
@@ -103,12 +101,10 @@ components:
                 type: array
                 items:
                   $ref: '#/components/schemas/GenericInterfaceRecursiveListDto_AccountDto'
-                uniqueItems: true
               name:
                 type: string
               wrapped:
                 $ref: '#/components/schemas/AccountDto'
-          uniqueItems: true
         name:
           type: string
         wrapped:

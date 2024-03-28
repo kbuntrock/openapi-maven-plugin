@@ -28,7 +28,6 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/TimeDto'
-                        uniqueItems: true
                       hasNext:
                         type: boolean
                       totalPages:
@@ -44,7 +43,6 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/AccountDto'
-                        uniqueItems: true
                       hasNext:
                         type: boolean
                   array:
@@ -54,7 +52,6 @@ paths:
                         type: array
                         items:
                           type: string
-                        uniqueItems: true
                       hasNext:
                         type: boolean
     post:
@@ -74,7 +71,6 @@ paths:
                       type: array
                       items:
                         $ref: '#/components/schemas/TimeDto'
-                      uniqueItems: true
                     hasNext:
                       type: boolean
                     totalPages:
@@ -90,7 +86,6 @@ paths:
                       type: array
                       items:
                         $ref: '#/components/schemas/AccountDto'
-                      uniqueItems: true
                     hasNext:
                       type: boolean
                 array:
@@ -100,7 +95,6 @@ paths:
                       type: array
                       items:
                         type: string
-                      uniqueItems: true
                     hasNext:
                       type: boolean
       responses:
@@ -127,7 +121,6 @@ paths:
                         items:
                           type: integer
                           format: int64
-                        uniqueItems: true
                       hasNext:
                         type: boolean
                       totalPages:
@@ -143,7 +136,6 @@ paths:
                         type: array
                         items:
                           type: boolean
-                        uniqueItems: true
                       hasNext:
                         type: boolean
                   array:
@@ -153,7 +145,6 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/AccountDto'
-                        uniqueItems: true
                       hasNext:
                         type: boolean
     post:
@@ -174,7 +165,6 @@ paths:
                       items:
                         type: integer
                         format: int64
-                      uniqueItems: true
                     hasNext:
                       type: boolean
                     totalPages:
@@ -190,7 +180,6 @@ paths:
                       type: array
                       items:
                         type: boolean
-                      uniqueItems: true
                     hasNext:
                       type: boolean
                 array:
@@ -200,7 +189,6 @@ paths:
                       type: array
                       items:
                         $ref: '#/components/schemas/AccountDto'
-                      uniqueItems: true
                     hasNext:
                       type: boolean
       responses:

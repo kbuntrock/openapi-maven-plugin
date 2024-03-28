@@ -109,7 +109,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Authority_1'
-          uniqueItems: true
     Authority:
       type: string
       enum:

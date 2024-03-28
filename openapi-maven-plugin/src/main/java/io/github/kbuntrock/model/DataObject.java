@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.util.ReflectionUtils;
 
@@ -50,6 +51,10 @@ public class DataObject {
 	 * The type of the items if this data object represent a java Collection or java array
 	 */
 	private DataObject arrayItemDataObject;
+	/**
+	 * True if this data object represent a java Set. Null if not relevant.
+	 */
+	private Boolean uniqueItems;
 	/**
 	 * All the value's names if this data object represent a java enum
 	 */
@@ -195,6 +200,10 @@ public class DataObject {
 				arrayItemDataObject = new DataObject(javaClass.getComponentType());
 			}
 
+			if(Set.class.isAssignableFrom(javaClass)) {
+				uniqueItems = true;
+			}
+
 		} catch(final ClassNotFoundException ex) {
 			throw new RuntimeException("ClassNotFound wrapped", ex);
 		} catch(final NoSuchFieldException e) {
@@ -245,6 +254,10 @@ public class DataObject {
 
 	public boolean isJavaArray() {
 		return arrayItemDataObject != null && !genericallyTyped;
+	}
+
+	public Boolean getUniqueItems() {
+		return uniqueItems;
 	}
 
 	public OpenApiResolvedType getOpenApiResolvedType() {

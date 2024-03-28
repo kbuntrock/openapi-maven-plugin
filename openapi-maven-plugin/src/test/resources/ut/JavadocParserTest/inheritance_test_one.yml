@@ -54,7 +54,6 @@ paths:
                     type: array
                     items:
                       type: string
-                    uniqueItems: true
                   hasNext:
                     description: True if a next slice exist
                     type: boolean

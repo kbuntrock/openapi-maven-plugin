@@ -64,6 +64,9 @@ public class Schema {
 	// Used in case of an array object
 	@JsonIgnore
 	protected Schema items;
+	// Used in case of an array object
+	@JsonIgnore
+	private Boolean uniqueItems;
 
 	/**
 	 * If true, we cannot reference the main object (we are using this object is the "schemas" section).
@@ -113,6 +116,7 @@ public class Schema {
 		} else if(dataObject.isOpenApiArray()) {
 			type = dataObject.getOpenApiResolvedType();
 			items = new Schema(dataObject.getArrayItemDataObject(), false, exploredSignatures, parentDataObject, parentFieldName);
+			uniqueItems = dataObject.getUniqueItems();
 
 		} else if(!mainReference && dataObject.isReferenceObject()) {
 			final DataObject referenceDataObject = TagLibraryHolder.INSTANCE.getTagLibrary().getClassToSchemaObject()
@@ -364,6 +368,14 @@ public class Schema {
 		this.description = description;
 	}
 
+	public Boolean getUniqueItems() {
+		return uniqueItems;
+	}
+
+	public void setUniqueItems(final Boolean uniqueItems) {
+		this.uniqueItems = uniqueItems;
+	}
+
 	/**
 	 * It is impossible to mix @JsonAnyGetter + regular fields with a defined order.
 	 * Therefore, the json object is manually crafted.
@@ -404,6 +416,9 @@ public class Schema {
 		}
 		if(items != null) {
 			map.put("items", items);
+		}
+		if(uniqueItems != null) {
+			map.put("uniqueItems", uniqueItems);
 		}
 		return map;
 	}
