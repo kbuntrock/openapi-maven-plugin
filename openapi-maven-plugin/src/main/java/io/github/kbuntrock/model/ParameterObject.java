@@ -12,6 +12,13 @@ public class ParameterObject extends DataObject {
 	// Set only if it is a "body" parameter : json, xml, plain text, ...
 	private List<String> formats;
 
+	/**
+	 * For parameters fields extracted from a dto, save the origin class in order to retrieve the corresponding javadoc
+	 *
+	 * see SpringMvcReader#bindDtoToQueryParams
+	 */
+	private String javadocFieldClassName;
+
 	public ParameterObject(final String name, final Type type) {
 		super(type);
 		this.name = name;
@@ -52,5 +59,13 @@ public class ParameterObject extends DataObject {
 
 	public void setFormats(final List<String> formats) {
 		this.formats = formats;
+	}
+
+	public String getJavadocFieldClassName() {
+		return javadocFieldClassName;
+	}
+
+	public void setJavadocFieldClassName(final String javadocFieldClassName) {
+		this.javadocFieldClassName = javadocFieldClassName;
 	}
 }

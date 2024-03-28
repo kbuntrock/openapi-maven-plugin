@@ -1,0 +1,44 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: QueryParamDtoBindingController
+paths:
+  /api/is-time-valid:
+    get:
+      tags:
+        - QueryParamDtoBindingController
+      operationId: isTimeValid
+      parameters:
+        - name: instant
+          description: The instant field
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: date
+          description: The date field
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: dateTime
+          description: The date time field
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: boolean

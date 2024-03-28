@@ -1,0 +1,21 @@
+common:
+  - javax.servlet.ServletRequest
+  - jakarta.servlet.ServletRequest
+  - javax.servlet.ServletResponse
+  - jakarta.servlet.ServletResponse
+  - javax.servlet.http.HttpSession
+  - jakarta.servlet.http.HttpSession
+  - javax.servlet.http.PushBuilder
+  - jakarta.servlet.http.PushBuilder
+spring:
+  - org.springframework.http.HttpMethod
+  - org.springframework.ui.Model
+  - org.springframework.ui.ModelMap
+  - java.util.Locale
+  - java.util.TimeZone
+  - java.time.ZoneId
+  - java.security.Principal
+  - org.springframework.validation.Errors
+  - org.springframework.validation.BindingResult
+  - org.springframework.web.bind.support.SessionStatus
+  - org.springframework.web.util.UriComponentsBuilder

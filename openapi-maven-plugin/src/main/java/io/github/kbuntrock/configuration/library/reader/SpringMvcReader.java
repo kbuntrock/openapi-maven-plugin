@@ -1,16 +1,21 @@
 package io.github.kbuntrock.configuration.library.reader;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.configuration.NullableConfigurationHolder;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.OperationType;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.ClassGenericityResolver;
+import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.OpenApiDataType;
+import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.ParameterLocation;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
@@ -22,11 +27,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.maven.plugin.MojoFailureException;
+import org.springframework.beans.BeanUtils;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.http.HttpStatus;
@@ -99,6 +104,13 @@ public class SpringMvcReader extends AstractLibraryReader {
 		return "org.springframework.web.servlet.ModelAndView".equals(method.getReturnType().getCanonicalName());
 	}
 
+	/**
+	 * See https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/arguments.html
+	 *
+	 * @param originalMethod     inspected method
+	 * @param genericityResolver genericity resolver
+	 * @return list of parameters to document
+	 */
 	@Override
 	protected List<ParameterObject> readParameters(final Method originalMethod, final ClassGenericityResolver genericityResolver) {
 		logger.debug("Reading parameters from " + originalMethod.getName());
@@ -110,7 +122,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 
 		for(final Method method : overridenMethods) {
 			for(final Parameter parameter : method.getParameters()) {
-				if(HttpServletRequest.class.isAssignableFrom(parameter.getType())) {
+
+				if(!OpenApiTypeResolver.INSTANCE.canBeDocumented(parameter)) {
 					continue;
 				}
 				logger.debug("Parameter : " + parameter.getName());
@@ -122,9 +135,12 @@ public class SpringMvcReader extends AstractLibraryReader {
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
 					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
 
+				boolean annotationFound = false;
+
 				// Detect if is a path variable
 				final MergedAnnotation<PathVariable> pathVariableMA = mergedAnnotations.get(PathVariable.class);
 				if(pathVariableMA.isPresent()) {
+					annotationFound = true;
 					paramObj.setLocation(ParameterLocation.PATH);
 					paramObj.setRequired(pathVariableMA.getBoolean("required"));
 					// The value is equivalent to the name (alias for and user of MergedAnnotation)
@@ -138,7 +154,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 				// Detect if is a query variable
 				final MergedAnnotation<RequestParam> requestParamMA = mergedAnnotations.get(RequestParam.class);
 				if(requestParamMA.isPresent()) {
-
+					annotationFound = true;
 					final boolean isMultipartFile = MultipartFile.class == paramObj.getJavaClass() ||
 						(OpenApiDataType.ARRAY == paramObj.getOpenApiResolvedType().getType()
 							&& MultipartFile.class == paramObj.getArrayItemDataObject().getJavaClass());
@@ -162,9 +178,20 @@ public class SpringMvcReader extends AstractLibraryReader {
 				// Detect if is a request body parameter
 				final MergedAnnotation<RequestBody> requestBodyMA = mergedAnnotations.get(RequestBody.class);
 				if(requestBodyMA.isPresent()) {
+					annotationFound = true;
 					paramObj.setLocation(ParameterLocation.BODY);
 					paramObj.setRequired(requestBodyMA.getBoolean("required"));
 					logger.debug("RequestBody annotation detected, location is " + paramObj.getLocation().toString());
+				}
+
+				if(!annotationFound) {
+					// By default, some class are automatically resolved as @RequestParam for Spring
+					// https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/requestparam.html
+
+					if(BeanUtils.isSimpleProperty(parameter.getType())) {
+						paramObj.setLocation(ParameterLocation.QUERY);
+						paramObj.setRequired(true);
+					}
 				}
 
 				// Class "requirement" has precedence on any annotation (we can't force an optional to be required ...)
@@ -175,7 +202,51 @@ public class SpringMvcReader extends AstractLibraryReader {
 			}
 		}
 
+		// Last case, some Dto fields can be binded to QueryParams : http://dolszewski.com/spring/how-to-bind-requestparam-to-object/
+		// Since this functionality is not well documented, it can be for now a subset of the complete functionality
+		parameters.values().stream().filter(x -> x.getLocation() == null && parameterObjectBindableToQueryParams(x)).forEach(paramObj -> {
+			bindDtoToQueryParams(parameters, paramObj);
+		});
+
 		return parameters.values().stream().filter(x -> x.getLocation() != null).collect(Collectors.toList());
+	}
+
+	private static boolean parameterObjectBindableToQueryParams(final ParameterObject paramObj) {
+		final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), paramObj.getJavaClass());
+		for(final Field field : fields) {
+			if(field.isAnnotationPresent(JsonIgnore.class)) {
+				// Field is tagged ignore. No need to document it.
+				continue;
+			}
+			if(!BeanUtils.isSimpleProperty(field.getType())) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private void bindDtoToQueryParams(final Map<String, ParameterObject> parameters, final ParameterObject paramObj) {
+
+		final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), paramObj.getJavaClass());
+		for(final Field field : fields) {
+			final ParameterObject fieldObj = parameters.computeIfAbsent(field.getName(),
+				(name) -> unwrapParameterObject(
+					new ParameterObject(name, paramObj.getContextualType(field.getGenericType()))));
+			fieldObj.setLocation(ParameterLocation.QUERY);
+			fieldObj.setJavadocFieldClassName(paramObj.getJavaClass().getCanonicalName());
+			// Class "requirement" has precedence on any annotation (we can't force an optional to be required ...)
+			if(fieldObj.getClassRequired() != null) {
+				fieldObj.setRequired(paramObj.getClassRequired());
+			} else {
+				if(NullableConfigurationHolder.hasNonNullAnnotation(field)) {
+					fieldObj.setRequired(true);
+				} else if(NullableConfigurationHolder.hasNullableAnnotation(field)) {
+					fieldObj.setRequired(false);
+				} else {
+					fieldObj.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
+				}
+			}
+		}
 	}
 
 	private static boolean requestParamHasDefaultValue(final MergedAnnotation<RequestParam> requestParam) {
