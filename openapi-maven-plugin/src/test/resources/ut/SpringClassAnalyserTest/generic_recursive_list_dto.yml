@@ -38,8 +38,6 @@ paths:
                           type: array
                           items:
                             $ref: '#/components/schemas/GenericRecursiveListDto_AccountDto'
-                          uniqueItems: true
-                    uniqueItems: true
 components:
   schemas:
     AccountDto:
@@ -110,5 +108,3 @@ components:
                 type: array
                 items:
                   $ref: '#/components/schemas/GenericRecursiveListDto_AccountDto'
-                uniqueItems: true
-          uniqueItems: true

@@ -35,9 +35,6 @@ public class Content {
 			final Map<String, Property> propertyMap = new LinkedHashMap<>();
 			schema.setProperties(propertyMap);
 			final Property property = new Property(content.getSchema());
-			if(OpenApiDataType.ARRAY == property.getType().getType()) {
-				property.setUniqueItems(true);
-			}
 			propertyMap.put(parameterObject.getName(), property);
 			return multipartContent;
 		}

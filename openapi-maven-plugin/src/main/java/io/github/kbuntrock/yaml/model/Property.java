@@ -17,8 +17,6 @@ public class Property extends Schema {
 	@JsonIgnore
 	private Integer maxLength;
 	@JsonIgnore
-	private Boolean uniqueItems;
-	@JsonIgnore
 	private boolean required;
 
 	@JsonIgnore
@@ -41,9 +39,6 @@ public class Property extends Schema {
 	public Property(final DataObject dataObject, final boolean mainReference, final String name, final Set<String> exploredSignatures,
 		final DataObject parentDataObject) {
 		super(dataObject, mainReference, exploredSignatures, parentDataObject, name);
-		if(dataObject.isOpenApiArray()) {
-			this.setUniqueItems(true);
-		}
 		if(dataObject.getClassRequired() != null) {
 			this.setRequired(dataObject.getClassRequired());
 		}
@@ -56,14 +51,6 @@ public class Property extends Schema {
 
 	public void setName(final String name) {
 		this.name = name;
-	}
-
-	public Boolean getUniqueItems() {
-		return uniqueItems;
-	}
-
-	public void setUniqueItems(final Boolean uniqueItems) {
-		this.uniqueItems = uniqueItems;
 	}
 
 	public Integer getMinLength() {
@@ -100,9 +87,6 @@ public class Property extends Schema {
 		}
 		if(maxLength != null) {
 			map.put("maxLength", maxLength);
-		}
-		if(uniqueItems != null) {
-			map.put("uniqueItems", uniqueItems);
 		}
 		return map;
 	}
