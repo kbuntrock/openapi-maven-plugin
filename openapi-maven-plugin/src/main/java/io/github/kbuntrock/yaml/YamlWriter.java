@@ -282,12 +282,13 @@ public class YamlWriter {
 							JavadocMap.INSTANCE.getJavadocMap().get(parameter.getJavadocFieldClassName()) : null;
 						if(queryParamBindingClassDoc != null) {
 							queryParamBindingClassDoc.inheritanceEnhancement(parameter.getJavaClass(), EnhancementType.BOTH);
-						}
-						final JavadocWrapper javadocParamWrapper = queryParamBindingClassDoc.getFieldsJavadoc()
-							.get(parameterElement.getName());
-						if(javadocParamWrapper != null) {
-							final Optional<String> desc = javadocParamWrapper.getDescription();
-							parameterElement.setDescription(desc.get());
+
+							final JavadocWrapper javadocParamWrapper = queryParamBindingClassDoc.getFieldsJavadoc()
+								.get(parameterElement.getName());
+							if(javadocParamWrapper != null) {
+								final Optional<String> desc = javadocParamWrapper.getDescription();
+								parameterElement.setDescription(desc.get());
+							}
 						}
 					}
 

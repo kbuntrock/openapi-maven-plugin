@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -218,7 +219,9 @@ public class SpringMvcReader extends AstractLibraryReader {
 				// Field is tagged ignore. No need to document it.
 				continue;
 			}
-			if(!BeanUtils.isSimpleProperty(field.getType())) {
+			if(!(BeanUtils.isSimpleProperty(field.getType()) ||
+				Collection.class.isAssignableFrom(field.getType()) ||
+				field.getType().isArray())) {
 				return false;
 			}
 		}
