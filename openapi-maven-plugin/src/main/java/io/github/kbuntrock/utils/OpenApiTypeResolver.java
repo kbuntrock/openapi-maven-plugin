@@ -2,13 +2,17 @@ package io.github.kbuntrock.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.configuration.parser.CommonParserUtils;
 import io.github.kbuntrock.configuration.parser.YamlParserUtils;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
+import java.lang.reflect.Parameter;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import org.apache.maven.project.MavenProject;
 
 /**
@@ -40,6 +44,10 @@ public enum OpenApiTypeResolver {
 	private final Map<Class<?>, UnwrappingEntry> parametersUnwrappingMap = new HashMap<>();
 	private final Map<Class<?>, UnwrappingEntry> schemaUnwrappingMap = new HashMap<>();
 
+	/**
+	 * Non documentable parameters section
+	 */
+	private final Set<Class<?>> nonDocumentableParameters = new HashSet<>();
 
 	public void init(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
 		// Loading model definition
@@ -48,6 +56,8 @@ public enum OpenApiTypeResolver {
 		initModelAssociation(mavenProject, apiConfig);
 		// Loading unwrapping definitions
 		initUnwrappingDefinitions(mavenProject, apiConfig);
+		// Loading "non documentable" parameters classes
+		initNonDocumentableParameters(apiConfig);
 	}
 
 	private void initModel(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
@@ -290,6 +300,59 @@ public enum OpenApiTypeResolver {
 			}
 		}
 		return dataObject;
+	}
+
+	private void initNonDocumentableParameters(final ApiConfiguration apiConfig) {
+		nonDocumentableParameters.clear();
+
+		final ClassLoader classLoader = ReflectionsUtils.getProjectClassLoader();
+
+		final JsonNode root = YamlParserUtils.readResourceFile("/non-documentable-parameters.yml");
+		root.get("common").elements().forEachRemaining(entry -> {
+			registerNonDocumentableParameters(classLoader, entry.asText(), true);
+		});
+
+		if(Library.SPRING_MVC == apiConfig.getLibrary()) {
+			root.get("spring").elements().forEachRemaining(entry -> {
+				registerNonDocumentableParameters(classLoader, entry.asText(), true);
+			});
+		}
+
+		for(final String nonDocumentableParameterClass : apiConfig.getNonDocumentableParameterClasses()) {
+			registerNonDocumentableParameters(classLoader, nonDocumentableParameterClass, false);
+		}
+
+	}
+
+	/**
+	 * Register an non documentable class in the resolver
+	 *
+	 * @param classLoader
+	 * @param canonicalClassName class to load
+	 * @param debug              true for default plugin configuration, false for user configuration to explicitely point errors
+	 */
+	private void registerNonDocumentableParameters(final ClassLoader classLoader, final String canonicalClassName,
+		final boolean debug) {
+		try {
+			nonDocumentableParameters.add(classLoader.loadClass(canonicalClassName));
+		} catch(final ClassNotFoundException e) {
+			final String message =
+				"Cannot load \"non documentable\" parameter class " + canonicalClassName + "(normal if associated with a non used library)";
+			if(debug) {
+				Logger.INSTANCE.getLogger().debug(message);
+			} else {
+				throw new RuntimeException(message, e);
+			}
+		}
+	}
+
+	public boolean canBeDocumented(final Parameter parameter) {
+		for(final Class<?> clazz : nonDocumentableParameters) {
+			if(clazz.isAssignableFrom(parameter.getType())) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

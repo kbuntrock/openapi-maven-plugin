@@ -107,14 +107,18 @@ components:
         - WRITE_USER
         - ACCES_APP
     TimeDto:
+      description: An wrapping object for time values
       type: object
       properties:
         instant:
+          description: The instant field
           type: string
           format: date-time
         date:
+          description: The date field
           type: string
           format: date
         dateTime:
+          description: The date time field
           type: string
           format: date-time

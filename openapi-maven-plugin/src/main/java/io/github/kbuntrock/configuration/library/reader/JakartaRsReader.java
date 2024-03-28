@@ -9,6 +9,7 @@ import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.ClassGenericityResolver;
 import io.github.kbuntrock.utils.OpenApiDataType;
+import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.ParameterLocation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -21,7 +22,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -151,8 +151,7 @@ public class JakartaRsReader extends AstractLibraryReader {
 			boolean bodyParameterDetected = false;
 
 			for(final Parameter parameter : method.getParameters()) {
-				if(HttpServletRequest.class.isAssignableFrom(parameter.getType()) ||
-					(jakartaHttpServletRequest != null && jakartaHttpServletRequest.isAssignableFrom(parameter.getType()))) {
+				if(!OpenApiTypeResolver.INSTANCE.canBeDocumented(parameter)) {
 					continue;
 				}
 				logger.debug("Parameter : " + parameter.getName());

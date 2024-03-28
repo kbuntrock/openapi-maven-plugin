@@ -11,6 +11,7 @@ import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.parser.CommonParserUtils;
 import io.github.kbuntrock.configuration.parser.JsonParserUtils;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
+import io.github.kbuntrock.javadoc.ClassDocumentation.EnhancementType;
 import io.github.kbuntrock.javadoc.JavadocMap;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
 import io.github.kbuntrock.model.DataObject;
@@ -274,6 +275,20 @@ public class YamlWriter {
 						logger.debug(
 							"Parameter documentation found for endpoint parameter " + parameterElement.getName() + " ? "
 								+ parameterDoc.isPresent());
+					}
+					// Case where parameter is extracted from a dto (see SpringMvcReader#bindDtoToQueryParams)
+					if(parameter.getJavadocFieldClassName() != null) {
+						final ClassDocumentation queryParamBindingClassDoc = JavadocMap.INSTANCE.isPresent() ?
+							JavadocMap.INSTANCE.getJavadocMap().get(parameter.getJavadocFieldClassName()) : null;
+						if(queryParamBindingClassDoc != null) {
+							queryParamBindingClassDoc.inheritanceEnhancement(parameter.getJavaClass(), EnhancementType.BOTH);
+						}
+						final JavadocWrapper javadocParamWrapper = queryParamBindingClassDoc.getFieldsJavadoc()
+							.get(parameterElement.getName());
+						if(javadocParamWrapper != null) {
+							final Optional<String> desc = javadocParamWrapper.getDescription();
+							parameterElement.setDescription(desc.get());
+						}
 					}
 
 					operation.getParameters().add(parameterElement);

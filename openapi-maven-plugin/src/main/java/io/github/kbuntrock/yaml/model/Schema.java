@@ -282,26 +282,13 @@ public class Schema {
 			}
 		}
 
-		if(hasNonNullAnnotation(field)) {
+		if(NullableConfigurationHolder.hasNonNullAnnotation(field)) {
 			property.setRequired(true);
-		} else if(hasNullableAnnotation(field)) {
+		} else if(NullableConfigurationHolder.hasNullableAnnotation(field)) {
 			property.setRequired(false);
 		} else {
 			property.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
 		}
-	}
-
-	private boolean hasNullableAnnotation(final Field field) {
-		return Arrays.stream(field.getAnnotations())
-			.map(annotation -> annotation.annotationType().getName())
-			.anyMatch(name -> NullableConfigurationHolder.getNullableAnnotations().contains(name));
-	}
-
-
-	private boolean hasNonNullAnnotation(final Field field) {
-		return Arrays.stream(field.getAnnotations())
-			.map(annotation -> annotation.annotationType().getName())
-			.anyMatch(name -> NullableConfigurationHolder.getNonNullAnnotations().contains(name));
 	}
 
 	public List<String> getRequired() {

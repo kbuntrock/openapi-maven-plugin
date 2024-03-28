@@ -105,6 +105,9 @@ public class CommonApiConfiguration {
 	@Parameter
 	protected String modelsAssociations;
 
+	@Parameter
+	protected List<String> nonDocumentableParameterClasses = new ArrayList<>();
+
 	public CommonApiConfiguration() {
 	}
 
@@ -151,6 +154,9 @@ public class CommonApiConfiguration {
 		}
 		if(!commonApiConfiguration.extraSchemaClasses.isEmpty()) {
 			this.extraSchemaClasses.addAll(commonApiConfiguration.extraSchemaClasses);
+		}
+		for(final String nonDocumentableParameterClass : commonApiConfiguration.nonDocumentableParameterClasses) {
+			this.nonDocumentableParameterClasses.add(nonDocumentableParameterClass);
 		}
 	}
 
@@ -372,5 +378,13 @@ public class CommonApiConfiguration {
 
 	public void setNullableAnnotation(final List<String> nullableAnnotation) {
 		this.nullableAnnotation = nullableAnnotation;
+	}
+
+	public List<String> getNonDocumentableParameterClasses() {
+		return nonDocumentableParameterClasses;
+	}
+
+	public void setNonDocumentableParameterClasses(final List<String> nonDocumentableParameterClasses) {
+		this.nonDocumentableParameterClasses = nonDocumentableParameterClasses;
 	}
 }

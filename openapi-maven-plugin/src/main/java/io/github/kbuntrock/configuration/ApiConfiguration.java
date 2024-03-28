@@ -91,6 +91,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.defaultNonNullableFields = copy.defaultNonNullableFields;
 		merged.nonNullableAnnotation = copy.nonNullableAnnotation;
 		merged.nullableAnnotation = copy.nullableAnnotation;
+		merged.nonDocumentableParameterClasses = copy.nonDocumentableParameterClasses;
 		// End copy properties
 
 		merged.setLocations(locations);
@@ -181,6 +182,10 @@ public class ApiConfiguration extends CommonApiConfiguration {
 			} else if("restcontroller".equals(merged.tagAnnotations.get(i).toLowerCase())) {
 				merged.tagAnnotations.set(i, TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName());
 			}
+		}
+
+		if(nonDocumentableParameterClasses != null) {
+			merged.setNonDocumentableParameterClasses(nonDocumentableParameterClasses);
 		}
 		return merged;
 	}
