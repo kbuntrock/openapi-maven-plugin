@@ -19,14 +19,21 @@ public class ParameterObject extends DataObject {
 	 */
 	private String javadocFieldClassName;
 
+	/**
+	 * Parameters name can be changed via annotation. Save the original one to find the corresponding javadoc.
+	 */
+	private String javadocFieldName;
+
 	public ParameterObject(final String name, final Type type) {
 		super(type);
 		this.name = name;
+		this.javadocFieldName = name;
 	}
 
 	public ParameterObject(final String name, final DataObject dataObject) {
 		super(dataObject);
 		this.name = name;
+		this.javadocFieldName = name;
 	}
 
 	public String getName() {
@@ -67,5 +74,13 @@ public class ParameterObject extends DataObject {
 
 	public void setJavadocFieldClassName(final String javadocFieldClassName) {
 		this.javadocFieldClassName = javadocFieldClassName;
+	}
+
+	public String getJavadocFieldName() {
+		return javadocFieldName;
+	}
+
+	public void setJavadocFieldName(final String javadocFieldName) {
+		this.javadocFieldName = javadocFieldName;
 	}
 }

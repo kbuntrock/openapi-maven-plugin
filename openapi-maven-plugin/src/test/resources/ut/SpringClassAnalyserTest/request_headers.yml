@@ -1,0 +1,48 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: MultipartFileWithHeaderController
+    description: A controller about files and headers
+paths:
+  /api/file/upload:
+    post:
+      tags:
+        - MultipartFileWithHeaderController
+      operationId: uploadFile
+      description: Allow to upload a file
+      parameters:
+        - name: myFirstHeader
+          description: the first header
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: mySecondHeader
+          description: the second header
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              required:
+                - incomingFile
+              type: object
+              properties:
+                incomingFile:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: "OK if upload in success, KO otherwise"
+          content:
+            '*/*':
+              schema:
+                type: string

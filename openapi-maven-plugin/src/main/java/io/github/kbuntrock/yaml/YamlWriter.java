@@ -265,7 +265,8 @@ public class YamlWriter {
 
 					// Javadoc handling
 					if(methodJavadoc != null) {
-						final Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(parameterElement.getName());
+						final Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(
+							parameter.getJavadocFieldName());
 						if(parameterDoc.isPresent()) {
 							final String description = parameterDoc.get().getContent().toText();
 							if(!description.isEmpty()) {
