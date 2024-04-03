@@ -41,6 +41,7 @@ import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTwelve;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTwo;
 import io.github.kbuntrock.resources.endpoint.generic.Issue89;
 import io.github.kbuntrock.resources.endpoint.generic.Issue95;
+import io.github.kbuntrock.resources.endpoint.header.MultipartFileWithHeaderController;
 import io.github.kbuntrock.resources.endpoint.ignore.JsonIgnoreController;
 import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
 import io.github.kbuntrock.resources.endpoint.jackson.JacksonJsonPropertyController;
@@ -817,6 +818,19 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
 		final List<File> generated = mojo.documentProject();
 		checkGenerationResult("ut/SpringClassAnalyserTest/query_param_dto_binding.yml", generated.get(0));
+	}
+
+	@Test
+	public void request_headers() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(MultipartFileWithHeaderController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/header",
+			"src/test/java/io/github/kbuntrock/resources/dto"));
+		mojo.setJavadocConfiguration(javadocConfig);
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/request_headers.yml", generated.get(0));
 	}
 
 

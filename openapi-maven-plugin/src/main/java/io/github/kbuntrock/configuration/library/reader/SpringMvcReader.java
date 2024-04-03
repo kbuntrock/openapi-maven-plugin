@@ -38,6 +38,7 @@ import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -138,6 +139,21 @@ public class SpringMvcReader extends AstractLibraryReader {
 
 				boolean annotationFound = false;
 
+				// Detect if is a header variable
+				final MergedAnnotation<RequestHeader> headerVariableMA = mergedAnnotations.get(RequestHeader.class);
+				if(headerVariableMA.isPresent()) {
+					annotationFound = true;
+					paramObj.setLocation(ParameterLocation.HEADER);
+					paramObj.setRequired(headerVariableMA.getBoolean("required") &&
+						ValueConstants.DEFAULT_NONE.equals(headerVariableMA.getString("defaultValue")));
+					// The value is equivalent to the name (alias for and user of MergedAnnotation)
+					final String value = headerVariableMA.getString("value");
+					if(!StringUtils.isEmpty(value)) {
+						paramObj.setName(value);
+					}
+					logger.debug("RequestHeader annotation detected (" + paramObj.getName() + ")");
+				}
+
 				// Detect if is a path variable
 				final MergedAnnotation<PathVariable> pathVariableMA = mergedAnnotations.get(PathVariable.class);
 				if(pathVariableMA.isPresent()) {
@@ -165,7 +181,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 					} else {
 						paramObj.setLocation(ParameterLocation.QUERY);
 					}
-					paramObj.setRequired(requestParamMA.getBoolean("required") && !requestParamHasDefaultValue(requestParamMA));
+					paramObj.setRequired(requestParamMA.getBoolean("required") &&
+						ValueConstants.DEFAULT_NONE.equals(requestParamMA.getString("defaultValue")));
 
 					// The value is equivalent to the name (alias for and user of MergedAnnotation)
 					final String value = requestParamMA.getString("value");
@@ -250,10 +267,6 @@ public class SpringMvcReader extends AstractLibraryReader {
 				}
 			}
 		}
-	}
-
-	private static boolean requestParamHasDefaultValue(final MergedAnnotation<RequestParam> requestParam) {
-		return !ValueConstants.DEFAULT_NONE.equals(requestParam.getString("defaultValue"));
 	}
 
 	@Override

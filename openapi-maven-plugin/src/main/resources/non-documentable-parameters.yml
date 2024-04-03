@@ -11,6 +11,7 @@ spring:
   - org.springframework.http.HttpMethod
   - org.springframework.ui.Model
   - org.springframework.ui.ModelMap
+  - org.springframework.http.HttpHeaders
   - java.util.Locale
   - java.util.TimeZone
   - java.time.ZoneId
