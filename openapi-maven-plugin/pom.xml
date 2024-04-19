@@ -6,8 +6,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.github.kbuntrock</groupId>
-  <artifactId>openapi-maven-plugin</artifactId>
-  <version>0.0.20-SNAPSHOT</version>
+  <artifactId>openapi-maven-plugin-up</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
   <name>openapi-maven-plugin Maven Plugin</name>
@@ -29,9 +29,8 @@
 
   <developers>
     <developer>
-      <id>kbuntrock</id>
-      <name>Kévin Buntrock</name>
-      <url>www.linkedin.com/in/kevin-buntrock</url>
+      <id>jon</id>
+      <name>JonatanVilmus</name>
       <organization>Klee</organization>
       <roles>
         <role>tech lead</role>

@@ -16,6 +16,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 	@Parameter
 	private String filename = "spec-open-api.yml";
 
+	@Parameter
+	private boolean responses = true;
+
 	protected String baseFreeField;
 	@Parameter
 	private boolean mergeFreeFields;
@@ -36,6 +39,13 @@ public class ApiConfiguration extends CommonApiConfiguration {
 
 	public void setFilename(final String filename) {
 		this.filename = filename;
+	}
+
+	public void setResponses(final boolean responses) {
+		this.responses = responses;
+	}
+	public boolean isResponses() {
+		return responses;
 	}
 
 	public OperationIdHelper getOperationIdHelper() {

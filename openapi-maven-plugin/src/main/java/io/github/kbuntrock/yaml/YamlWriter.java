@@ -340,17 +340,19 @@ public class YamlWriter {
 				// -------------------------
 
 				final Response response = new Response();
-				response.setCode(endpoint.getResponseCode(), apiConfiguration.getDefaultSuccessfulOperationDescription());
-				if(endpoint.getResponseObject() != null) {
-					final Content responseContent = Content.fromDataObject(endpoint.getResponseObject());
-					if(endpoint.getResponseFormats() != null) {
-						for(final String format : endpoint.getResponseFormats()) {
-							response.getContent().put(format, responseContent);
+				if(apiConfiguration.isResponses()) {
+					response.setCode(endpoint.getResponseCode(), apiConfiguration.getDefaultSuccessfulOperationDescription());
+					if (endpoint.getResponseObject() != null) {
+						final Content responseContent = Content.fromDataObject(endpoint.getResponseObject());
+						if (endpoint.getResponseFormats() != null) {
+							for (final String format : endpoint.getResponseFormats()) {
+								response.getContent().put(format, responseContent);
+							}
+						} else if (apiConfiguration.isDefaultProduceConsumeGuessing()) {
+							response.getContent().put(ProduceConsumeUtils.getDefaultValue(endpoint.getResponseObject()), responseContent);
+						} else {
+							response.getContent().put("*/*", responseContent);
 						}
-					} else if(apiConfiguration.isDefaultProduceConsumeGuessing()) {
-						response.getContent().put(ProduceConsumeUtils.getDefaultValue(endpoint.getResponseObject()), responseContent);
-					} else {
-						response.getContent().put("*/*", responseContent);
 					}
 				}
 
