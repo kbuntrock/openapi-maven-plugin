@@ -1,6 +1,6 @@
 package io.github.kbuntrock.configuration;
 
-import java.lang.reflect.Field;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,15 +60,15 @@ public class NullableConfigurationHolder {
 		return defaultNonNullableFields;
 	}
 
-	public static boolean hasNullableAnnotation(final Field field) {
-		return Arrays.stream(field.getAnnotations())
+	public static boolean hasNullableAnnotation(final List<Annotation> annotations) {
+		return annotations.stream()
 			.map(annotation -> annotation.annotationType().getName())
 			.anyMatch(name -> getNullableAnnotations().contains(name));
 	}
 
 
-	public static boolean hasNonNullAnnotation(final Field field) {
-		return Arrays.stream(field.getAnnotations())
+	public static boolean hasNonNullAnnotation(final List<Annotation> annotations) {
+		return annotations.stream()
 			.map(annotation -> annotation.annotationType().getName())
 			.anyMatch(name -> getNonNullAnnotations().contains(name));
 	}
