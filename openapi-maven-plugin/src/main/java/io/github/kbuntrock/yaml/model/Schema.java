@@ -25,6 +25,8 @@ import io.github.kbuntrock.utils.OpenApiConstants;
 import io.github.kbuntrock.utils.OpenApiResolvedType;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.UnwrappingType;
+
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -37,6 +39,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.validation.constraints.Size;
 import org.apache.commons.lang3.StringUtils;
 
@@ -160,13 +163,17 @@ public class Schema {
 					if(!fields.isEmpty() && !dataObject.isEnum()) {
 
 						for(final Field field : fields) {
+
+                            List<Annotation> annotations = getRelevantAnnotationsForField(field);
+
 							if(field.isAnnotationPresent(JsonIgnore.class)) {
 								// Field is tagged ignore. No need to document it.
 								continue;
 							}
 							// Jackson @JsonProperty annotation handling
 							String propertyFieldName = field.getName();
-							final JsonProperty jsonPropertyField = field.getAnnotation(JsonProperty.class);
+//							final JsonProperty jsonPropertyField = field.getAnnotation(JsonProperty.class);
+                            final JsonProperty jsonPropertyField = findAnnotationByClass(annotations, JsonProperty.class);
 							if(jsonPropertyField != null && !jsonPropertyField.value().isEmpty()) {
 								propertyFieldName = jsonPropertyField.value();
 							}
@@ -176,7 +183,7 @@ public class Schema {
 								UnwrappingType.SCHEMA);
 							final Property property = new Property(propertyObject, false, propertyFieldName, exploredSignatures,
 								dataObject);
-							extractConstraints(field, property);
+							extractConstraints(field, annotations, property);
 							properties.put(property.getName(), property);
 
 							// Javadoc handling
@@ -273,8 +280,33 @@ public class Schema {
 		}
 	}
 
-	private void extractConstraints(final Field field, final Property property) {
-		final Size size = field.getAnnotation(Size.class);
+    private <T extends Annotation> T findAnnotationByClass(List<Annotation> annotations, Class<T> annotationType) {
+        return (T) annotations.stream().filter(a -> a.annotationType().equals(annotationType)).findFirst().orElse(null);
+    }
+
+    private List<Annotation> getRelevantAnnotationsForField(Field field) {
+        Class<?> declaringClass = field.getDeclaringClass();
+        List<Method> relatedMethods = Arrays.stream(declaringClass.getMethods())
+                .filter(method -> (
+                                          method.getName().equalsIgnoreCase(field.getName())
+                                          || method.getName().equalsIgnoreCase("set" + field.getName())
+                                          || method.getName().equalsIgnoreCase("get" + field.getName())
+                                          || method.getName().equalsIgnoreCase("is" + field.getName())
+                                  ) && (
+                                          method.getReturnType().equals(field.getType())
+                                          || method.getParameterCount() == 1
+                                             && method.getParameterTypes()[0].equals(field.getType())
+                                  )
+                )
+                .collect(Collectors.toList());
+        return Stream.concat(relatedMethods.stream().flatMap(method -> Arrays.stream(method.getAnnotations())),
+                        Arrays.stream(field.getAnnotations()))
+                .collect(Collectors.toList());
+    }
+
+    private void extractConstraints(final Field field, List<Annotation> annotations, final Property property) {
+//		final Size size = field.getAnnotation(Size.class);
+        final Size size = findAnnotationByClass(annotations, Size.class);
 		if(size != null) {
 			property.setMinLength(size.min());
 			if(size.max() != Integer.MAX_VALUE) {
@@ -282,9 +314,9 @@ public class Schema {
 			}
 		}
 
-		if(NullableConfigurationHolder.hasNonNullAnnotation(field)) {
+		if(NullableConfigurationHolder.hasNonNullAnnotation(annotations)) {
 			property.setRequired(true);
-		} else if(NullableConfigurationHolder.hasNullableAnnotation(field)) {
+		} else if(NullableConfigurationHolder.hasNullableAnnotation(annotations)) {
 			property.setRequired(false);
 		} else {
 			property.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());

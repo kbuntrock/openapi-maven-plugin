@@ -259,9 +259,9 @@ public class SpringMvcReader extends AstractLibraryReader {
 			if(fieldObj.getClassRequired() != null) {
 				fieldObj.setRequired(paramObj.getClassRequired());
 			} else {
-				if(NullableConfigurationHolder.hasNonNullAnnotation(field)) {
+				if(NullableConfigurationHolder.hasNonNullAnnotation(Arrays.asList(field.getAnnotations()))) {
 					fieldObj.setRequired(true);
-				} else if(NullableConfigurationHolder.hasNullableAnnotation(field)) {
+				} else if(NullableConfigurationHolder.hasNullableAnnotation(Arrays.asList(field.getAnnotations()))) {
 					fieldObj.setRequired(false);
 				} else {
 					fieldObj.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
