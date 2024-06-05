@@ -16,6 +16,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 	@Parameter
 	private String filename = "spec-open-api.yml";
 
+	@Parameter(defaultValue = "yaml")
+	private String fileFormat;
+
 	protected String baseFreeField;
 	@Parameter
 	private boolean mergeFreeFields;
@@ -36,6 +39,14 @@ public class ApiConfiguration extends CommonApiConfiguration {
 
 	public void setFilename(final String filename) {
 		this.filename = filename;
+	}
+
+	public String getFileFormat() {
+		return fileFormat;
+	}
+
+	public void setFileFormat(String fileFormat) {
+		this.fileFormat = fileFormat;
 	}
 
 	public OperationIdHelper getOperationIdHelper() {
@@ -96,6 +107,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 
 		merged.setLocations(locations);
 		merged.setFilename(filename);
+		merged.setFileFormat(fileFormat);
 		merged.setMergeFreeFields(mergeFreeFields);
 
 		if(!tag.getSubstitutions().isEmpty()) {
