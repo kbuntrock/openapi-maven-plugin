@@ -53,6 +53,9 @@ public class CommonApiConfiguration {
 	@Parameter
 	protected String pathPrefix;
 
+	@Parameter(defaultValue = "yaml")
+	protected String fileFormat;
+
 	/**
 	 * If true, return a short operation name for code generation, as described here :
 	 * https://loopback.io/doc/en/lb4/Decorators_openapi.html
@@ -119,6 +122,7 @@ public class CommonApiConfiguration {
 		this.defaultProduceConsumeGuessing = commonApiConfiguration.defaultProduceConsumeGuessing;
 		this.pathEnhancement = commonApiConfiguration.pathEnhancement;
 		this.pathPrefix = commonApiConfiguration.pathPrefix;
+		this.fileFormat = commonApiConfiguration.fileFormat;
 		this.loopbackOperationName = commonApiConfiguration.loopbackOperationName;
 		this.operationId = commonApiConfiguration.operationId;
 		this.freeFields = commonApiConfiguration.freeFields;
@@ -242,6 +246,14 @@ public class CommonApiConfiguration {
 
 	public void setPathPrefix(final String pathPrefix) {
 		this.pathPrefix = pathPrefix;
+	}
+
+	public String getFileFormat() {
+		return fileFormat;
+	}
+
+	public void setFileFormat(String fileFormat) {
+		this.fileFormat = fileFormat;
 	}
 
 	public String getDefaultSuccessfulOperationDescription() {
