@@ -124,7 +124,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		if(fileFormat != null) {
 			merged.setFileFormat(fileFormat);
 		}
-		if("json".equals(fileFormat) && DEFAULT_FILENAME.equals(filename)){
+		if("json".equals(merged.fileFormat) && DEFAULT_FILENAME.equals(merged.filename)) {
 			merged.filename = DEFAULT_FILENAME.replace(".yml", ".json");
 		}
 		if(loopbackOperationName != null) {
