@@ -2,6 +2,7 @@ package io.github.kbuntrock.yaml;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.github.javaparser.javadoc.JavadocBlockTag;
@@ -54,13 +55,13 @@ import org.apache.maven.project.MavenProject;
 
 public class YamlWriter {
 
-	private static final ObjectMapper om = new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
-		.enable(YAMLGenerator.Feature.INDENT_ARRAYS_WITH_INDICATOR));
 	private static final String SERVERS_FIELD = "servers";
 	private static final String SECURITY_FIELD = "security";
 	private static final String EXTERNAL_DOC_FIELD = "externalDocs";
+	private static final String FILEFORMAT_JSON = "json";
 	private final Log logger = Logger.INSTANCE.getLogger();
 
+	private final ObjectMapper om;
 	private final ApiConfiguration apiConfiguration;
 
 	private final MavenProject mavenProject;
@@ -71,6 +72,10 @@ public class YamlWriter {
 	public YamlWriter(final MavenProject mavenProject, final ApiConfiguration apiConfiguration) {
 		this.apiConfiguration = apiConfiguration;
 		this.mavenProject = mavenProject;
+		this.om = FILEFORMAT_JSON.equals(apiConfiguration.getFileFormat()) ?
+				new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT) :
+				new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
+						.enable(YAMLGenerator.Feature.INDENT_ARRAYS_WITH_INDICATOR));
 	}
 
 	private void populateSpecificationFreeFields(final Specification specification, final Optional<JsonNode> freefields) {

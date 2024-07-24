@@ -163,17 +163,11 @@ public class DocumentationMojo extends AbstractMojo {
 				new YamlWriter(project, apiConfig).write(generatedFile, tagLibrary);
 
 				if(apiConfig.isAttachArtifact()) {
-					String artifactType = "yaml";
-					String fileNameWithoutExtension = apiConfig.getFilename();
-					if(apiConfig.getFilename().endsWith(".yml")) {
-						artifactType = "yml";
-						fileNameWithoutExtension = apiConfig.getFilename()
-							.substring(0, fileNameWithoutExtension.length() - ".yml".length());
-					} else if(apiConfig.getFilename().endsWith(".yaml")) {
-						fileNameWithoutExtension = apiConfig.getFilename()
-							.substring(0, fileNameWithoutExtension.length() - ".yaml".length());
-					}
-					projectHelper.attachArtifact(project, artifactType, fileNameWithoutExtension, generatedFile);
+					final String fileExtension = com.google.common.io.Files.getFileExtension(apiConfig.getFilename());
+					final int extensionSize = fileExtension.length() == 0 ? 0 : fileExtension.length() + 1;
+					final String fileNameWithoutExtension = apiConfig.getFilename()
+						.substring(0, apiConfig.getFilename().length() - extensionSize);
+					projectHelper.attachArtifact(project, fileExtension, fileNameWithoutExtension, generatedFile);
 				}
 
 				generatedFiles.add(generatedFile);

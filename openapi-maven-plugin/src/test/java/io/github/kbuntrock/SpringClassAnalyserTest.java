@@ -52,6 +52,7 @@ import io.github.kbuntrock.resources.endpoint.number.NumberController;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementOneController;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementTwoController;
 import io.github.kbuntrock.resources.endpoint.queryparam.QueryParamDtoBindingController;
+import io.github.kbuntrock.resources.endpoint.queryparam.QueryParamFlatMixNestedDtoBindingController;
 import io.github.kbuntrock.resources.endpoint.recursive.GenericRecursiveDtoController;
 import io.github.kbuntrock.resources.endpoint.recursive.GenericRecursiveInterfaceDtoController;
 import io.github.kbuntrock.resources.endpoint.recursive.GenericRecursiveInterfaceListDtoInParameterController;
@@ -840,6 +841,19 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
 		final List<File> generated = mojo.documentProject();
 		checkGenerationResult("ut/SpringClassAnalyserTest/query_param_dto_binding.yml", generated.get(0));
+	}
+
+	@Test
+	public void query_param_flat_mix_nested_dto_binding() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(QueryParamFlatMixNestedDtoBindingController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/queryparam",
+				"src/test/java/io/github/kbuntrock/resources/dto"));
+		mojo.setJavadocConfiguration(javadocConfig);
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/query_param_flat_mix_nested_binding.yml", generated.get(0));
 	}
 
 	@Test

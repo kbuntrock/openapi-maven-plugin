@@ -222,11 +222,12 @@ public class SpringMvcReader extends AstractLibraryReader {
 
 		// Last case, some Dto fields can be binded to QueryParams : http://dolszewski.com/spring/how-to-bind-requestparam-to-object/
 		// Since this functionality is not well documented, it can be for now a subset of the complete functionality
+		final Map<String, ParameterObject> unnestedParams = new LinkedHashMap<>(parameters);
 		parameters.values().stream().filter(x -> x.getLocation() == null && parameterObjectBindableToQueryParams(x)).forEach(paramObj -> {
-			bindDtoToQueryParams(parameters, paramObj);
+			bindDtoToQueryParams(unnestedParams, paramObj);
 		});
 
-		return parameters.values().stream().filter(x -> x.getLocation() != null).collect(Collectors.toList());
+		return unnestedParams.values().stream().filter(x -> x.getLocation() != null).collect(Collectors.toList());
 	}
 
 	private static boolean parameterObjectBindableToQueryParams(final ParameterObject paramObj) {

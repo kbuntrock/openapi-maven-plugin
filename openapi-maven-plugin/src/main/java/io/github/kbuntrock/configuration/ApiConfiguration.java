@@ -8,13 +8,14 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 public class ApiConfiguration extends CommonApiConfiguration {
 
+	private static final String DEFAULT_FILENAME = "spec-open-api.yml";
 	/**
 	 * A list of location to find api endpoints. A location could be a class or a package
 	 */
 	@Parameter(required = true)
 	private List<String> locations;
 	@Parameter
-	private String filename = "spec-open-api.yml";
+	private String filename = DEFAULT_FILENAME;
 
 	protected String baseFreeField;
 	@Parameter
@@ -75,6 +76,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.defaultProduceConsumeGuessing = copy.defaultProduceConsumeGuessing;
 		merged.pathEnhancement = copy.pathEnhancement;
 		merged.pathPrefix = copy.pathPrefix;
+		merged.fileFormat = copy.fileFormat;
 		merged.loopbackOperationName = copy.loopbackOperationName;
 		merged.operationId = copy.operationId;
 		merged.freeFields = copy.freeFields;
@@ -118,6 +120,12 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		}
 		if(pathPrefix != null) {
 			merged.setPathPrefix(pathPrefix);
+		}
+		if(fileFormat != null) {
+			merged.setFileFormat(fileFormat);
+		}
+		if("json".equals(merged.fileFormat) && DEFAULT_FILENAME.equals(merged.filename)) {
+			merged.filename = DEFAULT_FILENAME.replace(".yml", ".json");
 		}
 		if(loopbackOperationName != null) {
 			merged.setLoopbackOperationName(loopbackOperationName);
