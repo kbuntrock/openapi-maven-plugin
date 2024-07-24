@@ -47,6 +47,7 @@ import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
 import io.github.kbuntrock.resources.endpoint.jackson.JacksonJsonPropertyController;
 import io.github.kbuntrock.resources.endpoint.map.MapController;
 import io.github.kbuntrock.resources.endpoint.nullable.NullableController;
+import io.github.kbuntrock.resources.endpoint.nullable.NullableGettersSettersController;
 import io.github.kbuntrock.resources.endpoint.number.NumberController;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementOneController;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementTwoController;
@@ -806,6 +807,27 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final List<File> generated = mojo.documentProject();
 		checkGenerationResult("ut/SpringClassAnalyserTest/nullable_default_non_nullable_custom_annotation.yml", generated.get(0));
 	}
+
+    @Test
+    public void nullable_getters_setters() throws MojoExecutionException, MojoFailureException, IOException {
+        final DocumentationMojo mojo = createBasicMojo(NullableGettersSettersController.class.getCanonicalName());
+        final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+        mojo.setApiConfiguration(commonApiConfiguration);
+
+        final List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/nullable_getters_setters.yml", generated.get(0));
+    }
+
+    @Test
+    public void nullable_getters_setters_default_non_nullable() throws MojoExecutionException, MojoFailureException, IOException {
+        final DocumentationMojo mojo = createBasicMojo(NullableGettersSettersController.class.getCanonicalName());
+        final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+        commonApiConfiguration.setDefaultNonNullableFields(true);
+        mojo.setApiConfiguration(commonApiConfiguration);
+
+        final List<File> generated = mojo.documentProject();
+        checkGenerationResult("ut/SpringClassAnalyserTest/nullable_getters_setters_default_non_nullable.yml", generated.get(0));
+    }
 
 	@Test
 	public void query_param_dto_binding() throws MojoFailureException, IOException, MojoExecutionException {

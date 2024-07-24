@@ -1,0 +1,47 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: NullableGettersSettersController
+paths:
+  /nullableGettersSetters/{id}:
+    get:
+      tags:
+        - NullableGettersSettersController
+      operationId: getById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/NullableGettersSettersDto'
+components:
+  schemas:
+    NullableGettersSettersDto:
+      required:
+        - notNullOnGetterValue
+        - notNullOnSetterValue
+      type: object
+      properties:
+        noAnnotationsValue:
+          type: string
+        nullableOnGetterValue:
+          type: string
+        nullableOnSetterValue:
+          type: string
+        notNullOnGetterValue:
+          type: string
+        notNullOnSetterValue:
+          type: string
