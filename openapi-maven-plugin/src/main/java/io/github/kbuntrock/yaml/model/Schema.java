@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.validation.constraints.Size;
@@ -172,7 +173,6 @@ public class Schema {
 							}
 							// Jackson @JsonProperty annotation handling
 							String propertyFieldName = field.getName();
-//							final JsonProperty jsonPropertyField = field.getAnnotation(JsonProperty.class);
                             final JsonProperty jsonPropertyField = findAnnotationByClass(annotations, JsonProperty.class);
 							if(jsonPropertyField != null && !jsonPropertyField.value().isEmpty()) {
 								propertyFieldName = jsonPropertyField.value();
@@ -287,25 +287,35 @@ public class Schema {
     private List<Annotation> getRelevantAnnotationsForField(Field field) {
         Class<?> declaringClass = field.getDeclaringClass();
         List<Method> relatedMethods = Arrays.stream(declaringClass.getMethods())
-                .filter(method -> (
-                                          method.getName().equalsIgnoreCase(field.getName())
-                                          || method.getName().equalsIgnoreCase("set" + field.getName())
-                                          || method.getName().equalsIgnoreCase("get" + field.getName())
-                                          || method.getName().equalsIgnoreCase("is" + field.getName())
-                                  ) && (
-                                          method.getReturnType().equals(field.getType())
-                                          || method.getParameterCount() == 1
-                                             && method.getParameterTypes()[0].equals(field.getType())
-                                  )
-                )
+                .filter(isMethodGetterForField(field).or(isMethodSetterForField(field)))
                 .collect(Collectors.toList());
         return Stream.concat(relatedMethods.stream().flatMap(method -> Arrays.stream(method.getAnnotations())),
                         Arrays.stream(field.getAnnotations()))
                 .collect(Collectors.toList());
     }
 
+    private static Predicate<Method> isMethodGetterForField(Field field) {
+        return method -> (
+                                 method.getName().equalsIgnoreCase(field.getName())
+                                 || method.getName().equalsIgnoreCase("get" + field.getName())
+                                 || method.getName().equalsIgnoreCase("is" + field.getName())
+                         )
+                         && method.getReturnType().equals(field.getType())
+                         && method.getParameterCount() == 0;
+    }
+
+    private static Predicate<Method> isMethodSetterForField(Field field) {
+        return method -> (
+                                 method.getName().equalsIgnoreCase(field.getName())
+                                 || method.getName().equalsIgnoreCase("set" + field.getName())
+                         )
+                         && method.getReturnType().equals(Void.TYPE)
+                         && method.getParameterCount() == 1
+                         && method.getParameterTypes()[0].equals(field.getType());
+    }
+
+
     private void extractConstraints(final Field field, List<Annotation> annotations, final Property property) {
-//		final Size size = field.getAnnotation(Size.class);
         final Size size = findAnnotationByClass(annotations, Size.class);
 		if(size != null) {
 			property.setMinLength(size.min());
