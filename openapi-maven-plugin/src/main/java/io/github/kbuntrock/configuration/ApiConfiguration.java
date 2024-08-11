@@ -181,6 +181,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		if(nullableAnnotation != null) {
 			merged.setNullableAnnotation(nullableAnnotation);
 		}
+		if(enumConfigList != null) {
+			merged.setEnumConfigList(enumConfigList);
+		}
 
 		merged.operationIdHelper = new OperationIdHelper(merged.operationId);
 

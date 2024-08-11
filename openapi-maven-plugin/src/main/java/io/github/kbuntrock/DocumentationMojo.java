@@ -120,7 +120,6 @@ public class DocumentationMojo extends AbstractMojo {
 			throw new MojoFailureException("At least one api configuration element should be configured");
 		}
 		this.getApiConfiguration().initDefaultValues();
-		EnumConfigHolder.storeConfig(this.getApiConfiguration().getEnumConfigList());
 
 		for(final ApiConfiguration apiConfiguration : apis) {
 			if(apiConfiguration.getLocations() == null || apiConfiguration.getLocations().isEmpty()) {
@@ -143,6 +142,7 @@ public class DocumentationMojo extends AbstractMojo {
 			AdditionnalSchemaLibrary.reset();
 			final ApiConfiguration apiConfig = initialApiConfiguration.mergeWithCommonApiConfiguration(this.apiConfiguration);
 			initObjectMapperFactory(apiConfig);
+			EnumConfigHolder.storeConfig(apiConfig.getEnumConfigList());
 			NullableConfigurationHolder.storeConfig(apiConfig);
 
 			final ApiResourceScanner apiResourceScanner = new ApiResourceScanner(apiConfig);
