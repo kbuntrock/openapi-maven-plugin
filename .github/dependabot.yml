@@ -1,9 +1,10 @@
 # Configure the github "dependabot" for :
 #  - Disables npm security scan (the angular sample projet does not need security updates since it is not part of the product)
+#  - Enables updates for the maven dependencies
 
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/something-not-existing"
+  - package-ecosystem: "maven"
+    directory: "/openapi-maven-plugin"
     schedule:
       interval: "weekly"
