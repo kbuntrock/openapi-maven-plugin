@@ -48,7 +48,7 @@ public class JavadocParser {
 		this.filesToScan = filesToScan;
 		final ParserConfiguration parserConfiguration = new ParserConfiguration();
 
-		parserConfiguration.setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_18);
+		parserConfiguration.setLanguageLevel(ParserConfiguration.LanguageLevel.BLEEDING_EDGE);
 
 		Charset charset = StandardCharsets.UTF_8;
 		if(Charset.isSupported(javadocConfiguration.getEncoding())) {
