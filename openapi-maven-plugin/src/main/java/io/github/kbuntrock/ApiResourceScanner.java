@@ -5,14 +5,12 @@ import static org.reflections.scanners.Scanners.TypesAnnotated;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.library.Library;
-import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.Logger;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -61,7 +59,7 @@ public class ApiResourceScanner {
 		TagLibraryHolder.INSTANCE.setTagLibrary(library);
 
 		final Library framework = apiConfiguration.getLibrary();
-		final List<Class<? extends Annotation>> annotatedElementList = new ArrayList<>();
+		final Set<Class<? extends Annotation>> annotatedElementList = new HashSet<>();
 		for(final String annotationName : apiConfiguration.getTagAnnotations()) {
 			annotatedElementList.add(framework.getByClassName(annotationName));
 		}
@@ -75,24 +73,21 @@ public class ApiResourceScanner {
 
 			configurationBuilder.setScanners(TypesAnnotated);
 			final Reflections reflections = new Reflections(configurationBuilder);
-			final Set<Class<?>> classes = reflections.get(TypesAnnotated.with(annotatedElementList.toArray(new AnnotatedElement[]{}))
+			final Set<Class<?>> restControllerClasses = reflections.get(TypesAnnotated.with(annotatedElementList)
 				.asClass(ReflectionsUtils.getProjectClassLoader()));
 
-			logger.info("Found " + classes.size() + " annotated classes with [ " +
+			logger.info("Found " + restControllerClasses.size() + " annotated classes with [ " +
 				annotatedElementList.stream().map(Class::getSimpleName).collect(Collectors.joining(", ")) + " ]");
 
 			// Find directly or inheritedly annotated by RequestMapping classes.
 			final JavaClassAnalyser javaClassAnalyser = new JavaClassAnalyser(apiConfiguration);
-			for(final Class clazz : classes) {
-				if(validateWhiteList(clazz) && validateBlackList(clazz)) {
-					final Optional<Tag> optTag = javaClassAnalyser.getTagFromClass(clazz);
-					if(optTag.isPresent()) {
-						library.addTag(optTag.get());
-					}
+			for(final Class<?> restControllerClass : restControllerClasses) {
+				if(validateWhiteList(restControllerClass) && validateBlackList(restControllerClass)) {
+					javaClassAnalyser.getTagFromClass(restControllerClass).ifPresent(library::addTag);
 				}
 			}
 
-			// Possibly add extra data objets to the future schema section (objets which are not explicitely used by a endpoint)
+			// Possibly add extra data objets to the future schema section (objets which are not explicitly used by an endpoint)
 			for(final String className : apiConfiguration.getExtraSchemaClasses()) {
 				try {
 					library.addExtraClass(ReflectionsUtils.getProjectClassLoader().loadClass(className));
@@ -108,26 +103,17 @@ public class ApiResourceScanner {
 		return library;
 	}
 
-	private boolean validateWhiteList(final Class clazz) {
-		if(!whiteListPatterns.isEmpty()) {
-			for(final Pattern whitePattern : whiteListPatterns) {
-				if(whitePattern.matcher(clazz.getCanonicalName()).matches()) {
-					return true;
-				}
-			}
-			return false;
+	private boolean validateWhiteList(final Class<?> restControllerClass) {
+		if (whiteListPatterns.isEmpty()) {
+			return true;
 		}
-		return true;
-	}
+		return whiteListPatterns.stream().anyMatch(whitePattern -> whitePattern.matcher(restControllerClass.getCanonicalName()).matches());
+    }
 
-	private boolean validateBlackList(final Class clazz) {
-		if(!blackListPatterns.isEmpty()) {
-			for(final Pattern blackPattern : blackListPatterns) {
-				if(blackPattern.matcher(clazz.getCanonicalName()).matches()) {
-					return false;
-				}
-			}
+	private boolean validateBlackList(final Class<?> restControllerClass) {
+		if (blackListPatterns.isEmpty()) {
+			return true;
 		}
-		return true;
+		return blackListPatterns.stream().noneMatch(blackPattern -> blackPattern.matcher(restControllerClass.getCanonicalName()).matches());
 	}
 }

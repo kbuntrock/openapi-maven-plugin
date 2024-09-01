@@ -35,7 +35,7 @@ public class TagLibrary {
 	private final Set<String> exploredSignatures = new HashSet<>();
 	final Map<Class, DataObject> classToSchemaObject = new HashMap<>();
 
-	public void addTag(final Tag tag) throws MojoFailureException {
+	public void addTag(final Tag tag) {
 		tags.add(tag);
 		exploreTagObjects(tag);
 	}

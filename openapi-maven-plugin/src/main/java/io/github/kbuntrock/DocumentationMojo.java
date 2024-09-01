@@ -9,6 +9,7 @@ import io.github.kbuntrock.configuration.NullableConfigurationHolder;
 import io.github.kbuntrock.javadoc.JavadocMap;
 import io.github.kbuntrock.javadoc.JavadocParser;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
+import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.FileUtils;
@@ -22,6 +23,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
@@ -122,10 +124,8 @@ public class DocumentationMojo extends AbstractMojo {
 		this.getApiConfiguration().initDefaultValues();
 		EnumConfigHolder.storeConfig(this.getApiConfiguration().getEnumConfigList());
 
-		for(final ApiConfiguration apiConfiguration : apis) {
-			if(apiConfiguration.getLocations() == null || apiConfiguration.getLocations().isEmpty()) {
-				throw new MojoFailureException("At least one location element should be configured");
-			}
+		if (apis.stream().map(ApiConfiguration::getLocations).anyMatch(locations -> locations == null || locations.isEmpty())) {
+			throw new MojoFailureException("At least one location element should be configured");
 		}
 	}
 
@@ -164,7 +164,7 @@ public class DocumentationMojo extends AbstractMojo {
 
 				if(apiConfig.isAttachArtifact()) {
 					final String fileExtension = com.google.common.io.Files.getFileExtension(apiConfig.getFilename());
-					final int extensionSize = fileExtension.length() == 0 ? 0 : fileExtension.length() + 1;
+					final int extensionSize = fileExtension.isEmpty() ? 0 : fileExtension.length() + 1;
 					final String fileNameWithoutExtension = apiConfig.getFilename()
 						.substring(0, apiConfig.getFilename().length() - extensionSize);
 					projectHelper.attachArtifact(project, fileExtension, fileNameWithoutExtension, generatedFile);
@@ -180,8 +180,7 @@ public class DocumentationMojo extends AbstractMojo {
 							+ "java version used by maven is high enough to read the compiled project classes (maven toolchain is not supported yet)");
 				}
 
-				final int nbOperationsGenerated = tagLibrary.getTags().stream().map(t -> t.getEndpoints().size())
-					.collect(Collectors.summingInt(Integer::intValue));
+				final int nbOperationsGenerated = tagLibrary.getTags().stream().map(Tag::getEndpoints).map(Collection::size).mapToInt(Integer::intValue).sum();
 				getLog().info(
 					apiConfig.getFilename() + " : " + nbTagsGenerated + " tags and " + nbOperationsGenerated + " operations generated.");
 			} catch(final IOException e) {
@@ -199,7 +198,7 @@ public class DocumentationMojo extends AbstractMojo {
 	/**
 	 * Create a classloader for the classes and dependencies of the project
 	 *
-	 * For more informations, see https://maven.apache.org/guides/mini/guide-maven-classloading.html
+	 * For more information, see https://maven.apache.org/guides/mini/guide-maven-classloading.html
 	 *
 	 * @return the classloader to use
 	 * @throws MojoExecutionException
@@ -233,22 +232,26 @@ public class DocumentationMojo extends AbstractMojo {
 	}
 
 	private void scanJavadoc() {
-		if(javadocConfiguration != null && javadocConfiguration.getScanLocations() != null && !javadocConfiguration.getScanLocations()
-			.isEmpty()) {
-			final long debutJavadoc = System.currentTimeMillis();
-
-			final List<File> filesToScan = new ArrayList<>();
-			for(final String path : javadocConfiguration.getScanLocations()) {
-				filesToScan.add(FileUtils.toFile(project.getBasedir().getAbsolutePath(), path));
-			}
-			final JavadocParser javadocParser = new JavadocParser(filesToScan, javadocConfiguration);
-			javadocParser.scan();
-			JavadocMap.INSTANCE.setJavadocMap(javadocParser.getJavadocMap());
-			if(!JavadocConfiguration.DISABLED_EOF_REPLACEMENT.equals(javadocConfiguration.getEndOfLineReplacement())) {
-				JavadocWrapper.setEndOfLineReplacement(javadocConfiguration.getEndOfLineReplacement());
-			}
-			getLog().info("Javadoc parsing took " + (System.currentTimeMillis() - debutJavadoc) + "ms.");
+		if (javadocConfiguration == null
+			|| javadocConfiguration.getScanLocations() == null
+			|| javadocConfiguration.getScanLocations().isEmpty()
+		) {
+			getLog().info("No javadoc configuration found: scan of javadoc skipped.");
+			return;
 		}
+
+		final long debutJavadoc = System.currentTimeMillis();
+
+		final List<File> filesToScan = javadocConfiguration.getScanLocations().stream()
+			.map(path -> FileUtils.toFile(project.getBasedir().getAbsolutePath(), path))
+			.collect(Collectors.toList());
+		final JavadocParser javadocParser = new JavadocParser(filesToScan, javadocConfiguration);
+		javadocParser.scan();
+		JavadocMap.INSTANCE.setJavadocMap(javadocParser.getJavadocMap());
+		if(!JavadocConfiguration.DISABLED_EOF_REPLACEMENT.equals(javadocConfiguration.getEndOfLineReplacement())) {
+			JavadocWrapper.setEndOfLineReplacement(javadocConfiguration.getEndOfLineReplacement());
+		}
+		getLog().info("Javadoc parsing took " + (System.currentTimeMillis() - debutJavadoc) + "ms.");
 	}
 
 	public List<ApiConfiguration> getApis() {
