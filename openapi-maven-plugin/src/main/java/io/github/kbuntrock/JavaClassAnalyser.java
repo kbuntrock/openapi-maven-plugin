@@ -23,13 +23,7 @@ import org.springframework.core.annotation.MergedAnnotations;
  */
 public class JavaClassAnalyser {
 
-	private static final Pattern BEGINNING = Pattern.compile("^[a-z\\.]*");
-	private static final Pattern FIRST_GENERIC = Pattern.compile("<[a-z\\.]*");
-	private static final Pattern OTHER_GENERIC = Pattern.compile(",[a-z\\.]*");
-
 	private final Log logger = Logger.INSTANCE.getLogger();
-
-	private final ApiConfiguration apiConfiguration;
 
 	private final List<Pair<Pattern, Pattern>> whiteListPatterns = new ArrayList<>();
 	private final List<Pair<Pattern, Pattern>> blackListPatterns = new ArrayList<>();
@@ -37,7 +31,6 @@ public class JavaClassAnalyser {
 	private final AstractLibraryReader libraryReader;
 
 	public JavaClassAnalyser(final ApiConfiguration apiConfiguration) {
-		this.apiConfiguration = apiConfiguration;
 		this.libraryReader = apiConfiguration.getLibrary().createReader(apiConfiguration);
 
 		// Compilation of white list / black list patterns
@@ -70,7 +63,7 @@ public class JavaClassAnalyser {
 	private static String createTypeIdentifier(final String typeName) {
 
 		String returnTypeName = typeName;
-		final String[] toReplace = typeName.split("<|>|,");
+		final String[] toReplace = typeName.split("[<>,]");
 		final List<Pair<String, String>> replacementList = new ArrayList<>();
 		for(final String s : toReplace) {
 			final String[] replacementArray = s.split("\\.");
@@ -114,7 +107,7 @@ public class JavaClassAnalyser {
 		}
 
 		if(tag.getEndpoints().isEmpty()) {
-			// There was not valid endpoint to attach to this tag. Therefore, we don't keep track of it.
+			// There was no valid endpoint to attach to this tag. Therefore, we don't keep track of it.
 			return Optional.empty();
 		} else {
 			return Optional.of(tag);
