@@ -85,7 +85,7 @@ public class ApiResourceScanner {
 					String.join(", ", apiConfiguration.getTagAnnotations()) + " ]");
 
 				// Find directly or inheritedly annotated by RequestMapping classes.
-			final JavaClassAnalyser javaClassAnalyser = new JavaClassAnalyser(apiConfiguration);
+				final JavaClassAnalyser javaClassAnalyser = new JavaClassAnalyser(apiConfiguration, classScanResult);
 				for(final Class<?> restControllerClass : restControllerClasses) {
 					if(validateWhiteList(restControllerClass) && validateBlackList(restControllerClass)) {
 						javaClassAnalyser.getTagFromClass(restControllerClass).ifPresent(library::addTag);

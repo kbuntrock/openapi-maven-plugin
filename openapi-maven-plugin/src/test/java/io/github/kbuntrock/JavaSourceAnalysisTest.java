@@ -1,8 +1,11 @@
 package io.github.kbuntrock;
 
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ScanResult;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.resources.dto.AccountDto;
 import io.github.kbuntrock.resources.dto.Authority;
 import io.github.kbuntrock.resources.dto.SpeAccountDto;
@@ -38,7 +41,7 @@ public class JavaSourceAnalysisTest extends AbstractTest {
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
 		apiConfiguration.initDefaultValues();
 
-		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration);
+		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration, scanResult());
 		final Optional<Tag> tag = analyser.getTagFromClass(ControllerOne.class);
 		final TagLibrary library = new TagLibrary();
 		library.addTag(tag.get());
@@ -55,7 +58,7 @@ public class JavaSourceAnalysisTest extends AbstractTest {
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
 		apiConfiguration.initDefaultValues();
 
-		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration);
+		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration, scanResult());
 		final Optional<Tag> tag = analyser.getTagFromClass(ControllerTwo.class);
 		final TagLibrary library = new TagLibrary();
 		library.addTag(tag.get());
@@ -72,7 +75,7 @@ public class JavaSourceAnalysisTest extends AbstractTest {
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
 		apiConfiguration.initDefaultValues();
 
-		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration);
+		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration, scanResult());
 		final Optional<Tag> tag = analyser.getTagFromClass(ControllerThree.class);
 		final TagLibrary library = new TagLibrary();
 		library.addTag(tag.get());
@@ -84,5 +87,18 @@ public class JavaSourceAnalysisTest extends AbstractTest {
 		Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), AccountDto.class));
 	}
 
+	private ScanResult scanResult() {
+		return new ClassGraph()
+			.enableMethodInfo()
+			.enableClassInfo()
+			.enableAnnotationInfo()
+			.ignoreClassVisibility()
+			.ignoreMethodVisibility()
+			.ignoreParentClassLoaders()
+			.acceptPackages("io.github.kbuntrock.resources")
+			.addClassLoader(ReflectionsUtils.getProjectClassLoader())
+			.scan();
+
+	}
 
 }

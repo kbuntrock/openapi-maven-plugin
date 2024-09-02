@@ -1,22 +1,30 @@
 package io.github.kbuntrock;
 
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.MethodInfo;
+import io.github.classgraph.ScanResult;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.library.reader.AstractLibraryReader;
+import io.github.kbuntrock.configuration.library.reader.ClassLoaderUtils;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.ClassGenericityResolver;
+import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.Logger;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.springframework.core.annotation.MergedAnnotations;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Analyse a java class in light of an api configuration object
@@ -30,8 +38,11 @@ public class JavaClassAnalyser {
 
 	private final AstractLibraryReader libraryReader;
 
-	public JavaClassAnalyser(final ApiConfiguration apiConfiguration) {
+	private final ScanResult classScanResult;
+
+	public JavaClassAnalyser(final ApiConfiguration apiConfiguration, ScanResult classScanResult) {
 		this.libraryReader = apiConfiguration.getLibrary().createReader(apiConfiguration);
+		this.classScanResult = classScanResult;
 
 		// Compilation of white list / black list patterns
 		if(apiConfiguration.getWhiteList() != null) {
@@ -119,8 +130,14 @@ public class JavaClassAnalyser {
 
 		logger.debug("Parsing endpoint " + clazz.getSimpleName());
 
-		final Method[] methods = clazz.getMethods();
 		final ClassGenericityResolver genericityResolver = new ClassGenericityResolver(clazz);
+
+		Set<Method> methods = classScanResult.getClassInfo(clazz.getCanonicalName())
+			.getMethodInfo()
+			.filter(methodInfo -> !methodInfo.isPrivate())
+			.stream()
+			.map(MethodInfo::loadClassAndGetMethod)
+			.collect(toSet());
 
 		for(final Method method : methods) {
 

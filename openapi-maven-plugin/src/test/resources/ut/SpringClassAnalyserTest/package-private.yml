@@ -1,0 +1,38 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: PackagePrivateResource
+paths:
+  /package-private/all-package-private-endpoint:
+    get:
+      tags:
+        - PackagePrivateResource
+      operationId: getAllPackagePrivate
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+  /package-private/all-protected-endpoint:
+    get:
+      tags:
+        - PackagePrivateResource
+      operationId: getAllProtected
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
