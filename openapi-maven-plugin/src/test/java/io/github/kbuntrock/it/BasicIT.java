@@ -25,14 +25,14 @@ public class BasicIT {
 		final MavenExecutionResultAssert resultAssert = assertThat(result);
 		resultAssert.isSuccessful().out().info().contains("spec-open-api.yml : 1 tags and 2 operations generated.");
 
-		final File target = new File(result.getMavenProjectResult().getTargetProjectDirectory(), "target");
+		final File target = new File(result.getMavenProjectResult().getTargetProjectDirectory().toFile(), "target");
 		final File generatedFile = new File(target, "spec-open-api.yml");
 		final File generatedFile2 = new File(target, "spec-open-api-impl.yml");
 		Assertions.assertTrue(target.exists());
 		Assertions.assertTrue(generatedFile.exists());
 		Assertions.assertTrue(generatedFile2.exists());
 
-		final File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory();
+		final File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory().toFile();
 		final File generatedArtifactFile = new File(m2Directory,
 			"/io/github/kbuntrock/openapi/it/openapi-basic-it/23.5.2/openapi-basic-it-23.5.2-spec-open-api.yml");
 		final File generatedArtifactFile2 = new File(m2Directory,
@@ -58,12 +58,12 @@ public class BasicIT {
 		final MavenExecutionResultAssert resultAssert = assertThat(result);
 		resultAssert.isSuccessful().out().info().contains("spec-open-api.yml : 1 tags and 2 operations generated.");
 
-		final File target = new File(result.getMavenProjectResult().getTargetProjectDirectory(), "target");
+		final File target = new File(result.getMavenProjectResult().getTargetProjectDirectory().toFile(), "target");
 		final File generatedFile = new File(target, "spec-open-api.yml");
 		Assertions.assertTrue(target.exists());
 		Assertions.assertTrue(generatedFile.exists());
 
-		final File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory();
+		final File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory().toFile();
 		final File generatedArtifactFile = new File(m2Directory,
 			"/io/github/kbuntrock/openapi/it/openapi-basic-it-jaxrs/23.5.2/openapi-basic-it-jaxrs-23.5.2-spec-open-api.yml");
 		Assertions.assertTrue(generatedArtifactFile.exists());
@@ -82,12 +82,12 @@ public class BasicIT {
 		final MavenExecutionResultAssert resultAssert = assertThat(result);
 		resultAssert.isSuccessful().out().info().contains("spec-open-api.yml : 1 tags and 2 operations generated.");
 
-		final File target = new File(result.getMavenProjectResult().getTargetProjectDirectory(), "target");
+		final File target = new File(result.getMavenProjectResult().getTargetProjectDirectory().toFile(), "target");
 		final File generatedFile = new File(target, "spec-open-api.yml");
 		Assertions.assertTrue(target.exists());
 		Assertions.assertTrue(generatedFile.exists());
 
-		final File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory();
+		final File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory().toFile();
 		final File generatedArtifactFile = new File(m2Directory,
 			"/io/github/kbuntrock/openapi/it/openapi-sealed-class-it/1.0.0/openapi-sealed-class-it-1.0.0-spec-open-api.yml");
 		Assertions.assertTrue(generatedArtifactFile.exists());
