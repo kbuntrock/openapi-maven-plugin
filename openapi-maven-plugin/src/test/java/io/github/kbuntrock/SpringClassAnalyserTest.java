@@ -2,6 +2,8 @@ package io.github.kbuntrock;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ScanResult;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.EnumConfig;
@@ -10,6 +12,7 @@ import io.github.kbuntrock.configuration.OperationIdHelper;
 import io.github.kbuntrock.configuration.Substitution;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
 import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.resources.dto.TerritoryEnum;
 import io.github.kbuntrock.resources.endpoint.account.AccountController;
 import io.github.kbuntrock.resources.endpoint.annotation.AnnotatedController;
@@ -441,7 +444,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		apiConfiguration.setOperationIdHelper(new OperationIdHelper(apiConfiguration.getOperationId()));
 		apiConfiguration.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
 
-		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration);
+		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration, scanResult(SpringPathEnhancementTwoController.class));
 		final Optional<Tag> tag = analyser.getTagFromClass(SpringPathEnhancementTwoController.class);
 		final TagLibrary library = new TagLibrary();
 		library.addTag(tag.get());
@@ -699,6 +702,14 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	}
 
 	@Test
+	public void package_private() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo("io.github.kbuntrock.resources.endpoint.spring.PackagePrivateResource");
+		// The result should be the same as the white list method test
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/package-private.yml", generated.get(0));
+	}
+
+	@Test
 	public void extra_classes() throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(CollectionController.class.getCanonicalName());
 		mojo.getApis().get(0).setExtraSchemaClasses(Collections.singletonList("io.github.kbuntrock.resources.dto.AccountDto"));
@@ -869,5 +880,18 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		checkGenerationResult("ut/SpringClassAnalyserTest/request_headers.yml", generated.get(0));
 	}
 
+	private ScanResult scanResult(Class<?> clazz) {
+		return new ClassGraph()
+			.enableMethodInfo()
+			.enableClassInfo()
+			.enableAnnotationInfo()
+			.ignoreClassVisibility()
+			.ignoreMethodVisibility()
+			.ignoreParentClassLoaders()
+			.acceptClasses(clazz.getCanonicalName())
+			.addClassLoader(ReflectionsUtils.getProjectClassLoader())
+			.scan();
+
+	}
 
 }
