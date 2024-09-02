@@ -62,7 +62,7 @@
     <jackson-databind.version>2.15.3</jackson-databind.version>
     <javax-ws-rs-api.version>2.1.1</javax-ws-rs-api.version>
     <jakarta-ws-rs-api.version>3.1.0</jakarta-ws-rs-api.version>
-    <itf.version>0.11.0</itf.version>
+    <itf.version>0.13.1</itf.version>
     <javaparser.version>3.26.0</javaparser.version>
   </properties>
 
@@ -115,6 +115,12 @@
       <groupId>com.soebes.itf.jupiter.extension</groupId>
       <artifactId>itf-assertj</artifactId>
       <version>${itf.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.16.1</version>
       <scope>test</scope>
     </dependency>
 
