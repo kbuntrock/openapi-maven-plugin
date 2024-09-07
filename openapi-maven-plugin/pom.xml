@@ -57,13 +57,13 @@
     <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
     <javax.validation-api.version>2.0.1.Final</javax.validation-api.version>
     <jakarta.validation-api.version>3.0.2</jakarta.validation-api.version>
-    <reflections.version>0.10.2</reflections.version>
     <jackson-dataformat-yaml.version>2.15.3</jackson-dataformat-yaml.version>
     <jackson-databind.version>2.15.3</jackson-databind.version>
     <javax-ws-rs-api.version>2.1.1</javax-ws-rs-api.version>
     <jakarta-ws-rs-api.version>3.1.0</jakarta-ws-rs-api.version>
     <itf.version>0.13.1</itf.version>
     <javaparser.version>3.26.0</javaparser.version>
+    <classgraph.version>4.8.175</classgraph.version>
   </properties>
 
   <dependencies>
@@ -98,6 +98,12 @@
       <version>3.6.0</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>io.github.classgraph</groupId>
+      <artifactId>classgraph</artifactId>
+      <version>${classgraph.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
@@ -149,11 +155,6 @@
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
       <version>${javax.validation-api.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.reflections</groupId>
-      <artifactId>reflections</artifactId>
-      <version>${reflections.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>

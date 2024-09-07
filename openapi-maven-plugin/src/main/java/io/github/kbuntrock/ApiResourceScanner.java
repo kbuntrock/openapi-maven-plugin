@@ -1,24 +1,21 @@
 package io.github.kbuntrock;
 
-import static org.reflections.scanners.Scanners.TypesAnnotated;
-
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ScanResult;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
-import io.github.kbuntrock.configuration.library.Library;
+import io.github.kbuntrock.configuration.library.reader.ClassLoaderUtils;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.Logger;
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.reflections.Reflections;
-import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.FilterBuilder;
 
 /**
  * In charge of creating the tag library object based on an api configuration object.
@@ -58,41 +55,50 @@ public class ApiResourceScanner {
 		final TagLibrary library = new TagLibrary();
 		TagLibraryHolder.INSTANCE.setTagLibrary(library);
 
-		final Library framework = apiConfiguration.getLibrary();
-		final Set<Class<? extends Annotation>> annotatedElementList = new HashSet<>();
-		for(final String annotationName : apiConfiguration.getTagAnnotations()) {
-			annotatedElementList.add(framework.getByClassName(annotationName));
-		}
-
 		for(final String apiLocation : apiConfiguration.getLocations()) {
 			logger.info("Scanning : " + apiLocation);
 
-			final ConfigurationBuilder configurationBuilder = ReflectionsUtils.createConfigurationBuilder();
-			configurationBuilder.filterInputsBy(new FilterBuilder().includePackage(apiLocation));
-			configurationBuilder.setClassLoaders(new ClassLoader[]{ReflectionsUtils.getProjectClassLoader()});
-
-			configurationBuilder.setScanners(TypesAnnotated);
-			final Reflections reflections = new Reflections(configurationBuilder);
-			final Set<Class<?>> restControllerClasses = reflections.get(TypesAnnotated.with(annotatedElementList)
-				.asClass(ReflectionsUtils.getProjectClassLoader()));
-
-			logger.info("Found " + restControllerClasses.size() + " annotated classes with [ " +
-				annotatedElementList.stream().map(Class::getSimpleName).collect(Collectors.joining(", ")) + " ]");
-
-			// Find directly or inheritedly annotated by RequestMapping classes.
-			final JavaClassAnalyser javaClassAnalyser = new JavaClassAnalyser(apiConfiguration);
-			for(final Class<?> restControllerClass : restControllerClasses) {
-				if(validateWhiteList(restControllerClass) && validateBlackList(restControllerClass)) {
-					javaClassAnalyser.getTagFromClass(restControllerClass).ifPresent(library::addTag);
-				}
+			ClassGraph classGraph = new ClassGraph()
+				.enableMethodInfo()
+				.enableClassInfo()
+				.enableAnnotationInfo()
+				.ignoreClassVisibility()
+				.ignoreMethodVisibility()
+				.ignoreParentClassLoaders()
+				.addClassLoader(ReflectionsUtils.getProjectClassLoader());
+			if(ClassLoaderUtils.isClass(apiLocation)) {
+				classGraph.acceptClasses(apiLocation);
+			} else {
+				classGraph.acceptPackages(apiLocation);
 			}
 
-			// Possibly add extra data objets to the future schema section (objets which are not explicitly used by an endpoint)
-			for(final String className : apiConfiguration.getExtraSchemaClasses()) {
-				try {
-					library.addExtraClass(ReflectionsUtils.getProjectClassLoader().loadClass(className));
-				} catch(final ClassNotFoundException e) {
-					throw new MojoRuntimeException("Cannot load extra class " + className, e);
+			try(ScanResult classScanResult = classGraph.scan()) {
+				String[] annotationNames = apiConfiguration.getTagAnnotations().toArray(new String[0]);
+				Set<Class<?>> restControllerClasses = classScanResult
+					.getClassesWithAnyAnnotation(annotationNames)
+					.stream()
+					.filter(onLocation(apiLocation))
+					.map(ClassInfo::loadClass)
+					.collect(Collectors.toSet());
+
+				logger.info("Found " + restControllerClasses.size() + " annotated classes with [ " +
+					String.join(", ", apiConfiguration.getTagAnnotations()) + " ]");
+
+				// Find directly or inheritedly annotated by RequestMapping classes.
+			final JavaClassAnalyser javaClassAnalyser = new JavaClassAnalyser(apiConfiguration);
+				for(final Class<?> restControllerClass : restControllerClasses) {
+					if(validateWhiteList(restControllerClass) && validateBlackList(restControllerClass)) {
+						javaClassAnalyser.getTagFromClass(restControllerClass).ifPresent(library::addTag);
+					}
+				}
+
+				// Possibly add extra data objets to the future schema section (objets which are not explicitly used by an endpoint)
+				for(final String className : apiConfiguration.getExtraSchemaClasses()) {
+					try {
+						library.addExtraClass(ReflectionsUtils.getProjectClassLoader().loadClass(className));
+					} catch(final ClassNotFoundException e) {
+						throw new MojoRuntimeException("Cannot load extra class " + className, e);
+					}
 				}
 			}
 		}
@@ -101,6 +107,13 @@ public class ApiResourceScanner {
 		library.resolveSchemaReferenceNames();
 
 		return library;
+	}
+
+	private static Predicate<ClassInfo> onLocation(final String apiLocation) {
+		if(ClassLoaderUtils.isClass(apiLocation)) {
+			return classInfo -> classInfo.getName().equals(apiLocation);
+		}
+		return classInfo -> classInfo.getPackageName().startsWith(apiLocation);
 	}
 
 	private boolean validateWhiteList(final Class<?> restControllerClass) {

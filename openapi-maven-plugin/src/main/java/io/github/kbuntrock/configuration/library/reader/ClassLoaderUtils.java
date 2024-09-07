@@ -31,4 +31,12 @@ public final class ClassLoaderUtils {
 
 	}
 
+	public static boolean isClass(String canonicalName) {
+		try {
+			Class<?> clazz = getByName(canonicalName);
+			return clazz != null;
+		} catch(ClassNotFoundException e) {
+			return false;
+		}
+	}
 }
