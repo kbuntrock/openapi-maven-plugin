@@ -6,8 +6,6 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
 
 public final class ReflectionsUtils {
 
@@ -37,20 +35,6 @@ public final class ReflectionsUtils {
 			throw new RuntimeException("ReflectionsUtils has not been initiated.");
 		}
 		return ReflectionsUtils.projectClassLoader;
-	}
-
-	public static ConfigurationBuilder createConfigurationBuilder() {
-		if(!initiated) {
-			throw new RuntimeException("ReflectionsUtils has not been initiated.");
-		}
-		ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-		if(testMode) {
-			configurationBuilder.forPackage("io.github.kbuntrock");
-		} else {
-			configurationBuilder.addClassLoaders(projectClassLoader)
-				.addUrls(ClasspathHelper.forClassLoader(projectClassLoader));
-		}
-		return configurationBuilder;
 	}
 
 	public static List<Field> getAllNonStaticFields(List<Field> fields, Class<?> type) {
