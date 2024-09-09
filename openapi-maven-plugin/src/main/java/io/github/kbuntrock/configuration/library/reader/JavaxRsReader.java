@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
@@ -156,7 +155,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 				}
 				parameters.putIfAbsent(paramObj.getName(), paramObj);
 
-				final MergedAnnotation<NotNull> notnullMA = mergedAnnotations.get(NotNull.class);
+				final MergedAnnotation<Annotation> notnullMA = mergedAnnotations.get("javax.validation.constraints.NotNull");
 				// Detect if required
 				if(notnullMA.isPresent()) {
 					paramObj.setRequired(notnullMA.isPresent());
