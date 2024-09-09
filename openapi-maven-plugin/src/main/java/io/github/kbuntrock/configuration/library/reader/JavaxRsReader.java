@@ -24,12 +24,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
@@ -85,7 +79,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 	@Override
 	public List<String> readBasePaths(final Class<?> clazz, final MergedAnnotations mergedAnnotations) {
 		List<String> basePaths = Collections.singletonList("");
-		final MergedAnnotation<Path> requestMappingMergedAnnotation = mergedAnnotations.get(Path.class);
+		final MergedAnnotation<Annotation> requestMappingMergedAnnotation = mergedAnnotations.get("javax.ws.rs.Path");
 		if(requestMappingMergedAnnotation.isPresent()) {
 			final String path = requestMappingMergedAnnotation.getString("value");
 			if(!StringUtils.isEmpty(path)) {
@@ -99,13 +93,13 @@ public class JavaxRsReader extends AstractLibraryReader {
 	public void computeAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations, final Tag tag,
 		final ClassGenericityResolver genericityResolver) throws MojoFailureException {
 
-		final MergedAnnotation<Path> requestMappingMergedAnnotation = mergedAnnotations.get(Path.class);
+		final MergedAnnotation<Annotation> requestMappingMergedAnnotation = mergedAnnotations.get("javax.ws.rs.Path");
 		if(requestMappingMergedAnnotation.isPresent()) {
 
 			genericityResolver.initForMethod(method);
 
 			for(final JavaxRsHttpVerb verb : JavaxRsHttpVerb.values()) {
-				final MergedAnnotation m = mergedAnnotations.get(verb.getAnnotationClass());
+				final MergedAnnotation<Annotation> m = mergedAnnotations.get(verb.getAnnotationClass());
 				if(m.isPresent()) {
 					final String methodIdentifier = JavaClassAnalyser.createIdentifier(method);
 					final List<ParameterObject> parameterObjects = readParameters(method, genericityResolver);
@@ -157,7 +151,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
 					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
 
-				if(mergedAnnotations.get(BeanParam.class).isPresent()) {
+				if(mergedAnnotations.get("javax.ws.rs.BeanParam").isPresent()) {
 					continue;
 				}
 				parameters.putIfAbsent(paramObj.getName(), paramObj);
@@ -171,7 +165,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 				}
 
 				// Detect if is a path variable
-				final MergedAnnotation<PathParam> pathVariableMA = mergedAnnotations.get(PathParam.class);
+				final MergedAnnotation<Annotation> pathVariableMA = mergedAnnotations.get("javax.ws.rs.PathParam");
 				if(pathVariableMA.isPresent()) {
 					paramObj.setLocation(ParameterLocation.PATH);
 					// Path params are required
@@ -185,7 +179,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 				}
 
 				// Detect if is a query variable
-				final MergedAnnotation<QueryParam> requestParamMA = mergedAnnotations.get(QueryParam.class);
+				final MergedAnnotation<Annotation> requestParamMA = mergedAnnotations.get("javax.ws.rs.QueryParam");
 				if(requestParamMA.isPresent()) {
 
 					final boolean isMultipartFile = MultipartFile.class == paramObj.getJavaClass() ||
@@ -237,8 +231,8 @@ public class JavaxRsReader extends AstractLibraryReader {
 	@Override
 	protected void setConsumeProduceProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations)
 		throws MojoFailureException {
-		final MergedAnnotation<Consumes> consumesMergedAnnotation = mergedAnnotations.get(Consumes.class);
-		final MergedAnnotation<Produces> producesMergedAnnotation = mergedAnnotations.get(Produces.class);
+		final MergedAnnotation<Annotation> consumesMergedAnnotation = mergedAnnotations.get("javax.ws.rs.Consumes");
+		final MergedAnnotation<Annotation> producesMergedAnnotation = mergedAnnotations.get("javax.ws.rs.Produces");
 
 		final Optional<ParameterObject> body = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation())
 			.findAny();
@@ -262,21 +256,21 @@ public class JavaxRsReader extends AstractLibraryReader {
 	}
 
 	private enum JavaxRsHttpVerb {
-		GET(javax.ws.rs.GET.class),
-		PUT(javax.ws.rs.PUT.class),
-		POST(javax.ws.rs.POST.class),
-		DELETE(javax.ws.rs.DELETE.class),
-		PATCH(javax.ws.rs.PATCH.class),
-		OPTIONS(javax.ws.rs.OPTIONS.class),
-		HEAD(javax.ws.rs.HEAD.class);
+		GET("javax.ws.rs.GET"),
+		PUT("javax.ws.rs.PUT"),
+		POST("javax.ws.rs.POST"),
+		DELETE("javax.ws.rs.DELETE"),
+		PATCH("javax.ws.rs.PATCH"),
+		OPTIONS("javax.ws.rs.OPTIONS"),
+		HEAD("javax.ws.rs.HEAD");
 
-		private final Class annotationClass;
+		private final String annotationClass;
 
-		JavaxRsHttpVerb(final Class annotationClass) {
+		JavaxRsHttpVerb(final String annotationClass) {
 			this.annotationClass = annotationClass;
 		}
 
-		public Class getAnnotationClass() {
+		public String getAnnotationClass() {
 			return annotationClass;
 		}
 	}
