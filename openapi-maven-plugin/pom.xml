@@ -145,6 +145,7 @@
       <groupId>javax.ws.rs</groupId>
       <artifactId>javax.ws.rs-api</artifactId>
       <version>${javax-ws-rs-api.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
