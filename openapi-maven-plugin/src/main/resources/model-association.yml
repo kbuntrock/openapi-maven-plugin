@@ -13,11 +13,11 @@ equality:
   java.time.LocalDateTime: string-date-time
   java.time.ZonedDateTime: string-date-time
   java.time.Instant: string-date-time
-  java.util.Date: string-date-time
   java.time.LocalDate: string-date
   java.time.LocalTime: string-time
 assignability:
   java.io.InputStream: string-binary
   org.springframework.core.io.InputStreamSource: string-binary
+  java.util.Date: string-date-time
   java.util.Collection: array
 
