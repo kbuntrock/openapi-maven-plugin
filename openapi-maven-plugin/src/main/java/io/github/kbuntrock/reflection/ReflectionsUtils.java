@@ -10,24 +10,18 @@ import java.util.stream.Collectors;
 public final class ReflectionsUtils {
 
 	private static boolean initiated = false;
-	private static boolean testMode = false;
 	private static ClassLoader projectClassLoader;
 
 	private ReflectionsUtils() {
 	}
 
 	public static void initiate(ClassLoader projectClassLoader) {
-		ReflectionsUtils.initiate(projectClassLoader, false);
+		ReflectionsUtils.projectClassLoader = projectClassLoader;
+		initiated = true;
 	}
 
 	public static void initiateTestMode() {
-		ReflectionsUtils.initiate(ReflectionsUtils.class.getClassLoader(), true);
-	}
-
-	private static void initiate(ClassLoader projectClassLoader, boolean testMode) {
-		ReflectionsUtils.projectClassLoader = projectClassLoader;
-		ReflectionsUtils.testMode = testMode;
-		initiated = true;
+		ReflectionsUtils.initiate(ReflectionsUtils.class.getClassLoader());
 	}
 
 	public static ClassLoader getProjectClassLoader() {
