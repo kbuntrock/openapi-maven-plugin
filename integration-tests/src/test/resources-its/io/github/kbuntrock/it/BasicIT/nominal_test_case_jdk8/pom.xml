@@ -14,7 +14,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
-        <openapi-plugin-project-version>0.0.21</openapi-plugin-project-version>
+        <openapi-plugin-project-version>0.0.22-SNAPSHOT</openapi-plugin-project-version>
 
     </properties>
 
