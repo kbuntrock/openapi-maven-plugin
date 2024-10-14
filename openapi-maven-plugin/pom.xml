@@ -64,6 +64,7 @@
     <itf.version>0.13.1</itf.version>
     <javaparser.version>3.26.0</javaparser.version>
     <classgraph.version>4.8.175</classgraph.version>
+    <approvaltests.version>24.8.0</approvaltests.version>
   </properties>
 
   <dependencies>
@@ -210,6 +211,12 @@
       <groupId>jakarta.validation</groupId>
       <artifactId>jakarta.validation-api</artifactId>
       <version>${jakarta.validation-api.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.approvaltests</groupId>
+      <artifactId>approvaltests</artifactId>
+      <version>${approvaltests.version}</version>
       <scope>test</scope>
     </dependency>
 
