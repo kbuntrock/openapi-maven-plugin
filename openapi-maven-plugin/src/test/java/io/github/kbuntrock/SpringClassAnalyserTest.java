@@ -118,8 +118,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
 		final DocumentationMojo mojo = createBasicMojo(GenericityTestOne.class.getCanonicalName());
 
-		final List<File> generated = mojo.documentProject();
-		checkGenerationResult("ut/SpringClassAnalyserTest/multiple_genericity.yml", generated.get(0));
+		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
@@ -127,8 +126,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
 		final DocumentationMojo mojo = createBasicMojo(GenericityTestTwo.class.getCanonicalName());
 
-		final List<File> generated = mojo.documentProject();
-		checkGenerationResult("ut/SpringClassAnalyserTest/nested_genericity.yml", generated.get(0));
+		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
@@ -136,8 +134,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
 		final DocumentationMojo mojo = createBasicMojo(GenericityTestThree.class.getCanonicalName());
 
-		final List<File> generated = mojo.documentProject();
-		checkGenerationResult("ut/SpringClassAnalyserTest/genericity_wrapped_dto.yml", generated.get(0));
+		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
@@ -145,8 +142,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
 		final DocumentationMojo mojo = createBasicMojo(GenericityTestFour.class.getCanonicalName());
 
-		final List<File> generated = mojo.documentProject();
-		checkGenerationResult("ut/SpringClassAnalyserTest/genericity_typed_wrapped_dto.yml", generated.get(0));
+		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
@@ -637,9 +633,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		blackList.add(".*\\.GenericDataController");
 		mojo.getApiConfiguration().setBlackList(blackList);
 
-		// The result should be the same as the multiple_genericity test
-		final List<File> generated = mojo.documentProject();
-		checkGenerationResult("ut/SpringClassAnalyserTest/multiple_genericity.yml", generated.get(0));
+		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
