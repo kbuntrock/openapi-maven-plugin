@@ -14,19 +14,34 @@ import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.ParameterLocation;
+import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.time.ZoneId;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Currency;
+import java.util.Date;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TimeZone;
+import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +62,20 @@ import org.springframework.web.bind.annotation.ValueConstants;
 import org.springframework.web.multipart.MultipartFile;
 
 public class SpringMvcReader extends AstractLibraryReader {
+
+	private static final Map<Class<?>, Class<?>> primitiveWrapperTypeMap = new IdentityHashMap<>(9);
+
+	static {
+		primitiveWrapperTypeMap.put(Boolean.class, boolean.class);
+		primitiveWrapperTypeMap.put(Byte.class, byte.class);
+		primitiveWrapperTypeMap.put(Character.class, char.class);
+		primitiveWrapperTypeMap.put(Double.class, double.class);
+		primitiveWrapperTypeMap.put(Float.class, float.class);
+		primitiveWrapperTypeMap.put(Integer.class, int.class);
+		primitiveWrapperTypeMap.put(Long.class, long.class);
+		primitiveWrapperTypeMap.put(Short.class, short.class);
+		primitiveWrapperTypeMap.put(Void.class, void.class);
+	}
 
 	public SpringMvcReader(final ApiConfiguration apiConfiguration) {
 		super(apiConfiguration);
@@ -206,7 +235,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 					// By default, some class are automatically resolved as @RequestParam for Spring
 					// https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/requestparam.html
 
-					if(BeanUtils.isSimpleProperty(parameter.getType())) {
+					if(isSpringSimpleProperty(parameter.getType())) {
 						paramObj.setLocation(ParameterLocation.QUERY);
 						paramObj.setRequired(true);
 					}
@@ -314,5 +343,35 @@ public class SpringMvcReader extends AstractLibraryReader {
 			return HttpStatus.OK.value();
 		}
 		return responseStatusMA.getValue("value", HttpStatus.class).get().value();
+	}
+
+	/**
+	 * This function must act as close as the spring version : https://github.com/spring-projects/spring-framework/blob/main/spring-beans/src/main/java/org/springframework/beans/BeanUtils.java#L691
+	 */
+	private static boolean isSpringSimpleProperty(Class<?> type) {
+		return isSimpleValueType(type) || (type.isArray() && isSimpleValueType(type.getComponentType()));
+	}
+
+	private static boolean isSimpleValueType(Class<?> type) {
+		return (!(type == void.class || type == Void.class) &&
+			((type.isPrimitive() || primitiveWrapperTypeMap.containsKey(type)) ||
+				Enum.class.isAssignableFrom(type) ||
+				CharSequence.class.isAssignableFrom(type) ||
+				Number.class.isAssignableFrom(type) ||
+				Date.class.isAssignableFrom(type) ||
+				Temporal.class.isAssignableFrom(type) ||
+				ZoneId.class.isAssignableFrom(type) ||
+				TimeZone.class.isAssignableFrom(type) ||
+				File.class.isAssignableFrom(type) ||
+				Path.class.isAssignableFrom(type) ||
+				Charset.class.isAssignableFrom(type) ||
+				Currency.class.isAssignableFrom(type) ||
+				InetAddress.class.isAssignableFrom(type) ||
+				URI.class == type ||
+				URL.class == type ||
+				UUID.class == type ||
+				Locale.class == type ||
+				Pattern.class == type ||
+				Class.class == type));
 	}
 }

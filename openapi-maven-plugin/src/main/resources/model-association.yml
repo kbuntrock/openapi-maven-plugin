@@ -15,6 +15,7 @@ equality:
   java.time.Instant: string-date-time
   java.time.LocalDate: string-date
   java.time.LocalTime: string-time
+  java.util.UUID: string-uuid
 assignability:
   java.io.InputStream: string-binary
   org.springframework.core.io.InputStreamSource: string-binary

@@ -27,6 +27,9 @@ string-time:
 string-binary:
   type: string
   format: binary
+string-uuid:
+  type: string
+  format: uuid
 enum:
   type: string
 array:

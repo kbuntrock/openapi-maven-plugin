@@ -65,6 +65,7 @@ import io.github.kbuntrock.resources.endpoint.recursive.RecursiveDtoInParameterC
 import io.github.kbuntrock.resources.endpoint.spring.OptionalController;
 import io.github.kbuntrock.resources.endpoint.spring.ResponseEntityController;
 import io.github.kbuntrock.resources.endpoint.time.TimeController;
+import io.github.kbuntrock.resources.endpoint.uuid.UuidController;
 import io.github.kbuntrock.resources.implementation.account.AccountControllerImpl;
 import io.github.kbuntrock.yaml.YamlWriter;
 import java.io.File;
@@ -878,6 +879,18 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
 		final List<File> generated = mojo.documentProject();
 		checkGenerationResult("ut/SpringClassAnalyserTest/request_headers.yml", generated.get(0));
+	}
+
+	@Test
+	public void uuid() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(UuidController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/uuid"));
+		mojo.setJavadocConfiguration(javadocConfig);
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/uuid.yml", generated.get(0));
 	}
 
 	private ScanResult scanResult(Class<?> clazz) {
