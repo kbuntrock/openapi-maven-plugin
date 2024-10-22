@@ -1,0 +1,35 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: UuidController
+    description: UUID based controller
+paths:
+  /api/uuid/get-uuid-list:
+    get:
+      tags:
+        - UuidController
+      operationId: getUuidList
+      description: A beautiful service
+      parameters:
+        - name: myUUID
+          description: initial id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: a list of ids
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: uuid
