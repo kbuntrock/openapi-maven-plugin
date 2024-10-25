@@ -1,5 +1,6 @@
 package io.github.kbuntrock;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.kbuntrock.javadoc.JavadocMap;
@@ -10,7 +11,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
+import org.approvaltests.Approvals;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -32,6 +38,21 @@ public class AbstractTest {
 	protected void checkGenerationResult(final String expectedFilePath, final File generatedFile) throws IOException {
 		final InputStream expected = this.getClass().getClassLoader().getResourceAsStream(expectedFilePath);
 		assertThat(new FileInputStream(generatedFile)).hasSameContentAs(expected);
+	}
+
+	protected void checkGenerationResult(List<File> generatedFiles) throws IOException, MojoFailureException, MojoExecutionException {
+
+		if (generatedFiles.size() == 1) {
+			Approvals.verify(FileUtils.readFileToString(generatedFiles.get(0), UTF_8));
+		} else {
+			generatedFiles.forEach(file -> {
+				try {
+					Approvals.verify(FileUtils.readFileToString(file, UTF_8), Approvals.NAMES.withParameters(file.getName()));
+				} catch(IOException e) {
+					throw new AssertionError(e);
+				}
+			});
+		}
 	}
 
 	protected void checkGenerationResult(final File expectedFile, final File generatedFile) throws IOException {

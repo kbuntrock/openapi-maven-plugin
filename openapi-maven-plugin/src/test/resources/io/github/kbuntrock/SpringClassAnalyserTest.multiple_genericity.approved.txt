@@ -1,0 +1,258 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: GenericityTestOne
+paths:
+  /api/genericity-test-one/first-object:
+    get:
+      tags:
+        - GenericityTestOne
+      operationId: getFirstObject
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: object
+                    properties:
+                      content:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TimeDto'
+                      hasNext:
+                        type: boolean
+                      totalPages:
+                        type: integer
+                        format: int32
+                      totalElements:
+                        type: integer
+                        format: int64
+                  slice:
+                    type: object
+                    properties:
+                      content:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AccountDto'
+                      hasNext:
+                        type: boolean
+                  array:
+                    type: object
+                    properties:
+                      content:
+                        type: array
+                        items:
+                          type: string
+                      hasNext:
+                        type: boolean
+    post:
+      tags:
+        - GenericityTestOne
+      operationId: setFirstObject
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: object
+              properties:
+                page:
+                  type: object
+                  properties:
+                    content:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/TimeDto'
+                    hasNext:
+                      type: boolean
+                    totalPages:
+                      type: integer
+                      format: int32
+                    totalElements:
+                      type: integer
+                      format: int64
+                slice:
+                  type: object
+                  properties:
+                    content:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/AccountDto'
+                    hasNext:
+                      type: boolean
+                array:
+                  type: object
+                  properties:
+                    content:
+                      type: array
+                      items:
+                        type: string
+                    hasNext:
+                      type: boolean
+      responses:
+        200:
+          description: successful operation
+  /api/genericity-test-one/second-object:
+    get:
+      tags:
+        - GenericityTestOne
+      operationId: getSecondObject
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: object
+                    properties:
+                      content:
+                        type: array
+                        items:
+                          type: integer
+                          format: int64
+                      hasNext:
+                        type: boolean
+                      totalPages:
+                        type: integer
+                        format: int32
+                      totalElements:
+                        type: integer
+                        format: int64
+                  slice:
+                    type: object
+                    properties:
+                      content:
+                        type: array
+                        items:
+                          type: boolean
+                      hasNext:
+                        type: boolean
+                  array:
+                    type: object
+                    properties:
+                      content:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AccountDto'
+                      hasNext:
+                        type: boolean
+    post:
+      tags:
+        - GenericityTestOne
+      operationId: setSecondObject
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: object
+              properties:
+                page:
+                  type: object
+                  properties:
+                    content:
+                      type: array
+                      items:
+                        type: integer
+                        format: int64
+                    hasNext:
+                      type: boolean
+                    totalPages:
+                      type: integer
+                      format: int32
+                    totalElements:
+                      type: integer
+                      format: int64
+                slice:
+                  type: object
+                  properties:
+                    content:
+                      type: array
+                      items:
+                        type: boolean
+                    hasNext:
+                      type: boolean
+                array:
+                  type: object
+                  properties:
+                    content:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/AccountDto'
+                    hasNext:
+                      type: boolean
+      responses:
+        200:
+          description: successful operation
+components:
+  schemas:
+    AccountDto:
+      required:
+        - login
+        - firstName
+        - lastName
+        - email
+        - activated
+        - langKey
+        - authorities
+      type: object
+      properties:
+        login:
+          type: string
+          minLength: 1
+          maxLength: 50
+        firstName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        lastName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        email:
+          type: string
+          minLength: 5
+          maxLength: 254
+        imageUrl:
+          type: string
+          minLength: 0
+          maxLength: 256
+        activated:
+          type: boolean
+        langKey:
+          type: string
+          minLength: 2
+          maxLength: 10
+        authorities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Authority'
+          uniqueItems: true
+    Authority:
+      type: string
+      enum:
+        - READ_USER
+        - WRITE_USER
+        - ACCES_APP
+    TimeDto:
+      type: object
+      properties:
+        instant:
+          type: string
+          format: date-time
+        date:
+          type: string
+          format: date
+        dateTime:
+          type: string
+          format: date-time
