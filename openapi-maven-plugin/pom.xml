@@ -263,6 +263,40 @@
       </plugins>
     </pluginManagement>
     <plugins>
+      <!-- Formatter -->
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>2.43.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <phase>compile</phase>
+          </execution>
+        </executions>
+        <configuration>
+          <java>
+            <!-- These are the defaults, you can override if you want -->
+            <includes>
+              <!--              <include>src/main/java/**/*.java</include>-->
+              <include>src/test/java/**/*.java</include>
+              <!--              <include>src/test/java/io/github/kbuntrock/it/*.java</include>-->
+            </includes>
+            <palantirJavaFormat>
+              <version>2.40.0</version>
+              <style>PALANTIR</style>                       <!-- or  (optional) -->
+              <formatJavadoc>false</formatJavadoc>
+            </palantirJavaFormat>
+            <removeUnusedImports/>
+            <importOrder>
+              <file>config/import-order.txt</file>
+            </importOrder>
+          </java>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-toolchains-plugin</artifactId>
