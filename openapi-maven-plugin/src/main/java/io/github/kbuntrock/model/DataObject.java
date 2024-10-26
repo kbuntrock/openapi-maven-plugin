@@ -378,6 +378,9 @@ public class DataObject {
 					// The implementation surely will be a child of this type but we can't guess it.
 					return wt.getUpperBounds()[0];
 				}
+			} else {
+				// Here we handle local "extends XXX<YYY>"
+				return TypeToken.of(this.getJavaClass()).resolveType(genericType).getType();
 			}
 		} else if(genericType instanceof TypeVariable) {
 

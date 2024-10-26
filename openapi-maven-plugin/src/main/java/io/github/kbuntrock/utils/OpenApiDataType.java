@@ -12,7 +12,8 @@ public enum OpenApiDataType {
 	INTEGER,
 	NUMBER,
 	ARRAY,
-	OBJECT;
+	OBJECT,
+	ANY;
 
 	private static final Map<String, OpenApiDataType> map = new HashMap<>();
 

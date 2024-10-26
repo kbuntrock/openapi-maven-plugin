@@ -7,10 +7,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.Valid;
 
+/**
+ * Issue 144 webservice
+ */
 @RequestMapping("/issue144")
 public interface Issue144 {
 
+	/**
+	 * Get the requested items
+	 * @param priceRequest some price request
+	 * @return the requested item
+	 */
 	@PutMapping(path = "/foo")
-	String getRequestItems(@Valid @RequestBody final ChildRequestDto priceRequest);
+	String getRequestItems(@RequestBody final ChildRequestDto priceRequest);
 
 }

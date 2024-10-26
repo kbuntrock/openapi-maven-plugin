@@ -45,6 +45,7 @@ import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTwo;
 import io.github.kbuntrock.resources.endpoint.generic.Issue144;
 import io.github.kbuntrock.resources.endpoint.generic.Issue89;
 import io.github.kbuntrock.resources.endpoint.generic.Issue95;
+import io.github.kbuntrock.resources.endpoint.generic.MappingObject;
 import io.github.kbuntrock.resources.endpoint.header.MultipartFileWithHeaderController;
 import io.github.kbuntrock.resources.endpoint.ignore.JsonIgnoreController;
 import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
@@ -832,17 +833,30 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		checkGenerationResult(mojo.documentProject());
 	}
 
-	//@Test
+	@Test
 	public void generic_parent_bound_by_child() throws MojoFailureException, IOException, MojoExecutionException {
 
 		final DocumentationMojo mojo = createBasicMojo(Issue144.class.getCanonicalName());
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
-		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/queryparam",
-			"src/test/java/io/github/kbuntrock/resources/dto"));
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/generic",
+			"src/test/java/io/github/kbuntrock/resources/dto/genericity/issue144"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
 		final List<File> generated = mojo.documentProject();
-		checkGenerationResult("ut/SpringClassAnalyserTest/query_param_dto_binding.yml", generated.get(0));
+		checkGenerationResult("ut/SpringClassAnalyserTest/generic_parent_bound_by_child.yml", generated.get(0));
+	}
+
+	@Test
+	public void parametrized_object_class() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(MappingObject.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/generic",
+			"src/test/java/io/github/kbuntrock/resources/dto/genericity/mappingObject"));
+		mojo.setJavadocConfiguration(javadocConfig);
+
+		final List<File> generated = mojo.documentProject();
+		checkGenerationResult("ut/SpringClassAnalyserTest/generic_parent_bound_by_child.yml", generated.get(0));
 	}
 
 	private ScanResult scanResult(Class<?> clazz) {
