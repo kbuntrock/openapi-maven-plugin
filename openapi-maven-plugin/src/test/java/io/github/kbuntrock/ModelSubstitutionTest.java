@@ -39,8 +39,7 @@ public class ModelSubstitutionTest extends AbstractTest {
 		mojo.setApis(Collections.singletonList(apiConfiguration));
 		mojo.setProject(createBasicMavenProject());
 
-		final List<File> generated = mojo.documentProject();
-		checkGenerationResult("ut/ModelSubstitutionTest/object_substitution/object_substitution.yml", generated.get(0));
+		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
@@ -85,8 +84,7 @@ public class ModelSubstitutionTest extends AbstractTest {
 		mojo.setApis(Collections.singletonList(apiConfiguration));
 		mojo.setProject(createBasicMavenProject());
 
-		final List<File> generated = mojo.documentProject();
-		checkGenerationResult("ut/ModelSubstitutionTest/object_substitution/object_substitution.yml", generated.get(0));
+		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
@@ -105,8 +103,7 @@ public class ModelSubstitutionTest extends AbstractTest {
 		mojo.setApis(Collections.singletonList(apiConfiguration));
 		mojo.setProject(createBasicMavenProject());
 
-		final List<File> generated = mojo.documentProject();
-		checkGenerationResult("ut/ModelSubstitutionTest/enum_substitution/enum_substitution.yml", generated.get(0));
+		checkGenerationResult(mojo.documentProject());
 	}
 
 }

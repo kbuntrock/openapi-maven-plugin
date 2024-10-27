@@ -1,5 +1,7 @@
 package io.github.kbuntrock;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
@@ -73,15 +75,15 @@ public class AllLibraryClassAnalyser extends AbstractTest {
 
 		final DocumentationMojo mojoJaxRs = createBasicJaxRsMojo(ActionResource.class.getCanonicalName());
 		final List<File> generatedJaxRs = mojoJaxRs.documentProject();
-		checkGenerationResult("ut/AllLibraryClassAnalyser/genericity_on_endpoint.yml", generatedJaxRs.get(0));
+		checkGenerationResult(mojoJaxRs.documentProject());
 
 		final DocumentationMojo mojoJakartaRs = createBasicJakartaRsMojo(ActionResource.class.getCanonicalName());
 		final List<File> generatedJakartaRs = mojoJakartaRs.documentProject();
-		checkGenerationResult("ut/AllLibraryClassAnalyser/genericity_on_endpoint.yml", generatedJakartaRs.get(0));
+		assertThat(generatedJakartaRs.get(0)).hasSameTextualContentAs(generatedJaxRs.get(0));
 
 		final DocumentationMojo mojoSpringMvc = createBasicSpringMvcMojo(ActionResource.class.getCanonicalName());
 		final List<File> generatedSpringMvc = mojoSpringMvc.documentProject();
-		checkGenerationResult("ut/AllLibraryClassAnalyser/genericity_on_endpoint.yml", generatedSpringMvc.get(0));
+		assertThat(generatedSpringMvc.get(0)).hasSameTextualContentAs(generatedJaxRs.get(0));
 	}
 
 }

@@ -56,8 +56,7 @@ public class JavadocParserTest extends AbstractTest {
 			"src/test/java/io/github/kbuntrock/resources/dto"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
-		final List<File> generated = mojo.documentProject();
-		checkGenerationResult("ut/JavadocParserTest/inheritance_test_one.yml", generated.get(0));
+		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
@@ -72,8 +71,7 @@ public class JavadocParserTest extends AbstractTest {
 			"src/test/java/io/github/kbuntrock/resources/dto"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
-		final List<File> generated = mojo.documentProject();
-		checkGenerationResult("ut/JavadocParserTest/inheritance_test_two.yml", generated.get(0));
+		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
@@ -112,8 +110,7 @@ public class JavadocParserTest extends AbstractTest {
 			"src/test/java/io/github/kbuntrock/resources/dto"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
-		final List<File> generated = mojo.documentProject();
-		checkGenerationResult("ut/JavadocParserTest/inheritance_test_two.yml", generated.get(0));
+		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
@@ -129,8 +126,7 @@ public class JavadocParserTest extends AbstractTest {
 			"src/test/java/io/github/kbuntrock/resources/dto"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
-		final List<File> generated = mojo.documentProject();
-		checkGenerationResult("ut/JavadocParserTest/inheritance_test_three.yml", generated.get(0));
+		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test

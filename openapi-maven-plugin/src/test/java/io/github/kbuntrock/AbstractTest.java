@@ -35,13 +35,7 @@ public class AbstractTest {
 		JavadocMap.INSTANCE.setJavadocMap(new HashMap<>());
 	}
 
-	protected void checkGenerationResult(final String expectedFilePath, final File generatedFile) throws IOException {
-		final InputStream expected = this.getClass().getClassLoader().getResourceAsStream(expectedFilePath);
-		assertThat(new FileInputStream(generatedFile)).hasSameContentAs(expected);
-	}
-
-	protected void checkGenerationResult(List<File> generatedFiles) throws IOException, MojoFailureException, MojoExecutionException {
-
+	protected void checkGenerationResult(List<File> generatedFiles) throws IOException{
 		if (generatedFiles.size() == 1) {
 			Approvals.verify(FileUtils.readFileToString(generatedFiles.get(0), UTF_8));
 		} else {

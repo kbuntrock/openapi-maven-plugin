@@ -1,0 +1,42 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: ResponseEntityController
+paths:
+  /api/account:
+    get:
+      tags:
+        - ResponseEntityController
+      operationId: ResponseEntityController.getAccount
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomAccountDto'
+      x-operation-name: getAccount
+components:
+  schemas:
+    CustomAccountDto:
+      description: Custom version of the accountDto
+      required:
+        - email
+        - token
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 5
+          maxLength: 254
+        token:
+          type: number
+          format: double
+        activated:
+          type: boolean
