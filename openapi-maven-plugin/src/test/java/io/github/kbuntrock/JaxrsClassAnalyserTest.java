@@ -103,9 +103,7 @@ public class JaxrsClassAnalyserTest extends AbstractTest {
 		mojo.getApis().get(0).setOperationId("{method_name}");
 		mojo.getApis().get(0).setLoopbackOperationName(false);
 
-		final List<File> generated = mojo.documentProject();
-		// Same generated file than the Spring one
-		checkGenerationResult("ut/SpringClassAnalyserTest/optional_unmapping.yml", generated.get(0));
+		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
@@ -118,9 +116,7 @@ public class JaxrsClassAnalyserTest extends AbstractTest {
 		mojo.getApis().get(0).setOperationId("{method_name}");
 		mojo.getApis().get(0).setLoopbackOperationName(false);
 
-		final List<File> generated = mojo.documentProject();
-		// Same generated file than the Spring one
-		checkGenerationResult("ut/SpringClassAnalyserTest/optional_unmapping.yml", generated.get(0));
+		checkGenerationResult(mojo.documentProject());
 	}
 
 }

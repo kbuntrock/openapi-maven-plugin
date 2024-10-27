@@ -149,8 +149,7 @@ public class JavadocParserTest extends AbstractTest {
 
 		apiConfiguration.setPathPrefix("/v1");
 
-		final List<File> generated = mojo.documentProject();
-		checkGenerationResult("ut/SpringClassAnalyserTest/enumeration_test_1_with_default_errors.yml", generated.get(0));
+		checkGenerationResult(mojo.documentProject());
 
 	}
 
