@@ -10,7 +10,7 @@ buildNumber.properties
 .mvn/timing.properties
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 .mvn/wrapper/maven-wrapper.jar
-/sample/sample-frontend/src/app/generated/
+openapi-maven-plugin/src/test/resources/**/*.received.txt
 
 # IDEs and editors
 **/.idea/*
