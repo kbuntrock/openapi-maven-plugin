@@ -1,5 +1,7 @@
 package io.github.kbuntrock;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
@@ -86,15 +88,9 @@ public class JavadocParserTest extends AbstractTest {
 			"src/test/java/io/github/kbuntrock/resources/dto"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
-		MojoRuntimeException exception = null;
-		try {
-			mojo.documentProject();
-		} catch(final MojoRuntimeException ex) {
-			exception = ex;
-		}
-		Assertions.assertNotNull(exception);
-		Assertions.assertEquals("More than one operation mapped on GET : /api/child-class-two/age-plus-one in tag IChildClassTwo",
-			exception.getMessage());
+		assertThatThrownBy(mojo::documentProject)
+			.isInstanceOf(MojoRuntimeException.class)
+			.hasMessage("More than one operation mapped on GET : /api/child-class-two/age-plus-one in tag IChildClassTwo");
 	}
 
 	@Test
