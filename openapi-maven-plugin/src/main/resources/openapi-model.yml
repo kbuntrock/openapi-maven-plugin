@@ -36,5 +36,3 @@ array:
   type: array
 object:
   type: object
-any:
-  type: any

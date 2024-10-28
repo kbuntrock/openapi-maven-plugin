@@ -174,7 +174,6 @@ public class DataObject {
 					Type[] resolvedArguments = ((ParameterizedType) superType.getType()).getActualTypeArguments();
 					mapKeyValueDataObjects[0] = new DataObject(resolvedArguments[0]);
 					mapKeyValueDataObjects[1] = new DataObject(resolvedArguments[1]);
-					System.out.println("toto");
 				} else {
 					javaClass = (Class<?>) type;
 				}
@@ -339,8 +338,6 @@ public class DataObject {
 	 */
 	public Type getContextualType(final Type genericType) {
 
-		TypeUtils.getRawType(this.javaType, genericType);
-
 		if(this.isGenericallyTyped()) {
 			// It is possible that we will not substitute anything. In that cas, the substitution parameterized type
 			// will be equivalent to the source one.
@@ -390,7 +387,7 @@ public class DataObject {
 					return wt.getUpperBounds()[0];
 				}
 			} else {
-				// Here we handle local "extends XXX<YYY>"
+				// Here we handle local extends with genericity (extends XXX<YYY>)
 				return TypeToken.of(this.getJavaClass()).resolveType(genericType).getType();
 			}
 		} else if(genericType instanceof TypeVariable) {

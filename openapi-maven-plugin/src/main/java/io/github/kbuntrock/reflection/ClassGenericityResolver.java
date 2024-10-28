@@ -56,14 +56,19 @@ public class ClassGenericityResolver {
 
 		Class searched = clazz;
 		Type type;
+
+		// Search in abstract classes
 		while(!searched.equals(method.getDeclaringClass())) {
 			type = searched.getGenericSuperclass();
 			searched = searched.getSuperclass();
-
 			final ClassType classType = new ClassType();
 			classType.clazz = searched;
 			classType.type = type;
 			classTypeList.add(classType);
+		}
+		if(!searched.equals(method.getDeclaringClass())) {
+			// Declaring class not found yet, now looking into interfaces
+			// TODO : pas bulletproof. Regarder pour se passer de cette classe
 		}
 
 		methodToClass.put(method, searched);
@@ -108,6 +113,9 @@ public class ClassGenericityResolver {
 	}
 
 	public Type getContextualType(final Type genericType, final Method method) {
+
+		// TODO : ici regarder pour passer par le Token resolver de guava
+
 		final Map<String, Type> genericNameToTypeMap = classToMap.get(methodToClass.get(method));
 		if(genericNameToTypeMap != null) {
 			// It is possible that we will not substitute anything. In that cas, the substitution parameterized type

@@ -79,6 +79,8 @@ public enum OpenApiTypeResolver {
 			final OpenApiResolvedType type = new OpenApiResolvedType(OpenApiDataType.fromJsonNode(modelNode), modelNode, entry.getKey());
 			modelMap.put(entry.getKey(), type);
 		});
+		// Special "any" Openapi type
+		modelMap.put("any", new OpenApiResolvedType(OpenApiDataType.ANY, null, "{}"));
 	}
 
 	private void initModelAssociation(final MavenProject mavenProject, final ApiConfiguration apiConfig) {

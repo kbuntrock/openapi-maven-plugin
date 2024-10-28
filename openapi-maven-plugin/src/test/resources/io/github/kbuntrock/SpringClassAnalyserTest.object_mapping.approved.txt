@@ -1,0 +1,45 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: MappingObject
+paths:
+  /mapping-object/object:
+    get:
+      tags:
+        - MappingObject
+      operationId: getObject
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema: {}
+    post:
+      tags:
+        - MappingObject
+      operationId: postObject
+      requestBody:
+        content:
+          '*/*':
+            schema: {}
+      responses:
+        200:
+          description: successful operation
+  /mapping-object/object-map:
+    get:
+      tags:
+        - MappingObject
+      operationId: getObjectMap
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties: {}

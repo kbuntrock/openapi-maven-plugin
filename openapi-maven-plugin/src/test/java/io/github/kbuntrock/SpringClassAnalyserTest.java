@@ -31,6 +31,7 @@ import io.github.kbuntrock.resources.endpoint.file.FileUploadController;
 import io.github.kbuntrock.resources.endpoint.file.StreamResponseController;
 import io.github.kbuntrock.resources.endpoint.generic.ExtendsMap;
 import io.github.kbuntrock.resources.endpoint.generic.GenericDataController;
+import io.github.kbuntrock.resources.endpoint.generic.GenericMappingObject;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestEight;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestEleven;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestFive;
@@ -598,6 +599,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		blackList.add(".*\\.GenericityTestE.*$");
 		blackList.add(".*\\.GenericityTestN.*$");
 		blackList.add(".*\\.Issue.*$");
+		blackList.add(".*\\.ExtendsMap.*$");
 		blackList.add(".*\\.MappingObject.*$");
 		blackList.add(".*\\.ActionResource");
 		blackList.add(".*\\.GenericDataController");
@@ -860,9 +862,21 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	}
 
 	@Test
-	public void parametrized_object_class() throws MojoFailureException, IOException, MojoExecutionException {
+	public void object_mapping() throws MojoFailureException, IOException, MojoExecutionException {
 
 		final DocumentationMojo mojo = createBasicMojo(MappingObject.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/generic",
+			"src/test/java/io/github/kbuntrock/resources/dto/genericity/mappingObject"));
+		mojo.setJavadocConfiguration(javadocConfig);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	//@Test
+	public void generic_object_mapping() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(GenericMappingObject.class.getCanonicalName());
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
 		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/generic",
 			"src/test/java/io/github/kbuntrock/resources/dto/genericity/mappingObject"));
