@@ -31,7 +31,7 @@ public class Content {
 			if(parameterObject.isRequired()) {
 				schema.setRequired(Collections.singletonList(parameterObject.getName()));
 			}
-			schema.setType(OpenApiTypeResolver.INSTANCE.resolveFromJavaClass(Object.class));
+			schema.setType(OpenApiTypeResolver.OBJECT_TYPE);
 			final Map<String, Property> propertyMap = new LinkedHashMap<>();
 			schema.setProperties(propertyMap);
 			final Property property = new Property(content.getSchema());

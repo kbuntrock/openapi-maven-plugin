@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.configuration.parser.CommonParserUtils;
+import io.github.kbuntrock.configuration.parser.JsonParserUtils;
 import io.github.kbuntrock.configuration.parser.YamlParserUtils;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
@@ -15,11 +16,17 @@ import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.maven.project.MavenProject;
 
-/**
- * @author Kévin Buntrock
- */
 public enum OpenApiTypeResolver {
 	INSTANCE;
+
+	/**
+	 * Special "any" type, to represent anything. Object.class is for example mapped to the any type
+	 */
+	public static final OpenApiResolvedType ANY_TYPE = new OpenApiResolvedType(OpenApiDataType.ANY, null, "{}");
+	/**
+	 * OpenApi Object type for specific use cases (ex : files). Please note that java Object.class IS NOT mapped to this type.
+	 */
+	public static final OpenApiResolvedType OBJECT_TYPE = new OpenApiResolvedType(OpenApiDataType.OBJECT, JsonParserUtils.parse("{\"type\":\"object\"}").get(), null);
 
 	private static final String EQUALITY = "equality";
 	private static final String ASSIGNABILITY = "assignability";
@@ -80,7 +87,7 @@ public enum OpenApiTypeResolver {
 			modelMap.put(entry.getKey(), type);
 		});
 		// Special "any" Openapi type
-		modelMap.put("any", new OpenApiResolvedType(OpenApiDataType.ANY, null, "{}"));
+		modelMap.put("any", ANY_TYPE);
 	}
 
 	private void initModelAssociation(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
