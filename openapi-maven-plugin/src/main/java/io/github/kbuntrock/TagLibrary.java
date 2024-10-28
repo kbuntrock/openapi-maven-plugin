@@ -75,7 +75,9 @@ public class TagLibrary {
 		// Generically typed objects are almost never written in the schema section (only when a recursive
 		if(dataObject.isReferenceObject()) {
 			if(schemaObjects.add(dataObject)) {
-				inspectObject(dataObject);
+				if(!dataObject.isMap()) {
+					inspectObject(dataObject);
+				}
 			}
 		} else if(dataObject.isGenericallyTyped()) {
 			// Eventually analyse instead the generic types

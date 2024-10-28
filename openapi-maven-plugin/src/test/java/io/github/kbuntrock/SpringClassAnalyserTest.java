@@ -856,8 +856,10 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		mojo.setJavadocConfiguration(javadocConfig);
 
 		final List<File> generated = mojo.documentProject();
-		checkGenerationResult("ut/SpringClassAnalyserTest/generic_parent_bound_by_child.yml", generated.get(0));
+		checkGenerationResult("ut/SpringClassAnalyserTest/parametrized_object_class.yml", generated.get(0));
 	}
+
+	// TODO : nesting controller not used!!!
 
 	private ScanResult scanResult(Class<?> clazz) {
 		return new ClassGraph()

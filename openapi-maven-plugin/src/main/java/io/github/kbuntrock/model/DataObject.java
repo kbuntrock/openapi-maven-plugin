@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.springframework.util.ReflectionUtils;
 
 /**
@@ -166,9 +167,17 @@ public class DataObject {
 						"A GenericArrayType with a " + gat.getGenericComponentType().getClass().toString() + " is not and handled case.");
 				}
 			} else if(type instanceof Class) {
-
-				// Anything simplier ...
-				javaClass = (Class<?>) type;
+				if(Map.class.isAssignableFrom((Class<?>) type)) {
+					javaClass = (Class<?>) type;
+					TypeToken token = TypeToken.of(javaType);
+					TypeToken<Map> superType = token.getSupertype(Map.class);
+					Type[] resolvedArguments = ((ParameterizedType) superType.getType()).getActualTypeArguments();
+					mapKeyValueDataObjects[0] = new DataObject(resolvedArguments[0]);
+					mapKeyValueDataObjects[1] = new DataObject(resolvedArguments[1]);
+					System.out.println("toto");
+				} else {
+					javaClass = (Class<?>) type;
+				}
 			} else {
 				throw new RuntimeException(
 					"Type " + originalType.getTypeName() + " (+" + originalType.getClass().getSimpleName() + ") is not supported yet.");
