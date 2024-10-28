@@ -29,6 +29,7 @@ import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration7Contro
 import io.github.kbuntrock.resources.endpoint.error.SameOperationController;
 import io.github.kbuntrock.resources.endpoint.file.FileUploadController;
 import io.github.kbuntrock.resources.endpoint.file.StreamResponseController;
+import io.github.kbuntrock.resources.endpoint.generic.ExtendsMap;
 import io.github.kbuntrock.resources.endpoint.generic.GenericDataController;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestEight;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestEleven;
@@ -597,6 +598,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		blackList.add(".*\\.GenericityTestE.*$");
 		blackList.add(".*\\.GenericityTestN.*$");
 		blackList.add(".*\\.Issue.*$");
+		blackList.add(".*\\.MappingObject.*$");
 		blackList.add(".*\\.ActionResource");
 		blackList.add(".*\\.GenericDataController");
 		mojo.getApiConfiguration().setBlackList(blackList);
@@ -840,6 +842,18 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
 		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/generic",
 			"src/test/java/io/github/kbuntrock/resources/dto/genericity/issue144"));
+		mojo.setJavadocConfiguration(javadocConfig);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void extends_map() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(ExtendsMap.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/generic",
+			"src/test/java/io/github/kbuntrock/resources/dto/genericity/extendsMap"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
 		checkGenerationResult(mojo.documentProject());

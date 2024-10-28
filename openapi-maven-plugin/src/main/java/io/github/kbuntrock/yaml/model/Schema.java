@@ -90,6 +90,14 @@ public class Schema {
 		this(dataObject, false, exploredSignatures, null, null);
 	}
 
+	/**
+	 *
+	 * @param wrappedDataObject
+	 * @param mainReference true if we are writing the components/schemas section
+	 * @param exploredSignatures
+	 * @param parentDataObject
+	 * @param parentFieldName
+	 */
 	public Schema(final DataObject wrappedDataObject, final boolean mainReference, final Set<String> exploredSignatures,
 		final DataObject parentDataObject,
 		final String parentFieldName) {
@@ -116,7 +124,6 @@ public class Schema {
 		if(dataObject.isMap()) {
 			type = dataObject.getOpenApiResolvedType();
 			additionalProperties = new Schema(dataObject.getMapValueType(), false, exploredSignatures, parentDataObject, parentFieldName);
-
 		} else if(dataObject.isOpenApiArray()) {
 			type = dataObject.getOpenApiResolvedType();
 			items = new Schema(dataObject.getArrayItemDataObject(), false, exploredSignatures, parentDataObject, parentFieldName);

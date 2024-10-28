@@ -1,4 +1,8 @@
-package io.github.kbuntrock.resources.dto.genericity.mappingObject;/**
-* @author Kévin Buntrock
-*/public class ChildMapWithObject {
+package io.github.kbuntrock.resources.dto.genericity.mappingObject;
+
+/**
+ * Child map with object
+ */
+public class ChildMapWithObject extends MapWithObject {
+
 }

@@ -5,4 +5,21 @@ info:
   version: 10.5.36
 servers:
   - url: ""
-
+tags:
+  - name: MappingObject
+paths:
+  /mapping-object/foo:
+    get:
+      tags:
+        - MappingObject
+      operationId: getMyMap
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+                  format: uuid

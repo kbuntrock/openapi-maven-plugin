@@ -1,0 +1,45 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: ExtendsMap
+    description: Some map endpoint
+paths:
+  /map-extends/child-map:
+    get:
+      tags:
+        - ExtendsMap
+      operationId: getChildMap
+      description: Get a child map
+      responses:
+        200:
+          description: a child map
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+                  format: uuid
+  /map-extends/extend-map:
+    post:
+      tags:
+        - ExtendsMap
+      operationId: postExtendMap
+      description: Post a "extend map"
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: object
+              additionalProperties:
+                type: integer
+                format: int64
+        description: some map
+      responses:
+        200:
+          description: successful operation

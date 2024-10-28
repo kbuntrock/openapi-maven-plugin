@@ -241,7 +241,7 @@ public class DataObject {
 	 * @return true if the object should be considered as a "reference object", in order to get its own schema section
 	 */
 	public boolean isReferenceObject() {
-		return isEnum() || (!genericallyTyped && OpenApiDataType.OBJECT == openApiResolvedType.getType());
+		return !isMap() && (isEnum() || (!genericallyTyped && OpenApiDataType.OBJECT == openApiResolvedType.getType()));
 	}
 
 	/**
@@ -338,6 +338,8 @@ public class DataObject {
 	 * @return a type
 	 */
 	public Type getContextualType(final Type genericType) {
+
+		TypeUtils.getRawType(this.javaType, genericType);
 
 		if(this.isGenericallyTyped()) {
 			// It is possible that we will not substitute anything. In that cas, the substitution parameterized type
