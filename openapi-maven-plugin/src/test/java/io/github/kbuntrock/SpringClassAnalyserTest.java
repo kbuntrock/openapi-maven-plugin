@@ -842,8 +842,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 			"src/test/java/io/github/kbuntrock/resources/dto/genericity/issue144"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
-		final List<File> generated = mojo.documentProject();
-		checkGenerationResult("ut/SpringClassAnalyserTest/generic_parent_bound_by_child.yml", generated.get(0));
+		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
@@ -855,8 +854,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 			"src/test/java/io/github/kbuntrock/resources/dto/genericity/mappingObject"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
-		final List<File> generated = mojo.documentProject();
-		checkGenerationResult("ut/SpringClassAnalyserTest/parametrized_object_class.yml", generated.get(0));
+		checkGenerationResult(mojo.documentProject());
 	}
 
 	// TODO : nesting controller not used!!!
