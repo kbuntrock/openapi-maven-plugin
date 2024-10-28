@@ -601,6 +601,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		blackList.add(".*\\.Issue.*$");
 		blackList.add(".*\\.ExtendsMap.*$");
 		blackList.add(".*\\.MappingObject.*$");
+		blackList.add(".*\\.GenericMappingObject.*$");
 		blackList.add(".*\\.ActionResource");
 		blackList.add(".*\\.GenericDataController");
 		mojo.getApiConfiguration().setBlackList(blackList);
