@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @RequestMapping(Constants.BASE_API + "/nesting")
-public interface NestingController {
+public interface NestedDtosController {
 
 	@GetMapping("/{id}")
 	AccountDto getById(@PathVariable(value = "id") Long id);

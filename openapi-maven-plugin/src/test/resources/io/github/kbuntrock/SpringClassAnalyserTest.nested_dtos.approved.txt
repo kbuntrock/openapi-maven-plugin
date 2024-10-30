@@ -1,0 +1,134 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: NestedDtosController
+paths:
+  /api/nesting/usergroup:
+    post:
+      tags:
+        - NestedDtosController
+      operationId: setUsergroup
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/UserGroupDto'
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/nesting/usergroup/{id}:
+    get:
+      tags:
+        - NestedDtosController
+      operationId: getUsergroupById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UserGroupDto'
+  /api/nesting/{id}:
+    get:
+      tags:
+        - NestedDtosController
+      operationId: getById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AccountDto'
+components:
+  schemas:
+    AccountDto:
+      required:
+        - login
+        - firstName
+        - lastName
+        - email
+        - activated
+        - langKey
+        - authorities
+      type: object
+      properties:
+        login:
+          type: string
+          minLength: 1
+          maxLength: 50
+        firstName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        lastName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        email:
+          type: string
+          minLength: 5
+          maxLength: 254
+        imageUrl:
+          type: string
+          minLength: 0
+          maxLength: 256
+        activated:
+          type: boolean
+        langKey:
+          type: string
+          minLength: 2
+          maxLength: 10
+        authorities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Authority'
+          uniqueItems: true
+    Authority:
+      type: string
+      enum:
+        - READ_USER
+        - WRITE_USER
+        - ACCES_APP
+    UserGroupDto:
+      type: object
+      properties:
+        leader:
+          $ref: '#/components/schemas/AccountDto'
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountDto'
+        mainSubgroup:
+          $ref: '#/components/schemas/UserGroupDto'
+        subgroups:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserGroupDto'
+        affiliatedGroups:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/UserGroupDto'

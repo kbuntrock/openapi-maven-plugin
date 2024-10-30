@@ -53,6 +53,7 @@ import io.github.kbuntrock.resources.endpoint.ignore.JsonIgnoreController;
 import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
 import io.github.kbuntrock.resources.endpoint.jackson.JacksonJsonPropertyController;
 import io.github.kbuntrock.resources.endpoint.map.MapController;
+import io.github.kbuntrock.resources.endpoint.nesting.NestedDtosController;
 import io.github.kbuntrock.resources.endpoint.nullable.NullableController;
 import io.github.kbuntrock.resources.endpoint.nullable.NullableGettersSettersController;
 import io.github.kbuntrock.resources.endpoint.number.NumberController;
@@ -886,7 +887,12 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		checkGenerationResult(mojo.documentProject());
 	}
 
-	// TODO : nesting controller not used!!!
+	@Test
+	public void nested_dtos() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(NestedDtosController.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
+
 
 	private ScanResult scanResult(Class<?> clazz) {
 		return new ClassGraph()
