@@ -5,7 +5,7 @@ import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
-import io.github.kbuntrock.reflection.ClassGenericityResolver;
+import io.github.kbuntrock.reflection.GenericityResolver;
 import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.UnwrappingType;
@@ -26,6 +26,7 @@ public abstract class AstractLibraryReader {
 	protected final Log logger = Logger.INSTANCE.getLogger();
 
 	protected final ApiConfiguration apiConfiguration;
+	protected final GenericityResolver genericityResolver = new GenericityResolver();
 
 	public AstractLibraryReader(final ApiConfiguration apiConfiguration) {
 		this.apiConfiguration = apiConfiguration;
@@ -45,7 +46,7 @@ public abstract class AstractLibraryReader {
 		return result;
 	}
 
-	protected DataObject readResponseObject(final Method method, final ClassGenericityResolver genericityResolver,
+	protected DataObject readResponseObject(final Class clazz, final Method method,
 		final MergedAnnotations mergedAnnotations) {
 		final Class<?> returnType = method.getReturnType();
 		if(Void.class == returnType || Void.TYPE == returnType) {
@@ -53,7 +54,7 @@ public abstract class AstractLibraryReader {
 		}
 
 		DataObject dataObject = new DataObject(
-			genericityResolver.getContextualType(readResponseMethodType(method, mergedAnnotations), method));
+			genericityResolver.resolve(clazz, readResponseMethodType(method, mergedAnnotations)));
 		dataObject = computeFrameworkReturnObject(dataObject);
 		logger.debug(dataObject.toString());
 		return dataObject;
@@ -86,10 +87,10 @@ public abstract class AstractLibraryReader {
 
 	public abstract List<String> readBasePaths(final Class<?> clazz, final MergedAnnotations mergedAnnotations);
 
-	public abstract void computeAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations,
-		final Tag tag, final ClassGenericityResolver genericityResolver) throws MojoFailureException;
+	public abstract void computeAnnotations(final Class clazz, final String basePath, final Method method, final MergedAnnotations mergedAnnotations,
+		final Tag tagr) throws MojoFailureException;
 
-	protected abstract List<ParameterObject> readParameters(Method originalMethod, final ClassGenericityResolver genericityResolver);
+	protected abstract List<ParameterObject> readParameters(final Class clazz, Method originalMethod);
 
 	protected abstract List<String> readEndpointPaths(String basePath,
 		MergedAnnotation<? extends Annotation> requestMappingMergedAnnotation);

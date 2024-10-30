@@ -1,15 +1,11 @@
 package io.github.kbuntrock;
 
-import io.github.classgraph.ClassGraph;
 import io.github.classgraph.MethodInfo;
 import io.github.classgraph.ScanResult;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.library.reader.AstractLibraryReader;
-import io.github.kbuntrock.configuration.library.reader.ClassLoaderUtils;
 import io.github.kbuntrock.model.Tag;
-import io.github.kbuntrock.reflection.ClassGenericityResolver;
-import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.Logger;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -130,8 +126,6 @@ public class JavaClassAnalyser {
 
 		logger.debug("Parsing endpoint " + clazz.getSimpleName());
 
-		final ClassGenericityResolver genericityResolver = new ClassGenericityResolver(clazz);
-
 		Set<Method> methods = classScanResult.getClassInfo(clazz.getCanonicalName())
 			.getMethodInfo()
 			.filter(methodInfo -> !methodInfo.isPrivate())
@@ -143,7 +137,7 @@ public class JavaClassAnalyser {
 
 			if(validateWhiteList(clazz, method) && validateBlackList(clazz, method)) {
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
-				libraryReader.computeAnnotations(basePath, method, mergedAnnotations, tag, genericityResolver);
+				libraryReader.computeAnnotations(clazz, basePath, method, mergedAnnotations, tag);
 			}
 		}
 	}

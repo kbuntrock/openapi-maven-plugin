@@ -1,0 +1,25 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: GenericMappingObject
+    description: Generic map of objects in body
+paths:
+  /generic-mapping/object-map:
+    post:
+      tags:
+        - GenericMappingObject
+      operationId: postObject
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: object
+              additionalProperties: {}
+      responses:
+        200:
+          description: successful operation

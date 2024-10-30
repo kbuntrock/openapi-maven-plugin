@@ -874,7 +874,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		checkGenerationResult(mojo.documentProject());
 	}
 
-	//@Test
+	@Test
 	public void generic_object_mapping() throws MojoFailureException, IOException, MojoExecutionException {
 
 		final DocumentationMojo mojo = createBasicMojo(GenericMappingObject.class.getCanonicalName());

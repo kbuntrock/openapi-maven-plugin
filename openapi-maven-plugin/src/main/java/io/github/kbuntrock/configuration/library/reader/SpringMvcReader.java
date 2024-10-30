@@ -9,7 +9,6 @@ import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.OperationType;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
-import io.github.kbuntrock.reflection.ClassGenericityResolver;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
@@ -95,20 +94,17 @@ public class SpringMvcReader extends AstractLibraryReader {
 	}
 
 	@Override
-	public void computeAnnotations(final String basePath, final Method method, final MergedAnnotations mergedAnnotations, final Tag tag,
-		final ClassGenericityResolver genericityResolver) throws MojoFailureException {
+	public void computeAnnotations(final Class clazz, final String basePath, final Method method, final MergedAnnotations mergedAnnotations, final Tag tag) throws MojoFailureException {
 
 		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
 		if(requestMappingMergedAnnotation.isPresent() && !excludedByReturnType(method)) {
-
-			genericityResolver.initForMethod(method);
 
 			final RequestMethod[] requestMethods = requestMappingMergedAnnotation.getEnumArray("method", RequestMethod.class);
 			if(requestMethods.length > 0) {
 				logger.debug("Parsing request method : " + method.getName());
 				final String methodIdentifier = JavaClassAnalyser.createIdentifier(method);
-				final List<ParameterObject> parameterObjects = readParameters(method, genericityResolver);
-				final DataObject responseObject = readResponseObject(method, genericityResolver, mergedAnnotations);
+				final List<ParameterObject> parameterObjects = readParameters(clazz, method);
+				final DataObject responseObject = readResponseObject(clazz, method, mergedAnnotations);
 				final int responseCode = readResponseCode(mergedAnnotations);
 				final List<String> paths = readEndpointPaths(basePath, requestMappingMergedAnnotation);
 				for(final RequestMethod requestMethod : requestMethods) {
@@ -139,11 +135,10 @@ public class SpringMvcReader extends AstractLibraryReader {
 	 * See https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/arguments.html
 	 *
 	 * @param originalMethod     inspected method
-	 * @param genericityResolver genericity resolver
 	 * @return list of parameters to document
 	 */
 	@Override
-	protected List<ParameterObject> readParameters(final Method originalMethod, final ClassGenericityResolver genericityResolver) {
+	protected List<ParameterObject> readParameters(final Class clazz, final Method originalMethod) {
 		logger.debug("Reading parameters from " + originalMethod.getName());
 
 		// Set of the method in the original class and eventually the methods in the parent classes / interfaces
@@ -161,7 +156,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 
 				final ParameterObject paramObj = parameters.computeIfAbsent(parameter.getName(),
 					(name) -> unwrapParameterObject(
-						new ParameterObject(name, genericityResolver.getContextualType(parameter.getParameterizedType(), method))));
+						new ParameterObject(name, genericityResolver.resolve(clazz, parameter.getParameterizedType()))));
 
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
 					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
