@@ -1,0 +1,23 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: Issue138
+paths:
+  /issue138:
+    get:
+      tags:
+        - Issue138
+      operationId: issue138
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties: {}

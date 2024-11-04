@@ -1,12 +1,12 @@
-package io.github.kbuntrock.resources.dto.genericity.extendsMap;
+package io.github.kbuntrock.resources.dto.genericity.extendsList;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.UUID;
 
 /**
- * A map between Integer and UUID
+ * A list of uuids
  */
-public class ExtendsMapUUID extends HashMap<Integer, UUID> {
+public class ExtendsListUUID extends ArrayList<UUID> {
 
 	/**
 	 * Since this class is a list, this attribute is ignored

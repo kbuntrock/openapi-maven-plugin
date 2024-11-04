@@ -174,6 +174,12 @@ public class DataObject {
 					Type[] resolvedArguments = ((ParameterizedType) superType.getType()).getActualTypeArguments();
 					mapKeyValueDataObjects[0] = new DataObject(resolvedArguments[0]);
 					mapKeyValueDataObjects[1] = new DataObject(resolvedArguments[1]);
+				} else if(Collection.class.isAssignableFrom((Class<?>) type)) {
+					javaClass = (Class<?>) type;
+					TypeToken token = TypeToken.of(javaType);
+					TypeToken<Map> superType = token.getSupertype(Collection.class);
+					Type[] resolvedArguments = ((ParameterizedType) superType.getType()).getActualTypeArguments();
+					arrayItemDataObject = new DataObject(resolvedArguments[0]);
 				} else {
 					javaClass = (Class<?>) type;
 				}

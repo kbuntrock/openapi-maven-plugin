@@ -1,0 +1,27 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: ExtendsList
+    description: Some list endpoint
+paths:
+  /list-extends/list:
+    get:
+      tags:
+        - ExtendsList
+      operationId: getListUUID
+      description: Get a list of uuids
+      responses:
+        200:
+          description: uuid list
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: uuid
