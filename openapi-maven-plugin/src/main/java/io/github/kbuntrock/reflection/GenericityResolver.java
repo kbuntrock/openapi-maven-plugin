@@ -10,8 +10,6 @@ import org.apache.maven.plugin.logging.Log;
 
 /**
  * Used to resolve genericity on classes which are DataObjects. (usually endpoints)
- *
- * @author Kévin Buntrock
  */
 public final class GenericityResolver {
 
