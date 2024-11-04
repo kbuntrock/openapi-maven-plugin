@@ -47,6 +47,7 @@ import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTwelve;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTwo;
 import io.github.kbuntrock.resources.endpoint.generic.Issue138;
 import io.github.kbuntrock.resources.endpoint.generic.Issue144;
+import io.github.kbuntrock.resources.endpoint.generic.Issue144ByInterface;
 import io.github.kbuntrock.resources.endpoint.generic.Issue89;
 import io.github.kbuntrock.resources.endpoint.generic.Issue95;
 import io.github.kbuntrock.resources.endpoint.generic.MappingObject;
@@ -845,6 +846,18 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	public void generic_parent_bound_by_child() throws MojoFailureException, IOException, MojoExecutionException {
 
 		final DocumentationMojo mojo = createBasicMojo(Issue144.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/generic",
+			"src/test/java/io/github/kbuntrock/resources/dto/genericity/issue144"));
+		mojo.setJavadocConfiguration(javadocConfig);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void generic_parent_bound_by_child_extrends_interface() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(Issue144ByInterface.class.getCanonicalName());
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
 		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/generic",
 			"src/test/java/io/github/kbuntrock/resources/dto/genericity/issue144"));

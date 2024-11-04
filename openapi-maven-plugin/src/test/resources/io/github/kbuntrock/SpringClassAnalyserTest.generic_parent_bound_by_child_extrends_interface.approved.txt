@@ -1,0 +1,51 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: Issue144ByInterface
+    description: Issue 144 webservice (by interface)
+paths:
+  /issue144/foo:
+    put:
+      tags:
+        - Issue144ByInterface
+      operationId: getRequestItems
+      description: Get the requested items
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/ChildRequestDtoInterface'
+        description: some price request
+      responses:
+        200:
+          description: the requested item
+          content:
+            '*/*':
+              schema:
+                type: string
+components:
+  schemas:
+    ChildRequestDtoInterface:
+      description: The child request dto by interface
+      type: object
+      properties:
+        priceRequestItems:
+          description: The price request items
+          type: array
+          items:
+            $ref: '#/components/schemas/ChildRequestItemInterface'
+    ChildRequestItemInterface:
+      description: The child request item interface
+      type: object
+      properties:
+        baseField:
+          description: The base field
+          type: string
+        childField:
+          description: The child field
+          type: string
