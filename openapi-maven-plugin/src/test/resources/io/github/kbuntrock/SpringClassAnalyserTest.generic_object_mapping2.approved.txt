@@ -1,0 +1,23 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: ExtendsGenericObjectMap
+paths:
+  /extends-generic-object-map/map:
+    get:
+      tags:
+        - ExtendsGenericObjectMap
+      operationId: getMap
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties: {}

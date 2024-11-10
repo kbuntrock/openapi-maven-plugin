@@ -72,7 +72,7 @@ public class TagLibrary {
 		if(!exploredSignatures.add(dataObject.getSignature())) {
 			return;
 		}
-		// Generically typed objects are almost never written in the schema section (only when a recursive
+		// Generically typed objects are almost never written in the schema section (only when a recursive loop is detected)
 		if(dataObject.isReferenceObject()) {
 			if(schemaObjects.add(dataObject)) {
 				if(!dataObject.isMap()) {

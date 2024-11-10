@@ -104,7 +104,6 @@ public class DataObject {
 		this.classRequired = dataObject.classRequired;
 	}
 
-
 	public DataObject(final Type originalType) {
 		Type type = originalType;
 
@@ -131,17 +130,15 @@ public class DataObject {
 						pt.getActualTypeArguments()[i]);
 				}
 
-				if(Collection.class.isAssignableFrom(javaClass)) {
-					arrayItemDataObject = new DataObject(pt.getActualTypeArguments()[0]);
-				} else if(Map.class.isAssignableFrom(javaClass)) {
-					mapKeyValueDataObjects[0] = new DataObject(pt.getActualTypeArguments()[0]);
-					mapKeyValueDataObjects[1] = new DataObject(pt.getActualTypeArguments()[1]);
+				if(Map.class.isAssignableFrom(javaClass)) {
+					computeMapTypes();
+				} else if(Collection.class.isAssignableFrom(javaClass)) {
+					computeCollectionType();
 				}
 
 			} else if(type instanceof GenericArrayType) {
 
 				// Parameterized array
-
 				this.genericallyTyped = true;
 				// See https://stackoverflow.com/questions/15450356/how-to-make-class-forname-return-array-type
 				final GenericArrayType gat = (GenericArrayType) type;
@@ -167,21 +164,11 @@ public class DataObject {
 						"A GenericArrayType with a " + gat.getGenericComponentType().getClass().toString() + " is not and handled case.");
 				}
 			} else if(type instanceof Class) {
+				javaClass = (Class<?>) type;
 				if(Map.class.isAssignableFrom((Class<?>) type)) {
-					javaClass = (Class<?>) type;
-					TypeToken token = TypeToken.of(javaType);
-					TypeToken<Map> superType = token.getSupertype(Map.class);
-					Type[] resolvedArguments = ((ParameterizedType) superType.getType()).getActualTypeArguments();
-					mapKeyValueDataObjects[0] = new DataObject(resolvedArguments[0]);
-					mapKeyValueDataObjects[1] = new DataObject(resolvedArguments[1]);
+					computeMapTypes();
 				} else if(Collection.class.isAssignableFrom((Class<?>) type)) {
-					javaClass = (Class<?>) type;
-					TypeToken token = TypeToken.of(javaType);
-					TypeToken<Map> superType = token.getSupertype(Collection.class);
-					Type[] resolvedArguments = ((ParameterizedType) superType.getType()).getActualTypeArguments();
-					arrayItemDataObject = new DataObject(resolvedArguments[0]);
-				} else {
-					javaClass = (Class<?>) type;
+					computeCollectionType();
 				}
 			} else {
 				throw new RuntimeException(
@@ -226,6 +213,21 @@ public class DataObject {
 			throw new RuntimeException(e);
 		}
 
+	}
+
+	private void computeMapTypes() {
+		TypeToken token = TypeToken.of(javaType);
+		TypeToken<Map> superType = token.getSupertype(Map.class);
+		Type[] resolvedArguments = ((ParameterizedType) superType.getType()).getActualTypeArguments();
+		mapKeyValueDataObjects[0] = new DataObject(resolvedArguments[0]);
+		mapKeyValueDataObjects[1] = new DataObject(resolvedArguments[1]);
+	}
+
+	private void computeCollectionType() {
+		TypeToken token = TypeToken.of(javaType);
+		TypeToken<Map> superType = token.getSupertype(Collection.class);
+		Type[] resolvedArguments = ((ParameterizedType) superType.getType()).getActualTypeArguments();
+		arrayItemDataObject = new DataObject(resolvedArguments[0]);
 	}
 
 	/**

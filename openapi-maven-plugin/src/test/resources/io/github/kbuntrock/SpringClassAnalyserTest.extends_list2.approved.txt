@@ -1,0 +1,25 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: ExtendsListV2
+paths:
+  /extends-list-v2/:
+    get:
+      tags:
+        - ExtendsListV2
+      operationId: getList
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: uuid
