@@ -104,7 +104,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 			if(requestMethods.length > 0) {
 				logger.debug("Parsing request method : " + method.getName());
 				final String methodIdentifier = JavaClassAnalyser.createIdentifier(method);
-				final List<ParameterObject> parameterObjects = readParameters(clazz, method);
+				final List<ParameterObject> parameterObjects = readParameters(clazz, method, mergedAnnotations);
 				final DataObject responseObject = readResponseObject(clazz, method, mergedAnnotations);
 				final int responseCode = readResponseCode(mergedAnnotations);
 				final List<String> paths = readEndpointPaths(basePath, requestMappingMergedAnnotation);
@@ -139,13 +139,15 @@ public class SpringMvcReader extends AstractLibraryReader {
 	 * @return list of parameters to document
 	 */
 	@Override
-	protected List<ParameterObject> readParameters(final Class clazz, final Method originalMethod) {
+	protected List<ParameterObject> readParameters(final Class clazz, final Method originalMethod, final MergedAnnotations endpointAnnotations) {
 		logger.debug("Reading parameters from " + originalMethod.getName());
 
 		// Set of the method in the original class and eventually the methods in the parent classes / interfaces
 		final Set<Method> overridenMethods = MethodUtils.getOverrideHierarchy(originalMethod, ClassUtils.Interfaces.INCLUDE);
 
 		final Map<String, ParameterObject> parameters = new LinkedHashMap<>();
+
+		readRequestMappingParams(endpointAnnotations, parameters);
 
 		for(final Method method : overridenMethods) {
 			for(final Parameter parameter : method.getParameters()) {
@@ -265,6 +267,46 @@ public class SpringMvcReader extends AstractLibraryReader {
 		return unnestedParams.values().stream().filter(x -> x.getLocation() != null).collect(Collectors.toList());
 	}
 
+	/**
+	 * Reads parameters only present in the request mapping annotation (see {@link RequestMapping#params})
+	 * @param endpointAnnotations
+	 * @param parameters
+	 */
+	private static void readRequestMappingParams(MergedAnnotations endpointAnnotations, Map<String, ParameterObject> parameters) {
+		// Extract from RequestMapping#params javadoc :
+		// a sequence of "myParam=myValue" style expressions, with a request only mapped if each such parameter is found to have the given value.
+		// Expressions can be negated by using the "!=" operator, as in "myParam!=myValue".
+		// "myParam" style expressions are also supported, with such parameters having to be present in the request (allowed to have any value).
+		// Finally, "!myParam" style expressions indicate that the specified parameter is not supposed to be present in the request.
+		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = endpointAnnotations.get(RequestMapping.class);
+		final String[] params = requestMappingMergedAnnotation.getStringArray("params");
+		for(String param : params) {
+
+			// We do not handle params starting with ! (ex: !myParam) since they must not be present in the request
+			if(!param.startsWith("!")) {
+				if(param.contains("=")) {
+					if(!param.contains("!=")) {
+						// myParam=myValue
+						String[] array = param.split("=");
+						if(array.length == 2) {
+							ParameterObject po = new ParameterObject(array[0], Object.class);
+							po.setLocation(ParameterLocation.QUERY);
+							po.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
+							parameters.put(array[0], po);
+						}
+					}
+				} else {
+					// Handles empty value params
+					ParameterObject po = new ParameterObject(param, Object.class);
+					po.setAllowEmptyValue(true);
+					po.setLocation(ParameterLocation.QUERY);
+					po.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
+					parameters.put(param, po);
+				}
+			}
+		}
+	}
+
 	private static boolean parameterObjectBindableToQueryParams(final ParameterObject paramObj) {
 		final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), paramObj.getJavaClass());
 		for(final Field field : fields) {
@@ -341,6 +383,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 			}
 		}
 	}
+
 
 	@Override
 	protected int readResponseCode(final MergedAnnotations mergedAnnotations) {

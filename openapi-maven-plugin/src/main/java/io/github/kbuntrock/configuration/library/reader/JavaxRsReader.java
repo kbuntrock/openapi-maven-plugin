@@ -97,7 +97,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 				final MergedAnnotation<Annotation> m = mergedAnnotations.get(verb.getAnnotationClass());
 				if(m.isPresent()) {
 					final String methodIdentifier = JavaClassAnalyser.createIdentifier(method);
-					final List<ParameterObject> parameterObjects = readParameters(clazz, method);
+					final List<ParameterObject> parameterObjects = readParameters(clazz, method, mergedAnnotations);
 					final DataObject responseObject = readResponseObject(clazz, method, mergedAnnotations);
 					final int responseCode = readResponseCode(null);
 					final String path = readEndpointPaths(basePath, requestMappingMergedAnnotation).get(0);
@@ -120,7 +120,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 	}
 
 	@Override
-	protected List<ParameterObject> readParameters(final Class clazz, final Method originalMethod) {
+	protected List<ParameterObject> readParameters(final Class clazz, final Method originalMethod, final MergedAnnotations endpointAnnotations) {
 		logger.debug("Reading parameters from " + originalMethod.getName());
 
 		// Set of the method in the original class and eventually the methods in the parent classes / interfaces

@@ -10,8 +10,14 @@ import java.util.Map;
 
 public class Operation {
 
+	/**
+	 * Operation name can be: GET / POST / PUT / DELETE / ...
+	 */
 	@JsonIgnore
 	private String name;
+	/**
+	 * The relative url
+	 */
 	@JsonIgnore
 	private String path;
 	private List<String> tags = new ArrayList<>();

@@ -65,6 +65,7 @@
     <javaparser.version>3.26.0</javaparser.version>
     <classgraph.version>4.8.175</classgraph.version>
     <approvaltests.version>24.8.0</approvaltests.version>
+    <mockito.version>5.14.2</mockito.version>
   </properties>
 
   <dependencies>
@@ -219,6 +220,13 @@
       <version>${approvaltests.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
+    </dependency>
+
 
   </dependencies>
 

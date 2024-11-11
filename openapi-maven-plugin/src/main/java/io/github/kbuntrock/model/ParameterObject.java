@@ -10,6 +10,7 @@ public class ParameterObject extends DataObject {
 
 	private String name;
 	private boolean required;
+	private boolean allowEmptyValue;
 	private ParameterLocation location;
 	// Set only if it is a "body" parameter : json, xml, plain text, ...
 	private List<String> formats;
@@ -52,6 +53,14 @@ public class ParameterObject extends DataObject {
 
 	public void setRequired(final boolean required) {
 		this.required = required;
+	}
+
+	public boolean isAllowEmptyValue() {
+		return allowEmptyValue;
+	}
+
+	public void setAllowEmptyValue(boolean allowEmptyValue) {
+		this.allowEmptyValue = allowEmptyValue;
 	}
 
 	public ParameterLocation getLocation() {

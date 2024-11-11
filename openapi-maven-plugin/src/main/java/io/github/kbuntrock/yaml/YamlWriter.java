@@ -1,5 +1,6 @@
 package io.github.kbuntrock.yaml;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -48,8 +49,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
@@ -77,9 +80,9 @@ public class YamlWriter {
 		this.mavenProject = mavenProject;
 		this.openApiTypeResolver = openApiTypeResolver;
 		this.om = FILEFORMAT_JSON.equals(apiConfiguration.getFileFormat()) ?
-				new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT) :
-				new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
-						.enable(YAMLGenerator.Feature.INDENT_ARRAYS_WITH_INDICATOR));
+			new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT) :
+			new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
+				.enable(YAMLGenerator.Feature.INDENT_ARRAYS_WITH_INDICATOR));
 	}
 
 	private void populateSpecificationFreeFields(final Specification specification, final Optional<JsonNode> freefields) {
@@ -131,6 +134,7 @@ public class YamlWriter {
 
 		populateSpecificationFreeFields(specification, freefields);
 
+		// Write "tags" section (list of all tags presents in this documentation)
 		specification.setTags(tagLibrary.getSortedTags().stream()
 			.map(x -> {
 				if(JavadocMap.INSTANCE.isPresent()) {
@@ -153,6 +157,7 @@ public class YamlWriter {
 				return new TagElement(x.computeConfiguredName(apiConfiguration), null);
 			}).collect(Collectors.toList()));
 
+		// Write the "paths" section (all url / http verbs combinaison scanned)
 		specification.setPaths(createPaths(tagLibrary));
 
 		final Map<String, Object> schemaSection = createSchemaSection(tagLibrary);
@@ -262,7 +267,9 @@ public class YamlWriter {
 					parameterElement.setName(parameter.getName());
 					parameterElement.setIn(parameter.getLocation().toString().toLowerCase(Locale.ENGLISH));
 					parameterElement.setRequired(parameter.isRequired());
-					final Property schema = new Property(Content.fromDataObject(parameter).getSchema());
+					parameterElement.setAllowEmptyValue(parameter.isAllowEmptyValue());
+
+					final Property schema = new Property(Content.fromDataObject(parameter).getSingleSchema());
 
 					// array in path parameters are not supported
 					if(OpenApiDataType.ARRAY == parameter.getOpenApiResolvedType().getType()
@@ -271,6 +278,11 @@ public class YamlWriter {
 							+ endpoint.getPath() + " - " + endpoint.getType());
 					}
 					parameterElement.setSchema(schema);
+
+
+					if(parameter.getJavaClass() == Object.class && parameter.isAllowEmptyValue() && parameter.getLocation() == ParameterLocation.QUERY) {
+						parameterElement.setSchema(null);
+					}
 
 					// Javadoc handling
 					if(methodJavadoc != null) {
@@ -403,17 +415,9 @@ public class YamlWriter {
 						operation.getResponses().put(entry.getKey(), entry.getValue());
 					});
 				}
-
-			}
-
-			// Map operations to their path
-			for(final Operation operation : operations) {
-				final Operation previousOperation = paths.get(operation.getPath()).put(operation.getName().toLowerCase(), operation);
-				if(previousOperation != null) {
-					throw new MojoRuntimeException(
-						"More than one operation mapped on " + operation.getName() + " : " + operation.getPath() + " in tag "
-							+ tag.getName());
-				}
+				// Check if on operation already exist for this name (GET / POST / ...) and path
+				// If a similar operation exists, we could merge it if the return content type don't overlap.
+				mergeCommonOperations(tag, paths, operation, response);
 			}
 
 		}
@@ -422,6 +426,62 @@ public class YamlWriter {
 
 	private static boolean isFormData(List<ParameterObject> bodies) {
 		return bodies.stream().allMatch(ParameterObject::isMultipartFile);
+	}
+
+	/**
+	 * Check if a common operation exist and merge it if possible
+	 * @param tag the tag to document
+	 * @param paths the already documented paths in this tag
+	 * @param operation the current operation to document
+	 * @param response the current operation response (without the default ones)
+	 */
+	private void mergeCommonOperations(Tag tag, Map<String, Map<String, Operation>> paths, Operation operation, Response response) {
+		// Check if on operation already exist for this name (GET / POST / ...) and path
+		Operation existingOperation = paths.get(operation.getPath()).get(operation.getName().toLowerCase());
+		if(existingOperation == null) {
+			paths.get(operation.getPath()).put(operation.getName().toLowerCase(), operation);
+		} else {
+			// Check if there is a collision in response content type.
+			Object existingContent = existingOperation.getResponses().get(response.getCode());
+			for(Entry<String, Content> responseContent : response.getContent().entrySet()) {
+				if(existingContent instanceof Response ) {
+					Response existingResponse = (Response) existingContent;
+					if(existingResponse.getContent().containsKey(responseContent.getKey())) {
+						// There are too many cases: this is uncommon, but it might be a valid case.
+						logger.warn("More than one operation with a common content type mapped on " +
+							operation.getName() + " : " + operation.getPath() + " in tag " + tag.getName());
+
+						if(existingResponse.getContent().get(responseContent.getKey()).getSchemaList().stream()
+							.noneMatch(x ->
+								this.writeValueAsString(x.getJsonObject())
+									.equals(this.writeValueAsString(responseContent.getValue().getSingleSchema()))
+							)) {
+							// Add response to the list of possibilities
+							existingResponse.getContent().get(responseContent.getKey()).getSchemaList().add(responseContent.getValue()
+								.getSingleSchema());
+						}
+
+					} else {
+						// Operation merging is required (two functions, mapped on the same name and path, but with different return content type)
+						existingResponse.getContent().put(responseContent.getKey(), responseContent.getValue());
+					}
+				}
+			}
+			// Now merging parameters
+			Map<String, ParameterElement> existingParametersByNames = existingOperation.getParameters().stream().collect(Collectors.toMap(ParameterElement::getName, Function.identity()));
+			for(ParameterElement parameter : operation.getParameters()) {
+				ParameterElement existingParameter = existingParametersByNames.get(parameter.getName());
+				if(existingParameter == null) {
+					existingOperation.getParameters().add(parameter);
+				} else {
+					if(!existingParameter.getSchema().getType().getNode().toString().equals(parameter.getSchema().getType().getNode().toString())) {
+						Logger.INSTANCE.getLogger().warn("Parameters incoherences detected in path " + operation.getPath());
+					}
+				}
+			}
+			// Please note that there is currently no verification on parameters being equivalent between similar response content types.
+			// The first encountered operation's parameters are the one written in the documentation.
+		}
 	}
 
 	private Map<String, Object> createSchemaSection(final TagLibrary library) {
@@ -445,6 +505,14 @@ public class YamlWriter {
 			schemas.put(entry.getKey(), schema);
 		}
 		return schemas;
+	}
+
+	private String writeValueAsString(Object object) {
+		try {
+			return object == null ? null : this.om.writeValueAsString(object);
+		} catch(JsonProcessingException e) {
+			throw new MojoRuntimeException("Cannot write schema as json string", e);
+		}
 	}
 }
 

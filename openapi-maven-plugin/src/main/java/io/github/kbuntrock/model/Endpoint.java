@@ -103,7 +103,7 @@ public class Endpoint implements Comparable<Endpoint> {
 		return Comparator
 			.comparing((Endpoint endpoint) -> endpoint.path, nullsLast(String::compareTo))
 			.thenComparing(e -> e.type)
-			.thenComparing(e -> e.name)
+			.thenComparing(e -> e.name.toLowerCase())
 			.compare(this, o);
 	}
 }

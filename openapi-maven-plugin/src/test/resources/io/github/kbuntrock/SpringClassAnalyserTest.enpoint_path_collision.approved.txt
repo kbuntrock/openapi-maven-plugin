@@ -1,0 +1,28 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: MyController
+paths:
+  /api/controller-3/info:
+    get:
+      tags:
+        - MyController
+      operationId: getInfo
+      parameters:
+        - name: toto
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string

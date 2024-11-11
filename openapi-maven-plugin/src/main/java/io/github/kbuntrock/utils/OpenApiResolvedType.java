@@ -77,9 +77,14 @@ public class OpenApiResolvedType {
 		return defaultEncoding;
 	}
 
+	public JsonNode getNode() {
+		return node;
+	}
+
 	public OpenApiResolvedType copy() {
 		final OpenApiResolvedType copy = new OpenApiResolvedType(type, node, modelName, defaultEncoding);
 		copy.completeNode = this.completeNode;
 		return copy;
 	}
+
 }

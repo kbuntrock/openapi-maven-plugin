@@ -1,0 +1,39 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: EmptyValueParameterController
+paths:
+  /api/get-info:
+    get:
+      tags:
+        - EmptyValueParameterController
+      operationId: getInfoAboutContact
+      parameters:
+        - name: contact
+          in: query
+          required: false
+          allowEmptyValue: true
+        - name: auto
+          in: query
+          required: false
+          allowEmptyValue: true
+        - name: moto
+          in: query
+          required: false
+          allowEmptyValue: true
+        - name: plane
+          in: query
+          required: false
+          allowEmptyValue: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string

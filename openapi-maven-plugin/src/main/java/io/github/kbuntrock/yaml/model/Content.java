@@ -3,9 +3,13 @@ package io.github.kbuntrock.yaml.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.github.javaparser.javadoc.JavadocBlockTag;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,26 +19,31 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Content {
-	private Schema schema;
 
-	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	@JsonIgnore
+	private List<Schema> schemas;
+
+	@JsonIgnore
 	private Map<String, ContentType> encoding;
 
 	public static Content fromMultipartBodies(final List<ParameterObject> parameterObjects){
 		final Content content = new Content();
 
-		content.schema = new Schema();
-		content.schema.setType(OpenApiTypeResolver.OBJECT_TYPE);
-		content.schema.setRequired(
+		final Schema schema = new Schema();
+		content.schemas = new ArrayList<>();
+		content.schemas.add(schema);
+
+		schema.setType(OpenApiTypeResolver.OBJECT_TYPE);
+		schema.setRequired(
 			parameterObjects.stream()
 				.filter(ParameterObject::isRequired)
 				.map(ParameterObject::getName)
 				.collect(Collectors.toList()));
 
-		content.schema.properties = parameterObjects.stream()
+		schema.properties = parameterObjects.stream()
 			.collect(Collectors.toMap(
 				ParameterObject::getName,
-				po-> new Property(fromDataObject(po).schema)));
+				po-> new Property(fromDataObject(po).getSingleSchema())));
 
 		return content;
 	}
@@ -42,19 +51,22 @@ public class Content {
 	public static Content fromMultipartFormData(final List<ParameterObject> bodyParts, final JavadocWrapper methodJavadoc){
 		final Content content = new Content();
 
-		content.schema = new Schema();
-		content.schema.setType(OpenApiTypeResolver.OBJECT_TYPE);
-		content.schema.setRequired(
+		final Schema schema = new Schema();
+		content.schemas = new ArrayList<>();
+		content.schemas.add(schema);
+
+		schema.setType(OpenApiTypeResolver.OBJECT_TYPE);
+		schema.setRequired(
 			bodyParts.stream()
 				.filter(ParameterObject::isRequired)
 				.map(ParameterObject::getName)
 				.collect(Collectors.toList()));
 
 		content.encoding = new LinkedHashMap<>();
-		content.schema.properties = new LinkedHashMap<>();
+		schema.properties = new LinkedHashMap<>();
 		for(ParameterObject bodyPart : bodyParts) {
-			Property property = new Property(fromDataObject(bodyPart).schema);
-			content.schema.properties.put(bodyPart.getName(), property);
+			Property property = new Property(fromDataObject(bodyPart).getSingleSchema());
+			schema.properties.put(bodyPart.getName(), property);
 
 			if(bodyPart.getOpenApiResolvedType().getDefaultEncoding() != null) {
 				content.encoding.put(bodyPart.getName(), new ContentType(bodyPart.getOpenApiResolvedType().getDefaultEncoding()));
@@ -81,15 +93,42 @@ public class Content {
 		}
 		final Set<String> exploredSignatures = new HashSet<>();
 		final Content content = new Content();
-		content.schema = new Schema(dataObject, exploredSignatures);
+		content.schemas = new ArrayList<>();
+		content.schemas.add(new Schema(dataObject, exploredSignatures));
 		return content;
 	}
 
-	public Schema getSchema() {
-		return schema;
+	@JsonIgnore
+	public Schema getSingleSchema() {
+		return schemas == null ? null : schemas.get(0);
 	}
 
+	@JsonIgnore
+	public List<Schema> getSchemaList() {
+		return schemas;
+	}
+
+	@JsonIgnore
 	public Map<String, ContentType> getEncoding() {
 		return encoding;
 	}
+
+	@JsonAnyGetter
+	public Map<String, Object> getJsonObject() {
+		final Map<String, Object> contentMap = new LinkedHashMap<>();
+		if(schemas != null) {
+			if(schemas.size() == 1) {
+				contentMap.put("schema", schemas.get(0));
+			} else {
+				final Map<String, Object> schemaMap = new LinkedHashMap<>();
+				schemaMap.put("anyOf", schemas);
+				contentMap.put("schema",schemaMap);
+			}
+		}
+		if(encoding != null && !encoding.isEmpty()) {
+			contentMap.put("encoding", encoding);
+		}
+		return contentMap;
+	}
+
 }

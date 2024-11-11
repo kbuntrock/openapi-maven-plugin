@@ -1,0 +1,65 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: SameOperationController
+paths:
+  /api/same-operation:
+    get:
+      tags:
+        - SameOperationController
+      operationId: getAuthorities
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                anyOf:
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/Authority'
+                  - $ref: '#/components/schemas/TimeDto'
+  /api/same-operation/v2:
+    get:
+      tags:
+        - SameOperationController
+      operationId: getAuthorityList
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                anyOf:
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/Authority'
+                  - type: string
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/TimeDto'
+components:
+  schemas:
+    Authority:
+      type: string
+      enum:
+        - READ_USER
+        - WRITE_USER
+        - ACCES_APP
+    TimeDto:
+      type: object
+      properties:
+        instant:
+          type: string
+          format: date-time
+        date:
+          type: string
+          format: date
+        dateTime:
+          type: string
+          format: date-time

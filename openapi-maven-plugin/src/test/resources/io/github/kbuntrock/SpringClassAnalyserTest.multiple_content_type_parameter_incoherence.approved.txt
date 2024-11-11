@@ -1,0 +1,105 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: MultipleProducedContentTypesParameterIncoherence
+    description: "A controller producing multiple content types, with an error in\
+      \ the parameters"
+paths:
+  /multiple-produced-content-types/:
+    get:
+      tags:
+        - MultipleProducedContentTypesParameterIncoherence
+      operationId: get
+      description: Get some value
+      parameters:
+        - name: firstname
+          description: a given firstname
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: surname
+          description: a mistake in a parameter
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: gender
+          description: the gender
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: age
+          description: current age
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDto'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/AccountDto'
+components:
+  schemas:
+    AccountDto:
+      required:
+        - login
+        - firstName
+        - lastName
+        - email
+        - activated
+        - langKey
+        - authorities
+      type: object
+      properties:
+        login:
+          type: string
+          minLength: 1
+          maxLength: 50
+        firstName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        lastName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        email:
+          type: string
+          minLength: 5
+          maxLength: 254
+        imageUrl:
+          type: string
+          minLength: 0
+          maxLength: 256
+        activated:
+          type: boolean
+        langKey:
+          type: string
+          minLength: 2
+          maxLength: 10
+        authorities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Authority'
+          uniqueItems: true
+    Authority:
+      type: string
+      enum:
+        - READ_USER
+        - WRITE_USER
+        - ACCES_APP

@@ -90,7 +90,7 @@ public abstract class AstractLibraryReader {
 	public abstract void computeAnnotations(final Class clazz, final String basePath, final Method method, final MergedAnnotations mergedAnnotations,
 		final Tag tagr) throws MojoFailureException;
 
-	protected abstract List<ParameterObject> readParameters(final Class clazz, Method originalMethod);
+	protected abstract List<ParameterObject> readParameters(final Class clazz, final Method originalMethod, final MergedAnnotations endpointAnnotations);
 
 	protected abstract List<String> readEndpointPaths(String basePath,
 		MergedAnnotation<? extends Annotation> requestMappingMergedAnnotation);
