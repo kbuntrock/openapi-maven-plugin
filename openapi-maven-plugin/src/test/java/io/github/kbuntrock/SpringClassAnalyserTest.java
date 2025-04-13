@@ -58,6 +58,7 @@ import io.github.kbuntrock.resources.endpoint.ignore.JsonIgnoreController;
 import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
 import io.github.kbuntrock.resources.endpoint.jackson.JacksonJsonPropertyController;
 import io.github.kbuntrock.resources.endpoint.map.MapController;
+import io.github.kbuntrock.resources.endpoint.multipartformdata.MultipartFormDataController;
 import io.github.kbuntrock.resources.endpoint.nesting.NestedDtosController;
 import io.github.kbuntrock.resources.endpoint.nullable.NullableController;
 import io.github.kbuntrock.resources.endpoint.nullable.NullableGettersSettersController;
@@ -432,7 +433,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
 		final File generatedFile = createTestFile();
 
-		new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
+		new YamlWriter(createBasicMavenProject(), apiConfiguration, null).write(generatedFile, library);
 
 		try(final InputStream generatedFileStream = new FileInputStream(generatedFile);
 			final InputStream resourceFileStream = this.getClass().getClassLoader()
@@ -941,6 +942,12 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	@Test
 	public void nested_dtos() throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(NestedDtosController.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void multipart_formdata() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(MultipartFormDataController.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 	}
 

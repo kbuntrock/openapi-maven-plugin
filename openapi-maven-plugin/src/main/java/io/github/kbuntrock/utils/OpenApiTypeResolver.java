@@ -22,11 +22,11 @@ public enum OpenApiTypeResolver {
 	/**
 	 * Special "any" type, to represent anything. Object.class is for example mapped to the any type
 	 */
-	public static final OpenApiResolvedType ANY_TYPE = new OpenApiResolvedType(OpenApiDataType.ANY, null, "{}");
+	public static final OpenApiResolvedType ANY_TYPE = new OpenApiResolvedType(OpenApiDataType.ANY, null, "{}", null);
 	/**
 	 * OpenApi Object type for specific use cases (ex : files). Please note that java Object.class IS NOT mapped to this type.
 	 */
-	public static final OpenApiResolvedType OBJECT_TYPE = new OpenApiResolvedType(OpenApiDataType.OBJECT, JsonParserUtils.parse("{\"type\":\"object\"}").get(), null);
+	public static final OpenApiResolvedType OBJECT_TYPE = new OpenApiResolvedType(OpenApiDataType.OBJECT, JsonParserUtils.parse("{\"type\":\"object\"}").get(), null, null);
 
 	private static final String EQUALITY = "equality";
 	private static final String ASSIGNABILITY = "assignability";
@@ -43,6 +43,7 @@ public enum OpenApiTypeResolver {
 	private final Map<String, OpenApiResolvedType> nonCompleteModelMap = new HashMap<>();
 	private final Map<String, OpenApiResolvedType> equalityMap = new HashMap<>();
 	private final Map<Class<?>, OpenApiResolvedType> assignabilityMap = new HashMap<>();
+	private final Map<String, String> defaultEncodingMap = new HashMap<>();
 
 	/**
 	 * Unwrapping section
@@ -57,10 +58,12 @@ public enum OpenApiTypeResolver {
 	private final Set<Class<?>> nonDocumentableParameters = new HashSet<>();
 
 	public void init(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
+		// Loading default encoding associations
+		initDefaultEncodingAssociations();
 		// Loading model definition
 		initModel(mavenProject, apiConfig);
 		// Loading associations
-		initModelAssociation(mavenProject, apiConfig);
+		initJavaClassAssociations(mavenProject, apiConfig);
 		// Loading unwrapping definitions
 		initUnwrappingDefinitions(mavenProject, apiConfig);
 		// Loading "non documentable" parameters classes
@@ -83,30 +86,43 @@ public enum OpenApiTypeResolver {
 	private void initModelFromNode(final JsonNode root) {
 		root.fields().forEachRemaining(entry -> {
 			final JsonNode modelNode = entry.getValue();
-			final OpenApiResolvedType type = new OpenApiResolvedType(OpenApiDataType.fromJsonNode(modelNode), modelNode, entry.getKey());
+			String defaultEncoding = defaultEncodingMap.get(entry.getKey());
+			final OpenApiResolvedType type = new OpenApiResolvedType(OpenApiDataType.fromJsonNode(modelNode), modelNode, entry.getKey(), defaultEncoding);
 			modelMap.put(entry.getKey(), type);
 		});
 		// Special "any" Openapi type
 		modelMap.put("any", ANY_TYPE);
 	}
 
-	private void initModelAssociation(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
+	private void initJavaClassAssociations(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
 		equalityMap.clear();
 		assignabilityMap.clear();
-		final JsonNode root = YamlParserUtils.readResourceFile("/model-association.yml");
-		initModelAssociationForEquality(root);
-		initModelAssociationForAssignability(root);
+		final JsonNode root = YamlParserUtils.readResourceFile("/java-class-assignability.yml");
+		initJavaClassAssociationsByEquality(root);
+		initJavaClassAssociationsByAssignability(root);
 
 		// Init now the possible overriding / additions by api
 		if(apiConfig.getModelsAssociations() != null) {
 			final JsonNode customRoot = CommonParserUtils.parse(mavenProject, apiConfig.getModelsAssociations()).get();
-			initModelAssociationForEquality(customRoot);
-			initModelAssociationForAssignability(customRoot);
+			initJavaClassAssociationsByEquality(customRoot);
+			initJavaClassAssociationsByAssignability(customRoot);
 		}
 	}
 
+	private void initDefaultEncodingAssociations() {
+		defaultEncodingMap.clear();
+		final JsonNode root = YamlParserUtils.readResourceFile("/openapi-model-associations.yml");
+		root.fields().forEachRemaining(entry -> {
+			JsonNode defaultEncoding = entry.getValue().get("default-encoding");
+			if(defaultEncoding != null) {
+				defaultEncodingMap.put(entry.getKey(), defaultEncoding.asText());
+			}
 
-	private void initModelAssociationForEquality(final JsonNode root) {
+		});
+	}
+
+
+	private void initJavaClassAssociationsByEquality(final JsonNode root) {
 		final JsonNode equalityNode = root.get(EQUALITY);
 		if(equalityNode == null) {
 			// A model association file does not require to define an equality section
@@ -128,7 +144,7 @@ public enum OpenApiTypeResolver {
 		});
 	}
 
-	private void initModelAssociationForAssignability(final JsonNode root) {
+	private void initJavaClassAssociationsByAssignability(final JsonNode root) {
 		final JsonNode rootNode = root.get(ASSIGNABILITY);
 		if(rootNode == null) {
 			// A model association file does not require to define an assignability section

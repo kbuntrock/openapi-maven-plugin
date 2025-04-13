@@ -4,5 +4,6 @@ public enum ParameterLocation {
 	PATH,
 	QUERY,
 	BODY,
-	HEADER
+	HEADER,
+	BODY_PART
 }

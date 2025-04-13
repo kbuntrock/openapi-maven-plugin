@@ -56,6 +56,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.ValueConstants;
 import org.springframework.web.multipart.MultipartFile;
@@ -221,6 +222,19 @@ public class SpringMvcReader extends AstractLibraryReader {
 					paramObj.setLocation(ParameterLocation.BODY);
 					paramObj.setRequired(requestBodyMA.getBoolean("required"));
 					logger.debug("RequestBody annotation detected, location is " + paramObj.getLocation().toString());
+				}
+
+				// Detect if is a request part parameter
+				final MergedAnnotation<RequestPart> requestPartMA = mergedAnnotations.get(RequestPart.class);
+				if(requestPartMA.isPresent()) {
+					annotationFound = true;
+					paramObj.setLocation(ParameterLocation.BODY_PART);
+					paramObj.setRequired(requestPartMA.getBoolean("required"));
+					final String value = requestPartMA.getString("value");
+					if(!StringUtils.isEmpty(value)) {
+						paramObj.setName(value);
+					}
+					logger.debug("RequestPart annotation detected, location is " + paramObj.getLocation().toString());
 				}
 
 				if(!annotationFound) {

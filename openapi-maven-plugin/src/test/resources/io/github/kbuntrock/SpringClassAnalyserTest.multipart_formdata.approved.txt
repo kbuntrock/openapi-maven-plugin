@@ -1,0 +1,51 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: MultipartFormDataController
+paths:
+  /api/file-controller:
+    post:
+      tags:
+        - MultipartFormDataController
+      operationId: uploadDocument
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - metadata
+                - goal
+                - file
+              type: object
+              properties:
+                metadata:
+                  $ref: '#/components/schemas/MetadataDto'
+                goal:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+            encoding:
+              metadata:
+                contentType: application/json
+              goal:
+                contentType: text/plain
+              file:
+                contentType: application/octet-stream
+      responses:
+        200:
+          description: successful operation
+components:
+  schemas:
+    MetadataDto:
+      type: object
+      properties:
+        owner:
+          type: string
+        description:
+          type: string

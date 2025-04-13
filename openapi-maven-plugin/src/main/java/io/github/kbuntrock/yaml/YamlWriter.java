@@ -23,6 +23,7 @@ import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
 import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiConstants;
 import io.github.kbuntrock.utils.OpenApiDataType;
+import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.ParameterLocation;
 import io.github.kbuntrock.utils.ProduceConsumeUtils;
 import io.github.kbuntrock.yaml.model.Content;
@@ -63,15 +64,18 @@ public class YamlWriter {
 
 	private final ObjectMapper om;
 	private final ApiConfiguration apiConfiguration;
+	private final OpenApiTypeResolver openApiTypeResolver;
 
 	private final MavenProject mavenProject;
 
 	private Optional<JsonNode> freefields = Optional.empty();
 	private Map<String, JsonNode> defaultErrors;
 
-	public YamlWriter(final MavenProject mavenProject, final ApiConfiguration apiConfiguration) {
+	public YamlWriter(final MavenProject mavenProject, final ApiConfiguration apiConfiguration,
+		final OpenApiTypeResolver openApiTypeResolver) {
 		this.apiConfiguration = apiConfiguration;
 		this.mavenProject = mavenProject;
+		this.openApiTypeResolver = openApiTypeResolver;
 		this.om = FILEFORMAT_JSON.equals(apiConfiguration.getFileFormat()) ?
 				new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT) :
 				new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
@@ -253,7 +257,7 @@ public class YamlWriter {
 
 				// All parameters which are not in the body
 				for(final ParameterObject parameter : endpoint.getParameters().stream()
-					.filter(x -> ParameterLocation.BODY != x.getLocation()).collect(Collectors.toList())) {
+					.filter(x -> ParameterLocation.BODY != x.getLocation() && ParameterLocation.BODY_PART != x.getLocation()).collect(Collectors.toList())) {
 					final ParameterElement parameterElement = new ParameterElement();
 					parameterElement.setName(parameter.getName());
 					parameterElement.setIn(parameter.getLocation().toString().toLowerCase(Locale.ENGLISH));
@@ -340,6 +344,21 @@ public class YamlWriter {
 						logger.debug(
 							"Parameter documentation found for endpoint body " + body.getName() + " ? "
 								+ parameterDoc.isPresent());
+					}
+
+				}
+
+				List<ParameterObject> bodyParts = endpoint.getParameters().stream()
+					.filter(p -> ParameterLocation.BODY_PART == p.getLocation()).collect(Collectors.toList());
+				if(!bodyParts.isEmpty()) {
+					if(operation.getRequestBody() != null) {
+						logger.warn("Cannot handle \"body\" + \"body parts\" : "
+							+ endpoint.getPath() + " - " + endpoint.getType());
+					} else {
+						final RequestBody requestBody = new RequestBody();
+						operation.setRequestBody(requestBody);
+						final Content requestBodyContent = Content.fromMultipartFormData(bodyParts, openApiTypeResolver);
+						requestBody.getContent().put("multipart/form-data", requestBodyContent);
 					}
 
 				}

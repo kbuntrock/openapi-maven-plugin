@@ -142,7 +142,7 @@ public class DocumentationMojo extends AbstractMojo {
 		for(final ApiConfiguration initialApiConfiguration : apis) {
 			AdditionnalSchemaLibrary.reset();
 			final ApiConfiguration apiConfig = initialApiConfiguration.mergeWithCommonApiConfiguration(this.apiConfiguration);
-			initObjectMapperFactory(apiConfig);
+			OpenApiTypeResolver openApiTypeResolver = initObjectMapperFactory(apiConfig);
 			NullableConfigurationHolder.storeConfig(apiConfig);
 
 			final ApiResourceScanner apiResourceScanner = new ApiResourceScanner(apiConfig);
@@ -160,7 +160,7 @@ public class DocumentationMojo extends AbstractMojo {
 				}
 				getLog().debug("Prepared to write : " + generatedFile.getAbsolutePath());
 
-				new YamlWriter(project, apiConfig).write(generatedFile, tagLibrary);
+				new YamlWriter(project, apiConfig, openApiTypeResolver).write(generatedFile, tagLibrary);
 
 				if(apiConfig.isAttachArtifact()) {
 					final String fileExtension = com.google.common.io.Files.getFileExtension(apiConfig.getFilename());
@@ -191,8 +191,10 @@ public class DocumentationMojo extends AbstractMojo {
 		return generatedFiles;
 	}
 
-	private void initObjectMapperFactory(final ApiConfiguration apiConfig) {
+	private OpenApiTypeResolver initObjectMapperFactory(final ApiConfiguration apiConfig) {
+		// Todo : for multithreading purpose, this singleton should be removed and instanciated once per module
 		OpenApiTypeResolver.INSTANCE.init(project, apiConfig);
+		return OpenApiTypeResolver.INSTANCE;
 	}
 
 	/**
