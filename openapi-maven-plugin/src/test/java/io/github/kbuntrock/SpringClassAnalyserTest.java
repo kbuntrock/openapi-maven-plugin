@@ -948,6 +948,10 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	@Test
 	public void multipart_formdata() throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(MultipartFormDataController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/multipartformdata",
+			"src/test/java/io/github/kbuntrock/resources/dto/multipartformdata"));
+		mojo.setJavadocConfiguration(javadocConfig);
 		checkGenerationResult(mojo.documentProject());
 	}
 

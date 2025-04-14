@@ -334,7 +334,7 @@ public class YamlWriter {
 
 					// Javadoc handling
 					if(methodJavadoc != null) {
-						final Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(body.getName());
+						final Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(body.getJavadocFieldName());
 						if(parameterDoc.isPresent()) {
 							final String description = parameterDoc.get().getContent().toText();
 							if(!description.isEmpty()) {
@@ -357,7 +357,7 @@ public class YamlWriter {
 					} else {
 						final RequestBody requestBody = new RequestBody();
 						operation.setRequestBody(requestBody);
-						final Content requestBodyContent = Content.fromMultipartFormData(bodyParts, openApiTypeResolver);
+						final Content requestBodyContent = Content.fromMultipartFormData(bodyParts, methodJavadoc);
 						requestBody.getContent().put("multipart/form-data", requestBodyContent);
 					}
 

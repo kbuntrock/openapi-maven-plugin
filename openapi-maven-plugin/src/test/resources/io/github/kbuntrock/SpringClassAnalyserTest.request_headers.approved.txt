@@ -39,6 +39,7 @@ paths:
                 incomingFile:
                   type: string
                   format: binary
+        description: the provided file
       responses:
         200:
           description: "OK if upload in success, KO otherwise"
