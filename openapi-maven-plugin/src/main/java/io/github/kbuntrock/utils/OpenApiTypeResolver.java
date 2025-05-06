@@ -8,6 +8,7 @@ import io.github.kbuntrock.configuration.parser.JsonParserUtils;
 import io.github.kbuntrock.configuration.parser.YamlParserUtils;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +16,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.maven.project.MavenProject;
+import org.springframework.core.annotation.MergedAnnotation;
+import org.springframework.core.annotation.MergedAnnotations;
 
 public enum OpenApiTypeResolver {
 	INSTANCE;
@@ -56,6 +59,7 @@ public enum OpenApiTypeResolver {
 	 * Non documentable parameters section
 	 */
 	private final Set<Class<?>> nonDocumentableParameters = new HashSet<>();
+	private final Set<String> nonDocumentableParameterAnnotations = new HashSet<>();
 
 	public void init(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
 		// Loading default encoding associations
@@ -341,6 +345,9 @@ public enum OpenApiTypeResolver {
 			root.get("spring").elements().forEachRemaining(entry -> {
 				registerNonDocumentableParameters(classLoader, entry.asText(), true);
 			});
+			root.get("spring-annotations").elements().forEachRemaining(entry -> {
+				registerNonDocumentableParameterAnnotation(entry.asText());
+			});
 		}
 
 		for(final String nonDocumentableParameterClass : apiConfig.getNonDocumentableParameterClasses()) {
@@ -371,9 +378,19 @@ public enum OpenApiTypeResolver {
 		}
 	}
 
-	public boolean canBeDocumented(final Parameter parameter) {
+	private void registerNonDocumentableParameterAnnotation(final String canonicalClassName) {
+		nonDocumentableParameterAnnotations.add(canonicalClassName);
+	}
+
+	public boolean canBeDocumented(final Parameter parameter, final MergedAnnotations parametersAnnotations) {
 		for(final Class<?> clazz : nonDocumentableParameters) {
 			if(clazz.isAssignableFrom(parameter.getType())) {
+				return false;
+			}
+		}
+		for(String annotationCanonicalName : nonDocumentableParameterAnnotations) {
+			final MergedAnnotation<Annotation> annotation = parametersAnnotations.get(annotationCanonicalName);
+			if(annotation.isPresent()) {
 				return false;
 			}
 		}

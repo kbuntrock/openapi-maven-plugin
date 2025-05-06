@@ -63,6 +63,7 @@ import io.github.kbuntrock.resources.endpoint.nesting.NestedDtosController;
 import io.github.kbuntrock.resources.endpoint.nullable.NullableController;
 import io.github.kbuntrock.resources.endpoint.nullable.NullableGettersSettersController;
 import io.github.kbuntrock.resources.endpoint.number.NumberController;
+import io.github.kbuntrock.resources.endpoint.operation.MultipleHeadersOnSameOperation;
 import io.github.kbuntrock.resources.endpoint.operation.MultipleProducedContentTypes;
 import io.github.kbuntrock.resources.endpoint.operation.MultipleProducedContentTypesParameterIncoherence;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementOneController;
@@ -977,6 +978,16 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		checkGenerationResult(mojo.documentProject());
 
 		Mockito.verify(Logger.INSTANCE.getLogger()).warn("Parameters incoherences detected in path /multiple-produced-content-types/");
+	}
+
+	@Test
+	public void multiple_headers_on_same_operation() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(MultipleHeadersOnSameOperation.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/operation"));
+		mojo.setJavadocConfiguration(javadocConfig);
+		checkGenerationResult(mojo.documentProject());
+
 	}
 
 	@Test

@@ -147,7 +147,11 @@ public class JakartaRsReader extends AstractLibraryReader {
 			boolean bodyParameterDetected = false;
 
 			for(final Parameter parameter : method.getParameters()) {
-				if(!OpenApiTypeResolver.INSTANCE.canBeDocumented(parameter)) {
+
+				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
+					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+
+				if(!OpenApiTypeResolver.INSTANCE.canBeDocumented(parameter, mergedAnnotations)) {
 					continue;
 				}
 				logger.debug("Parameter : " + parameter.getName());
@@ -155,9 +159,6 @@ public class JakartaRsReader extends AstractLibraryReader {
 				ParameterObject paramObj = new ParameterObject(parameter.getName(),
 					genericityResolver.resolve(clazz, parameter.getParameterizedType()));
 				paramObj = unwrapParameterObject(paramObj);
-
-				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
-					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
 
 				if(mergedAnnotations.get(jakartaBeanParam).isPresent()) {
 					continue;

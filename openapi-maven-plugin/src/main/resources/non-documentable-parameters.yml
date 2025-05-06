@@ -20,3 +20,7 @@ spring:
   - org.springframework.validation.BindingResult
   - org.springframework.web.bind.support.SessionStatus
   - org.springframework.web.util.UriComponentsBuilder
+spring-annotations:
+  - org.springframework.web.bind.annotation.RequestAttribute
+  - org.springframework.web.bind.annotation.SessionAttribute
+  - org.springframework.web.bind.annotation.ModelAttribute
