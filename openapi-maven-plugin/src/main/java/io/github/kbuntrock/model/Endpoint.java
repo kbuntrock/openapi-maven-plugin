@@ -2,6 +2,7 @@ package io.github.kbuntrock.model;
 
 import static java.util.Comparator.nullsLast;
 
+import io.github.kbuntrock.model.annotation.OperationAnnotationInfo;
 import java.util.Comparator;
 import java.util.List;
 
@@ -25,6 +26,8 @@ public class Endpoint implements Comparable<Endpoint> {
 	 * Used to identify uniquely a endpoint. Aggregation of the returned type, the name and the parameters types.
 	 */
 	private String identifier;
+
+	private OperationAnnotationInfo operationAnnotationInfo = new OperationAnnotationInfo();
 
 	public String getPath() {
 		return path;
@@ -96,6 +99,14 @@ public class Endpoint implements Comparable<Endpoint> {
 
 	public void setDeprecated(final boolean deprecated) {
 		this.deprecated = deprecated;
+	}
+
+	public OperationAnnotationInfo getOperationAnnotationInfo() {
+		return operationAnnotationInfo;
+	}
+
+	public void setOperationAnnotationInfo(OperationAnnotationInfo operationAnnotationInfo) {
+		this.operationAnnotationInfo = operationAnnotationInfo;
 	}
 
 	@Override

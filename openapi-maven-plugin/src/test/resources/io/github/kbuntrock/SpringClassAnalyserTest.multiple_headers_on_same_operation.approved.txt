@@ -12,7 +12,9 @@ paths:
     get:
       tags:
         - MultipleHeadersOnSameOperation
-      operationId: getPaginatedRoles
+      operationId: roles-operation-id
+      description: This is the description.
+      summary: This is the summary.
       parameters:
         - name: pageable
           in: query
@@ -22,8 +24,7 @@ paths:
         - name: full
           in: header
           required: false
-          schema:
-            type: string
+          schema: {}
       responses:
         200:
           description: successful operation

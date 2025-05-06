@@ -22,6 +22,7 @@ import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
 import io.github.kbuntrock.utils.Logger;
+import io.github.kbuntrock.utils.ObjectsUtils;
 import io.github.kbuntrock.utils.OpenApiConstants;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
@@ -50,6 +51,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -226,8 +228,9 @@ public class YamlWriter {
 				operation.setPath(enhancedPath);
 				final String computedTagName = tag.computeConfiguredName(apiConfiguration);
 				operation.getTags().add(computedTagName);
-				operation.setOperationId(
-					apiConfiguration.getOperationIdHelper().toOperationId(tag.getName(), computedTagName, endpoint.getName()));
+				operation.setOperationId(ObjectsUtils.nonNullElse(endpoint.getOperationAnnotationInfo().getOperationId(),
+						apiConfiguration.getOperationIdHelper().toOperationId(tag.getName(), computedTagName, endpoint.getName()))
+					);
 				if(apiConfiguration.isLoopbackOperationName()) {
 					operation.setLoopbackOperationName(endpoint.getName());
 				}
@@ -239,10 +242,21 @@ public class YamlWriter {
 					methodJavadoc = classDocumentation.getMethodsJavadoc().get(endpoint.getIdentifier());
 					if(methodJavadoc != null) {
 						methodJavadoc.sortTags();
-						operation.setDescription(methodJavadoc.getJavadoc().getDescription().toText());
 					}
 					logger.debug(
 						"Method documentation found for endpoint method " + endpoint.getIdentifier() + " ? " + (methodJavadoc != null));
+				}
+
+				if(endpoint.getOperationAnnotationInfo().getDescription() != null) {
+					operation.setDescription(endpoint.getOperationAnnotationInfo().getDescription());
+				} else {
+					if(methodJavadoc != null) {
+						operation.setDescription(methodJavadoc.getJavadoc().getDescription().toText());
+					}
+				}
+
+				if(endpoint.getOperationAnnotationInfo().getDescription() != null) {
+					operation.setSummary(endpoint.getOperationAnnotationInfo().getSummary());
 				}
 
 				// Warning on paths

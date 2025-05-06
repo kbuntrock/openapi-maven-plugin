@@ -111,6 +111,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 					setConsumeProduceProperties(endpoint, mergedAnnotations);
 					endpoint.setIdentifier(methodIdentifier);
 					endpoint.setDeprecated(isDeprecated(method));
+					setSwaggerAnnotatedEndpointProperties(endpoint, mergedAnnotations);
 					tag.addEndpoint(endpoint);
 					logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
 				}

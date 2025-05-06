@@ -119,6 +119,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 						setConsumeProduceProperties(endpoint, mergedAnnotations);
 						endpoint.setIdentifier(methodIdentifier);
 						endpoint.setDeprecated(isDeprecated(method));
+						setSwaggerAnnotatedEndpointProperties(endpoint, mergedAnnotations);
 						tag.addEndpoint(endpoint);
 						logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
 					}
@@ -329,7 +330,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 						// myHeader=myValue
 						String[] array = param.split("=");
 						if(array.length == 2) {
-							ParameterObject po = new ParameterObject(array[0], String.class);
+							ParameterObject po = new ParameterObject(array[0], Object.class);
 							po.setLocation(ParameterLocation.HEADER);
 							po.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
 							parameters.put(array[0], po);
@@ -337,7 +338,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 					}
 				} else {
 					// Handles empty value headers
-					ParameterObject po = new ParameterObject(param, String.class);
+					ParameterObject po = new ParameterObject(param, Object.class);
 					po.setAllowEmptyValue(true);
 					po.setLocation(ParameterLocation.HEADER);
 					po.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
