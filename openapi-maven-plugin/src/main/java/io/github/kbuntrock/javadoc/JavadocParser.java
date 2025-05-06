@@ -63,36 +63,6 @@ public class JavadocParser {
 		javaParser = new JavaParser(parserConfiguration);
 	}
 
-	private static String describe(final Node node) {
-		if(node instanceof MethodDeclaration) {
-			final MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-			return "Method " + methodDeclaration.getDeclarationAsString();
-		}
-		if(node instanceof ConstructorDeclaration) {
-			final ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) node;
-			return "Constructor " + constructorDeclaration.getDeclarationAsString();
-		}
-		if(node instanceof ClassOrInterfaceDeclaration) {
-			final ClassOrInterfaceDeclaration classOrInterfaceDeclaration = (ClassOrInterfaceDeclaration) node;
-			if(classOrInterfaceDeclaration.isInterface()) {
-				return "Interface " + classOrInterfaceDeclaration.getName();
-			} else {
-				return "Class " + classOrInterfaceDeclaration.getName();
-			}
-		}
-		if(node instanceof EnumDeclaration) {
-			final EnumDeclaration enumDeclaration = (EnumDeclaration) node;
-			return "Enum " + enumDeclaration.getName();
-		}
-		if(node instanceof FieldDeclaration) {
-			final FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-			final List<String> varNames = fieldDeclaration.getVariables().stream().map(v -> v.getName().getId())
-				.collect(Collectors.toList());
-			return "Field " + String.join(", ", varNames);
-		}
-		return node.toString();
-	}
-
 	public void scan() {
 		for(final File file : filesToScan) {
 			if(!file.exists()) {
