@@ -42,6 +42,40 @@ paths:
                 type: array
                 items:
                   type: string
+  /api/file-upload/named-files:
+    post:
+      tags:
+        - FileUploadController
+      operationId: uploadNamedFiles
+      parameters:
+        - name: myId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - file
+                - checksumFile
+              type: object
+              properties:
+                checksumFile:
+                  type: string
+                  format: binary
+                file:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
   /api/file-upload/non-required-files:
     post:
       tags:

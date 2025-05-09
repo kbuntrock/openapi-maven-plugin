@@ -1,0 +1,136 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: MultipartFormDataController
+    description: Tests on multipart/form-data parameters
+paths:
+  /api/file-controller:
+    post:
+      tags:
+        - MultipartFormDataController
+      operationId: uploadDocument
+      description: Upload a file into the cloud
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - metadata
+                - goal
+                - file
+              type: object
+              properties:
+                metadata:
+                  description: Some metadata about this file
+                  $ref: '#/components/schemas/MetadataDto'
+                goal:
+                  description: The upload goal
+                  type: string
+                file:
+                  description: The file being uploaded
+                  type: string
+                  format: binary
+            encoding:
+              metadata:
+                contentType: application/json
+              goal:
+                contentType: text/plain
+              file:
+                contentType: application/octet-stream
+      responses:
+        200:
+          description: successful operation
+  /api/file-controller/multiple:
+    post:
+      tags:
+        - MultipartFormDataController
+      operationId: uploadMultipleDocuments
+      description: Upload multiple files into the cloud
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - metadata
+                - files
+              type: object
+              properties:
+                metadata:
+                  description: Some metadata about this file
+                  $ref: '#/components/schemas/MetadataDto'
+                goal:
+                  description: The upload goal
+                  type: string
+                files:
+                  description: The files being uploaded
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+            encoding:
+              metadata:
+                contentType: application/json
+              goal:
+                contentType: text/plain
+              files:
+                contentType: application/json
+      responses:
+        200:
+          description: successful operation
+  /api/file-controller/two:
+    post:
+      tags:
+        - MultipartFormDataController
+      operationId: uploadTwoDocuments
+      description: Upload two files into the cloud
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - metadata
+                - goal
+                - file1
+                - file2
+              type: object
+              properties:
+                metadata:
+                  description: Some metadata about this file
+                  $ref: '#/components/schemas/MetadataDto'
+                goal:
+                  description: The upload goal
+                  type: string
+                file1:
+                  description: The file 1 being uploaded
+                  type: string
+                  format: binary
+                file2:
+                  description: The file 2 being uploaded
+                  type: string
+                  format: binary
+            encoding:
+              metadata:
+                contentType: application/json
+              goal:
+                contentType: text/plain
+              file1:
+                contentType: application/octet-stream
+              file2:
+                contentType: application/octet-stream
+      responses:
+        200:
+          description: successful operation
+components:
+  schemas:
+    MetadataDto:
+      type: object
+      properties:
+        owner:
+          type: string
+        description:
+          type: string

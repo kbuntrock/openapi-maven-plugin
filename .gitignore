@@ -1,4 +1,5 @@
 target/
+release/
 openapi-maven-plugin/target/
 pom.xml.tag
 pom.xml.releaseBackup

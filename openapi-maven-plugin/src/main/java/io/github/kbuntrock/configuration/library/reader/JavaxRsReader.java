@@ -97,7 +97,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 				final MergedAnnotation<Annotation> m = mergedAnnotations.get(verb.getAnnotationClass());
 				if(m.isPresent()) {
 					final String methodIdentifier = JavaClassAnalyser.createIdentifier(method);
-					final List<ParameterObject> parameterObjects = readParameters(clazz, method);
+					final List<ParameterObject> parameterObjects = readParameters(clazz, method, mergedAnnotations);
 					final DataObject responseObject = readResponseObject(clazz, method, mergedAnnotations);
 					final int responseCode = readResponseCode(null);
 					final String path = readEndpointPaths(basePath, requestMappingMergedAnnotation).get(0);
@@ -111,6 +111,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 					setConsumeProduceProperties(endpoint, mergedAnnotations);
 					endpoint.setIdentifier(methodIdentifier);
 					endpoint.setDeprecated(isDeprecated(method));
+					setSwaggerAnnotatedEndpointProperties(endpoint, mergedAnnotations);
 					tag.addEndpoint(endpoint);
 					logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
 				}
@@ -120,7 +121,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 	}
 
 	@Override
-	protected List<ParameterObject> readParameters(final Class clazz, final Method originalMethod) {
+	protected List<ParameterObject> readParameters(final Class clazz, final Method originalMethod, final MergedAnnotations endpointAnnotations) {
 		logger.debug("Reading parameters from " + originalMethod.getName());
 
 		// Set of the method in the original class and eventually the methods in the parent classes / interfaces
@@ -134,7 +135,10 @@ public class JavaxRsReader extends AstractLibraryReader {
 
 			for(final Parameter parameter : method.getParameters()) {
 
-				if(!OpenApiTypeResolver.INSTANCE.canBeDocumented(parameter)) {
+				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
+					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+
+				if(!OpenApiTypeResolver.INSTANCE.canBeDocumented(parameter, mergedAnnotations)) {
 					continue;
 				}
 				logger.debug("Parameter : " + parameter.getName());
@@ -142,9 +146,6 @@ public class JavaxRsReader extends AstractLibraryReader {
 				ParameterObject paramObj = new ParameterObject(parameter.getName(),
 					genericityResolver.resolve(clazz, parameter.getParameterizedType()));
 				paramObj = unwrapParameterObject(paramObj);
-
-				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
-					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
 
 				if(mergedAnnotations.get("javax.ws.rs.BeanParam").isPresent()) {
 					continue;
@@ -176,11 +177,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 				// Detect if is a query variable
 				final MergedAnnotation<Annotation> requestParamMA = mergedAnnotations.get("javax.ws.rs.QueryParam");
 				if(requestParamMA.isPresent()) {
-
-					final boolean isMultipartFile = MultipartFile.class == paramObj.getJavaClass() ||
-						(OpenApiDataType.ARRAY == paramObj.getOpenApiResolvedType().getType()
-							&& MultipartFile.class == paramObj.getArrayItemDataObject().getJavaClass());
-					if(isMultipartFile) {
+					if(paramObj.isMultipartFile()) {
 						// MultipartFile parameters are considered as a requestBody)
 						paramObj.setLocation(ParameterLocation.BODY);
 					} else {

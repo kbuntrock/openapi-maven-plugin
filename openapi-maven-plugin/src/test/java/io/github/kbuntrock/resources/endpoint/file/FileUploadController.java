@@ -38,6 +38,17 @@ public interface FileUploadController {
 	String uploadSingleFile(@RequestParam long myId, @RequestParam(name = "file") MultipartFile file);
 
 	/**
+	 * Upload plusieurs fichiers nommés
+	 *
+	 * @param myId  id sous lequel sauvegarder ces fichiers
+	 * @param file fichiers à sauvegarder
+	 * @param checksumFile le fichier contenant la somme de contrôle
+	 */
+	@PostMapping(path = "named-files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	String uploadNamedFiles(@RequestParam long myId, @RequestParam(name = "file") MultipartFile file, @RequestParam(name = "checksumFile")
+		MultipartFile checksumFile);
+
+	/**
 	 * Upload de fichier mais le fichier n'est pas requis ...
 	 *
 	 * @param myId

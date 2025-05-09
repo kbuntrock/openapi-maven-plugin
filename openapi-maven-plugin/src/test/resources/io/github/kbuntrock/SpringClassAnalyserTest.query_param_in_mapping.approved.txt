@@ -1,0 +1,48 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: QueryParamInMappingController
+paths:
+  /api/get-info-contact:
+    get:
+      tags:
+        - QueryParamInMappingController
+      operationId: getInfoAboutContact
+      parameters:
+        - name: param1
+          in: query
+          required: false
+          schema: {}
+        - name: param2
+          in: query
+          required: false
+          schema: {}
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/get-info-vehicule:
+    get:
+      tags:
+        - QueryParamInMappingController
+      operationId: getInfoAboutVehicle
+      parameters:
+        - name: param2
+          in: query
+          required: false
+          allowEmptyValue: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string

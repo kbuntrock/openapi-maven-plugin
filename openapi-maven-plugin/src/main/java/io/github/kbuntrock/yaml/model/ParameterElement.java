@@ -1,6 +1,7 @@
 package io.github.kbuntrock.yaml.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 public class ParameterElement {
 
@@ -9,6 +10,9 @@ public class ParameterElement {
 	private String description;
 	private String in;
 	private boolean required;
+	@JsonInclude(Include.NON_DEFAULT)
+	private boolean allowEmptyValue;
+	@JsonInclude(Include.NON_NULL)
 	private Property schema;
 
 	public String getName() {
@@ -33,6 +37,14 @@ public class ParameterElement {
 
 	public void setRequired(boolean required) {
 		this.required = required;
+	}
+
+	public boolean isAllowEmptyValue() {
+		return allowEmptyValue;
+	}
+
+	public void setAllowEmptyValue(boolean allowEmptyValue) {
+		this.allowEmptyValue = allowEmptyValue;
 	}
 
 	public Property getSchema() {

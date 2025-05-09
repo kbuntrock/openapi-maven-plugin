@@ -19,20 +19,21 @@ import org.apache.maven.plugin.logging.Log;
 import org.approvaltests.Approvals;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mockito;
 
 public class AbstractTest {
 
-	private static final Log testLogger = new TestLogger();
-
 	@BeforeAll
 	public static void initTestClass() {
-		Logger.INSTANCE.setLogger(testLogger);
 		ReflectionsUtils.initiateTestMode();
 	}
 
 	@BeforeEach
 	public void initTest() {
 		JavadocMap.INSTANCE.setJavadocMap(new HashMap<>());
+		// In order to see all logs during testing, uncomment this :
+		// Logger.INSTANCE.setLogger(Mockito.spy(SystemStreamLog.class));
+		Logger.INSTANCE.setLogger(Mockito.mock(Log.class));
 	}
 
 	protected void checkGenerationResult(List<File> generatedFiles) throws IOException{
@@ -53,87 +54,4 @@ public class AbstractTest {
 		assertThat(generatedFile).hasSameTextualContentAs(expectedFile);
 	}
 
-
-	public static class TestLogger implements Log {
-
-		@Override
-		public boolean isDebugEnabled() {
-			return false;
-		}
-
-		@Override
-		public void debug(final CharSequence content) {
-
-		}
-
-		@Override
-		public void debug(final CharSequence content, final Throwable error) {
-
-		}
-
-		@Override
-		public void debug(final Throwable error) {
-
-		}
-
-		@Override
-		public boolean isInfoEnabled() {
-			return false;
-		}
-
-		@Override
-		public void info(final CharSequence content) {
-
-		}
-
-		@Override
-		public void info(final CharSequence content, final Throwable error) {
-
-		}
-
-		@Override
-		public void info(final Throwable error) {
-
-		}
-
-		@Override
-		public boolean isWarnEnabled() {
-			return false;
-		}
-
-		@Override
-		public void warn(final CharSequence content) {
-
-		}
-
-		@Override
-		public void warn(final CharSequence content, final Throwable error) {
-
-		}
-
-		@Override
-		public void warn(final Throwable error) {
-
-		}
-
-		@Override
-		public boolean isErrorEnabled() {
-			return false;
-		}
-
-		@Override
-		public void error(final CharSequence content) {
-
-		}
-
-		@Override
-		public void error(final CharSequence content, final Throwable error) {
-
-		}
-
-		@Override
-		public void error(final Throwable error) {
-
-		}
-	}
 }

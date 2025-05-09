@@ -1,13 +1,16 @@
 package io.github.kbuntrock.model;
 
+import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.ParameterLocation;
 import java.lang.reflect.Type;
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 public class ParameterObject extends DataObject {
 
 	private String name;
 	private boolean required;
+	private boolean allowEmptyValue;
 	private ParameterLocation location;
 	// Set only if it is a "body" parameter : json, xml, plain text, ...
 	private List<String> formats;
@@ -52,6 +55,14 @@ public class ParameterObject extends DataObject {
 		this.required = required;
 	}
 
+	public boolean isAllowEmptyValue() {
+		return allowEmptyValue;
+	}
+
+	public void setAllowEmptyValue(boolean allowEmptyValue) {
+		this.allowEmptyValue = allowEmptyValue;
+	}
+
 	public ParameterLocation getLocation() {
 		return location;
 	}
@@ -82,5 +93,11 @@ public class ParameterObject extends DataObject {
 
 	public void setJavadocFieldName(final String javadocFieldName) {
 		this.javadocFieldName = javadocFieldName;
+	}
+
+	public boolean isMultipartFile(){
+		return MultipartFile.class == getJavaClass() ||
+			(OpenApiDataType.ARRAY == getOpenApiResolvedType().getType()
+				&& MultipartFile.class == getArrayItemDataObject().getJavaClass());
 	}
 }

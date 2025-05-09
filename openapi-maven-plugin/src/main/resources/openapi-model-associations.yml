@@ -1,0 +1,29 @@
+---
+boolean:
+  default-encoding: text/plain
+integer-32:
+  default-encoding: text/plain
+integer-64:
+  default-encoding: text/plain
+number-float:
+  default-encoding: text/plain
+number-double:
+  default-encoding: text/plain
+string:
+  default-encoding: text/plain
+string-date:
+  default-encoding: text/plain
+string-date-time:
+  default-encoding: text/plain
+string-time:
+  default-encoding: text/plain
+string-binary:
+  default-encoding: application/octet-stream
+string-uuid:
+  default-encoding: text/plain
+enum:
+  default-encoding: text/plain
+array:
+  default-encoding: application/json
+object:
+  default-encoding: application/json

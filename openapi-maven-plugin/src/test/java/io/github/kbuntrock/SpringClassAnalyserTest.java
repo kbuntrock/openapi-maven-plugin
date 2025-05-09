@@ -59,14 +59,20 @@ import io.github.kbuntrock.resources.endpoint.ignore.JsonIgnoreController;
 import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
 import io.github.kbuntrock.resources.endpoint.jackson.JacksonJsonPropertyController;
 import io.github.kbuntrock.resources.endpoint.map.MapController;
+import io.github.kbuntrock.resources.endpoint.multipartformdata.MultipartFormDataController;
 import io.github.kbuntrock.resources.endpoint.nesting.NestedDtosController;
 import io.github.kbuntrock.resources.endpoint.nullable.NullableController;
 import io.github.kbuntrock.resources.endpoint.nullable.NullableGettersSettersController;
 import io.github.kbuntrock.resources.endpoint.number.NumberController;
+import io.github.kbuntrock.resources.endpoint.operation.MultipleHeadersOnSameOperation;
+import io.github.kbuntrock.resources.endpoint.operation.MultipleProducedContentTypes;
+import io.github.kbuntrock.resources.endpoint.operation.MultipleProducedContentTypesParameterIncoherence;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementOneController;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementTwoController;
+import io.github.kbuntrock.resources.endpoint.queryparam.EmptyValueParameterController;
 import io.github.kbuntrock.resources.endpoint.queryparam.QueryParamDtoBindingController;
 import io.github.kbuntrock.resources.endpoint.queryparam.QueryParamFlatMixNestedDtoBindingController;
+import io.github.kbuntrock.resources.endpoint.queryparam.QueryParamInMappingController;
 import io.github.kbuntrock.resources.endpoint.recursive.GenericRecursiveDtoController;
 import io.github.kbuntrock.resources.endpoint.recursive.GenericRecursiveInterfaceDtoController;
 import io.github.kbuntrock.resources.endpoint.recursive.GenericRecursiveInterfaceListDtoInParameterController;
@@ -78,6 +84,7 @@ import io.github.kbuntrock.resources.endpoint.spring.ResponseEntityController;
 import io.github.kbuntrock.resources.endpoint.time.TimeController;
 import io.github.kbuntrock.resources.endpoint.uuid.UuidController;
 import io.github.kbuntrock.resources.implementation.account.AccountControllerImpl;
+import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.yaml.YamlWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -96,6 +103,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.util.DigestUtils;
 
 public class SpringClassAnalyserTest extends AbstractTest {
@@ -352,21 +360,14 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	 * @throws IOException
 	 */
 	@Test
-	public void error_same_operation() {
+	public void error_same_operation() throws MojoExecutionException, MojoFailureException, IOException {
 
 		final DocumentationMojo mojo = createBasicMojo(SameOperationController.class.getCanonicalName());
-
-		Exception ex = null;
-		try {
-			mojo.documentProject();
-		} catch(final Exception e) {
-			ex = e;
-		}
-		Assertions.assertNotNull(ex);
-		Assertions.assertEquals("More than one operation mapped on GET : /api/same-operation in tag SameOperationController",
-			ex.getMessage());
-
-
+		checkGenerationResult(mojo.documentProject());
+		Mockito.verify(Logger.INSTANCE.getLogger())
+			.warn("More than one operation with a common content type mapped on GET : /api/same-operation in tag SameOperationController");
+		Mockito.verify(Logger.INSTANCE.getLogger(), Mockito.times(2))
+			.warn("More than one operation with a common content type mapped on GET : /api/same-operation/v2 in tag SameOperationController");
 	}
 
 	@Test
@@ -435,7 +436,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
 		final File generatedFile = createTestFile();
 
-		new YamlWriter(createBasicMavenProject(), apiConfiguration).write(generatedFile, library);
+		new YamlWriter(createBasicMavenProject(), apiConfiguration, null).write(generatedFile, library);
 
 		try(final InputStream generatedFileStream = new FileInputStream(generatedFile);
 			final InputStream resourceFileStream = this.getClass().getClassLoader()
@@ -707,15 +708,13 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	}
 
 	@Test
-	public void enpoint_path_collision() throws MojoFailureException, MojoExecutionException {
+	public void enpoint_path_collision() throws MojoFailureException, MojoExecutionException, IOException {
 
 		final DocumentationMojo mojo = createBasicMojo(
 			io.github.kbuntrock.resources.endpoint.namecollision.three.MyController.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
 
-		assertThatThrownBy(() -> {
-			mojo.documentProject();
-		}).isInstanceOf(MojoRuntimeException.class)
-			.hasMessageContaining("More than one operation mapped on GET : /api/controller-3/info in tag MyController");
+		Mockito.verify(Logger.INSTANCE.getLogger()).warn("More than one operation with a common content type mapped on GET : /api/controller-3/info in tag MyController");
 	}
 
 	@Test
@@ -821,6 +820,13 @@ public class SpringClassAnalyserTest extends AbstractTest {
 				"src/test/java/io/github/kbuntrock/resources/dto"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void query_param_in_mapping() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(QueryParamInMappingController.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 	}
 
@@ -966,6 +972,51 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		checkGenerationResult(mojo.documentProject());
 	}
 
+	@Test
+	public void multipart_formdata() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(MultipartFormDataController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/multipartformdata",
+			"src/test/java/io/github/kbuntrock/resources/dto/multipartformdata"));
+		mojo.setJavadocConfiguration(javadocConfig);
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void multiple_content_type() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(MultipleProducedContentTypes.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/operation"));
+		mojo.setJavadocConfiguration(javadocConfig);
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void multiple_content_type_parameter_incoherence() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(MultipleProducedContentTypesParameterIncoherence.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/operation"));
+		mojo.setJavadocConfiguration(javadocConfig);
+		checkGenerationResult(mojo.documentProject());
+
+		Mockito.verify(Logger.INSTANCE.getLogger()).warn("Parameters incoherences detected in path /multiple-produced-content-types/");
+	}
+
+	@Test
+	public void multiple_headers_on_same_operation() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(MultipleHeadersOnSameOperation.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/operation"));
+		mojo.setJavadocConfiguration(javadocConfig);
+		checkGenerationResult(mojo.documentProject());
+
+	}
+
+	@Test
+	public void empty_value_query_parameter() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(EmptyValueParameterController.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
 
 	private ScanResult scanResult(Class<?> clazz) {
 		return new ClassGraph()

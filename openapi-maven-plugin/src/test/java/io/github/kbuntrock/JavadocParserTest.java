@@ -8,6 +8,7 @@ import io.github.kbuntrock.configuration.library.TagAnnotation;
 import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration1Controller;
 import io.github.kbuntrock.resources.endpoint.javadoc.inheritance.ChildClassOne;
 import io.github.kbuntrock.resources.endpoint.javadoc.inheritance.two.ChildClassTwo;
+import io.github.kbuntrock.utils.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +23,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 public class JavadocParserTest extends AbstractTest {
 
@@ -77,7 +79,7 @@ public class JavadocParserTest extends AbstractTest {
 	}
 
 	@Test
-	public void inheritance_test_two_package_error() throws MojoFailureException, MojoExecutionException {
+	public void inheritance_test_two_package_warning() throws MojoFailureException, MojoExecutionException, IOException {
 
 		final DocumentationMojo mojo = createBasicMojo("io.github.kbuntrock.resources.endpoint.javadoc.inheritance.two");
 		mojo.getApis().get(0).setTagAnnotations(Arrays.asList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName(),
@@ -88,9 +90,10 @@ public class JavadocParserTest extends AbstractTest {
 			"src/test/java/io/github/kbuntrock/resources/dto"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
-		assertThatThrownBy(mojo::documentProject)
-			.isInstanceOf(MojoRuntimeException.class)
-			.hasMessage("More than one operation mapped on GET : /api/child-class-two/age-plus-one in tag IChildClassTwo");
+		checkGenerationResult(mojo.documentProject());
+
+		Mockito.verify(Logger.INSTANCE.getLogger()).warn(
+			"More than one operation with a common content type mapped on GET : /api/child-class-two/age-plus-one in tag IChildClassTwo");
 	}
 
 	@Test

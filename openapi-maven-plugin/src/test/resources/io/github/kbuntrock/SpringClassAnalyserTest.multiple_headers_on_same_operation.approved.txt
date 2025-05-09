@@ -1,0 +1,34 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: MultipleHeadersOnSameOperation
+paths:
+  /roles-controller/roles:
+    get:
+      tags:
+        - MultipleHeadersOnSameOperation
+      operationId: roles-operation-id
+      description: This is the description.
+      summary: This is the summary.
+      parameters:
+        - name: pageable
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: full
+          in: header
+          required: false
+          schema: {}
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string

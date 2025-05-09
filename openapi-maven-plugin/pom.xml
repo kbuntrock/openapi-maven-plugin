@@ -7,7 +7,7 @@
 
   <groupId>io.github.kbuntrock</groupId>
   <artifactId>openapi-maven-plugin</artifactId>
-  <version>0.0.22-SNAPSHOT</version>
+  <version>0.0.24-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
   <name>openapi-maven-plugin Maven Plugin</name>
@@ -65,6 +65,7 @@
     <javaparser.version>3.26.0</javaparser.version>
     <classgraph.version>4.8.175</classgraph.version>
     <approvaltests.version>24.8.0</approvaltests.version>
+    <mockito.version>5.14.2</mockito.version>
   </properties>
 
   <dependencies>
@@ -219,6 +220,19 @@
       <version>${approvaltests.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>2.2.30</version>
+      <scope>test</scope>
+    </dependency>
+
 
   </dependencies>
 
@@ -270,26 +284,6 @@
       </plugins>
     </pluginManagement>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-toolchains-plugin</artifactId>
-        <version>3.0.0</version>
-        <executions>
-          <execution>
-            <phase>validate</phase>
-            <goals>
-              <goal>toolchain</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <toolchains>
-            <jdk>
-              <version>17</version>
-            </jdk>
-          </toolchains>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
@@ -356,6 +350,65 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.13</version>
+        <configuration>
+          <excludes>
+            <exclude>io/github/kbuntrock/HelpMojo.class</exclude>
+          </excludes>
+        </configuration>
+        <executions>
+          <execution>
+            <id>jacoco-initialize</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>jacoco-report</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+<!--      <plugin>-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-gpg-plugin</artifactId>-->
+<!--        <version>3.2.7</version>-->
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <id>sign-artifacts</id>-->
+<!--            <phase>verify</phase>-->
+<!--            <goals>-->
+<!--              <goal>sign</goal>-->
+<!--            </goals>-->
+<!--          </execution>-->
+<!--        </executions>-->
+<!--        <configuration>-->
+<!--          <gpgArguments>-->
+<!--            <argument>&#45;&#45;armor</argument>-->
+<!--            <argument>&#45;&#45;detach-sign</argument>-->
+<!--          </gpgArguments>-->
+<!--        </configuration>-->
+<!--      </plugin>-->
+
+<!--      <plugin>-->
+<!--        <groupId>org.sonatype.central</groupId>-->
+<!--        <artifactId>central-publishing-maven-plugin</artifactId>-->
+<!--        <version>0.7.0</version>-->
+<!--        <extensions>true</extensions>-->
+<!--        <configuration>-->
+<!--          <publishingServerId>central</publishingServerId>-->
+<!--          <autoPublish>true</autoPublish>-->
+<!--          <waitUntil>published</waitUntil>-->
+<!--        </configuration>-->
+<!--      </plugin>-->
 
     </plugins>
   </build>

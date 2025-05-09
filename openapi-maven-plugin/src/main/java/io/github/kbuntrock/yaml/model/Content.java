@@ -1,51 +1,88 @@
 package io.github.kbuntrock.yaml.model;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.ParameterObject;
-import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import org.springframework.web.multipart.MultipartFile;
+import java.util.stream.Collectors;
 
 public class Content {
 
 	@JsonIgnore
-	private Schema schema;
+	private List<Schema> schemas;
 
+	@JsonIgnore
+	private Map<String, ContentType> encoding;
 	@JsonIgnore
 	protected Object example;
 	@JsonIgnore
 	protected Object examples;
 
-	public static Content fromDataObject(final ParameterObject parameterObject) {
+	public static Content fromMultipartBodies(final List<ParameterObject> parameterObjects){
+		final Content content = new Content();
 
-		final Content content = fromDataObject((DataObject) parameterObject);
+		final Schema schema = new Schema();
+		content.schemas = new ArrayList<>();
+		content.schemas.add(schema);
 
-		final boolean isMultipartFile = MultipartFile.class == parameterObject.getJavaClass() ||
-			(OpenApiDataType.ARRAY == parameterObject.getOpenApiResolvedType().getType()
-				&& MultipartFile.class == parameterObject.getArrayItemDataObject().getJavaClass());
+		schema.setType(OpenApiTypeResolver.OBJECT_TYPE);
+		schema.setRequired(
+			parameterObjects.stream()
+				.filter(ParameterObject::isRequired)
+				.map(ParameterObject::getName)
+				.collect(Collectors.toList()));
 
-		if(isMultipartFile) {
-			// the MultipartFile must be named in the body.
-			final Content multipartContent = new Content();
-			final Schema schema = new Schema();
-			multipartContent.schema = schema;
-			if(parameterObject.isRequired()) {
-				schema.setRequired(Collections.singletonList(parameterObject.getName()));
+		schema.properties = parameterObjects.stream()
+			.collect(Collectors.toMap(
+				ParameterObject::getName,
+				po-> new Property(fromDataObject(po).getSingleSchema())));
+
+		return content;
+	}
+
+	public static Content fromMultipartFormData(final List<ParameterObject> bodyParts, final JavadocWrapper methodJavadoc){
+		final Content content = new Content();
+
+		final Schema schema = new Schema();
+		content.schemas = new ArrayList<>();
+		content.schemas.add(schema);
+
+		schema.setType(OpenApiTypeResolver.OBJECT_TYPE);
+		schema.setRequired(
+			bodyParts.stream()
+				.filter(ParameterObject::isRequired)
+				.map(ParameterObject::getName)
+				.collect(Collectors.toList()));
+
+		content.encoding = new LinkedHashMap<>();
+		schema.properties = new LinkedHashMap<>();
+		for(ParameterObject bodyPart : bodyParts) {
+			Property property = new Property(fromDataObject(bodyPart).getSingleSchema());
+			schema.properties.put(bodyPart.getName(), property);
+
+			if(bodyPart.getOpenApiResolvedType().getDefaultEncoding() != null) {
+				content.encoding.put(bodyPart.getName(), new ContentType(bodyPart.getOpenApiResolvedType().getDefaultEncoding()));
 			}
-			schema.setType(OpenApiTypeResolver.OBJECT_TYPE);
-			final Map<String, Property> propertyMap = new LinkedHashMap<>();
-			schema.setProperties(propertyMap);
-			final Property property = new Property(content.getSchema());
-			propertyMap.put(parameterObject.getName(), property);
-			return multipartContent;
+
+			// Javadoc handling
+			if(methodJavadoc != null) {
+				final Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(bodyPart.getJavadocFieldName());
+				if(parameterDoc.isPresent()) {
+					final String description = parameterDoc.get().getContent().toText();
+					if(!description.isEmpty()) {
+						property.setDescription(parameterDoc.get().getContent().toText());
+					}
+				}
+			}
 		}
+
 		return content;
 	}
 
@@ -55,12 +92,42 @@ public class Content {
 		}
 		final Set<String> exploredSignatures = new HashSet<>();
 		final Content content = new Content();
-		content.schema = new Schema(dataObject, exploredSignatures);
+		content.schemas = new ArrayList<>();
+		content.schemas.add(new Schema(dataObject, exploredSignatures));
 		return content;
 	}
 
-	public Schema getSchema() {
-		return schema;
+	@JsonIgnore
+	public Schema getSingleSchema() {
+		return schemas == null ? null : schemas.get(0);
+	}
+
+	@JsonIgnore
+	public List<Schema> getSchemaList() {
+		return schemas;
+	}
+
+	@JsonIgnore
+	public Map<String, ContentType> getEncoding() {
+		return encoding;
+	}
+
+	@JsonAnyGetter
+	public Map<String, Object> getJsonObject() {
+		final Map<String, Object> contentMap = new LinkedHashMap<>();
+		if(schemas != null) {
+			if(schemas.size() == 1) {
+				contentMap.put("schema", schemas.get(0));
+			} else {
+				final Map<String, Object> schemaMap = new LinkedHashMap<>();
+				schemaMap.put("anyOf", schemas);
+				contentMap.put("schema",schemaMap);
+			}
+		}
+		if(encoding != null && !encoding.isEmpty()) {
+			contentMap.put("encoding", encoding);
+		}
+		return contentMap;
 	}
 
 	public Object getExample() {

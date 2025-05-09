@@ -39,10 +39,13 @@ public class OpenApiResolvedType {
 	 */
 	private final Map<String, JsonNode> schemaSection = new LinkedHashMap<>();
 
-	public OpenApiResolvedType(final OpenApiDataType type, final JsonNode node, final String modelName) {
+	private final String defaultEncoding;
+
+	public OpenApiResolvedType(final OpenApiDataType type, final JsonNode node, final String modelName, final String defaultEncoding) {
 		this.type = type;
 		this.node = node;
 		this.modelName = modelName;
+		this.defaultEncoding = defaultEncoding;
 		if(node != null) {
 			node.fields().forEachRemaining(entry -> {
 				schemaSection.put(entry.getKey(), entry.getValue());
@@ -70,9 +73,18 @@ public class OpenApiResolvedType {
 		return modelName;
 	}
 
+	public String getDefaultEncoding() {
+		return defaultEncoding;
+	}
+
+	public JsonNode getNode() {
+		return node;
+	}
+
 	public OpenApiResolvedType copy() {
-		final OpenApiResolvedType copy = new OpenApiResolvedType(type, node, modelName);
+		final OpenApiResolvedType copy = new OpenApiResolvedType(type, node, modelName, defaultEncoding);
 		copy.completeNode = this.completeNode;
 		return copy;
 	}
+
 }

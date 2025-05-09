@@ -5,21 +5,28 @@ import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.model.annotation.OperationAnnotationInfo;
 import io.github.kbuntrock.reflection.GenericityResolver;
 import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
+import io.github.kbuntrock.utils.ParameterLocation;
 import io.github.kbuntrock.utils.UnwrappingType;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 public abstract class AstractLibraryReader {
 
@@ -90,7 +97,7 @@ public abstract class AstractLibraryReader {
 	public abstract void computeAnnotations(final Class clazz, final String basePath, final Method method, final MergedAnnotations mergedAnnotations,
 		final Tag tagr) throws MojoFailureException;
 
-	protected abstract List<ParameterObject> readParameters(final Class clazz, Method originalMethod);
+	protected abstract List<ParameterObject> readParameters(final Class clazz, final Method originalMethod, final MergedAnnotations endpointAnnotations);
 
 	protected abstract List<String> readEndpointPaths(String basePath,
 		MergedAnnotation<? extends Annotation> requestMappingMergedAnnotation);
@@ -107,5 +114,26 @@ public abstract class AstractLibraryReader {
 			return parameterObject;
 		}
 		return new ParameterObject(parameterObject.getName(), dataObject);
+	}
+
+	protected void setSwaggerAnnotatedEndpointProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations){
+		final MergedAnnotation<Annotation> operationAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.Operation");
+		if(operationAnnotation.isPresent()) {
+			OperationAnnotationInfo operationInfo = endpoint.getOperationAnnotationInfo();
+			final String operationId = operationAnnotation.getString("operationId");
+			if(!StringUtils.isEmpty(operationId)) {
+				operationInfo.setOperationId(operationId);
+			}
+
+			final String summary = operationAnnotation.getString("summary");
+			if(!StringUtils.isEmpty(summary)) {
+				operationInfo.setSummary(summary);
+			}
+
+			final String description = operationAnnotation.getString("description");
+			if(!StringUtils.isEmpty(description)) {
+				operationInfo.setDescription(description);
+			}
+		}
 	}
 }
