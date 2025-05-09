@@ -1,5 +1,9 @@
 package io.github.kbuntrock.yaml.model;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.javaparser.javadoc.JavadocBlockTag;
+import io.github.kbuntrock.javadoc.JavadocWrapper;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
@@ -124,6 +128,12 @@ public class Content {
 				contentMap.put("schema",schemaMap);
 			}
 		}
+		if(example != null ) {
+			contentMap.put("example", example);
+		}
+		if(examples != null ) {
+			contentMap.put("examples", examples);
+		}
 		if(encoding != null && !encoding.isEmpty()) {
 			contentMap.put("encoding", encoding);
 		}
@@ -144,22 +154,6 @@ public class Content {
 
 	public void setExamples(Object examples) {
 		this.examples = examples;
-	}
-
-	@JsonAnyGetter
-	public Map<String, Object> getJsonObject() {
-		final Map<String, Object> map = new LinkedHashMap<>();
-		if(schema != null) {
-			map.put("schema", schema);
-		}
-		if(example != null ) {
-			map.put("example", example);
-		}
-		if(examples != null ) {
-			map.put("examples", examples);
-		}
-
-		return map;
 	}
 
 }
