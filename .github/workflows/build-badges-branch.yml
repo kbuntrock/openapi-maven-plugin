@@ -89,7 +89,7 @@ jobs:
         java-version: '21'
 
     - name: Build with Maven
-      run: mvn -B package
+      run: mvn -B package -f openapi-maven-plugin/pom.xml
 
     - name: Generate Jacoco Badge
       id: jacoco
