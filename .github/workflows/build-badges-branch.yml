@@ -1,0 +1,122 @@
+# This file is a derivative from this example : https://github.com/cicirello/examples-jacoco-badge-generator/blob/main/.github/workflows/build-badges-branch.yml
+
+# In this workflow, we use a dedicated branch for storing the badges.
+# It assumes that the badges branch already exists. That branch can otherwise
+# be empty, as its only purpose is to store the coverage badges. Why? Well, if
+# our main branch has required checks or reviews, the default GITHUB_TOKEN won't
+# be able to push to it. By storing the badges in a dedicated branch, this is not
+# an issue (just don't put any required checks or required reviews on the badges
+# branch). Note that since we won't be storing anything else in the badges branch,
+# we just put them in the root of that branch. 
+#
+# IMPORTANT: Take note of the 2 checkout steps that are necessary for this variation.
+# The first is the usual checkout step. The second checks out the dedicated badges branch
+# (see the ref input) nested inside of the other in the path badges (see the path input).
+# So locally within the rest of this workflow run, we'll have access to the badges branch
+# within a badges directory.
+#
+# This rest of the behavior is like the basic use-case, generating both the coverage
+# and branches coverage badges. The workflow runs on pushes, pull requests, and can
+# be run manually (the workflow_dispatch event).
+#
+# It performs the following steps:
+# 1) It starts with the usual checkout.
+# 2) It does a second checkout of the badges branch, nesting it inside of the
+#    other within the path badges. So locally within the rest of this workflow run, 
+#    we'll have access to the badges branch within a badges directory.
+# 3) Sets up Java for JDK 11 (change details if you
+#    use a different Java version).
+# 4) Builds the project with mvn package. Note that package
+#    includes the test phase. If you just want to build and test,
+#    then change package to test. Jacoco is configured to run
+#    during the test phase, so either one is sufficient for the
+#    purposes of this example.
+# 5) Runs the jacoco-badge-generator to generate both the 
+#    coverage and branches coverage badges, storing them in the
+#    directory, badges, rather than in the action's default. The way
+#    we nested the checkout steps, this is equivalent to the root of
+#    the badges branch.
+# 6) Logs the coverage and branches coverage to the workflow's output
+#    for inspection in the event the workflow fails prior to committing
+#    badges.
+# 7) Commits and pushes the badges. Note that there are actions that you
+#    can use for this step instead if you wish. In this example, we just
+#    use a simple command line script. It sets the committer to the
+#    GitHub Actions bot. Also notice that this step is conditional and
+#    only runs if the workflow was triggered by a push or workflow_dispatch, 
+#    and not by a pull request. Why?  Well, for one, the workflow will be 
+#    in a detached head state if triggered by a pull request.  Additionally, 
+#    you may or may not choose to merge a pull request, and should only really 
+#    update the coverage badges if you choose to accept the changes by merging 
+#    the pull request, at which point this will be handled by the push that 
+#    occurs with the merge. 
+# 8) The last step uploads the JaCoCo reports as a workflow artifact.
+#    In this way, if you want to inspect the details, you can do so
+#    via the actions tab of your repository. That step essentially attaches
+#    a zip of the JaCoCo report directory to the workflow run. You can download
+#    it manually from the page for the workflow run.  GitHub automatically
+#    deletes these after 90 days.
+#
+
+name: build (badges branch)
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Checkout badges branch dedicated to storing badges only
+      uses: actions/checkout@v4
+      with:
+        ref: badges
+        path: badges
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: Build with Maven
+      run: mvn -B package
+
+    - name: Generate Jacoco Badge
+      id: jacoco
+      uses: cicirello/jacoco-badge-generator@v2
+      with:
+        badges-directory: badges
+        generate-branches-badge: true
+
+    - name: Log coverage percentage
+      run: |
+        echo "coverage = ${{ steps.jacoco.outputs.coverage }}"
+        echo "branches = ${{ steps.jacoco.outputs.branches }}"
+
+    - name: Commit and push
+      if: ${{ github.event_name != 'pull_request' }}
+      run: |
+        cd badges
+        if [[ `git status --porcelain *.svg` ]]; then
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add *.svg
+          git commit -m "Autogenerated JaCoCo coverage badge" *.svg
+          git push
+        fi
+
+    - name: Upload Jacoco coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: jacoco-report
+        path: openapi-maven-plugin/target/site/jacoco/
