@@ -97,6 +97,7 @@ jobs:
       with:
         badges-directory: badges
         generate-branches-badge: true
+        jacoco-csv-file: openapi-maven-plugin/target/site/jacoco/jacoco.csv
 
     - name: Log coverage percentage
       run: |
