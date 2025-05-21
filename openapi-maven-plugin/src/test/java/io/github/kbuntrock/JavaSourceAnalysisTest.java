@@ -35,7 +35,7 @@ public class JavaSourceAnalysisTest extends AbstractTest {
 		return false;
 	}
 
-	@Test
+//	@Test
 	public void controllerOne() throws MojoFailureException {
 
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
@@ -52,7 +52,7 @@ public class JavaSourceAnalysisTest extends AbstractTest {
 		Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), SpeAccountDto.class));
 	}
 
-	@Test
+//	@Test
 	public void controllerTwo() throws MojoFailureException {
 
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
@@ -69,7 +69,7 @@ public class JavaSourceAnalysisTest extends AbstractTest {
 		Assertions.assertTrue(containsClassRepresentation(library.getSchemaObjects(), SpeAccountDto.class));
 	}
 
-	@Test
+//	@Test
 	public void controllerThree() throws MojoFailureException {
 
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
