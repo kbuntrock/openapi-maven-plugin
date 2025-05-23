@@ -1,0 +1,25 @@
+
+name: publish documentation
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Regular checkout
+      uses: actions/checkout@v4
+
+    - name: Merge and push
+      run: |
+        echo "Merge dev and push to doc"
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git merge dev -m "Auto-merge dev to doc"
+        git push

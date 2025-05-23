@@ -13,6 +13,9 @@ buildNumber.properties
 .mvn/wrapper/maven-wrapper.jar
 openapi-maven-plugin/src/test/resources/**/*.received.txt
 
+# WSL / Windows artefacts
+**/*:Zone.Identifier
+
 # IDEs and editors
 **/.idea/*
 !**/.idea/runConfigurations/
