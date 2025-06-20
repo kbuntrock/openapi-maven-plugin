@@ -27,6 +27,7 @@ import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration5Contro
 import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration6Controller;
 import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration7Controller;
 import io.github.kbuntrock.resources.endpoint.error.SameOperationController;
+import io.github.kbuntrock.resources.endpoint.examples.TestExamplesController;
 import io.github.kbuntrock.resources.endpoint.file.FileUploadController;
 import io.github.kbuntrock.resources.endpoint.file.StreamResponseController;
 import io.github.kbuntrock.resources.endpoint.generic.ExtendsGenericObjectMap;
@@ -89,12 +90,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
@@ -947,6 +950,25 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	@Test
 	public void nested_dtos() throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(NestedDtosController.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void custom_examples_schema1() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(TestExamplesController.class.getCanonicalName());
+
+		ApiConfiguration apiConfiguration = mojo.getApis().get(0);
+
+		final InputStream freeFieldsFileStream = this.getClass().getClassLoader()
+			.getResourceAsStream("ut/JavadocParserTest/freeFields/custom_examples_free_fields.txt");
+		apiConfiguration.setFreeFields(IOUtils.toString(freeFieldsFileStream, StandardCharsets.UTF_8));
+
+
+		final InputStream customExamplesFileStream = this.getClass().getClassLoader()
+			.getResourceAsStream("ut/JavadocParserTest/freeFields/custom_examples.txt");
+		apiConfiguration.setCustomExamples(IOUtils.toString(customExamplesFileStream, StandardCharsets.UTF_8));
+
 		checkGenerationResult(mojo.documentProject());
 	}
 

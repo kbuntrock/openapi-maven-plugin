@@ -57,6 +57,10 @@ public class Schema {
 	@JsonIgnore
 	protected Map<String, Property> properties;
 	@JsonIgnore
+	protected Object example;
+	@JsonIgnore
+	protected Object examples;
+	@JsonIgnore
 	protected List<String> enumValues;
 	@JsonIgnore
 	protected List<String> enumNames;
@@ -364,6 +368,22 @@ public class Schema {
 		this.properties = properties;
 	}
 
+	public Object getExample() {
+		return example;
+	}
+
+	public void setExample(Object example) {
+		this.example = example;
+	}
+
+	public Object getExamples() {
+		return examples;
+	}
+
+	public void setExamples(Object examples) {
+		this.examples = examples;
+	}
+
 	public List<String> getEnumValues() {
 		return enumValues;
 	}
@@ -455,6 +475,12 @@ public class Schema {
 		}
 		if(uniqueItems != null) {
 			map.put("uniqueItems", uniqueItems);
+		}
+		if(example != null ) {
+			map.put("example", example);
+		}
+		if(examples != null ) {
+			map.put("examples", examples);
 		}
 		return map;
 	}

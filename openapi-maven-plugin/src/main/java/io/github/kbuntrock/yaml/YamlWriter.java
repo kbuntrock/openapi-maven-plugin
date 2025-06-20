@@ -75,6 +75,10 @@ public class YamlWriter {
 
 	private Optional<JsonNode> freefields = Optional.empty();
 	private Map<String, JsonNode> defaultErrors;
+	private Map<String, JsonNode> parameterCustomExamples;
+	private Map<String, JsonNode> schemaCustomExamples;
+	private Map<String, JsonNode> requestBodycustomExamples;
+	private Map<String, JsonNode> responseCustomExamples;
 
 	public YamlWriter(final MavenProject mavenProject, final ApiConfiguration apiConfiguration,
 		final OpenApiTypeResolver openApiTypeResolver) {
@@ -129,6 +133,11 @@ public class YamlWriter {
 			final Iterator<Map.Entry<String, JsonNode>> iterator = defaultErrorsNode.get().fields();
 			iterator.forEachRemaining(entry -> defaultErrors.put(entry.getKey(), entry.getValue()));
 		}
+
+		final Optional<JsonNode> customExamplesNode = JsonParserUtils.parse(
+			CommonParserUtils.getContentFromFileOrText(mavenProject, apiConfiguration.getCustomExamples()));
+
+		populateExamplesNodes(customExamplesNode);
 
 		final Specification specification = new Specification();
 		final Info info = new Info(mavenProject.getName(), mavenProject.getVersion(), freefields);
@@ -285,6 +294,7 @@ public class YamlWriter {
 
 					final Property schema = new Property(Content.fromDataObject(parameter).getSingleSchema());
 
+					addExamplesInParameterIfExists(operation.getOperationId(),parameter.getName(), schema);
 					// array in path parameters are not supported
 					if(OpenApiDataType.ARRAY == parameter.getOpenApiResolvedType().getType()
 						&& ParameterLocation.PATH == parameter.getLocation()) {
@@ -347,7 +357,7 @@ public class YamlWriter {
 					final Content requestBodyContent = isFormData(bodies)
 					 	? Content.fromMultipartBodies(bodies)
 						: Content.fromDataObject(body);
-
+                    addExamplesInBodyIfExists(operation.getOperationId(),requestBodyContent);
 					if(body.getFormats() != null) {
 						for(final String format : body.getFormats()) {
 							requestBody.getContent().put(format, requestBodyContent);
@@ -371,7 +381,6 @@ public class YamlWriter {
 							"Parameter documentation found for endpoint body " + body.getName() + " ? "
 								+ parameterDoc.isPresent());
 					}
-
 				}
 
 				List<ParameterObject> bodyParts = endpoint.getParameters().stream()
@@ -397,6 +406,7 @@ public class YamlWriter {
 				response.setCode(endpoint.getResponseCode(), apiConfiguration.getDefaultSuccessfulOperationDescription());
 				if(endpoint.getResponseObject() != null) {
 					final Content responseContent = Content.fromDataObject(endpoint.getResponseObject());
+					addExamplesInResponseIfExists(operation.getOperationId(), responseContent);
 					if(endpoint.getResponseFormats() != null) {
 						for(final String format : endpoint.getResponseFormats()) {
 							response.getContent().put(format, responseContent);
@@ -509,6 +519,7 @@ public class YamlWriter {
 		for(final DataObject dataObject : ordered) {
 			final Set<String> exploredSignatures = new HashSet<>();
 			final Schema schema = new Schema(dataObject, true, exploredSignatures, null, null);
+			addExamplesInSchemaIfExists(dataObject,schema);
 			schemas.put(dataObject.getOpenApiResolvedType().isCompleteNode() ? dataObject.getOpenApiResolvedType().getModelName()
 				: dataObject.getSchemaReferenceName(), schema);
 		}
@@ -528,5 +539,90 @@ public class YamlWriter {
 			throw new MojoRuntimeException("Cannot write schema as json string", e);
 		}
 	}
+
+	private void populateExamplesNodes(Optional<JsonNode> customExamplesNode) {
+		if(customExamplesNode.isPresent()) {
+			parameterCustomExamples = new LinkedHashMap<>();
+			schemaCustomExamples = new LinkedHashMap<>();
+			requestBodycustomExamples = new LinkedHashMap<>();
+			responseCustomExamples = new LinkedHashMap<>();
+
+			JsonNode parameterNode = customExamplesNode.get().get("PARAMETER");
+			JsonNode schemaNode = customExamplesNode.get().get("SCHEMA");
+			JsonNode requestBodyNode = customExamplesNode.get().get("REQUESTBODY");
+			JsonNode responseNode = customExamplesNode.get().get("RESPONSE");
+
+			if (parameterNode != null) {
+				final Iterator<Map.Entry<String, JsonNode>> iterator = parameterNode.fields();
+				iterator.forEachRemaining(entry -> parameterCustomExamples.put(entry.getKey(), entry.getValue()));
+			}
+
+			if (schemaNode != null) {
+				final Iterator<Map.Entry<String, JsonNode>> iterator = schemaNode.fields();
+				iterator.forEachRemaining(entry -> schemaCustomExamples.put(entry.getKey(), entry.getValue()));
+			}
+
+			if (requestBodyNode != null) {
+				final Iterator<Map.Entry<String, JsonNode>> iterator = requestBodyNode.fields();
+				iterator.forEachRemaining(entry -> requestBodycustomExamples.put(entry.getKey(), entry.getValue()));
+			}
+
+			if (responseNode != null) {
+				final Iterator<Map.Entry<String, JsonNode>> iterator = responseNode.fields();
+				iterator.forEachRemaining(entry -> responseCustomExamples.put(entry.getKey(), entry.getValue()));
+			}
+		}
+	}
+
+	private void addExamplesInParameterIfExists(String operationId, String name, Schema property) {
+		if (parameterCustomExamples!=null && property !=null){
+			JsonNode operationNode = parameterCustomExamples.get(operationId);
+			if (operationNode != null) {
+				addExampleInSchema(operationNode.get(name), property);
+			}
+		}
+	}
+	private void addExamplesInSchemaIfExists(DataObject dataObject, Schema schema) {
+		if (schemaCustomExamples!=null && schema!=null){
+			String simpleName = dataObject.getJavaClass().getSimpleName();
+			addExampleInSchema(schemaCustomExamples.get(simpleName), schema);
+		}
+	}
+
+	private void addExampleInSchema(JsonNode example, Schema property) {
+		if (example!=null) {
+			property.setExample(example);
+		}
+	}
+
+
+
+	private void addExamplesInBodyIfExists(String operationId, Content requestBodyContent) {
+		addExampleInContent(requestBodycustomExamples, operationId, requestBodyContent);
+	}
+
+	private void addExamplesInResponseIfExists(String operationId, Content responseBodyContent) {
+		addExampleInContent(responseCustomExamples, operationId, responseBodyContent);
+	}
+
+	private void addExampleInContent(Map<String, JsonNode> customExamples, String operationId,
+									 Content content) {
+		if (customExamples != null) {
+			JsonNode example = customExamples.get(operationId);
+			if (example != null && content != null) {
+				if (example.isArray()) {
+					content.setExamples(JsonParserUtils.mergeJsonArray(example));
+				} else {
+					/**In the OpenApi the $ref can only by used inside the examples tag, thus needing to have a inner object*/
+					if (example.get("$ref")!=null){
+						content.setExamples(JsonParserUtils.encapsulate("ref", example));
+					}else {
+						content.setExample(example);
+					}
+				}
+			}
+		}
+	}
+
 }
 

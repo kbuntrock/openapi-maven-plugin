@@ -1,0 +1,52 @@
+{
+  "PARAMETER": {
+    "getParameter": {
+      "paramField": "Path Variable Parameter Example",
+      "headerField": "Request Header Parameter Example"
+    }
+  },
+  "SCHEMA": {
+    "ExampleEnum": "EXAMPLE_A",
+    "ExampleRequestBodyDto": {
+      "requestEnumList": ["EXAMPLE_A","EXAMPLE_C"],
+      "requestName": "example of a SCHEMA  Request Name",
+      "requestValue": "example of a SCHEMA  Request Value"
+    },
+    "ExampleResponseDto": {
+          "responseEnum": "EXAMPLE_B",
+          "responseName": "example of a SCHEMA Response Name",
+          "responseValue": "example of a SCHEMA  Response Value"
+        }
+  },
+  "REQUESTBODY": {
+    "postExample": [
+      {
+        "OPTION_A":{
+          "value": {
+            "requestEnumList": ["EXAMPLE_A","EXAMPLE_A"],
+            "requestName": "example of a OPTION A Request Name",
+            "requestValue": "example of a OPTION A Request Value"
+          }
+        },
+        "OPTION_B":{
+          "value": {
+            "requestEnumList": ["EXAMPLE_B","EXAMPLE_B"],
+            "requestName": "example of a OPTION B Request Name",
+            "requestValue": "example of a OPTION B Request Value"
+          }
+        }
+      }
+    ]
+  },
+  "RESPONSE": {
+    "postExample": "Example of a String value return",
+    "getParameter": {
+      "responseEnum": "EXAMPLE_C",
+      "responseName": "example of a RESPONSE Response Name",
+      "responseValue": "example of a RESPONSE Response Value"
+    },
+    "getHeader": {
+          "$ref": "#/components/examples/ResponseExample"
+        }
+  }
+}

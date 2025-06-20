@@ -88,6 +88,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.extraSchemaClasses = copy.extraSchemaClasses;
 		merged.customResponseTypeAnnotation = copy.customResponseTypeAnnotation;
 		merged.defaultErrors = copy.defaultErrors;
+		merged.customExamples = copy.customExamples;
 		merged.openapiModels = copy.openapiModels;
 		merged.modelsAssociations = copy.modelsAssociations;
 		merged.defaultNonNullableFields = copy.defaultNonNullableFields;
@@ -165,6 +166,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		}
 		if(defaultErrors != null) {
 			merged.setDefaultErrors(defaultErrors);
+		}
+		if(customExamples != null) {
+			merged.setCustomExamples(customExamples);
 		}
 		if(openapiModels != null) {
 			merged.setOpenapiModels(openapiModels);

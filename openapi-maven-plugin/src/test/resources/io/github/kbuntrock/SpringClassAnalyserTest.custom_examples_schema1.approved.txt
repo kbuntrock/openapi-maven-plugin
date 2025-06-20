@@ -1,0 +1,150 @@
+---
+openapi: 3.0.3
+info:
+  title: This is a title
+  description: This is a sample server.
+  termsOfService: http://example.com/terms/
+  contact:
+    name: API Support
+    url: http://www.example.com/support
+    email: support@example.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 10.5.36
+servers:
+  - url: https://development.test.com/v1
+    description: Development server
+tags:
+  - name: TestExamplesController
+paths:
+  /api/test-examples-1:
+    get:
+      tags:
+        - TestExamplesController
+      operationId: getHeader
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ExampleResponseDto'
+              examples:
+                ref:
+                  $ref: '#/components/examples/ResponseExample'
+    post:
+      tags:
+        - TestExamplesController
+      operationId: postExample
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/ExampleRequestBodyDto'
+            examples:
+              OPTION_A:
+                value:
+                  requestEnumList:
+                    - EXAMPLE_A
+                    - EXAMPLE_A
+                  requestName: example of a OPTION A Request Name
+                  requestValue: example of a OPTION A Request Value
+              OPTION_B:
+                value:
+                  requestEnumList:
+                    - EXAMPLE_B
+                    - EXAMPLE_B
+                  requestName: example of a OPTION B Request Name
+                  requestValue: example of a OPTION B Request Value
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+              example: Example of a String value return
+  /api/test-examples-1/{paramField}:
+    get:
+      tags:
+        - TestExamplesController
+      operationId: getParameter
+      parameters:
+        - name: paramField
+          in: path
+          required: true
+          schema:
+            type: string
+            example: Path Variable Parameter Example
+        - name: headerField
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Request Header Parameter Example
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ExampleResponseDto'
+              example:
+                responseEnum: EXAMPLE_C
+                responseName: example of a RESPONSE Response Name
+                responseValue: example of a RESPONSE Response Value
+components:
+  schemas:
+    ExampleEnum:
+      type: string
+      enum:
+        - EXAMPLE_A
+        - EXAMPLE_B
+        - EXAMPLE_C
+      example: EXAMPLE_A
+    ExampleRequestBodyDto:
+      type: object
+      properties:
+        requestEnumList:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExampleEnum'
+        requestName:
+          type: string
+        requestValue:
+          type: string
+      example:
+        requestEnumList:
+          - EXAMPLE_A
+          - EXAMPLE_C
+        requestName: example of a SCHEMA  Request Name
+        requestValue: example of a SCHEMA  Request Value
+    ExampleResponseDto:
+      type: object
+      properties:
+        responseEnum:
+          $ref: '#/components/schemas/ExampleEnum'
+        responseName:
+          type: string
+        responseValue:
+          type: string
+      example:
+        responseEnum: EXAMPLE_B
+        responseName: example of a SCHEMA Response Name
+        responseValue: example of a SCHEMA  Response Value
+  securitySchemes:
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  examples:
+    ResponseExample:
+      responseEnum: EXAMPLE_C
+      responseName: example of a REFERENCE Response Name
+      responseValue: example of a REFERENCE Response Value
+security:
+  - jwt: []
+externalDocs:
+  description: Find more info here
+  url: https://example.com

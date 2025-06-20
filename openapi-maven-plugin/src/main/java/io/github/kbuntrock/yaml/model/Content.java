@@ -1,10 +1,9 @@
 package io.github.kbuntrock.yaml.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.github.javaparser.javadoc.JavadocBlockTag;
-import io.github.kbuntrock.javadoc.JavadocWrapper;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.javaparser.javadoc.JavadocBlockTag;
+import io.github.kbuntrock.javadoc.JavadocWrapper;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
@@ -25,6 +24,10 @@ public class Content {
 
 	@JsonIgnore
 	private Map<String, ContentType> encoding;
+	@JsonIgnore
+	protected Object example;
+	@JsonIgnore
+	protected Object examples;
 
 	public static Content fromMultipartBodies(final List<ParameterObject> parameterObjects){
 		final Content content = new Content();
@@ -125,10 +128,32 @@ public class Content {
 				contentMap.put("schema",schemaMap);
 			}
 		}
+		if(example != null ) {
+			contentMap.put("example", example);
+		}
+		if(examples != null ) {
+			contentMap.put("examples", examples);
+		}
 		if(encoding != null && !encoding.isEmpty()) {
 			contentMap.put("encoding", encoding);
 		}
 		return contentMap;
+	}
+
+	public Object getExample() {
+		return example;
+	}
+
+	public void setExample(Object example) {
+		this.example = example;
+	}
+
+	public Object getExamples() {
+		return examples;
+	}
+
+	public void setExamples(Object examples) {
+		this.examples = examples;
 	}
 
 }

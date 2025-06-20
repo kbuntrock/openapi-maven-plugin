@@ -103,6 +103,9 @@ public class CommonApiConfiguration {
 	protected String defaultErrors;
 
 	@Parameter
+	protected String customExamples;
+
+	@Parameter
 	protected String openapiModels;
 
 	@Parameter
@@ -129,6 +132,7 @@ public class CommonApiConfiguration {
 		this.library = commonApiConfiguration.library;
 		this.customResponseTypeAnnotation = commonApiConfiguration.customResponseTypeAnnotation;
 		this.defaultErrors = commonApiConfiguration.defaultErrors;
+		this.customExamples = commonApiConfiguration.customExamples;
 		this.openapiModels = commonApiConfiguration.openapiModels;
 		this.modelsAssociations = commonApiConfiguration.modelsAssociations;
 		this.defaultNonNullableFields = commonApiConfiguration.defaultNonNullableFields;
@@ -350,6 +354,14 @@ public class CommonApiConfiguration {
 
 	public void setDefaultErrors(final String defaultErrors) {
 		this.defaultErrors = defaultErrors;
+	}
+
+	public String getCustomExamples() {
+		return customExamples;
+	}
+
+	public void setCustomExamples(String customExamples) {
+		this.customExamples = customExamples;
 	}
 
 	public String getOpenapiModels() {
