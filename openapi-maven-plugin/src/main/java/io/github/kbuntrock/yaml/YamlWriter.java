@@ -255,7 +255,7 @@ public class YamlWriter {
 					}
 				}
 
-				if(endpoint.getOperationAnnotationInfo().getDescription() != null) {
+				if(endpoint.getOperationAnnotationInfo().getSummary() != null) {
 					operation.setSummary(endpoint.getOperationAnnotationInfo().getSummary());
 				}
 
