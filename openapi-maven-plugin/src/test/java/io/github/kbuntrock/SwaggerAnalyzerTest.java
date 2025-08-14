@@ -40,7 +40,7 @@ public class SwaggerAnalyzerTest extends AbstractTest {
 
 
 	@Test
-	public void multiple_headers_on_same_operation_kalypso() throws MojoFailureException, IOException, MojoExecutionException {
+	public void basicApiResponseWithReturnObjects() throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(ApiResponseResource.class.getCanonicalName());
 
 		checkGenerationResult(mojo.documentProject());
