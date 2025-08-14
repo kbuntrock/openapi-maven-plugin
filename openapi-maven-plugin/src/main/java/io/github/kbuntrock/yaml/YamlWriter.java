@@ -20,6 +20,7 @@ import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
 import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.ObjectsUtils;
@@ -429,6 +430,29 @@ public class YamlWriter {
 						operation.getResponses().put(entry.getKey(), entry.getValue());
 					});
 				}
+
+				// Add swagger documented responses
+				for (final OperationResponse operationResponse : endpoint.getOperationAnnotationInfo().getResponses()) {
+					// What to do with the already calculated response code? Skip for now
+					// Or other default responsecodes? Overwrite? Probably only overwrite description for default responses.
+					if (! operation.getResponses().containsKey(operationResponse.getCode())) {
+						final Response additionalResponse = new Response();
+						additionalResponse.setCode(operationResponse.getCode(), apiConfiguration.getDefaultSuccessfulOperationDescription());
+						if (operationResponse.getDescription() != null) {
+							additionalResponse.setDescription(operationResponse.getDescription());
+						}
+						if (operationResponse.getDataObject() != null) {
+							final Content responseContent = Content.fromDataObject(operationResponse.getDataObject());
+							if (apiConfiguration.isDefaultProduceConsumeGuessing()) {
+								additionalResponse.getContent().put(ProduceConsumeUtils.getDefaultValue(operationResponse.getDataObject()), responseContent);
+							} else {
+								additionalResponse.getContent().put("*/*", responseContent);
+							}
+						}
+						operation.getResponses().put(additionalResponse.getCode(), additionalResponse);
+					}
+				}
+
 				// Check if on operation already exist for this name (GET / POST / ...) and path
 				// If a similar operation exists, we could merge it if the return content type don't overlap.
 				mergeCommonOperations(tag, paths, operation, response);

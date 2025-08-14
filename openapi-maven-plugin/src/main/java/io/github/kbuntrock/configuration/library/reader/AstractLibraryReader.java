@@ -6,10 +6,12 @@ import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.model.annotation.OperationAnnotationInfo;
+import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.reflection.GenericityResolver;
 import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.ParameterLocation;
+import io.github.kbuntrock.utils.ProduceConsumeUtils;
 import io.github.kbuntrock.utils.UnwrappingType;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -19,6 +21,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import io.github.kbuntrock.yaml.model.Content;
+import io.github.kbuntrock.yaml.model.Response;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
@@ -133,6 +138,36 @@ public abstract class AstractLibraryReader {
 			final String description = operationAnnotation.getString("description");
 			if(!StringUtils.isEmpty(description)) {
 				operationInfo.setDescription(description);
+			}
+
+			MergedAnnotation<Annotation>[] responseArray = operationAnnotation.getAnnotationArray("responses", Annotation.class);
+
+			for (MergedAnnotation<Annotation> responseAnnotation : responseArray) {
+				final OperationResponse operationResponse = new OperationResponse();
+				final String responseCode = responseAnnotation.getString("responseCode");
+				if (!StringUtils.isEmpty(responseCode)) {
+					operationResponse.setCode(Integer.valueOf(responseCode));
+				}
+
+				final String responseDescription = responseAnnotation.getString("description");
+				if (!StringUtils.isEmpty(responseDescription)) {
+					operationResponse.setDescription(responseDescription);
+				}
+
+				final MergedAnnotation<Annotation>[] contentArray = responseAnnotation.getAnnotationArray("content", Annotation.class);
+				// Content is allowed as an array, but we only support one content
+				// Throw an exception if there are multiple content annotations?
+				for (MergedAnnotation<Annotation> content : contentArray) {
+					final MergedAnnotation<Annotation> schema = content.getAnnotation("schema", Annotation.class);
+					if (schema.isPresent()) {
+						final Class<?> implementation = schema.getClass("implementation");
+						if (implementation != null && !Void.class.equals(implementation) && !Void.TYPE.equals(implementation)) {
+							final DataObject responseObject = new DataObject(implementation);
+							operationResponse.setDataObject(responseObject);
+						}
+					}
+				}
+				operationInfo.addResponse(operationResponse);
 			}
 		}
 	}

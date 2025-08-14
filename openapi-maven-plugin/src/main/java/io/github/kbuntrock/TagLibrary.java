@@ -5,6 +5,7 @@ import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -63,6 +64,13 @@ public class TagLibrary {
 
 			for(final ParameterObject parameterObject : endpoint.getParameters()) {
 				exploreDataObject(parameterObject);
+			}
+
+			for (final OperationResponse operationResponse : endpoint.getOperationAnnotationInfo().getResponses()) {
+				if (operationResponse.getDataObject() != null) {
+					// If the response has a data object, it is a response with a body
+					exploreDataObject(operationResponse.getDataObject());
+				}
 			}
 		}
 	}
