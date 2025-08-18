@@ -433,24 +433,28 @@ public class YamlWriter {
 
 				// Add swagger documented responses
 				for (final OperationResponse operationResponse : endpoint.getOperationAnnotationInfo().getResponses()) {
-					// What to do with the already calculated response code? Skip for now
-					// Or other default responsecodes? Overwrite? Probably only overwrite description for default responses.
-					if (! operation.getResponses().containsKey(operationResponse.getCode())) {
-						final Response additionalResponse = new Response();
-						additionalResponse.setCode(operationResponse.getCode(), apiConfiguration.getDefaultSuccessfulOperationDescription());
-						if (operationResponse.getDescription() != null) {
-							additionalResponse.setDescription(operationResponse.getDescription());
-						}
-						if (operationResponse.getDataObject() != null) {
-							final Content responseContent = Content.fromDataObject(operationResponse.getDataObject());
-							if (apiConfiguration.isDefaultProduceConsumeGuessing()) {
-								additionalResponse.getContent().put(ProduceConsumeUtils.getDefaultValue(operationResponse.getDataObject()), responseContent);
-							} else {
-								additionalResponse.getContent().put("*/*", responseContent);
-							}
-						}
-						operation.getResponses().put(additionalResponse.getCode(), additionalResponse);
+					// Check if response code is already documented, if so, we merge the attributes
+					Response annotatedResponse = null;
+					Object additionalResponseObject = operation.getResponses().get(operationResponse.getCode());
+					if (additionalResponseObject != null && additionalResponseObject instanceof Response) {
+						annotatedResponse = (Response) additionalResponseObject;
+					} else {
+						annotatedResponse = new Response();
 					}
+
+					annotatedResponse.setCode(operationResponse.getCode(), apiConfiguration.getDefaultSuccessfulOperationDescription());
+					if (operationResponse.getDescription() != null) {
+						annotatedResponse.setDescription(operationResponse.getDescription());
+					}
+					if (operationResponse.getDataObject() != null) {
+						final Content responseContent = Content.fromDataObject(operationResponse.getDataObject());
+						if (apiConfiguration.isDefaultProduceConsumeGuessing()) {
+							annotatedResponse.getContent().put(ProduceConsumeUtils.getDefaultValue(operationResponse.getDataObject()), responseContent);
+						} else {
+							annotatedResponse.getContent().put("*/*", responseContent);
+						}
+					}
+					operation.getResponses().put(annotatedResponse.getCode(), annotatedResponse);
 				}
 
 				// Check if on operation already exist for this name (GET / POST / ...) and path

@@ -14,7 +14,9 @@ import io.github.kbuntrock.utils.UnwrappingType;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
@@ -147,9 +149,12 @@ public abstract class AstractLibraryReader {
 				}
 
 				final MergedAnnotation<Annotation>[] contentArray = responseAnnotation.getAnnotationArray("content", Annotation.class);
-				// Content is allowed as an array, but we only support one content
-				// Throw an exception if there are multiple content annotations?
-				for (MergedAnnotation<Annotation> content : contentArray) {
+				if (contentArray.length > 1) {
+					logger.warn("Multiple content annotations found for response code " + responseCode + " and operation " + operationInfo.getOperationId() + ". Only the first one will be used.");
+				}
+				Optional<MergedAnnotation<Annotation>> optionalContent = Arrays.stream(contentArray).findFirst();
+				if (optionalContent.isPresent()) {
+					final MergedAnnotation<Annotation> content = optionalContent.get();
 					final MergedAnnotation<Annotation> schema = content.getAnnotation("schema", Annotation.class);
 					if (schema.isPresent()) {
 						final Class<?> implementation = schema.getClass("implementation");
