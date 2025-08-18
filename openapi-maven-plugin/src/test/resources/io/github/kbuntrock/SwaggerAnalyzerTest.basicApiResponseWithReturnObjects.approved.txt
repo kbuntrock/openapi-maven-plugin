@@ -16,7 +16,7 @@ paths:
       summary: Swagger summary
       responses:
         200:
-          description: successful operation
+          description: Swagger Successful operation
           content:
             '*/*':
               schema:
