@@ -8,6 +8,13 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 public class ApiConfiguration extends CommonApiConfiguration {
 
+	public ApiConfiguration() {}
+
+	public ApiConfiguration(String location) {
+		this.locations = new ArrayList<>();
+		this.locations.add(location);
+	}
+
 	private static final String DEFAULT_FILENAME = "spec-open-api.yml";
 	/**
 	 * A list of location to find api endpoints. A location could be a class or a package

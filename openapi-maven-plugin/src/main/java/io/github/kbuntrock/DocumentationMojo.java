@@ -58,6 +58,9 @@ public class DocumentationMojo extends AbstractMojo {
 	 */
 	@Parameter(required = true)
 	private List<ApiConfiguration> apis;
+
+	@Parameter(property = "apiList")
+	private List<String> apiList;
 	/**
 	 * A list of api configurations
 	 */
@@ -118,6 +121,16 @@ public class DocumentationMojo extends AbstractMojo {
 	}
 
 	private void validateConfiguration() throws MojoFailureException {
+
+		if (apiList != null && !apiList.isEmpty()) {
+			if (this.apis == null) {
+				this.apis = new ArrayList<>();
+			}
+			for (final String api : apiList) {
+				this.apis.add(new ApiConfiguration(api));
+			}
+		}
+
 		if(apis == null || apis.isEmpty()) {
 			throw new MojoFailureException("At least one api configuration element should be configured");
 		}
