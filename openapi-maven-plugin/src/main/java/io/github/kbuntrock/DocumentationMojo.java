@@ -12,6 +12,7 @@ import io.github.kbuntrock.javadoc.JavadocWrapper;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
+import io.github.kbuntrock.utils.CollectionUtils;
 import io.github.kbuntrock.utils.FileUtils;
 import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
@@ -21,11 +22,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -67,10 +67,13 @@ public class DocumentationMojo extends AbstractMojo {
 	private File outputDirectory;
 
 	/**
-	 * COMMAND LINES PROPERTIES
+	 * COMMAND LINES / SETTINGS / POM PROPERTIES
 	 */
 	@Parameter(property = "openapi.locations")
 	private List<String> locations;
+
+	@Parameter(property = "openapi.filename")
+	private String filename;
 
 	@Parameter(property = "openapi.tagAnnotations")
 	private List<String> tagAnnotations;
@@ -79,7 +82,10 @@ public class DocumentationMojo extends AbstractMojo {
 	protected String library;
 
 	@Parameter(property = "openapi.javadoc.locations")
-	protected String javadocScanLocation;
+	protected List<String> javadocScanLocation;
+
+	@Parameter(property = "openapi.javadoc.scanEnabled", defaultValue = "true")
+	protected Boolean javadocScanEnabled;
 
 
 	@Component
@@ -103,8 +109,6 @@ public class DocumentationMojo extends AbstractMojo {
 			final long debut = System.currentTimeMillis();
 
 			Logger.INSTANCE.setLogger(getLog());
-
-			getLog().warn("Group id : " + project.getGroupId());
 
 			// Prepare the class loader
 			projectClassLoader = createProjectDependenciesClassLoader();
@@ -134,6 +138,7 @@ public class DocumentationMojo extends AbstractMojo {
 	}
 
 	private void validateConfiguration() throws MojoFailureException {
+		createPropertyApiConfiguration();
 		if(apis == null || apis.isEmpty()) {
 			throw new MojoFailureException("At least one api configuration element should be configured");
 		}
@@ -142,6 +147,33 @@ public class DocumentationMojo extends AbstractMojo {
 
 		if (apis.stream().map(ApiConfiguration::getLocations).anyMatch(locations -> locations == null || locations.isEmpty())) {
 			throw new MojoFailureException("At least one location element should be configured");
+		}
+		if (apis.stream().map(ApiConfiguration::getFilename).collect(Collectors.toSet()).size() != apis.size()) {
+			throw new MojoFailureException("At least two openapi documentations have a colliding filename. Please set different ones if you wish to generate multiple documentations.");
+		}
+	}
+
+	/**
+	 * If "locations" have been set by property (-Dopenapi.locations=xxx, settings.xml our pom properties),
+	 * we add an api configuration based on all the available properties.
+	 */
+	private void createPropertyApiConfiguration() {
+		if (locations != null && !locations.isEmpty()) {
+			if (this.apis == null) {
+				this.apis = new ArrayList<>();
+			}
+			ApiConfiguration apiConf = new ApiConfiguration();
+			apiConf.setLocations(locations);
+			if(StringUtils.isNotEmpty(library)) {
+				apiConf.setLibrary(library);
+			}
+			if(StringUtils.isNotEmpty(filename)) {
+				apiConf.setFilename(filename);
+			}
+			if(!CollectionUtils.isEmpty(tagAnnotations)) {
+				apiConf.setTagAnnotations(tagAnnotations);
+			}
+			this.apis.add(apiConf);
 		}
 	}
 
@@ -172,6 +204,7 @@ public class DocumentationMojo extends AbstractMojo {
 					generatedFile = Files.createTempFile(
 						apiConfig.getFilename().substring(0, apiConfig.getFilename().length() - ".yml".length()) + "_", ".yml").toFile();
 				} else {
+					outputDirectory.mkdirs();
 					generatedFile = new File(outputDirectory, apiConfig.getFilename());
 				}
 				getLog().debug("Prepared to write : " + generatedFile.getAbsolutePath());
@@ -249,11 +282,31 @@ public class DocumentationMojo extends AbstractMojo {
 
 	}
 
+	private boolean shouldScanJavadoc() {
+		return javadocConfiguration != null
+				&& !CollectionUtils.isEmpty(javadocConfiguration.getScanLocations());
+	}
+
 	private void scanJavadoc() {
-		if (javadocConfiguration == null
-			|| javadocConfiguration.getScanLocations() == null
-			|| javadocConfiguration.getScanLocations().isEmpty()
-		) {
+
+		if(!javadocScanEnabled) {
+			getLog().info("Javadoc scan is disabled.");
+			return;
+		}
+
+		if (!CollectionUtils.isEmpty(locations) && !shouldScanJavadoc()) {
+			if(javadocConfiguration == null) {
+				javadocConfiguration = new JavadocConfiguration();
+			}
+			if(CollectionUtils.isEmpty(javadocScanLocation)) {
+				javadocConfiguration.setScanLocations(Collections.singletonList("src/main/java"));
+			} else {
+				javadocConfiguration.setScanLocations(javadocScanLocation);
+			}
+
+		}
+
+		if (!shouldScanJavadoc()) {
 			getLog().info("No javadoc configuration found: scan of javadoc skipped.");
 			return;
 		}

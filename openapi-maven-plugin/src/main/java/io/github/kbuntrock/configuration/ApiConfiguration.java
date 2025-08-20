@@ -8,24 +8,11 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 public class ApiConfiguration extends CommonApiConfiguration {
 
-	private static final String DEFAULT_FILENAME = "spec-open-api.yml";
-
-	@Parameter
-	private String filename = DEFAULT_FILENAME;
-
 	protected String baseFreeField;
 	@Parameter
 	private boolean mergeFreeFields;
 
 	private OperationIdHelper operationIdHelper;
-
-	public String getFilename() {
-		return filename;
-	}
-
-	public void setFilename(final String filename) {
-		this.filename = filename;
-	}
 
 	public OperationIdHelper getOperationIdHelper() {
 		return operationIdHelper;
@@ -58,6 +45,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		final ApiConfiguration merged = new ApiConfiguration();
 		// Copy properties
 		merged.locations = copy.locations;
+		merged.filename = copy.filename;
 		merged.tag = copy.tag;
 		merged.operation = copy.operation;
 		merged.attachArtifact = copy.attachArtifact;
@@ -90,6 +78,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 
 		if(locations != null && !locations.isEmpty()) {
 			merged.setLocations(locations);
+		}
+		if(filename != null) {
+			merged.setFilename(filename);
 		}
 		if(!tag.getSubstitutions().isEmpty()) {
 			merged.getTag().setSubstitutions(tag.getSubstitutions());

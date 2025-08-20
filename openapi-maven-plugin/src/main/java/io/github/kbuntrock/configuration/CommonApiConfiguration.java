@@ -21,6 +21,11 @@ public class CommonApiConfiguration {
 		DEFAULT_TAG_ANNOTATIONS.add(TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName());
 	}
 
+	protected static final String DEFAULT_FILENAME = "spec-open-api.yml";
+
+	@Parameter
+	protected String filename;
+
 	/**
 	 * A list of location to find api endpoints. A location could be a class or a package
 	 */
@@ -121,6 +126,7 @@ public class CommonApiConfiguration {
 	}
 
 	public CommonApiConfiguration(final CommonApiConfiguration commonApiConfiguration) {
+		this.filename = commonApiConfiguration.filename;
 		if(commonApiConfiguration.locations != null) {
 			this.locations = new ArrayList<>();
 			this.locations.addAll(commonApiConfiguration.locations);
@@ -175,6 +181,9 @@ public class CommonApiConfiguration {
 	}
 
 	public void initDefaultValues() {
+		if(filename == null) {
+			filename = DEFAULT_FILENAME;
+		}
 		if(library == null) {
 			library = DEFAULT_LIBRARY;
 		}
@@ -208,6 +217,14 @@ public class CommonApiConfiguration {
 		if(attachArtifact == null) {
 			attachArtifact = true;
 		}
+	}
+
+	public String getFilename() {
+		return filename;
+	}
+
+	public void setFilename(final String filename) {
+		this.filename = filename;
 	}
 
 	public List<String> getLocations() {
