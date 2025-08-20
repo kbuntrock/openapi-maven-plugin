@@ -1,0 +1,70 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: EntityAnnotationResource
+paths:
+  /api/different_errors:
+    get:
+      tags:
+        - EntityAnnotationResource
+      operationId: different_errors
+      summary: Swagger summary
+      responses:
+        200:
+          description: Swagger Successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ResponseEntityWithAnnotations'
+        404:
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                type: string
+        500:
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/summary:
+    get:
+      tags:
+        - EntityAnnotationResource
+      operationId: swaggerSummary
+      summary: Swagger summary
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ResponseEntityWithAnnotations'
+components:
+  schemas:
+    ResponseEntityWithAnnotations:
+      type: object
+      properties:
+        id:
+          description: Unique identifier for the response
+          type: string
+          example: 12345
+        status:
+          description: Status of the response
+          type: string
+          example: success
+        data:
+          description: Data returned in the response
+          type: string
+          example: "{\"key\":\"value\"}"
+        timestamp:
+          description: Timestamp of the collected data
+          type: string
+          format: date-time
+          example: 2023-10-01T12:00:00

@@ -3,6 +3,7 @@ package io.github.kbuntrock;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
 import io.github.kbuntrock.resources.endpoint.swagger.ApiResponseResource;
+import io.github.kbuntrock.resources.endpoint.swagger.EntityAnnotationResource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
@@ -47,4 +48,11 @@ public class SwaggerAnalyzerTest extends AbstractTest {
 
 	}
 
+	@Test
+	public void basicAnnotatedResponseWithReturnObjects() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(EntityAnnotationResource.class.getCanonicalName());
+
+		checkGenerationResult(mojo.documentProject());
+
+	}
 }

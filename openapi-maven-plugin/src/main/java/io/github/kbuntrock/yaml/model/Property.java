@@ -18,6 +18,8 @@ public class Property extends Schema {
 	private Integer maxLength;
 	@JsonIgnore
 	private boolean required;
+	@JsonIgnore
+	private String example;
 
 	@JsonIgnore
 	private DataObject parentDataObject;
@@ -88,6 +90,18 @@ public class Property extends Schema {
 		if(maxLength != null) {
 			map.put("maxLength", maxLength);
 		}
+		if(example != null) {
+			map.put("example", example);
+		}
+
 		return map;
+	}
+
+	public String getExample() {
+		return example;
+	}
+
+	public void setExample(String example) {
+		this.example = example;
 	}
 }

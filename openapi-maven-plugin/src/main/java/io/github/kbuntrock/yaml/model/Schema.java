@@ -43,6 +43,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.validation.constraints.Size;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.MergedAnnotation;
+import org.springframework.core.annotation.MergedAnnotations;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Schema {
@@ -199,6 +201,21 @@ public class Schema {
 								if(javadocWrapper != null) {
 									final Optional<String> desc = javadocWrapper.getDescription();
 									property.setDescription(desc.get());
+								}
+							}
+
+							// Swagger handling
+							MergedAnnotations mergedAnnotations = MergedAnnotations.from(field);
+							final MergedAnnotation<Annotation> schemaAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.media.Schema");
+							if (schemaAnnotation.isPresent()) {
+								String swaggerDescription = schemaAnnotation.getString("description");
+								if (!StringUtils.isEmpty(swaggerDescription)) {
+									property.setDescription(swaggerDescription);
+								}
+
+								String swaggerExample = schemaAnnotation.getString("example");
+								if (!StringUtils.isEmpty(swaggerExample)) {
+									property.setExample(swaggerExample);
 								}
 							}
 						}
