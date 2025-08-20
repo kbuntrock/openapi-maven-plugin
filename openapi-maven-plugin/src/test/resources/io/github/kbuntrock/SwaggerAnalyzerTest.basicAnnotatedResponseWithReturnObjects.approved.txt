@@ -26,13 +26,13 @@ paths:
           content:
             '*/*':
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorEntityWithAnnotations'
         500:
           description: Internal server error
           content:
             '*/*':
               schema:
-                type: string
+                $ref: '#/components/schemas/ErrorEntityWithAnnotations'
   /api/summary:
     get:
       tags:
@@ -48,6 +48,54 @@ paths:
                 $ref: '#/components/schemas/ResponseEntityWithAnnotations'
 components:
   schemas:
+    ErrorEntityWithAnnotations:
+      type: object
+      properties:
+        timestamp:
+          description: Timestamp of the error
+          type: string
+          format: date-time
+          example: 2023-10-01T12:00:00
+        sessionId:
+          description: Session ID associated with the error
+          type: string
+          example: session-12345
+        correlationId:
+          description: Correlation ID for tracking the request
+          type: string
+          example: correlation-67890
+        requestId:
+          description: Request ID for the operation
+          type: string
+          example: request-54321
+        errorId:
+          description: Unique identifier for the error
+          type: string
+          example: error-98765
+        errorCode:
+          description: Error code representing the type of error
+          type: string
+          example: ERR-001
+        status:
+          description: HTTP status code of the error
+          type: integer
+          format: int32
+          example: 500
+        error:
+          description: Short description of the error
+          type: string
+          example: Internal Server Error
+        message:
+          description: Detailed message about the error
+          type: string
+          example: An unexpected error occurred while processing the request.
+        path:
+          description: Path of the request that caused the error
+          type: string
+          example: /api/resource
+        cause:
+          description: "The cause of the error, if any"
+          $ref: '#/components/schemas/ErrorEntityWithAnnotations'
     ResponseEntityWithAnnotations:
       type: object
       properties:
