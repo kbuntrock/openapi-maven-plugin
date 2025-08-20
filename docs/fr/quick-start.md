@@ -1,9 +1,12 @@
-# Comment démarrer
+# 🚀 Comment démarrer
 
-La première chose à faire est de configurer la compilation java de son projet afin de conserver le nom des paramètres de fonctions. 
-Sans ce réglage, les noms des paramètres seraient de la forme "arg0", "arg1", ...
+Pour commencer, il est nécessaire de configurer votre build Maven afin de conserver les noms des paramètres des méthodes Java.  
+Sans cette étape, les paramètres apparaîtront dans la documentation sous forme de ``arg0``, ``arg1``, etc.
 
-Pour ce faire, il suffit d'ajouter les lignes suivantes dans la section plugins de votre projet maven:
+---
+1. **Activer la conservation des noms de paramètres lors de la compilation**
+
+Ajoutez la configuration suivante au plugin ``maven-compiler-plugin`` dans la section ``<plugins>`` de votre:
 
 ```xml
 <plugin>
@@ -18,7 +21,11 @@ Pour ce faire, il suffit d'ajouter les lignes suivantes dans la section plugins 
 </plugin>
 ```
 
-A la suite, ajoutez dans votre pom.xml les lignes suivantes en les adaptant au besoin à l'aide des commentaires.
+---
+2. **Configurer l'OpenAPI Maven Plugin**
+
+Ensuite, ajoutez le plugin **openapi-maven-plugin** à votre ``pom.xml`` et adaptez la configuration en fonction de vos besoins (consultez la documentation détaillée pour voir toutes les options disponibles):
+
 
 ```xml
 
@@ -66,5 +73,11 @@ A la suite, ajoutez dans votre pom.xml les lignes suivantes en les adaptant au b
 </plugin>
 ```
 
-Lancez maintenant une compilation (mvn compile). Votre documentation sera générée dans "target/spec-open-api.yml".
-Si vous passez à la phase d'installation du projet, un artefact maven avec le classifier "spec-open-api" sera généré dans votre repository.
+---
+3. **Générer la documentation**
+
+Exécutez la commande suivante : ``mvn compile``  
+La spécification OpenAPI sera générée dans le fichier : ``target/spec-open-api.yml``
+
+Si vous lancez ensuite la phase **install** : ``mvn install``  
+La spécification générée sera également installée dans votre dépôt Maven local comme un artefact, avec un classifier basé sur le nom de fichier.

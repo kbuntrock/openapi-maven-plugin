@@ -1,26 +1,79 @@
-# Openapi maven plugin
+# OpenAPI Maven Plugin
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.kbuntrock/openapi-maven-plugin.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.kbuntrock%22%20AND%20a:%22openapi-maven-plugin%22)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.kbuntrock/openapi-maven-plugin.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.kbuntrock/openapi-maven-plugin)
 [![CircleCI](https://circleci.com/gh/kbuntrock/openapi-maven-plugin/tree/dev.svg?style=shield)](https://circleci.com/gh/kbuntrock/openapi-maven-plugin/tree/dev)
+![Coverage](../badges/jacoco.svg)
 ![GitHub](https://img.shields.io/github/license/kbuntrock/openapi-maven-plugin?color=blue)
 
-Le but de se plugin est de générer la documentation openapi de webservices REST à partir d'un projet Java utilisant les annotations Spring MVC, Javax RS ou Jakarta RS.
+L'**OpenAPI Maven Plugin** analyse les classes de contrôleurs REST Java et génère la documentation **OpenAPI 3.0.3**.
+Il est conçu pour s’intégrer de manière fluide au cycle de vie Maven, rendant la génération de documentation **automatisée, rapide et fiable**.
 
-Il est compatible du jdk8 jusqu'à au moins jdk17 (les tests d'intégration sont passés sur un jdk8, jdk11 et jdk17).
+---
+## ✨ Fonctionnalités principales
 
-Le plugin combine les informations obtenues via réflexion sur le code compilé et le parsing des fichiers sources pour en extraire les commentaires javadoc.
+- **Large support d'annotations**  
+  Compatible avec:
+    - Spring MVC
+    - Javax RS
+    - Jakarta RS
 
-La philosophie de ce plugin est de créer la documentation durant la phase de build, sans lancer d'application. Cela a plusieurs avantages comparé à d'autres méthodes: 
-- Le code source du projet peut être analysé afin d'en extraire la javadoc et d'enrichir la documentation. Il n'y a pas besoin d'alourdir le code avec des annotations dans le seul but de garder ces informations disponibles au "runtime". Votre code reste pur, sans duplication d'information.
-- Pas de librairie supplémentaire packagée avec votre jar/war. Cela veut dire moins de surface d'attaque / pas besoin de garder dans le radar une dépendance à l'affut d'éventuelles failles de sécurité.
-- L'implémentation de vos interfaces / classes abstraites déclarant une api REST n'est pas nécessaire. La documentation peut être générée à partir d'un module déclarant uniquement des interfaces. Cela autorise plus de souplesse dans l'architecture de votre application.
-- Souvent bien plus rapide que de lancer une application / faire tourner la phase de tests d'intégration.
 
-De nombreuses options de configuration sont disponibles afin d'apporter la plus grande souplesse possible.
+- **Analyse hybride**  
+  Utilise à la fois les **classes compilées** et le **code source** pour créer la documentation :
+    - Extrait directement les commentaires de la Javadoc, sans annotations supplémentaires.
+    - Évite les bibliothèques tierces au runtime, ajoutées uniquement pour conserver les commentaires.
+    - Garde votre code **propre et sans dépendances inutiles**.
 
-On peut notamment mentionner :
-- possibilité de générer plusieurs documents avec des configurations différentes
-- un système de "white list", "black list" sur les classes et méthodes scannées
-- ajouts possibles à la documentation générée (security, licence, ...)
-- possibilité de définir un "loopback operation name", utilisé par certains outils de génération de code (voir https://loopback.io/doc/en/lb4/Decorators_openapi.html et https://github.com/cyclosproject/ng-openapi-gen).
-...
+
+- **Léger & Sécurisé**
+    - Aucune dépendance supplémentaire dans votre JAR/WAR.
+    - Réduit la surface d’exposition aux vulnérabilités.
+
+
+- **Structures de projets flexibles**
+    - La documentation peut être générée à partir de modules ne contenant que des interfaces.
+    - Fonctionne plus rapidement que les méthodes nécessitant le lancement de l’application ou l’exécution complète de tests d’intégration.
+
+
+- **Large compatibilité de JDKs**  
+  Vérifié avec JDK 8, 11, 17 et 21 (des tests d’intégration sont exécutés sur ces versions).
+
+---
+## ⚙️ Options de configuration
+
+Le plugin propose de nombreuses options pour affiner la documentation générée :
+- Générer **plusieurs documentations** avec des configurations différentes.
+- Appliquer des **listes blanches / listes noires** sur les classes et méthodes scannées.
+- Enrichir la documentation avec des métadonnées supplémentaires (ex : schémas de sécurité, licences).
+- Définir des **"loopback operation names"**, utiles pour certains outils de génération de code (ex : ng-openapi-gen).
+- Et bien plus encore...
+
+--- 
+## 📚 Documentation
+
+La documentation complète est disponible en anglais et en français :  
+👉 [Project Documentation](https://kbuntrock.github.io/openapi-maven-plugin)
+
+## 🔌 Prise en charge des annotations Swagger Core v3
+
+En plus de sa prise en charge native des annotations Spring MVC, Javax RS et Jakarta RS, le plugin offre également une prise en charge partielle des annotations Swagger Core v3 (``io.swagger.core.v3/swagger-annotations``).  
+Bien que toutes les annotations ne soient pas prises en charge, un sous-ensemble des plus couramment utilisées est reconnu. Offrant ainsi une flexibilité supplémentaire aux équipes qui s’appuient déjà sur ``swagger-annotations`` dans leur base de code.
+La prise en charge détaillée est décrite dans la documentation.
+
+---
+## ✅ Pourquoi ce plugin?
+
+- **Développement rigoureux** : les tests automatisés, sur plusieurs JDKs, garantissent une stabilité à long terme.
+- **Accent mis sur la maintenabilité** : élimine les dépendances redondantes et la duplication d’informations.
+- **Gain de productivité** : la génération de documentation est automatisée pendant la phase de build, sans étapes manuelles.
+
+---
+## 🤝 Contribuer
+
+Les contributions sont les bienvenues !  
+Merci de consulter notre documentation [CONTRIBUTING.md](https://github.com/kbuntrock/openapi-maven-plugin/blob/dev/CONTRIBUTING.md)
+
+---
+## 📜 License
+
+Ce projet est distribué sous la [licence MIT](https://github.com/kbuntrock/openapi-maven-plugin?tab=MIT-1-ov-file#readme)

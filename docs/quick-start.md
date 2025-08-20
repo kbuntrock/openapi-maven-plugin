@@ -1,9 +1,12 @@
-# Quick start
+# 🚀 Quick Start
 
-First thing to do is to configure the java compilation process in order to keep method parameters names.
-Without this, parameters would be named in the documentation "arg0", "arg1", ...
+To get started, you need to configure your Maven build so that Java method parameter names are preserved.  
+Without this step, parameters in the generated documentation will appear as ``arg0``, ``arg1``, etc.
 
-One should add the following lines in the plugin section of the maven project:
+---
+1. **Enable Parameter Names in Compilation**
+
+Add the following configuration to the ``maven-compiler-plugin`` inside the ``<plugins>`` section of your ``pom.xml``:
 
 ```xml
 <plugin>
@@ -18,7 +21,10 @@ One should add the following lines in the plugin section of the maven project:
 </plugin>
 ```
 
-Then, add the openapi-maven-plugin configuration and adapt the present values with the help of the detailed configuration section:
+---
+2. **Configure the OpenAPI Maven Plugin**
+
+Next, add the openapi-maven-plugin and adjust the configuration values as needed (see the detailed configuration section):
 
 ```xml
 
@@ -65,5 +71,11 @@ Then, add the openapi-maven-plugin configuration and adapt the present values wi
 </plugin>
 ```
 
-Launch now a compilation (mvn compile). Your documentation will be generated in "target/spec-open-api.yml".
-If you execute the install phase, a maven artifact with the classifier based on the filename will be installed in your repository.
+---
+3. **Generate Documentation**
+
+Run the following command: ``mvn compile``  
+The OpenAPI specification will be generated at: ``target/spec-open-api.yml``
+
+If you execute the install phase: ``mvn install``  
+The generated specification will also be installed in your local Maven repository as an artifact, with a classifier based on the filename.

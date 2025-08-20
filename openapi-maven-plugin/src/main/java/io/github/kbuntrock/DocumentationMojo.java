@@ -39,11 +39,8 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 
-/**
- * Goal which touches a timestamp file.
- */
 @Mojo(name = "documentation", defaultPhase = LifecyclePhase.COMPILE,
-	requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = true)
+	requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = false)
 public class DocumentationMojo extends AbstractMojo {
 
 	@Parameter(defaultValue = "${project}", required = true, readonly = true)

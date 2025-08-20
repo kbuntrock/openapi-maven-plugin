@@ -11,7 +11,7 @@
   <packaging>maven-plugin</packaging>
 
   <name>openapi-maven-plugin Maven Plugin</name>
-  <description>A plugin converting annotated classes to openapi 3.0.3 specifications</description>
+  <description>The OpenAPI Maven Plugin analyzes Java REST controller classes and generates OpenAPI 3.x documentation. It is designed to integrate seamlessly into the Maven build lifecycle, making API documentation generation automated, fast, and reliable. Works with: Spring MVC, Javax RS and Jakarta RS.</description>
   <url>https://github.com/kbuntrock/openapi-maven-plugin</url>
 
   <scm>
@@ -52,7 +52,7 @@
     <maven.version>3.3.9</maven.version>
 
     <!-- versions -->
-    <spring.version>5.3.27</spring.version>
+    <spring.version>5.3.39</spring.version>
     <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
     <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
     <javax.validation-api.version>2.0.1.Final</javax.validation-api.version>
@@ -62,10 +62,10 @@
     <javax-ws-rs-api.version>2.1.1</javax-ws-rs-api.version>
     <jakarta-ws-rs-api.version>3.1.0</jakarta-ws-rs-api.version>
     <itf.version>0.13.1</itf.version>
-    <javaparser.version>3.26.0</javaparser.version>
-    <classgraph.version>4.8.175</classgraph.version>
-    <approvaltests.version>24.8.0</approvaltests.version>
-    <mockito.version>5.14.2</mockito.version>
+    <javaparser.version>3.27.0</javaparser.version>
+    <classgraph.version>4.8.181</classgraph.version>
+    <approvaltests.version>25.0.23</approvaltests.version>
+    <mockito.version>5.19.0</mockito.version>
   </properties>
 
   <dependencies>
@@ -128,7 +128,7 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.16.1</version>
+      <version>2.20.0</version>
       <scope>test</scope>
     </dependency>
 
@@ -156,6 +156,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
+      <version>4.9.4</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
       <version>${javax.validation-api.version}</version>
@@ -175,7 +181,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>3.12.0</version>
+      <version>3.18.0</version>
     </dependency>
 
     <!-- Javadoc parsing -->
@@ -192,7 +198,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>32.1.3-jre</version>
+      <version>33.4.8-jre</version>
     </dependency>
 
     <!-- Tests -->
@@ -229,7 +235,7 @@
     <dependency>
       <groupId>io.swagger.core.v3</groupId>
       <artifactId>swagger-annotations</artifactId>
-      <version>2.2.30</version>
+      <version>2.2.36</version>
       <scope>test</scope>
     </dependency>
 
@@ -241,16 +247,12 @@
       <plugins>
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.5.0</version>
         </plugin>
         <!-- see http://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_maven-plugin_packaging -->
         <plugin>
-          <artifactId>maven-tags-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
-        <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.0</version>
+          <version>3.14.0</version>
           <configuration>
             <compilerArgs>
               <arg>-parameters</arg>
@@ -259,27 +261,47 @@
         </plugin>
         <plugin>
           <artifactId>maven-plugin-plugin</artifactId>
-          <version>3.6.0</version>
+          <version>3.15.1</version>
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.22.1</version>
+          <version>3.5.3</version>
         </plugin>
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.0.2</version>
+          <version>3.4.2</version>
         </plugin>
         <plugin>
           <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.2</version>
+          <version>3.1.4</version>
         </plugin>
         <plugin>
           <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.8.2</version>
+          <version>3.1.4</version>
         </plugin>
         <plugin>
           <artifactId>maven-invoker-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.9.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.3.1</version>
+        </plugin>
+        <plugin>
+          <groupId>com.soebes.itf.jupiter.extension</groupId>
+          <artifactId>itf-maven-plugin</artifactId>
+          <version>${itf.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.8.13</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>3.5.3</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -287,7 +309,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
-        <version>3.6.0</version>
         <configuration>
           <!-- <goalPrefix>maven-archetype-plugin</goalPrefix> -->
           <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
@@ -312,7 +333,6 @@
       <plugin>
         <groupId>com.soebes.itf.jupiter.extension</groupId>
         <artifactId>itf-maven-plugin</artifactId>
-        <version>0.11.0</version>
         <executions>
           <execution>
             <id>installing</id>
@@ -327,7 +347,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>3.0.0-M7</version>
         <configuration>
           <!-- Use if we want to filter some tests -->
           <!--                            <includes>-->
@@ -354,7 +373,6 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.13</version>
         <configuration>
           <excludes>
             <exclude>io/github/kbuntrock/HelpMojo.class</exclude>
@@ -391,7 +409,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jar-plugin</artifactId>
-            <version>3.4.2</version>
             <executions>
               <execution>
                 <id>javadoc-jar</id>
@@ -413,7 +430,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>3.3.1</version>
             <executions>
               <execution>
                 <id>attach-source</id>
