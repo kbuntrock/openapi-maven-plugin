@@ -74,6 +74,18 @@ Before submitting, please ensure:
 - [ ] Documentation updated if needed.
 
 ---
+## 📚 Visualize locally the documentation
+
+Install on your computer **docsify**:
+``npm i docsify-cli -g``
+
+And run:
+``docsify serve docs``
+
+You can preview your site in your browser on http://localhost:3000
+
+
+---
 ## 📜 License
 
 By contributing, you agree that your contributions will be licensed under the [MIT licence](https://github.com/kbuntrock/openapi-maven-plugin?tab=MIT-1-ov-file#readme)
