@@ -12,7 +12,7 @@ paths:
     get:
       tags:
         - ApiResponseResource
-      operationId: swagger_operation_id
+      operationId: errorResponses
       summary: Swagger summary
       responses:
         200:
@@ -27,6 +27,25 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ErrorEntity'
+        500:
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorEntity'
+  /api/responsecodeErrors:
+    get:
+      tags:
+        - ApiResponseResource
+      operationId: errorResponsesWithNoAndErrorInResponseCode
+      summary: Swagger summary
+      responses:
+        200:
+          description: Swagger Successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
         500:
           description: Internal server error
           content:

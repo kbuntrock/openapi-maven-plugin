@@ -139,9 +139,18 @@ public abstract class AstractLibraryReader {
 			for (MergedAnnotation<Annotation> responseAnnotation : responseArray) {
 				final OperationResponse operationResponse = new OperationResponse();
 				final String responseCode = responseAnnotation.getString("responseCode");
-				if (!StringUtils.isEmpty(responseCode)) {
-					operationResponse.setCode(Integer.valueOf(responseCode));
+
+				if ("default".equals(responseCode)) {
+					operationResponse.setCode(200);
+				} else {
+					try {
+						operationResponse.setCode(Integer.parseInt(responseCode));
+					} catch (NumberFormatException e) {
+						logger.warn("Invalid response code '" + responseCode + "' for operation " + operationInfo.getOperationId() + ". Skipping response.");
+						continue;
+					}
 				}
+
 
 				final String responseDescription = responseAnnotation.getString("description");
 				if (!StringUtils.isEmpty(responseDescription)) {

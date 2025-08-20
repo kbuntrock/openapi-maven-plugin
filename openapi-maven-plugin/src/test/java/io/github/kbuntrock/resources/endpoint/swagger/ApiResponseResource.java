@@ -23,7 +23,7 @@ public class ApiResponseResource {
 	}
 
 	@Operation(summary = "Swagger summary",
-			operationId = "swagger_operation_id",
+			operationId = "errorResponses",
 			responses = {
 					@ApiResponse(responseCode = "200", description = "Swagger Successful operation"),
 					@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = ErrorEntity.class))),
@@ -34,4 +34,16 @@ public class ApiResponseResource {
 		return ResponseEntity.ok("returnValue");
 	}
 
+
+	@Operation(summary = "Swagger summary",
+			operationId = "errorResponsesWithNoAndErrorInResponseCode",
+			responses = {
+					@ApiResponse(description = "Swagger Successful operation"),
+					@ApiResponse(responseCode = "NotANumber", description = "Not Found", content = @Content(schema = @Schema(implementation = ErrorEntity.class))),
+					@ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema(implementation = ErrorEntity.class)))
+			})
+	@GetMapping("/responsecodeErrors")
+	public ResponseEntity<String> errorResponsesWithNoAndErrorInResponseCode() {
+		return ResponseEntity.ok("returnValue");
+	}
 }
