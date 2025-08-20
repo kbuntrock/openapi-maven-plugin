@@ -56,7 +56,7 @@ public class DocumentationMojo extends AbstractMojo {
 	/**
 	 * A list of api configurations
 	 */
-	@Parameter(required = true)
+	@Parameter
 	private List<ApiConfiguration> apis;
 
 	@Parameter(property = "apiList")
