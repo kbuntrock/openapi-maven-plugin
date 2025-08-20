@@ -82,7 +82,7 @@ Install on your computer **docsify**:
 And run:
 ``docsify serve docs``
 
-You can preview your site in your browser on http://localhost:3000
+You can preview the documentation in your browser on http://localhost:3000
 
 
 ---
