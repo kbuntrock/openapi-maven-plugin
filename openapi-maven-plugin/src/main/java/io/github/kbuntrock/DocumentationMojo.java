@@ -40,7 +40,7 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 
 @Mojo(name = "documentation", defaultPhase = LifecyclePhase.COMPILE,
-	requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = false)
+	requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class DocumentationMojo extends AbstractMojo {
 
 	@Parameter(defaultValue = "${project}", required = true, readonly = true)
