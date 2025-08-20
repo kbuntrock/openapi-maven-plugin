@@ -2,3 +2,4 @@
 * [Quick start](quick-start.md)
 * [Configuration](configuration.md)
 * [Examples](examples.md)
+* [Swagger annotations](swagger_annotations.md)
