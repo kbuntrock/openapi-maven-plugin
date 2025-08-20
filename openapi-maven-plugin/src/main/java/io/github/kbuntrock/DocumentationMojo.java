@@ -53,7 +53,7 @@ public class DocumentationMojo extends AbstractMojo {
 	/**
 	 * A list of api configurations
 	 */
-	@Parameter(required = true)
+	@Parameter
 	private List<ApiConfiguration> apis;
 	/**
 	 * A list of api configurations
@@ -65,6 +65,23 @@ public class DocumentationMojo extends AbstractMojo {
 	 */
 	@Parameter(defaultValue = "${project.build.directory}", property = "outputDir", required = true)
 	private File outputDirectory;
+
+	/**
+	 * COMMAND LINES PROPERTIES
+	 */
+	@Parameter(property = "openapi.locations")
+	private List<String> locations;
+
+	@Parameter(property = "openapi.tagAnnotations")
+	private List<String> tagAnnotations;
+
+	@Parameter(property = "openapi.library")
+	protected String library;
+
+	@Parameter(property = "openapi.javadoc.locations")
+	protected String javadocScanLocation;
+
+
 	@Component
 	private MavenProjectHelper projectHelper;
 
@@ -81,10 +98,13 @@ public class DocumentationMojo extends AbstractMojo {
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
+
 		try {
 			final long debut = System.currentTimeMillis();
 
 			Logger.INSTANCE.setLogger(getLog());
+
+			getLog().warn("Group id : " + project.getGroupId());
 
 			// Prepare the class loader
 			projectClassLoader = createProjectDependenciesClassLoader();
@@ -100,8 +120,7 @@ public class DocumentationMojo extends AbstractMojo {
 			throw new MojoExecutionException(ex.getMessage(), ex.getCause());
 		}
 
-
-	}
+    }
 
 	public List<File> documentProject() throws MojoFailureException, MojoExecutionException {
 

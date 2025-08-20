@@ -9,11 +9,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 public class ApiConfiguration extends CommonApiConfiguration {
 
 	private static final String DEFAULT_FILENAME = "spec-open-api.yml";
-	/**
-	 * A list of location to find api endpoints. A location could be a class or a package
-	 */
-	@Parameter(required = true)
-	private List<String> locations;
+
 	@Parameter
 	private String filename = DEFAULT_FILENAME;
 
@@ -22,14 +18,6 @@ public class ApiConfiguration extends CommonApiConfiguration {
 	private boolean mergeFreeFields;
 
 	private OperationIdHelper operationIdHelper;
-
-	public List<String> getLocations() {
-		return locations;
-	}
-
-	public void setLocations(final List<String> locations) {
-		this.locations = locations;
-	}
 
 	public String getFilename() {
 		return filename;
@@ -69,6 +57,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		final CommonApiConfiguration copy = new CommonApiConfiguration(commonApiConfiguration);
 		final ApiConfiguration merged = new ApiConfiguration();
 		// Copy properties
+		merged.locations = copy.locations;
 		merged.tag = copy.tag;
 		merged.operation = copy.operation;
 		merged.attachArtifact = copy.attachArtifact;
@@ -96,10 +85,12 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.nonDocumentableParameterClasses = copy.nonDocumentableParameterClasses;
 		// End copy properties
 
-		merged.setLocations(locations);
 		merged.setFilename(filename);
 		merged.setMergeFreeFields(mergeFreeFields);
 
+		if(locations != null && !locations.isEmpty()) {
+			merged.setLocations(locations);
+		}
 		if(!tag.getSubstitutions().isEmpty()) {
 			merged.getTag().setSubstitutions(tag.getSubstitutions());
 		}

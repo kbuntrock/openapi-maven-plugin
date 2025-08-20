@@ -21,6 +21,12 @@ public class CommonApiConfiguration {
 		DEFAULT_TAG_ANNOTATIONS.add(TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName());
 	}
 
+	/**
+	 * A list of location to find api endpoints. A location could be a class or a package
+	 */
+	@Parameter
+	protected List<String> locations;
+
 	@Parameter
 	protected Tag tag = new Tag();
 
@@ -115,6 +121,10 @@ public class CommonApiConfiguration {
 	}
 
 	public CommonApiConfiguration(final CommonApiConfiguration commonApiConfiguration) {
+		if(commonApiConfiguration.locations != null) {
+			this.locations = new ArrayList<>();
+			this.locations.addAll(commonApiConfiguration.locations);
+		}
 		this.tag = new Tag(commonApiConfiguration.tag);
 		this.operation = new Operation(commonApiConfiguration.operation);
 		this.attachArtifact = commonApiConfiguration.attachArtifact;
@@ -198,6 +208,14 @@ public class CommonApiConfiguration {
 		if(attachArtifact == null) {
 			attachArtifact = true;
 		}
+	}
+
+	public List<String> getLocations() {
+		return locations;
+	}
+
+	public void setLocations(List<String> locations) {
+		this.locations = locations;
 	}
 
 	public Tag getTag() {
