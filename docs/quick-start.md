@@ -1,5 +1,44 @@
 # 🚀 Quick Start
 
+## ⚡ Command Line
+
+The quickest way to generate a documentation is to directly invoke the plugin via the command line:
+
+```
+mvn clean compile io.github.kbuntrock:openapi-maven-plugin:0.0.25-SNAPSHOT:documentation \
+"-Dmaven.compiler.parameters=true" \
+"-Dopenapi.library=SPRING_MVC" \
+"-Dopenapi.tagAnnotations=RequestMapping" \
+"-Dopenapi.locations=your.base.package"
+```
+
+🔎 Command Breakdown:
+- ``clean compile "-Dmaven.compiler.parameters=true"``:  
+cleans previous build outputs and recompiles the project with parameter names preserved (required for reflection).
+- ``-Dopenapi.library=SPRING_MVC``:  
+Specifies the framework you are using. Supported values:
+  - ``SPRING_MVC`` (default)
+  - ``JAKARTA_RS``
+  - ``JAVAX_RS``
+- ``-Dopenapi.locations=your.base.package``:  
+Defines the packages to scan for REST endpoints.  
+  - Required for performance reasons.
+  - Multiple packages can be provided, separated by commas (e.g. -Dopenapi.locations=pkgone,pkgtwo).
+- ``-Dopenapi.tagAnnotations=RequestMapping``:  
+Specifies which annotation should be used to detect endpoints. This property can be omitted if you don't rely on Spring.  
+Supported values:
+  - ``RestController`` (default)
+  - ``RequestMapping``
+
+
+⚠️ Notes  
+The command line mode is ideal for quickly testing if the plugin integrates properly with your project.
+However, it offers limited configuration options. For full customization and ease of use, it is recommended to configure the plugin directly in your ``pom.xml`` (see the next section).
+
+## 🍏 Configure your pom.xml
+
+The usual way to generate a documentation is to add the plugin to your pom.xml.
+
 To get started, you need to configure your Maven build so that Java method parameter names are preserved.  
 Without this step, parameters in the generated documentation will appear as ``arg0``, ``arg1``, etc.
 
@@ -44,7 +83,7 @@ Next, add the openapi-maven-plugin and adjust the configuration values as needed
 	<configuration>
 		<!-- This section defines the general configuration, which can be overriden for each generated document. -->
 		<apiConfiguration>
-			<library>SPRING_MVC</library> <!-- Default value, here this tag could be deleted. -->
+			<library>SPRING_MVC</library> <!-- SPRING_MVC is the default value. Here this tag could be deleted. Other possible values are JAKARTA_RS and JAVAX_RS -->
 			<tagAnnotations> <!-- Only useful if you use Spring MVC -->
 				<!-- RestController is the default value, but can be replaced by RequestMapping -->
 				<annotation>RestController</annotation>

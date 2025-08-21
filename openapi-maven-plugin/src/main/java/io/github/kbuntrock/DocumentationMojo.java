@@ -85,7 +85,7 @@ public class DocumentationMojo extends AbstractMojo {
 	protected List<String> javadocScanLocation;
 
 	@Parameter(property = "openapi.javadoc.scanEnabled", defaultValue = "true")
-	protected Boolean javadocScanEnabled;
+	protected Boolean javadocScanEnabled = true;
 
 
 	@Component

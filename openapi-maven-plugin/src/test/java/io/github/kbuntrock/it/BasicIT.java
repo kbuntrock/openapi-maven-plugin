@@ -3,15 +3,14 @@ package io.github.kbuntrock.it;
 import static com.soebes.itf.extension.assertj.MavenITAssertions.assertThat;
 
 import com.soebes.itf.extension.assertj.MavenExecutionResultAssert;
-import com.soebes.itf.jupiter.extension.MavenGoal;
-import com.soebes.itf.jupiter.extension.MavenJupiterExtension;
-import com.soebes.itf.jupiter.extension.MavenTest;
+import com.soebes.itf.jupiter.extension.*;
 import com.soebes.itf.jupiter.maven.MavenExecutionResult;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import org.junit.jupiter.api.Assertions;
+
+import org.junit.jupiter.api.*;
 
 /**
  * @author Kevin Buntrock

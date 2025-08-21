@@ -28,6 +28,8 @@ echo "currentVersion reworked is ${currentVersion}!"
 
 sed -i -e "s/<version>${currentVersion}<\/version>/<version>${version}<\/version>/g" docs/quick-start.md
 sed -i -e "s/<version>${currentVersion}<\/version>/<version>${version}<\/version>/g" docs/fr/quick-start.md
+sed -i -e "s/io.github.kbuntrock:openapi-maven-plugin:${currentVersion}:documentation/io.github.kbuntrock:openapi-maven-plugin:${version}:documentation/g" docs/quick-start.md
+sed -i -e "s/io.github.kbuntrock:openapi-maven-plugin:${currentVersion}:documentation/io.github.kbuntrock:openapi-maven-plugin:${version}:documentation/g" docs/fr/quick-start.md
 
 cd ./openapi-maven-plugin;
 mvn versions:set -DnewVersion="$version" -DgenerateBackupPoms=false;

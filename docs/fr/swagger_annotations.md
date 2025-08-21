@@ -1,8 +1,8 @@
-# 🔌 Swagger Core v3 annotations supports
+# 🔌 Support des annotations Swagger Core v3
 
-## Supported annotations and fields
+## Annotations et champs supportés
 
-Supported annotations and fields currently are:
+Les annotations et champs actuellement pris en charge sont :
 - io.swagger.v3.oas.annotations.Operation
   - operationId (``String``)
   - summary (``String``)
@@ -17,7 +17,7 @@ Supported annotations and fields currently are:
 - io.swagger.v3.oas.annotations.media.Schema
   - implementation (``Class<?>``)
 
-## Example
+## Exemple
 
 ```java
 @Operation(summary = "Swagger summary",

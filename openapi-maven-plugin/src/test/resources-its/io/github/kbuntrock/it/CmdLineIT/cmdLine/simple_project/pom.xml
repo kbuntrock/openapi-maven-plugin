@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>io.github.kbuntrock.openapi.it</groupId>
+  <artifactId>command-line-it</artifactId>
+  <version>1.0.16</version>
+
+  <name>Command line integration test</name>
+
+  <properties>
+    <java.version>17</java.version>
+    <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <version>2.5.12</version>
+    </dependency>
+    <dependency>
+      <artifactId>javax.servlet-api</artifactId>
+      <groupId>javax.servlet</groupId>
+      <version>4.0.1</version>
+    </dependency>
+    <dependency>
+      <artifactId>validation-api</artifactId>
+      <groupId>javax.validation</groupId>
+      <version>2.0.1.Final</version>
+    </dependency>
+  </dependencies>
+
+</project>
