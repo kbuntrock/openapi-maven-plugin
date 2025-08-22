@@ -1,5 +1,15 @@
 # 🚀 Quick Start
 
+This plugin can be used in two different ways, depending on your needs:
+
+**Command-Line Mode**: The fastest way to have a first contact with this plugin is to invoke it directly from the command line.
+This mode is ideal for quickly testing whether the plugin integrates correctly with your project.
+However, it provides only limited configuration options. For full customization and smoother usage, we recommend configuring the plugin in your pom.xml.
+
+**Pom.xml configuration**: Defining the plugin directly in your pom.xml is the most common and convenient approach for everyday use.
+This method offers a complete set of configuration options, making it easier to adapt the plugin to your project’s needs.
+
+---
 ## ⚡ Command Line
 
 The quickest way to generate a documentation is to directly invoke the plugin via the command line:
@@ -30,14 +40,16 @@ Supported values:
   - ``RestController`` (default)
   - ``RequestMapping``
 
+?> A detailed list of available parameters is documented [here](command_line.md)
 
-⚠️ Notes  
-The command line mode is ideal for quickly testing if the plugin integrates properly with your project.
+!> The command line mode is ideal for quickly testing if the plugin integrates properly with your project.
 However, it offers limited configuration options. For full customization and ease of use, it is recommended to configure the plugin directly in your ``pom.xml`` (see the next section).
 
+---
 ## 🍏 Configure your pom.xml
 
 The usual way to generate a documentation is to add the plugin to your pom.xml.
+The plugin main goal is **documentation** and is bound to the compile phase by default. It cannot be executed earlier because a successfully compiled project is required.
 
 To get started, you need to configure your Maven build so that Java method parameter names are preserved.  
 Without this step, parameters in the generated documentation will appear as ``arg0``, ``arg1``, etc.

@@ -1,5 +1,16 @@
 # 🚀 Comment démarrer
 
+Ce plugin peut être utilisé de deux manières différentes, selon vos besoins :
+
+**Mode ligne de commande** : La façon la plus rapide de découvrir ce plugin est de l’invoquer directement depuis la ligne de commande.  
+Ce mode est idéal pour tester rapidement si le plugin s’intègre correctement à votre projet.
+Il n’offre cependant que des possibilités limitées de configuration.
+Pour une personnalisation complète et une utilisation plus fluide, il est recommandé de configurer le plugin directement dans votre ``pom.xml``.
+
+**Configuration via le pom.xml** : Définir le plugin directement dans votre pom.xml est l’approche la plus courante et la plus pratique pour une utilisation quotidienne.
+Cette méthode offre un ensemble complet d’options de configuration, ce qui facilite l’adaptation du plugin aux besoins de votre projet.
+
+---
 ## ⚡ Command Line
 
 La façon la plus rapide de générer une documentation est d’invoquer directement le plugin via la ligne de commande : 
@@ -30,12 +41,12 @@ mvn clean compile io.github.kbuntrock:openapi-maven-plugin:0.0.25-SNAPSHOT:docum
     - ``RestController`` (par défaut)
     - ``RequestMapping``
 
-
-⚠️ Notes  
-Le mode ligne de commande est idéal pour tester rapidement si le plugin s’intègre correctement à votre projet.
+?> Une liste détaillée des paramètres disponibles est documentée [ici](fr/command_line.md)
+  
+!> Le mode ligne de commande est idéal pour tester rapidement si le plugin s’intègre correctement à votre projet.
 Cependant, il offre des possibilités de configuration limitées. Pour une personnalisation complète et un usage simplifié, il est recommandé de configurer le plugin directement dans votre ``pom.xml`` (voir la section suivante).
 
-
+---
 ## 🍏 Configuration de votre pom.xml
 
 Pour commencer, il est nécessaire de configurer votre build Maven afin de conserver les noms des paramètres des méthodes Java.  

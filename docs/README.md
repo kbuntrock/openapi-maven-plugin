@@ -30,9 +30,9 @@ It is designed to integrate seamlessly into the Maven build lifecycle, making AP
     - Reduces the surface for security vulnerabilities.
 
 
-- **Flexible Project Structures**
+- **Fast and flexible**
     - Documentation can be generated from modules that only contain interfaces.
-    - Works faster than methods requiring a running application or full integration test execution.
+    - Works faster than methods requiring a running application or integration test execution.
 
 
 - **Wide JDK Compatibility**  

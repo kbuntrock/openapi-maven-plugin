@@ -30,9 +30,9 @@ Il est conçu pour s’intégrer de manière fluide au cycle de vie Maven, renda
     - Réduit la surface d’exposition aux vulnérabilités.
 
 
-- **Structures de projets flexibles**
+- **Rapide et flexible**
     - La documentation peut être générée à partir de modules ne contenant que des interfaces.
-    - Fonctionne plus rapidement que les méthodes nécessitant le lancement de l’application ou l’exécution complète de tests d’intégration.
+    - Fonctionne plus rapidement que les méthodes nécessitant le lancement de l’application ou l’exécution de tests d’intégration.
 
 
 - **Large compatibilité de JDKs**  

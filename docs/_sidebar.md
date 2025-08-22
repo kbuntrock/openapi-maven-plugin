@@ -1,5 +1,6 @@
 * [Presentation](/)
 * [Quick start](quick-start.md)
 * [Configuration](configuration.md)
+* [Command line](command_line.md)
 * [Examples](examples.md)
 * [Swagger annotations](swagger_annotations.md)
