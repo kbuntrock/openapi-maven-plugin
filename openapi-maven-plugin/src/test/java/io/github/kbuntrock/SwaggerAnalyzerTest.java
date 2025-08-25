@@ -1,6 +1,7 @@
 package io.github.kbuntrock;
 
 import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
 import io.github.kbuntrock.resources.endpoint.swagger.ApiResponseResource;
 import io.github.kbuntrock.resources.endpoint.swagger.EntityAnnotationResource;
@@ -13,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class SwaggerAnalyzerTest extends AbstractTest {
 
@@ -54,5 +56,14 @@ public class SwaggerAnalyzerTest extends AbstractTest {
 
 		checkGenerationResult(mojo.documentProject());
 
+	}
+
+	@Test
+	public void basicAnnotatedAndJavadocResponseWithReturnObjects() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(EntityAnnotationResource.class.getCanonicalName());
+		JavadocConfiguration javadocConfiguration = new JavadocConfiguration();
+		javadocConfiguration.setScanLocations(List.of("src/test/java/io/github/kbuntrock/resources/endpoint/swagger"));
+		mojo.setJavadocConfiguration(javadocConfiguration);
+		checkGenerationResult(mojo.documentProject());
 	}
 }

@@ -6,6 +6,9 @@ import java.time.LocalDateTime;
 
 public class ErrorEntityWithAnnotations {
 
+	/**
+	 * TimeStamp from javadoc, swagger should win as it is run last
+	 */
 	@Schema(description = "Timestamp of the error", example = "2023-10-01T12:00:00")
 	private LocalDateTime timestamp;
 	@Schema(description = "Session ID associated with the error", example = "session-12345")
@@ -26,6 +29,11 @@ public class ErrorEntityWithAnnotations {
 	private String message;
 	@Schema(description = "Path of the request that caused the error", example = "/api/resource")
 	private String path;
+	/**
+	 * Status of the response
+	 */
+	@Schema(example = "Additional information about the error")
+	private String extraInfo;
 	@Schema(description = "The cause of the error, if any")
 	private ErrorEntityWithAnnotations cause;
 

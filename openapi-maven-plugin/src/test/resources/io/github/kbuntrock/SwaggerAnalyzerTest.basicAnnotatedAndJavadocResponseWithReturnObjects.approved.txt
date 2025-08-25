@@ -94,6 +94,7 @@ components:
           type: string
           example: /api/resource
         extraInfo:
+          description: Status of the response
           type: string
           example: Additional information about the error
         cause:
