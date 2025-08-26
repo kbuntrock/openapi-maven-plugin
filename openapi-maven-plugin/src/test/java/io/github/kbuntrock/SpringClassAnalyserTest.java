@@ -55,6 +55,7 @@ import io.github.kbuntrock.resources.endpoint.generic.Issue95;
 import io.github.kbuntrock.resources.endpoint.generic.MappingObject;
 import io.github.kbuntrock.resources.endpoint.header.MultipartFileWithHeaderController;
 import io.github.kbuntrock.resources.endpoint.ignore.JsonIgnoreController;
+import io.github.kbuntrock.resources.endpoint.innerclass.InnerClassObjectsController;
 import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
 import io.github.kbuntrock.resources.endpoint.jackson.JacksonJsonPropertyController;
 import io.github.kbuntrock.resources.endpoint.map.MapController;

@@ -6,6 +6,7 @@ import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
 import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration1Controller;
+import io.github.kbuntrock.resources.endpoint.innerclass.InnerClassObjectsController;
 import io.github.kbuntrock.resources.endpoint.javadoc.inheritance.ChildClassOne;
 import io.github.kbuntrock.resources.endpoint.javadoc.inheritance.two.ChildClassTwo;
 import io.github.kbuntrock.utils.Logger;
@@ -146,6 +147,15 @@ public class JavadocParserTest extends AbstractTest {
 
 		checkGenerationResult(mojo.documentProject());
 
+	}
+
+	@Test
+	public void inner_class_object() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(InnerClassObjectsController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Collections.singletonList("src/test/java/io/github/kbuntrock/resources/endpoint/innerclass"));
+		mojo.setJavadocConfiguration(javadocConfig);
+		checkGenerationResult(mojo.documentProject());
 	}
 
 }

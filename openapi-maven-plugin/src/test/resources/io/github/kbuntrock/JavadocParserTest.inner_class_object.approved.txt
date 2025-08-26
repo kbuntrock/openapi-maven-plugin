@@ -1,0 +1,41 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: InnerClassObjectsController
+paths:
+  /api/inner-class-object-controller/user:
+    get:
+      tags:
+        - InnerClassObjectsController
+      operationId: get
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UserInnerDto'
+components:
+  schemas:
+    UserInnerDto:
+      description: An inner class object representing a user
+      type: object
+      properties:
+        lastname:
+          description: The last name of the user
+          type: string
+        firstname:
+          description: The first name of the user
+          type: string
