@@ -7,14 +7,17 @@ servers:
   - url: ""
 tags:
   - name: InnerAndLocalClassObjectsController
+    description: A controller testing documentation on inner and local classes
 paths:
   /api/inner-class-object-controller/user:
     get:
       tags:
         - InnerAndLocalClassObjectsController
       operationId: get
+      description: Get a user by its id
       parameters:
         - name: userId
+          description: the user id
           in: query
           required: true
           schema:
@@ -22,7 +25,7 @@ paths:
             format: int32
       responses:
         200:
-          description: successful operation
+          description: a user inner class object
           content:
             '*/*':
               schema:

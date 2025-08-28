@@ -2,6 +2,7 @@ package io.github.kbuntrock.javadoc;
 
 import com.github.javaparser.javadoc.Javadoc;
 import com.github.javaparser.javadoc.JavadocBlockTag;
+import com.github.javaparser.javadoc.description.JavadocInlineTag;
 import io.github.kbuntrock.utils.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,13 +46,13 @@ public class JavadocWrapper {
 		sortDone = true;
 		blockTagsByType = new HashMap<>();
 		paramBlockTagsByName = new HashMap<>();
+		inheritTagFound = javadoc.getDescription().getElements().stream()
+				.anyMatch(e -> e instanceof JavadocInlineTag && JavadocInlineTag.Type.INHERIT_DOC == ((JavadocInlineTag) e).getType());
 		for(final JavadocBlockTag blockTag : javadoc.getBlockTags()) {
 			final List<JavadocBlockTag> list = blockTagsByType.computeIfAbsent(blockTag.getType(), k -> new ArrayList<>());
 			list.add(blockTag);
 			if(JavadocBlockTag.Type.PARAM == blockTag.getType() && blockTag.getName().isPresent()) {
 				paramBlockTagsByName.put(blockTag.getName().get(), blockTag);
-			} else if(JavadocBlockTag.Type.UNKNOWN == blockTag.getType() && INHERIT_DOC_TAG_NAME.equals(blockTag.getTagName())) {
-				inheritTagFound = true;
 			}
 		}
 	}

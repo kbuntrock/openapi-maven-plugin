@@ -10,7 +10,6 @@ import io.github.kbuntrock.model.OperationType;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
-import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.ParameterLocation;
 import java.io.File;
@@ -102,7 +101,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 			final RequestMethod[] requestMethods = requestMappingMergedAnnotation.getEnumArray("method", RequestMethod.class);
 			if(requestMethods.length > 0) {
 				logger.debug("Parsing request method : " + method.getName());
-				final String methodIdentifier = JavaClassAnalyser.createIdentifier(method);
+				final String methodIdentifier = JavaClassAnalyser.createMethodIdentifier(method);
 				final List<ParameterObject> parameterObjects = readParameters(clazz, method, mergedAnnotations);
 				final DataObject responseObject = readResponseObject(clazz, method, mergedAnnotations);
 				final int responseCode = readResponseCode(mergedAnnotations);

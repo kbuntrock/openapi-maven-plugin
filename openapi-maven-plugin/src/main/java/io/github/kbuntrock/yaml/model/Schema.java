@@ -247,8 +247,8 @@ public class Schema {
 
 								// Javadoc handling
 								if(classDocumentation != null) {
-									final JavadocWrapper javadocWrapper = classDocumentation.getMethodsJavadoc()
-										.get(JavaClassAnalyser.createIdentifier(method));
+									final JavadocWrapper javadocWrapper = classDocumentation.getMethodsJavadocByIdentifier()
+										.get(JavaClassAnalyser.createMethodIdentifier(method));
 									if(javadocWrapper != null) {
 										final Optional<String> desc = javadocWrapper.getDescription();
 										property.setDescription(desc.get());

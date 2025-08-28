@@ -14,12 +14,14 @@ paths:
       tags:
         - GenericMappingObject
       operationId: postObject
+      description: Post map in body
       requestBody:
         content:
           '*/*':
             schema:
               type: object
               additionalProperties: {}
+        description: my map
       responses:
         200:
           description: successful operation

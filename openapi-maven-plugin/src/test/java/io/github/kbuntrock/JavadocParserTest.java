@@ -6,7 +6,8 @@ import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
 import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration1Controller;
-import io.github.kbuntrock.resources.endpoint.innerclass.InnerClassObjectsController;
+import io.github.kbuntrock.resources.endpoint.innerclass.InnerAndLocalClassObjectsController;
+import io.github.kbuntrock.resources.endpoint.javadoc.basic.BasicController;
 import io.github.kbuntrock.resources.endpoint.javadoc.inheritance.ChildClassOne;
 import io.github.kbuntrock.resources.endpoint.javadoc.inheritance.two.ChildClassTwo;
 import io.github.kbuntrock.utils.Logger;
@@ -22,7 +23,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -49,6 +49,19 @@ public class JavadocParserTest extends AbstractTest {
 		mojo.setApis(Collections.singletonList(apiConfiguration));
 		mojo.setProject(createBasicMavenProject());
 		return mojo;
+	}
+
+	@Test
+	public void basic_parsing() throws MojoFailureException, MojoExecutionException, IOException {
+
+		final DocumentationMojo mojo = createBasicMojo(BasicController.class.getCanonicalName());
+
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/javadoc/basic",
+				"src/test/java/io/github/kbuntrock/resources/dto"));
+		mojo.setJavadocConfiguration(javadocConfig);
+
+		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
@@ -150,8 +163,8 @@ public class JavadocParserTest extends AbstractTest {
 	}
 
 	@Test
-	public void inner_class_object() throws MojoFailureException, IOException, MojoExecutionException {
-		final DocumentationMojo mojo = createBasicMojo(InnerClassObjectsController.class.getCanonicalName());
+	public void inner_local_class_object() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(InnerAndLocalClassObjectsController.class.getCanonicalName());
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
 		javadocConfig.setScanLocations(Collections.singletonList("src/test/java/io/github/kbuntrock/resources/endpoint/innerclass"));
 		mojo.setJavadocConfiguration(javadocConfig);

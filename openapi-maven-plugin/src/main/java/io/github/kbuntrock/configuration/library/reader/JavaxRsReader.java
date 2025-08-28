@@ -7,7 +7,6 @@ import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.OperationType;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
-import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.ParameterLocation;
 import java.lang.annotation.Annotation;
@@ -29,7 +28,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.multipart.MultipartFile;
 
 public class JavaxRsReader extends AstractLibraryReader {
 
@@ -96,7 +94,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 			for(final JavaxRsHttpVerb verb : JavaxRsHttpVerb.values()) {
 				final MergedAnnotation<Annotation> m = mergedAnnotations.get(verb.getAnnotationClass());
 				if(m.isPresent()) {
-					final String methodIdentifier = JavaClassAnalyser.createIdentifier(method);
+					final String methodIdentifier = JavaClassAnalyser.createMethodIdentifier(method);
 					final List<ParameterObject> parameterObjects = readParameters(clazz, method, mergedAnnotations);
 					final DataObject responseObject = readResponseObject(clazz, method, mergedAnnotations);
 					final int responseCode = readResponseCode(null);

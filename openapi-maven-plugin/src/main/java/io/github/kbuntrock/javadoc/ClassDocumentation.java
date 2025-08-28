@@ -21,7 +21,7 @@ public class ClassDocumentation {
 	private JavadocWrapper javadocWrapper;
 
 	private Map<String, JavadocWrapper> fieldsJavadoc;
-	private Map<String, JavadocWrapper> methodsJavadoc;
+	private Map<String, JavadocWrapper> methodsJavadocByIdentifier;
 
 	private boolean inheritanceEnhancementIsDone = false;
 	private Class<?> javaClass;
@@ -87,7 +87,7 @@ public class ClassDocumentation {
 
 				}
 				for(JavadocEntry entry : fieldEntriesToAddOrReplace) {
-					getFieldsJavadoc().put(entry.name, entry.javadocWrapper);
+					getFieldsJavadoc().put(entry.identifier, entry.javadocWrapper);
 				}
 			}
 		}
@@ -99,14 +99,14 @@ public class ClassDocumentation {
 
 				List<JavadocEntry> methodEntriesToAddOrReplace = new ArrayList<>();
 				for(Method method : methods) {
-					String methodIdentifier = JavaClassAnalyser.createIdentifier(method);
-					JavadocWrapper currentJavadoc = getMethodsJavadoc().get(methodIdentifier);
+					String methodIdentifier = JavaClassAnalyser.createMethodIdentifier(method);
+					JavadocWrapper currentJavadoc = getMethodsJavadocByIdentifier().get(methodIdentifier);
 					if(currentJavadoc != null) {
 						currentJavadoc.sortTags();
 					}
 					if(currentJavadoc == null || currentJavadoc.isInheritTagFound()) {
 						for(ClassDocumentation parentClass : parentsClassDocumentation) {
-							JavadocWrapper parentJavadoc = parentClass.getMethodsJavadoc().get(methodIdentifier);
+							JavadocWrapper parentJavadoc = parentClass.getMethodsJavadocByIdentifier().get(methodIdentifier);
 							if(parentJavadoc != null) {
 								parentJavadoc.sortTags();
 							}
@@ -119,7 +119,7 @@ public class ClassDocumentation {
 
 				}
 				for(JavadocEntry entry : methodEntriesToAddOrReplace) {
-					getMethodsJavadoc().put(entry.name, entry.javadocWrapper);
+					getMethodsJavadocByIdentifier().put(entry.identifier, entry.javadocWrapper);
 				}
 			}
 		}
@@ -163,11 +163,11 @@ public class ClassDocumentation {
 		return fieldsJavadoc;
 	}
 
-	public Map<String, JavadocWrapper> getMethodsJavadoc() {
-		if(methodsJavadoc == null) {
-			methodsJavadoc = new HashMap<>();
+	public Map<String, JavadocWrapper> getMethodsJavadocByIdentifier() {
+		if(methodsJavadocByIdentifier == null) {
+			methodsJavadocByIdentifier = new HashMap<>();
 		}
-		return methodsJavadoc;
+		return methodsJavadocByIdentifier;
 	}
 
 	public Optional<String> getDescription() {
@@ -200,11 +200,11 @@ public class ClassDocumentation {
 
 	private class JavadocEntry {
 
-		protected String name;
+		protected String identifier;
 		protected JavadocWrapper javadocWrapper;
 
-		public JavadocEntry(String name, JavadocWrapper javadocWrapper) {
-			this.name = name;
+		public JavadocEntry(String identifier, JavadocWrapper javadocWrapper) {
+			this.identifier = identifier;
 			this.javadocWrapper = javadocWrapper;
 		}
 	}

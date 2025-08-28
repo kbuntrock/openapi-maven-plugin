@@ -30,7 +30,7 @@ public class ChildClassOne extends ParentAbstract implements ParentInterface {
 	/**
 	 * This documentation should not be read
 	 *
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	@Override
 	@GetMapping("/can-encapsulate")

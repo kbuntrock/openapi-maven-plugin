@@ -1,0 +1,117 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: BasicController
+    description: This is my basic controller
+paths:
+  /api/something1:
+    post:
+      tags:
+        - BasicController
+      operationId: getSomething
+      description: Description of endpoint something1
+      parameters:
+        - name: userId
+          description: a user id as a string
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/SimpleUserDto'
+        description: a dto still representing a SimpleUserDto
+      responses:
+        200:
+          description: still true or false
+          content:
+            '*/*':
+              schema:
+                type: boolean
+  /api/something2:
+    post:
+      tags:
+        - BasicController
+      operationId: getSomething
+      description: Description of endpoint something2
+      parameters:
+        - name: userId
+          description: still a user id as a string
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/Authority'
+        description: a dto representing an Authority
+      responses:
+        200:
+          description: "0 if false, 1 if true"
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int32
+  /api/something3:
+    post:
+      tags:
+        - BasicController
+      operationId: getSomething
+      description: Description of endpoint something3
+      parameters:
+        - name: userId
+          description: a user id as a long
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/SimpleUserDto'
+        description: a dto representing a SimpleUserDto
+      responses:
+        200:
+          description: true or false
+          content:
+            '*/*':
+              schema:
+                type: boolean
+components:
+  schemas:
+    Authority:
+      description: |
+        Permissions for a user
+          * `READ_USER` - Reading
+          * `WRITE_USER` - Writing
+          * `ACCES_APP` - Access to the application (the most basic permission)
+      type: string
+      enum:
+        - READ_USER
+        - WRITE_USER
+        - ACCES_APP
+    SimpleUserDto:
+      description: A simple user
+      type: object
+      properties:
+        username:
+          description: User firstname
+          type: string
+        isActive:
+          description: Whether the user is active or not
+          type: boolean
+        admin:
+          description: Whether the user is an admin or not
+          type: boolean
