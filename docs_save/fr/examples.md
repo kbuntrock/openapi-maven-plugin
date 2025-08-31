@@ -273,7 +273,7 @@ Le tout en gardant le processus rapide (une seule exécution du plugin).
 ---
 ## Renommer les tags générés
 
-TPar défaut, les tags sont générés à partir du nom des classes.  
+Par défaut, les tags sont générés à partir du nom des classes.  
 Mais vous pouvez vouloir des noms plus lisibles dans votre documentation.
 
 Cet exemple montre comment :

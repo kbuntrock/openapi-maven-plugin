@@ -34,6 +34,14 @@ const config: Config = {
   i18n: {
     defaultLocale: 'en',
     locales: ['en', 'fr'],
+    // localeConfigs: {
+    //   en: {
+    //     label: 'English',
+    //   },
+    //   fr: {
+    //     label: 'Français',
+    //   }
+    // }
   },
 
   presets: [
@@ -86,6 +94,10 @@ const config: Config = {
           label: 'Documentation',
         },
         // {to: '/blog', label: 'Blog', position: 'left'},
+        {
+          type: 'localeDropdown',
+          position: 'right',
+        },
         {
           type: "html",
           value: '<a href="https://github.com/kbuntrock/openapi-maven-plugin" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link header-github-link" aria-label="GitHub repository"></a>',
