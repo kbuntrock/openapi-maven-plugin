@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 3
 sidebar_label: Command line
 ---
 
@@ -10,7 +10,7 @@ The main required parameter is ``openapi.locations``.
 
 When this parameter is provided, the plugin automatically creates an [API configuration](configuration.md#apis) which can then be customized with additional parameters.
 
-You can see an example of command line usage in the [quick start page](quick_start.md#⚡-command-line)
+You can see an example of command line usage in the [quick start page](quick_start.md#-command-line)
 
 ### Available Options
 
@@ -37,6 +37,7 @@ Specifies which annotation should be used to detect endpoints.
 ---
 ``openapi.filename``:  
 Specifies the name of the generated documentation file.
+
 ---
 ``openapi.javadoc.locations``:  
 Defines the relative paths (from the project root) to Java source files for extracting Javadoc comments.  

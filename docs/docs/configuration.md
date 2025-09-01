@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 2
 sidebar_label: Configuration
 ---
 
@@ -51,7 +51,9 @@ Values can be:
 
 ### tagAnnotations
 
-!> Not relevant if a `JAVAX_RS` or `JAKARTA_RS` is used.
+:::warning
+Not relevant if a `JAVAX_RS` or `JAKARTA_RS` is used.
+:::
 
 - Type: `string list`
 - Default value: `RestController`
@@ -68,7 +70,9 @@ Values can be:
 </tagAnnotations>
 ```
 
-?> If several annotations are declared, a class only need one to be documented.
+:::tip
+If several annotations are declared, a class only need one to be documented.
+:::
 
 ### attachArtifact
 
@@ -81,7 +85,9 @@ Attach the generated document as a maven artifact during the "install" phase.
 <attachArtifact>false</attachArtifact>
 ```
 
-?> The generated filename will be used as classifier. Example : 'my-projet-0.35.0-SNAPSHOT-spec-open-api.yml'
+:::info
+The generated filename will be used as classifier. Example : 'my-projet-0.35.0-SNAPSHOT-spec-open-api.yml'
+:::
 
 ### defaultSuccessfulOperationDescription
 
@@ -160,7 +166,9 @@ Way of generating the operation id for an endpoint (openapi specification tells 
 * `{tag_name}` : endpoint tag (see documentation about possible configuration on the class name to generate a custom tag name)
 * `{method_name}` : java method name
 
-!> Reminder : According to openapi specification, the operation id must be unique in the document.
+:::warning
+Reminder : According to openapi specification, the operation id must be unique in the document.
+:::
 
 ```xml
 <operationId>{tag_name}-{method_name}</operationId>
@@ -187,7 +195,9 @@ Values will be :
 
 If true, insert this extension attribute with the java method name (see https://loopback.io/doc/en/lb4/Decorators_openapi.html).
 
-?> Some tools will use this value. For example, ng-openapi-gen (https://github.com/cyclosproject/ng-openapi-gen) will generate the typescript method names based on this value if it exists.
+:::info
+Some tools will use this value. For example, ng-openapi-gen (https://github.com/cyclosproject/ng-openapi-gen) will generate the typescript method names based on this value if it exists.
+:::
 
 ```xml
 <loopbackOperationName>false</loopbackOperationName>
@@ -204,7 +214,9 @@ Each entry is divided in 3 parts
 - separator : #, used only to split the left and right part
 - right : method regex 
 
-!> It is the class canonical name (with package) which is given to the regex pattern matcher.
+:::info
+It is the class canonical name (with package) which is given to the regex pattern matcher.
+:::
 
 It is not mandatory to fill both entry parts. See the following examples.
 
@@ -227,7 +239,9 @@ Each entry is divided in 3 parts
 - separator : #, used only to split the left and right part
 - right : method regex 
 
-!> It is the class canonical name (with package) which is given to the regex pattern matcher.
+:::info
+It is the class canonical name (with package) which is given to the regex pattern matcher.
+:::
 
 It is not mandatory to fill both entry parts. See the following examples.
 
@@ -246,7 +260,9 @@ It is not mandatory to fill both entry parts. See the following examples.
 Allow to add some documentation values which can not be filled by the project code scanning. Overriding the documentation name and it's version is possible. By default, it is the project name and version.
 Adding extra elements in the "schemas" section is also possible.
 
-!> It is possible to configure a json string, or a path to a json file (path is relative to the project base directory).
+:::tip
+It is possible to configure a json string, or a path to a json file (path is relative to the project base directory).
+:::
 
 ```xml
 <freeFields>
@@ -477,10 +493,11 @@ Configuration linked to the code javadoc reading.
 - Type: `string list`
 - Required: `false`
 
-!> Must be configured if one want to have the javadoc read to fill the description value on endpoint / parameters / response / ...
+:::warning
+Must be configured if one want to have the javadoc read to fill the description value on endpoint / parameters / response / ...
+:::
 
 Configure the relative paths (from the projet root) to folders to read. The most common value to configure is "src/main/java".
-
 
 ```xml
 <scanLocations>
@@ -508,9 +525,13 @@ Encoding of the source code.
 
 Specific configuration for each generated openapi documentation.
 
-!> At least one entry should be configured if you want this plugin to fulfill its purpose.
+:::danger
+At least one entry should be configured if you want this plugin to fulfill its purpose.
+:::
 
-!> All parameters from the "apiConfiguration" section can be overriden here. Ex:
+:::tip
+All parameters from the "apiConfiguration" section can be overriden here. Ex:
+:::
 
 ```xml
 <apis>
@@ -549,7 +570,9 @@ Specific configuration for each generated openapi documentation.
 
 Package names or canonical classes names to document.
 
-!> At least one entry should be configured if you want this plugin to fulfill its purpose.
+:::danger
+At least one entry should be configured if you want this plugin to fulfill its purpose.
+:::
 
 ```xml
 <locations>

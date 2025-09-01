@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 1
 sidebar_label: Comment démarrer
 ---
 
@@ -16,7 +16,7 @@ Pour une personnalisation complète et une utilisation plus fluide, il est recom
 Cette méthode offre un ensemble complet d’options de configuration, ce qui facilite l’adaptation du plugin aux besoins de votre projet.
 
 ---
-## ⚡ Command Line
+## ⚡ Ligne de commande
 
 La façon la plus rapide de générer une documentation est d’invoquer directement le plugin via la ligne de commande :
 
@@ -46,10 +46,14 @@ mvn clean compile io.github.kbuntrock:openapi-maven-plugin:0.0.26-SNAPSHOT:docum
   - ``RestController`` (par défaut)
   - ``RequestMapping``
 
-?> Une liste détaillée des paramètres disponibles est documentée [ici](command_line.md)
+:::tip
+Une liste détaillée des paramètres disponibles est documentée [ici](command_line.md)
+:::
 
-!> Le mode ligne de commande est idéal pour tester rapidement si le plugin s’intègre correctement à votre projet.
+:::warning
+Le mode ligne de commande est idéal pour tester rapidement si le plugin s’intègre correctement à votre projet.
 Cependant, il offre des possibilités de configuration limitées. Pour une personnalisation complète et un usage simplifié, il est recommandé de configurer le plugin directement dans votre ``pom.xml`` (voir la section suivante).
+:::
 
 ---
 ## 🍏 Configuration de votre pom.xml

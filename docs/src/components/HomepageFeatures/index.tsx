@@ -3,6 +3,8 @@ import clsx from 'clsx';
 import Heading from '@theme/Heading';
 import styles from './styles.module.css';
 
+import Translate, {translate} from '@docusaurus/Translate';
+
 type FeatureItem = {
   title: string;
   Svg: React.ComponentType<React.ComponentProps<'svg'>>;
@@ -10,36 +12,79 @@ type FeatureItem = {
 };
 
 const FeatureList: FeatureItem[] = [
-  {
-    title: 'Easy to Use',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
-    description: (
-      <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
-      </>
-    ),
-  },
-  {
-    title: 'Focus on What Matters',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
-    description: (
-      <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
-      </>
-    ),
-  },
-  {
-    title: 'Powered by React',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
-    description: (
-      <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
-      </>
-    ),
-  },
+    {
+        title:
+            translate({
+                message: 'Hybrid Analysis Approach',
+            }),
+        Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+        description: (
+            <>
+              <Translate>Uses both compiled classes and source code to enrich the generated specification: extracts Javadoc comments directly, without extra annotations.</Translate>
+            </>
+        ),
+    },
+    {
+        title:
+            translate({
+              message: 'Broad compatibility',
+            }),
+        Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+        description: (
+            <>
+              <Translate>Works with Spring MVC, Jakarta RS and Javax RS. Verified with JDK 8, 11, 17, and 21.</Translate>
+            </>
+        ),
+    },
+    {
+      title:
+          translate({
+            message: 'Fast and flexible',
+          })
+      ,
+      Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+      description: (
+        <>
+          <Translate>Works faster than methods requiring a running application or integration test execution. Documentation can be generated from modules that only contain interfaces.</Translate>
+        </>
+      ),
+    },
+    {
+      title:
+        translate({
+          message: 'Lightweight & Secure',
+        }),
+      Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+      description: (
+        <>
+          <Translate>No extra dependencies added to your JAR/WAR. Reduces the surface for security vulnerabilities compared to other methods.</Translate>
+        </>
+      ),
+    },
+    {
+        title:
+            translate({
+              message: 'Highly configurable',
+            }),
+        Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+        description: (
+            <>
+              <Translate>Numerous options to fine-tune the generated documentation: whitelists / blacklists, multiple documentation generation, default errors, ...</Translate>
+            </>
+        ),
+    },
+    {
+        title:
+            translate({
+                message: 'Open source',
+            }),
+        Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+        description: (
+            <>
+              <Translate>Missing a feature? Add it to the project! 😉</Translate>
+            </>
+        ),
+    },
 ];
 
 function Feature({title, Svg, description}: FeatureItem) {

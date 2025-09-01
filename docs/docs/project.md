@@ -1,13 +1,9 @@
 ---
-sidebar_position: 1
-sidebar_label: OpenAPI Maven Plugin
+sidebar_position: 6
+sidebar_label: Project informations
 ---
 
 # OpenAPI Maven Plugin
-
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.kbuntrock/openapi-maven-plugin.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.kbuntrock/openapi-maven-plugin)
-[![CircleCI](https://circleci.com/gh/kbuntrock/openapi-maven-plugin/tree/dev.svg?style=shield)](https://circleci.com/gh/kbuntrock/openapi-maven-plugin/tree/dev)
-![GitHub](https://img.shields.io/github/license/kbuntrock/openapi-maven-plugin?color=blue)
 
 The **OpenAPI Maven Plugin** analyzes Java REST controller classes and generates **OpenAPI 3.0.3 documentation**.
 It is designed to integrate seamlessly into the Maven build lifecycle, making API documentation generation **automated, fast, and reliable**.

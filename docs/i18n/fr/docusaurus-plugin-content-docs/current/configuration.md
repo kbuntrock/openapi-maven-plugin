@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 2
 sidebar_label: Configuration
 ---
 
@@ -51,7 +51,9 @@ Les valeurs peuvent être:
 
 ### tagAnnotations
 
-!> Non pertinent si `JAVAX_RS` ou `JAKARTA_RS` est utilisé.
+:::warning
+Non pertinent si `JAVAX_RS` ou `JAKARTA_RS` est utilisé.
+:::
 
 - Type : `string list`
 - Valeur par défaut : `RestController`
@@ -68,7 +70,9 @@ Les valeurs peuvent être:
 </tagAnnotations>
 ```
 
-?> Si plusieurs annotations sont renseignées, il suffit qu'une seule annotation soit rencontrée sur la classe pour qu'elle soit scannée.
+:::info
+Si plusieurs annotations sont renseignées, il suffit qu'une seule annotation soit rencontrée sur la classe pour qu'elle soit scannée.
+:::
 
 ### attachArtifact
 
@@ -81,7 +85,9 @@ Attache la documentation générée en tant qu'artefact maven lors de la phase "
 <attachArtifact>false</attachArtifact>
 ```
 
-?> Le nom du fichier généré sera utilisé en tant que classifier. Exemple : 'mon-projet-0.35.0-SNAPSHOT-spec-open-api.yml'
+:::info
+Le nom du fichier généré sera utilisé en tant que classifier. Exemple : 'mon-projet-0.35.0-SNAPSHOT-spec-open-api.yml'
+:::
 
 ### defaultSuccessfulOperationDescription
 
@@ -160,7 +166,9 @@ Des "places holders" permettent d'insérer les valeurs trouvées dans le code du
 * `{tag_name}` : nom du tag du endpoint (généré à partir du nom de la classe, voir doc correspondante)
 * `{method_name}` : nom de la méthode java
 
-!> Rappel : selon la spécification openapi, l'operation id doit être unique dans le document.
+:::warning
+Rappel : selon la spécification openapi, l'operation id doit être unique dans le document.
+:::
 
 ```xml
 <operationId>{tag_name}-{method_name}</operationId>
@@ -187,7 +195,9 @@ Cette valeur sera :
 
 Si vrai, insert un attribut d'extension indiquant le nom de la méthode java (voir https://loopback.io/doc/en/lb4/Decorators_openapi.html).
 
-?> Certains outils pourront utiliser cette valeur, comme par exemple ng-openapi-gen (https://github.com/cyclosproject/ng-openapi-gen) qui s'en servira pour le nom des méthodes typescript appelant le webservice.
+:::info
+Certains outils pourront utiliser cette valeur, comme par exemple ng-openapi-gen (https://github.com/cyclosproject/ng-openapi-gen) qui s'en servira pour le nom des méthodes typescript appelant le webservice.
+:::
 
 ```xml
 <loopbackOperationName>false</loopbackOperationName>
@@ -204,7 +214,9 @@ Chaque entrée est divisée en trois parties :
 - séparateur : #, sert uniquement à séparer les parties
 - droite : regex de méthode
 
-!> c'est le nom canonique (avec package) de la classe qui est soumis à la regex
+:::info
+C'est le nom canonique (avec package) de la classe qui est soumis à la regex
+:::
 
 Il n'est pas obligatoire de renseigner les deux parties en même temps. Voir les exemples suivants
 
@@ -227,7 +239,9 @@ Chaque entrée est divisée en trois parties :
 - séparateur : #, sert uniquement à séparer les parties
 - droite : regex de méthode
 
-!> c'est le nom canonique (avec package) de la classe qui est soumis à la regex
+:::info
+C'est le nom canonique (avec package) de la classe qui est soumis à la regex
+:::
 
 Il n'est pas obligatoire de renseigner les deux parties en même temps. Voir les exemples suivants
 
@@ -246,7 +260,9 @@ Il n'est pas obligatoire de renseigner les deux parties en même temps. Voir les
 Permet de renseigner des champs de la spécification qui ne peuvent pas être renseignés par le générateur. La surcharge du nom de la documentation et de sa version est également possible. Par défaut, il s'agît du nom de projet et de la version du projet.
 Ajouter des éléments à la section "schemas" est possible via cette configuration.
 
-!> Il est possible de renseigner une string au format json, ou le chemin vers un fichier json (le chemin est relatif par rapport à la racine du projet).
+:::tip
+Il est possible de renseigner une string au format json, ou le chemin vers un fichier json (le chemin est relatif par rapport à la racine du projet).
+:::
 
 ```xml
 <freeFields>
@@ -505,9 +521,15 @@ Indique l'encodage des fichiers de code source dont la javadoc sera extraite.
 - Type: `balise de section`
 - Présence: `obligatoire`
 
-Configurations spécifiques à chaque document généré. Doit contenir au moins un élément.
+Configurations spécifiques à chaque document généré. 
 
-!> Tous les paramètres de la section "apiConfiguration" peuvent être re-définis par api, comme le présente l'exemple suivant :
+:::danger
+Doit contenir au moins un élément pour que ce plugin fonctionne.
+:::
+
+:::tip
+Tous les paramètres de la section "apiConfiguration" peuvent être re-définis par api, comme le présente l'exemple suivant :
+:::
 
 ```xml
 <apis>
@@ -546,6 +568,10 @@ Configurations spécifiques à chaque document généré. Doit contenir au moins
 - Valeur par défaut : `aucune`
 
 Renseigne les packages ou noms de classes complets à documenter.
+
+:::danger
+Doit contenir au moins un élément pour que ce plugin fonctionne.
+:::
 
 
 ```xml

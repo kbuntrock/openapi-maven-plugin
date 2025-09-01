@@ -6,5 +6,9 @@
   "sidebar.documentationSidebar.category.Examples": {
     "message": "Examples",
     "description": "The label for category Examples in sidebar documentationSidebar"
+  },
+  "sidebar.documentationSidebar.category.Exemples": {
+    "message": "Exemples",
+    "description": "The label for category Exemples in sidebar documentationSidebar"
   }
 }

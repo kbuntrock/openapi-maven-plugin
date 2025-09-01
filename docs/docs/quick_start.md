@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 1
 sidebar_label: Quick start
 ---
 
@@ -45,10 +45,14 @@ Supported values:
   - ``RestController`` (default)
   - ``RequestMapping``
 
-?> A detailed list of available parameters is documented [here](command_line.md)
+:::tip
+A detailed list of available parameters is documented [here](command_line.md)
+:::
 
-!> The command line mode is ideal for quickly testing if the plugin integrates properly with your project.
+:::warning
+The command line mode is ideal for quickly testing if the plugin integrates properly with your project.
 However, it offers limited configuration options. For full customization and ease of use, it is recommended to configure the plugin directly in your ``pom.xml`` (see the next section).
+:::
 
 ---
 ## 🍏 Configure your pom.xml

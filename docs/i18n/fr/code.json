@@ -321,5 +321,83 @@
   "theme.tags.tagsPageTitle": {
     "message": "Tags",
     "description": "The title of the tag list page"
+  },
+  "theme.SearchBar.noResultsText": {
+    "message": "Aucun résultat"
+  },
+  "theme.SearchBar.seeAllOutsideContext": {
+    "message": "See all results outside \"{context}\""
+  },
+  "theme.SearchBar.searchInContext": {
+    "message": "See all results within \"{context}\""
+  },
+  "theme.SearchBar.seeAll": {
+    "message": "Voir tous les résultats"
+  },
+  "theme.SearchBar.label": {
+    "message": "Rechercher",
+    "description": "The ARIA label and placeholder for search button"
+  },
+  "theme.SearchPage.existingResultsTitle": {
+    "message": "Résultats pour \"{query}\"",
+    "description": "The search page title for non-empty query"
+  },
+  "theme.SearchPage.emptyResultsTitle": {
+    "message": "Rechercher dans la documentation",
+    "description": "The search page title for empty query"
+  },
+  "theme.SearchPage.searchContext.everywhere": {
+    "message": "Partout"
+  },
+  "theme.SearchPage.documentsFound.plurals": {
+    "message": "1 document trouvé|{count} documents trouvés",
+    "description": "Pluralized label for \"{count} documents found\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+  },
+  "theme.SearchPage.noResultsText": {
+    "message": "Aucun document n'a été trouvé",
+    "description": "The paragraph for empty search result"
+  },
+  "Easily turn your Java APIs into OpenAPI documentation.": {
+    "message": "Transformez facilement vos APIs Java en documentation OpenAPI.",
+    "description": "The global website description"
+  },
+  "Quick start - 5min ⏱️": {
+    "message": "Comment démarrer en 5min ? ⏱️"
+  },
+  "Uses both compiled classes and source code to enrich the generated specification: extracts Javadoc comments directly, without extra annotations.": {
+    "message": "Utilise à la fois les classes compilées et le code source pour enrichir la spécification générée : extrait directement les commentaires Javadoc, sans annotations supplémentaires."
+  },
+  "Works faster than methods requiring a running application or integration test execution. Documentation can be generated from modules that only contain interfaces.": {
+    "message": "Fonctionne plus rapidement que les méthodes nécessitant le lancement de l’application ou l’exécution de tests d’intégration. La documentation peut être générée à partir de modules ne contenant que des interfaces."
+  },
+  "No extra dependencies added to your JAR/WAR. Reduces the surface for security vulnerabilities compared to other methods.": {
+    "message": "Aucune dépendance supplémentaire dans votre JAR/WAR. Réduit la surface d’exposition aux vulnérabilités."
+  },
+  "Missing a feature? Add it to the project! 😉": {
+    "message": "Une fonctionnalité vous manque ? Ajoutez-la au projet ! 😉"
+  },
+  "Hybrid Analysis Approach": {
+    "message": "Analyse hybride"
+  },
+  "Fast and flexible": {
+    "message": "Rapide et flexible"
+  },
+  "Lightweight & Secure": {
+    "message": "Léger & Sécurisé"
+  },
+  "Open source": {
+    "message": "Open source"
+  },
+  "Broad compatibility": {
+    "message": "Large compatibilité"
+  },
+  "Works with Spring MVC, Jakarta RS and Javax RS. Verified with JDK 8, 11, 17, and 21.": {
+    "message": "Fonctionne avec Spring MVC, Jakarta RS et Javax RS. Compatible avec JDK 8, 11, 17 et 21."
+  },
+  "Highly configurable": {
+    "message": "Configurable"
+  },
+  "Numerous options to fine-tune the generated documentation: whitelists / blacklists, multiple documentation generation, default errors, ...": {
+    "message": "Nombreuses options pour affiner la génération : whitelists / blacklists, documentations multiples, erreurs par défaut, ..."
   }
 }

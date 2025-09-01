@@ -8,20 +8,26 @@ import Heading from '@theme/Heading';
 
 import styles from './index.module.css';
 
+import Translate, {translate} from '@docusaurus/Translate';
+import LogoSvg from '@site/static/img/logo.svg';
+
 function HomepageHeader() {
   const {siteConfig} = useDocusaurusContext();
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
+        <LogoSvg className="homepageLogo" aria-label="Logo of the project" />
         <Heading as="h1" className="hero__title">
           {siteConfig.title}
         </Heading>
-        <p className="hero__subtitle">{siteConfig.tagline}</p>
+        <p className="hero__subtitle">
+            <Translate>Easily turn your Java APIs into OpenAPI documentation.</Translate>
+        </p>
         <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
-            to="/docs/project">
-            Docusaurus Tutorial - 5min ⏱️
+            to="/docs/quick_start">
+            <Translate>Quick start - 5min ⏱️</Translate>
           </Link>
         </div>
       </div>
@@ -33,8 +39,13 @@ export default function Home(): ReactNode {
   const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
+      title={`${siteConfig.title}`}
+      description={
+        translate({
+          message: 'Easily turn your Java APIs into OpenAPI documentation.',
+          description: 'The global website description',
+        })
+      }>
       <HomepageHeader />
       <main>
         <HomepageFeatures />

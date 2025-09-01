@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 3
 sidebar_label: Ligne de commande
 
 ---
@@ -11,7 +11,7 @@ Le paramètre principal requis est ``openapi.locations``.
 
 Lorsque ce paramètre est fourni, le plugin crée automatiquement une [configuration API](configuration.md#apis) qui peut ensuite être personnalisée avec des paramètres supplémentaires.
 
-Vous pouvez voir un exemple d’utilisation en ligne de commande sur la [page de démarrage rapide](quick_start.md#⚡-command-line)
+Vous pouvez voir un exemple d’utilisation en ligne de commande sur la [page de démarrage rapide](quick_start.md#-ligne-de-commande)
 
 ### Options disponibles
 
