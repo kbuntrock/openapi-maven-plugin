@@ -6,12 +6,13 @@ info:
 servers:
   - url: ""
 tags:
-  - name: ApiResponseResource
+  - name: Response resource API
+    description: Reference all endpoints linked to resources.
 paths:
   /api/different_errors:
     get:
       tags:
-        - ApiResponseResource
+        - Response resource API
       operationId: errorResponses
       summary: Swagger summary
       responses:
@@ -36,7 +37,7 @@ paths:
   /api/responsecodeErrors:
     get:
       tags:
-        - ApiResponseResource
+        - Response resource API
       operationId: errorResponsesWithNoAndErrorInResponseCode
       summary: Swagger summary
       responses:
@@ -55,7 +56,7 @@ paths:
   /api/summary:
     get:
       tags:
-        - ApiResponseResource
+        - Response resource API
       operationId: swaggerSummary
       summary: Swagger summary
       responses:

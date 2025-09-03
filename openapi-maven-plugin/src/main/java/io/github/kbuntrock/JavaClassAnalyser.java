@@ -6,7 +6,10 @@ import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.library.reader.AstractLibraryReader;
 import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.model.annotation.OperationAnnotationInfo;
 import io.github.kbuntrock.utils.Logger;
+
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -15,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
+import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
 
 import static java.util.stream.Collectors.joining;
@@ -99,6 +103,21 @@ public class JavaClassAnalyser {
 		logger.debug("Parsing tag : " + tag.getName());
 
 		final MergedAnnotations mergedAnnotations = MergedAnnotations.from(clazz, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+
+		// Read swagger tag annotation
+		MergedAnnotation<Annotation> swaggerTag = mergedAnnotations.get("io.swagger.v3.oas.annotations.tags.Tag");
+		if(swaggerTag.isPresent()) {
+			final String tagName = swaggerTag.getString("name");
+			if (!StringUtils.isEmpty(tagName)) {
+				tag.setComputedName(tagName);
+			}
+			final String description = swaggerTag.getString("description");
+			if (!StringUtils.isEmpty(description)) {
+				tag.setDescription(description);
+			}
+		}
+
+
 		final List<String> basePaths = libraryReader.readBasePaths(clazz, mergedAnnotations);
 
 		for(final String basePath : basePaths) {

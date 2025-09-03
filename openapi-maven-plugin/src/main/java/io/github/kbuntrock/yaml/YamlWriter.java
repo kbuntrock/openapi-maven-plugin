@@ -138,25 +138,25 @@ public class YamlWriter {
 
 		// Write "tags" section (list of all tags presents in this documentation)
 		specification.setTags(tagLibrary.getSortedTags().stream()
-			.map(x -> {
-				if(JavadocMap.INSTANCE.isPresent()) {
-					ClassDocumentation classDocumentation = JavadocMap.INSTANCE.getJavadocMap().get(x.getClazz().getCanonicalName());
+			.map(tag -> {
+				if(JavadocMap.INSTANCE.isPresent() && tag.getDescription() == null) {
+					ClassDocumentation classDocumentation = JavadocMap.INSTANCE.getJavadocMap().get(tag.getClazz().getCanonicalName());
 					// Even if there is no declared class documentation, we may enhance it with javadoc on interface and/or abstract classes
 					if(classDocumentation == null) {
-						classDocumentation = new ClassDocumentation(x.getClazz().getCanonicalName(), x.getClazz().getSimpleName());
-						JavadocMap.INSTANCE.getJavadocMap().put(x.getClazz().getCanonicalName(), classDocumentation);
+						classDocumentation = new ClassDocumentation(tag.getClazz().getCanonicalName(), tag.getClazz().getSimpleName());
+						JavadocMap.INSTANCE.getJavadocMap().put(tag.getClazz().getCanonicalName(), classDocumentation);
 					}
 					logger.debug(
-						"Class documentation found for tag " + x.getClazz().getSimpleName() + " ? " + (classDocumentation != null));
+						"Class documentation found for tag " + tag.getClazz().getSimpleName() + " ? " + (classDocumentation != null));
 
-					classDocumentation.inheritanceEnhancement(x.getClazz(), ClassDocumentation.EnhancementType.METHODS);
+					classDocumentation.inheritanceEnhancement(tag.getClazz(), ClassDocumentation.EnhancementType.METHODS);
 					final Optional<String> description = classDocumentation.getDescription();
 					if(description.isPresent()) {
-						return new TagElement(x.computeConfiguredName(apiConfiguration), description.get());
+						return new TagElement(tag.computeConfiguredName(apiConfiguration), description.get());
 					}
 				}
 
-				return new TagElement(x.computeConfiguredName(apiConfiguration), null);
+				return new TagElement(tag.computeConfiguredName(apiConfiguration), tag.getDescription());
 			}).collect(Collectors.toList()));
 
 		// Write the "paths" section (all url / http verbs combinaison scanned)
