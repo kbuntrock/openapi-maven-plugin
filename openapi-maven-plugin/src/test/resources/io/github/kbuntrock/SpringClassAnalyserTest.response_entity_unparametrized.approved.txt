@@ -1,0 +1,22 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: ResponseEntityUnparametrizedController
+    description: A controller designed to test unparametrized response entities
+paths:
+  /api/information:
+    get:
+      tags:
+        - ResponseEntityUnparametrizedController
+      operationId: getInformation
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema: {}

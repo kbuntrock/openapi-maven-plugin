@@ -46,6 +46,32 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ResponseEntityWithAnnotations'
+  /api/unparametrized:
+    get:
+      tags:
+        - EntityAnnotationResource
+      operationId: unparametrized
+      summary: Swagger summary of unparametrized operation
+      responses:
+        200:
+          description: The success response
+          content:
+            '*/*':
+              schema:
+                description: The success entity
+                $ref: '#/components/schemas/SuccessEntity'
+        404:
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorEntityWithAnnotations'
+        500:
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorEntityWithAnnotations'
 components:
   schemas:
     ErrorEntityWithAnnotations:
@@ -119,3 +145,15 @@ components:
           type: string
           format: date-time
           example: 2023-10-01T12:00:00
+    SuccessEntity:
+      description: The success entity
+      type: object
+      properties:
+        firstName:
+          description: The first name
+          type: string
+          example: John
+        lastName:
+          description: The last name
+          type: string
+          example: Doe

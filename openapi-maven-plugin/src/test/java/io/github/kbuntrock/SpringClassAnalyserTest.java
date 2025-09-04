@@ -80,6 +80,7 @@ import io.github.kbuntrock.resources.endpoint.recursive.RecursiveDtoController;
 import io.github.kbuntrock.resources.endpoint.recursive.RecursiveDtoInParameterController;
 import io.github.kbuntrock.resources.endpoint.spring.OptionalController;
 import io.github.kbuntrock.resources.endpoint.spring.ResponseEntityController;
+import io.github.kbuntrock.resources.endpoint.spring.ResponseEntityUnparametrizedController;
 import io.github.kbuntrock.resources.endpoint.time.TimeController;
 import io.github.kbuntrock.resources.endpoint.uuid.UuidController;
 import io.github.kbuntrock.resources.implementation.account.AccountControllerImpl;
@@ -398,6 +399,18 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
 		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/spring",
 			"src/test/java/io/github/kbuntrock/resources/dto"));
+		mojo.setJavadocConfiguration(javadocConfig);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void response_entity_unparametrized() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(ResponseEntityUnparametrizedController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/spring",
+				"src/test/java/io/github/kbuntrock/resources/dto"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
 		checkGenerationResult(mojo.documentProject());

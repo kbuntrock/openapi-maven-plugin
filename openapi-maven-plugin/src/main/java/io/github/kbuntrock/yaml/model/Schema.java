@@ -122,6 +122,15 @@ public class Schema {
 				}
 			}
 		}
+		// Swagger annotation on the class
+		MergedAnnotations mergedClassAnnotations = MergedAnnotations.from(dataObject.getJavaClass(), MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+		final MergedAnnotation<Annotation> classSchemaAnnotation = mergedClassAnnotations.get("io.swagger.v3.oas.annotations.media.Schema");
+		if (classSchemaAnnotation.isPresent()) {
+			String swaggerDescription = classSchemaAnnotation.getString("description");
+			if (!StringUtils.isEmpty(swaggerDescription)) {
+				description = swaggerDescription;
+			}
+		}
 
 		if(dataObject.isMap()) {
 			type = dataObject.getOpenApiResolvedType();

@@ -34,4 +34,15 @@ public class EntityAnnotationResource {
 		return ResponseEntity.ok(new ResponseEntityWithAnnotations());
 	}
 
+	@Operation(summary = "Swagger summary of unparametrized operation",
+			responses = {
+					@ApiResponse(responseCode = "200", description = "The success response", content = @Content(schema = @Schema(implementation = SuccessEntity.class))),
+					@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = ErrorEntityWithAnnotations.class))),
+					@ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema(implementation = ErrorEntityWithAnnotations.class)))
+			})
+	@GetMapping("/unparametrized")
+	public ResponseEntity unparametrized() {
+		return ResponseEntity.ok(new ResponseEntityWithAnnotations());
+	}
+
 }
