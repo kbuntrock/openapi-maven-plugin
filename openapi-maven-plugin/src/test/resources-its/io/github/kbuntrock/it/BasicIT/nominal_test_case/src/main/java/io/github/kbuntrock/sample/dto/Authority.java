@@ -1,5 +1,7 @@
 package io.github.kbuntrock.sample.dto;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 /**
  * Permissions of a user
  */
@@ -17,6 +19,7 @@ public enum Authority {
 	 */
 	UPDATE_USER(3000);
 
+	@JsonValue
 	private final int code;
 
 	Authority(final int code) {
