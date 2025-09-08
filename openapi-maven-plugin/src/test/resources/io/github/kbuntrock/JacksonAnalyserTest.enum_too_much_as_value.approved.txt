@@ -1,0 +1,32 @@
+---
+openapi: 3.0.3
+info:
+  title: Project using jackson
+  version: v1.0
+servers:
+  - url: ""
+tags:
+  - name: EnumTooMuchAsValueController
+paths:
+  /api/my-controller/enums:
+    get:
+      tags:
+        - EnumTooMuchAsValueController
+      operationId: EnumTooMuchAsValueController.getEnums
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnumTooMuchAsValue'
+      x-operation-name: getEnums
+components:
+  schemas:
+    EnumTooMuchAsValue:
+      type: string
+      enum:
+        - FRANCE
+        - GERMANY

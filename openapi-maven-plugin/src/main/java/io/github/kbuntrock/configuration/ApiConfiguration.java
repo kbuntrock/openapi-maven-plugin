@@ -67,6 +67,8 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.pathPrefix = copy.pathPrefix;
 		merged.fileFormat = copy.fileFormat;
 		merged.loopbackOperationName = copy.loopbackOperationName;
+		merged.enumNameExtension = copy.enumNameExtension;
+		merged.enumNameExtensionValue = copy.enumNameExtensionValue;
 		merged.operationId = copy.operationId;
 		merged.freeFields = copy.freeFields;
 		merged.library = copy.library;
@@ -120,6 +122,10 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		}
 		if(loopbackOperationName != null) {
 			merged.setLoopbackOperationName(loopbackOperationName);
+		}
+		if(enumNameExtension != null) {
+			merged.setEnumNameExtension(enumNameExtension);
+			merged.setEnumNameExtensionValue(enumNameExtensionValue);
 		}
 		if(operationId != null) {
 			merged.setOperationId(operationId);

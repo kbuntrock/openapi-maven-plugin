@@ -25,7 +25,6 @@ import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration3Contro
 import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration4Controller;
 import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration5Controller;
 import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration6Controller;
-import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration7Controller;
 import io.github.kbuntrock.resources.endpoint.error.SameOperationController;
 import io.github.kbuntrock.resources.endpoint.file.FileUploadController;
 import io.github.kbuntrock.resources.endpoint.file.StreamResponseController;
@@ -321,17 +320,6 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
 		final DocumentationMojo mojo = createBasicMojo(TestEnumeration6Controller.class.getCanonicalName());
 
-		checkGenerationResult(mojo.documentProject());
-	}
-
-	@Test
-	public void enumeration_test_7() throws MojoFailureException, IOException, MojoExecutionException {
-
-		final DocumentationMojo mojo = createBasicMojo(TestEnumeration7Controller.class.getCanonicalName());
-		final EnumConfig enumConfig = new EnumConfig();
-		enumConfig.setCanonicalName(TerritoryEnum.class.getCanonicalName());
-		enumConfig.setValueField("code");
-		mojo.getApiConfiguration().setEnumConfigList(Arrays.asList(enumConfig));
 		checkGenerationResult(mojo.documentProject());
 	}
 

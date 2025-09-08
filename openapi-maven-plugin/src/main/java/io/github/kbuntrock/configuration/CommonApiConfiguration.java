@@ -63,11 +63,24 @@ public class CommonApiConfiguration {
 	protected String fileFormat;
 
 	/**
-	 * If true, return a short operation name for code generation, as described here :
+	 * If true, return a short operation name for code generation, as described here:
 	 * https://loopback.io/doc/en/lb4/Decorators_openapi.html
 	 */
 	@Parameter
 	protected Boolean loopbackOperationName;
+
+	/**
+     * If true, add an enum name for all enums described by values
+     * See https://orval.dev/guides/enums
+     */
+	@Parameter
+	protected Boolean enumNameExtension;
+	/**
+	 * Define the enumeration name string if the above parameter is true
+	 * Default is "x-enumNames"
+	 */
+	@Parameter
+	protected String enumNameExtensionValue;
 
 	@Parameter
 	protected Boolean defaultNonNullableFields;
@@ -134,6 +147,8 @@ public class CommonApiConfiguration {
 		this.pathPrefix = commonApiConfiguration.pathPrefix;
 		this.fileFormat = commonApiConfiguration.fileFormat;
 		this.loopbackOperationName = commonApiConfiguration.loopbackOperationName;
+		this.enumNameExtension = commonApiConfiguration.enumNameExtension;
+		this.enumNameExtensionValue = commonApiConfiguration.enumNameExtensionValue;
 		this.operationId = commonApiConfiguration.operationId;
 		this.freeFields = commonApiConfiguration.freeFields;
 		this.library = commonApiConfiguration.library;
@@ -192,6 +207,10 @@ public class CommonApiConfiguration {
 		}
 		if(loopbackOperationName == null) {
 			loopbackOperationName = true;
+		}
+		if(enumNameExtension == null) {
+			enumNameExtension = true;
+			enumNameExtensionValue = "x-enumNames";
 		}
 		if(pathEnhancement == null) {
 			pathEnhancement = true;
@@ -288,6 +307,22 @@ public class CommonApiConfiguration {
 
 	public void setLoopbackOperationName(final boolean loopbackOperationName) {
 		this.loopbackOperationName = loopbackOperationName;
+	}
+
+	public Boolean getEnumNameExtension() {
+		return enumNameExtension;
+	}
+
+	public void setEnumNameExtension(Boolean enumNameExtension) {
+		this.enumNameExtension = enumNameExtension;
+	}
+
+	public String getEnumNameExtensionValue() {
+		return enumNameExtensionValue;
+	}
+
+	public void setEnumNameExtensionValue(String enumNameExtensionValue) {
+		this.enumNameExtensionValue = enumNameExtensionValue;
 	}
 
 	public String getOperationId() {

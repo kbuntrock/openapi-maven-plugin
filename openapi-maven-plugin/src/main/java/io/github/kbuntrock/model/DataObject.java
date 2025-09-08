@@ -1,19 +1,16 @@
 package io.github.kbuntrock.model;
 
 import com.google.common.reflect.TypeToken;
-import io.github.kbuntrock.configuration.EnumConfigHolder;
 import io.github.kbuntrock.reflection.GenericArrayTypeImpl;
 import io.github.kbuntrock.reflection.ParameterizedTypeImpl;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
+import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.OpenApiResolvedType;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
-import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,6 +19,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.springframework.core.annotation.MergedAnnotation;
+import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.util.ReflectionUtils;
 
 /**
@@ -29,6 +29,7 @@ import org.springframework.util.ReflectionUtils;
  */
 public class DataObject {
 
+	private static final String JACKSON_ANNOTATION_JSON_VALUE = "com.fasterxml.jackson.annotation.JsonValue";
 	/**
 	 * Array of two elements in case of a map object :
 	 * index 0 : the key type
@@ -176,26 +177,7 @@ public class DataObject {
 
 			this.openApiResolvedType = OpenApiTypeResolver.INSTANCE.resolveFromJavaClass(javaClass);
 			if(javaClass.isEnum()) {
-				final Object[] values = javaClass.getEnumConstants();
-				this.enumItemValues = new ArrayList<>();
-				final String valueField = EnumConfigHolder.getValueFieldForEnum(javaClass.getCanonicalName());
-				if(valueField != null) {
-					this.enumItemNames = new ArrayList<>();
-
-					final Field field = javaClass.getDeclaredField(valueField);
-					ReflectionUtils.makeAccessible(field);
-					this.openApiResolvedType = OpenApiTypeResolver.INSTANCE.resolveFromJavaClass(field.getType(), false);
-					for(final Object value : values) {
-						this.enumItemNames.add(((Enum) value).name());
-						this.enumItemValues.add(field.get(value).toString());
-					}
-				} else {
-					for(final Object value : values) {
-						this.enumItemValues.add(((Enum) value).name());
-					}
-				}
-
-
+				computeEnum();
 			} else if(javaClass.isArray() && !genericallyTyped && javaClass != byte[].class) {
 				arrayItemDataObject = new DataObject(javaClass.getComponentType());
 			}
@@ -206,10 +188,73 @@ public class DataObject {
 
 		} catch(final ClassNotFoundException ex) {
 			throw new RuntimeException("ClassNotFound wrapped", ex);
-		} catch(final NoSuchFieldException e) {
-			throw new RuntimeException("Field not found", e);
-		} catch(final IllegalAccessException e) {
-			throw new RuntimeException(e);
+		}
+
+	}
+
+	private void computeEnum() {
+
+		this.enumItemValues = new ArrayList<>();
+		List<String> elementWithAnnotation = new ArrayList<>();
+
+		for(final Method method : javaClass.getMethods()) {
+			if(method.getParameters().length == 0) {
+				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+				MergedAnnotation<Annotation> jsonAsValue = mergedAnnotations.get(JACKSON_ANNOTATION_JSON_VALUE);
+				if(jsonAsValue.isPresent()) {
+					elementWithAnnotation.add(method.getName());
+				}
+			}
+		}
+		if(elementWithAnnotation.size() > 1) {
+			Logger.INSTANCE.getLogger().warn("Problem with definition of ["+javaClass.getCanonicalName()
+					+ "]: Multiple 'as-value' methods defined [" + elementWithAnnotation.stream().sorted().collect(Collectors.joining(",")) +"]");
+		} else if(elementWithAnnotation.size() == 1) {
+            try {
+				this.enumItemNames = new ArrayList<>();
+				final Method method = javaClass.getMethod(elementWithAnnotation.get(0));
+				ReflectionUtils.makeAccessible(method);
+				this.openApiResolvedType = OpenApiTypeResolver.INSTANCE.resolveFromJavaClass(method.getReturnType(), false);
+				for(final Object value : javaClass.getEnumConstants()) {
+					this.enumItemNames.add(((Enum) value).name());
+					this.enumItemValues.add(method.invoke(value).toString());
+				}
+				// Method has precedence over fields, we return here
+				return;
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+				Logger.INSTANCE.getLogger().error("Error while representing enumeration "+javaClass.getCanonicalName()+"#"+elementWithAnnotation.get(0)+"()", e);
+            }
+        }
+
+		for(final Field field : javaClass.getDeclaredFields()) {
+			final MergedAnnotations mergedAnnotations = MergedAnnotations.from(field, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+			MergedAnnotation<Annotation> jsonAsValue = mergedAnnotations.get(JACKSON_ANNOTATION_JSON_VALUE);
+			if(jsonAsValue.isPresent()) {
+				elementWithAnnotation.add(field.getName());
+			}
+		}
+		if(elementWithAnnotation.size() > 1) {
+			Logger.INSTANCE.getLogger().warn("Problem with definition of ["+javaClass.getCanonicalName()
+					+ "]: Multiple 'as-value' fields defined [" + elementWithAnnotation.stream().sorted().collect(Collectors.joining(",")) +"]");
+		} else if(elementWithAnnotation.size() == 1) {
+			try {
+				this.enumItemNames = new ArrayList<>();
+				final Field field = javaClass.getDeclaredField(elementWithAnnotation.get(0));
+				ReflectionUtils.makeAccessible(field);
+				this.openApiResolvedType = OpenApiTypeResolver.INSTANCE.resolveFromJavaClass(field.getType(), false);
+				for(final Object value : javaClass.getEnumConstants()) {
+					this.enumItemNames.add(((Enum) value).name());
+					this.enumItemValues.add(field.get(value).toString());
+				}
+				return;
+			} catch (NoSuchFieldException | IllegalAccessException e) {
+				Logger.INSTANCE.getLogger().error("Error while representing enumeration "+javaClass.getCanonicalName()+"#"+elementWithAnnotation.get(0), e);
+			}
+
+        }
+		// Classic way to fill the enumeration values, based on the name.
+		for(final Object value : javaClass.getEnumConstants()) {
+			this.enumItemValues.add(((Enum) value).name());
 		}
 
 	}
