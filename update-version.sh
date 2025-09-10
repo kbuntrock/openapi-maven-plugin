@@ -26,10 +26,12 @@ echo "currentVersion reworked is ${currentVersion}!"
 
 # End of the "recompute" part
 
-sed -i -e "s/<version>${currentVersion}<\/version>/<version>${version}<\/version>/g" docs/quick-start.md
-sed -i -e "s/<version>${currentVersion}<\/version>/<version>${version}<\/version>/g" docs/fr/quick-start.md
-sed -i -e "s/io.github.kbuntrock:openapi-maven-plugin:${currentVersion}:documentation/io.github.kbuntrock:openapi-maven-plugin:${version}:documentation/g" docs/quick-start.md
-sed -i -e "s/io.github.kbuntrock:openapi-maven-plugin:${currentVersion}:documentation/io.github.kbuntrock:openapi-maven-plugin:${version}:documentation/g" docs/fr/quick-start.md
+# Update english version
+sed -i -e "s/io.github.kbuntrock:openapi-maven-plugin:${currentVersion}:documentation/io.github.kbuntrock:openapi-maven-plugin:${version}:documentation/g" docs/docs/quick_start.md
+sed -i -e "s/<version>${currentVersion}<\/version>/<version>${version}<\/version>/g" docs/docs/quick_start.md
+# Update french version
+sed -i -e "s/io.github.kbuntrock:openapi-maven-plugin:${currentVersion}:documentation/io.github.kbuntrock:openapi-maven-plugin:${version}:documentation/g" docs/i18n/fr/docusaurus-plugin-content-docs/current/quick_start.md
+sed -i -e "s/<version>${currentVersion}<\/version>/<version>${version}<\/version>/g" docs/i18n/fr/docusaurus-plugin-content-docs/current/quick_start.md
 
 cd ./openapi-maven-plugin;
 mvn versions:set -DnewVersion="$version" -DgenerateBackupPoms=false;

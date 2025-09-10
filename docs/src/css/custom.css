@@ -47,3 +47,14 @@
   width:100px;
   height:100px;
 }
+
+.theme-announcement-bar {
+  --site-announcement-bar-stripe-color1: #035585;
+  --site-announcement-bar-stripe-color2: #0082cd;
+  background: repeating-linear-gradient(35deg,var(--site-announcement-bar-stripe-color1),var(--site-announcement-bar-stripe-color1)20px,var(--site-announcement-bar-stripe-color2)10px,var(--site-announcement-bar-stripe-color2)40px);
+}
+
+.theme-announcement-bar .clean-btn {
+  color: white;
+  opacity: 100%;
+}

@@ -1,6 +1,8 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import type {PluginsParams} from 'svgo/plugins/plugins-types';
+import * as path from "node:path";
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -65,6 +67,34 @@ const config: Config = {
         theme: {
           customCss: './src/css/custom.css',
         },
+        // This part in only here to resolve inline SVG clash:
+        // https://github.com/facebook/docusaurus/issues/8297
+        // https://github.com/facebook/docusaurus/issues/10679
+        svgr: {
+          svgrConfig: {
+            svgoConfig: {
+              plugins: [
+                {
+                  name: 'preset-default',
+                  params: {
+                    overrides: {
+                      removeTitle: false,
+                      removeViewBox: false,
+                    },
+                  },
+                },
+                {
+                  name: 'prefixIds',
+                  params: {
+                    delim: '',
+                    cleanupIDs: false,
+                    // prefix: (_, info) => path.parse(info.path!).name,
+                  } as PluginsParams['prefixIds'],
+                },
+              ],
+            }
+          }
+        }
       } satisfies Preset.Options,
     ],
   ],
@@ -83,7 +113,7 @@ const config: Config = {
   ],
   themeConfig: {
     // Replace with your project's social card
-    image: 'img/docusaurus-social-card.jpg',
+    image: 'img/social-media-card.jpg',
     navbar: {
       title: 'Openapi Maven Plugin',
       logo: {
@@ -155,6 +185,14 @@ const config: Config = {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
       additionalLanguages: ['java'],
+    },
+    announcementBar: {
+      id: 'github_star',
+      content:
+          '⭐️ Support the project by giving it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/kbuntrock/openapi-maven-plugin">GitHub!</a> ⭐️',
+      backgroundColor: '#0067a6',
+      textColor: '#FFFFFF',
+      isCloseable: true,
     },
   } satisfies Preset.ThemeConfig,
 };

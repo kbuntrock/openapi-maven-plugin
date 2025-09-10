@@ -1,6 +1,0 @@
-* [Présentation](fr/)
-* [Comment démarrer](fr/quick-start.md)
-* [Configuration](fr/configuration.md)
-* [Ligne de commande](fr/command_line.md)
-* [Examples](fr/examples.md)
-* [Annotations Swagger](fr/swagger_annotations.md)

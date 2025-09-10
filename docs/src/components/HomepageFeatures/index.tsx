@@ -2,12 +2,13 @@ import type {ReactNode} from 'react';
 import clsx from 'clsx';
 import Heading from '@theme/Heading';
 import styles from './styles.module.css';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 import Translate, {translate} from '@docusaurus/Translate';
 
 type FeatureItem = {
   title: string;
-  Svg: React.ComponentType<React.ComponentProps<'svg'>>;
+  imageUrl: string;
   description: ReactNode;
 };
 
@@ -17,7 +18,7 @@ const FeatureList: FeatureItem[] = [
             translate({
                 message: 'Hybrid Analysis Approach',
             }),
-        Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+        imageUrl: '/img/flower_small.png',
         description: (
             <>
               <Translate>Uses both compiled classes and source code to enrich the generated specification: extracts Javadoc comments directly, without extra annotations.</Translate>
@@ -27,12 +28,12 @@ const FeatureList: FeatureItem[] = [
     {
         title:
             translate({
-              message: 'Broad compatibility',
+                message: 'Highly configurable',
             }),
-        Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+        imageUrl: '/img/toolbox_small.png',
         description: (
             <>
-              <Translate>Works with Spring MVC, Jakarta RS and Javax RS. Verified with JDK 8, 11, 17, and 21.</Translate>
+                <Translate>Numerous options to fine-tune the generated documentation: whitelists / blacklists, multiple documentation generation, default errors, ...</Translate>
             </>
         ),
     },
@@ -42,7 +43,7 @@ const FeatureList: FeatureItem[] = [
             message: 'Fast and flexible',
           })
       ,
-      Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+      imageUrl: '/img/gym_small.png',
       description: (
         <>
           <Translate>Works faster than methods requiring a running application or integration test execution. Documentation can be generated from modules that only contain interfaces.</Translate>
@@ -54,7 +55,7 @@ const FeatureList: FeatureItem[] = [
         translate({
           message: 'Lightweight & Secure',
         }),
-      Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+      imageUrl: '/img/padlock_small.png',
       description: (
         <>
           <Translate>No extra dependencies added to your JAR/WAR. Reduces the surface for security vulnerabilities compared to other methods.</Translate>
@@ -64,21 +65,21 @@ const FeatureList: FeatureItem[] = [
     {
         title:
             translate({
-              message: 'Highly configurable',
+                message: 'Broad compatibility',
             }),
-        Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+        imageUrl: '/img/puzzle_small.png',
         description: (
             <>
-              <Translate>Numerous options to fine-tune the generated documentation: whitelists / blacklists, multiple documentation generation, default errors, ...</Translate>
+                <Translate>Works with Spring MVC, Jakarta RS and Javax RS. Verified with JDK 8, 11, 17, and 21.</Translate>
             </>
         ),
     },
     {
         title:
             translate({
-                message: 'Open source',
+                message: 'Open source & free',
             }),
-        Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+        imageUrl: '/img/owl_small.png',
         description: (
             <>
               <Translate>Missing a feature? Add it to the project! 😉</Translate>
@@ -87,11 +88,11 @@ const FeatureList: FeatureItem[] = [
     },
 ];
 
-function Feature({title, Svg, description}: FeatureItem) {
+function Feature({title, imageUrl, description}: FeatureItem) {
   return (
     <div className={clsx('col col--4')}>
       <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
+        <img className={styles.featureImg} src={useBaseUrl(imageUrl)}/>
       </div>
       <div className="text--center padding-horiz--md">
         <Heading as="h3">{title}</Heading>
