@@ -28,6 +28,8 @@ const config: Config = {
   projectName: 'openapi-maven-plugin', // Usually your repo name.
   deploymentBranch: 'docs',
 
+  trailingSlash: false,
+
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
 
