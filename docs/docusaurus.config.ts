@@ -26,6 +26,7 @@ const config: Config = {
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'github.com/kbuntrock', // Usually your GitHub org/user name.
   projectName: 'openapi-maven-plugin', // Usually your repo name.
+  deploymentBranch: 'docs',
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
