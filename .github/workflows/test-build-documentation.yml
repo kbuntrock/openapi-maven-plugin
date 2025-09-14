@@ -3,7 +3,7 @@ name: Test deployment
 on:
   pull_request:
     branches:
-      - main
+      - dev
 
 jobs:
   test-deploy:
@@ -15,12 +15,19 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          cache-dependency-path: docs/package-lock.json
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
         working-directory: docs
         run: npm ci
+      - name: List files in node_modules/@easyops-cn
+        working-directory: docs/node_modules/@easyops-cn
+        run: ls
+      - name: List files in node_modules/@easyops-cn/docusaurus-search-local/dist/server/server/
+        working-directory: docs/node_modules/@easyops-cn/docusaurus-search-local/dist/server/server/
+        run: ls
       - name: Test build website
         working-directory: docs
         run: npm run build
