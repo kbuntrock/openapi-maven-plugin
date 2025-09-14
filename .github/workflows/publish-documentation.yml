@@ -29,15 +29,7 @@ jobs:
     - name: Install dependencies
       working-directory: docs
       run: npm ci
-    - name: List files in docs
-      working-directory: docs
-      run: ls
-    - name: List files in node_modules
-      working-directory: docs/node_modules
-      run: ls
-    - name: List files in node_modules/@easyops-cn
-      working-directory: docs/node_modules/@easyops-cn
-      run: ls
+    
     - name: Build website
       working-directory: docs
       run: npm run build
