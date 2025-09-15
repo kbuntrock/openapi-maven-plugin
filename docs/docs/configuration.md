@@ -437,7 +437,7 @@ Useful for JaxRS or JakartaRS project using the "Response" class (this class can
 
 This annotation have to implement a function "Class value()".
 
-Example : 
+Example: 
 
 ```java
 @Target(ElementType.METHOD)
@@ -480,6 +480,106 @@ Entries can override entries of the default file: https://github.com/kbuntrock/o
 Entries are divided in two groups:
 - equality: require class equality
 - assignability: require class assignability (`isAssignableFrom(Class<?> cls)`)
+
+### enumListDescriptionEnabled
+
+- Type : `boolean`
+- Default value: `true`
+
+Write a list of all the enumeration "value / description" couples in the global enumeration description.
+
+Example:
+
+```yaml
+components:
+  schemas:
+    Authority:
+      description: |
+        Permissions of a user
+          * `ACCESS_APP` - Has the right to access the application
+          * `READ_USER` - Can read user informations
+          * `UPDATE_USER` - Can update user informations
+      type: integer
+      format: int32
+      enum:
+        - ACCESS_APP
+        - READ_USER
+        - UPDATE_USER
+```
+
+### enumNameExtensionEnabled
+
+- Type : `boolean`
+- Default value: `true`
+
+Enable an "unofficial" extension to add enumeration names to the documentation. Useful for code generation.
+
+:::note
+See https://openapi-generator.tech/docs/templating/#all-generators-core
+:::
+
+Example:
+
+```yaml
+components:
+  schemas:
+    Authority:
+      description: Permissions of a user
+      type: integer
+      format: int32
+      enum:
+        - 1000
+        - 2000
+        - 3000
+      x-enum-varnames:
+        - ACCESS_APP
+        - READ_USER
+        - UPDATE_USER
+```
+
+### enumNameExtensionValue
+
+- Type : `string`
+- Default value: `x-enum-varnames`
+
+Value to use for the enumeration name extension.
+
+### enumDescriptionExtensionEnabled
+
+- Type : `boolean`
+- Default value: `true`
+
+Enable an "unofficial" extension to add enumeration description to the documentation. Useful for code generation.
+
+:::note
+See https://openapi-generator.tech/docs/templating/#all-generators-core
+:::
+
+Example:
+
+```yaml
+components:
+  schemas:
+    Authority:
+      description: Permissions of a user
+      type: integer
+      format: int32
+      enum:
+        - 1000
+        - 2000
+        - 3000
+      x-enum-descriptions:
+        - Has the right to access the application
+        - Can read user informations
+        - Can update user informations
+```
+
+### enumNameExtensionValue
+
+- Type : `string`
+- Default value: `x-enum-descriptions`
+
+Value to use for the enumeration description extension.
 
 ## javadocConfiguration
 

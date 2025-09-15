@@ -481,6 +481,106 @@ Les entrées sont divisées en deux groupes :
 - equality: Demande l'égalité de classe
 - assignability: Demande "l'assignabilité" de classe (via `isAssignableFrom(Class<?> cls)`)
 
+### enumListDescriptionEnabled
+
+- Type : `boolean`
+- Valeur par défaut : `true`
+
+Indique dans la description des énumération une liste de tous les couples « valeur / description ».
+
+Exemple :
+
+```yaml
+components:
+  schemas:
+    Authority:
+      description: |
+        Permissions of a user
+          * `ACCESS_APP` - Has the right to access the application
+          * `READ_USER` - Can read user informations
+          * `UPDATE_USER` - Can update user informations
+      type: integer
+      format: int32
+      enum:
+        - ACCESS_APP
+        - READ_USER
+        - UPDATE_USER
+```
+
+### enumNameExtensionEnabled
+
+- Type : `boolean`
+- Valeur par défaut : `true`
+
+Active une extension « non officielle » afin d’ajouter les noms des énumérations à la documentation. Utile pour la génération de code.
+
+:::note
+Voir https://openapi-generator.tech/docs/templating/#all-generators-core
+:::
+
+Exemple :
+
+```yaml
+components:
+  schemas:
+    Authority:
+      description: Permissions of a user
+      type: integer
+      format: int32
+      enum:
+        - 1000
+        - 2000
+        - 3000
+      x-enum-varnames:
+        - ACCESS_APP
+        - READ_USER
+        - UPDATE_USER
+```
+
+### enumNameExtensionValue
+
+- Type : `string`
+- Valeur par défaut : `x-enum-varnames`
+
+Valeur à utiliser pour l’extension des noms d’énumération.
+
+### enumDescriptionExtensionEnabled
+
+- Type : `boolean`
+- Valeur par défaut : `true`
+
+Active une extension « non officielle » afin d’ajouter les descriptions des énumérations à la documentation. Utile pour la génération de code.
+
+:::note
+Voir https://openapi-generator.tech/docs/templating/#all-generators-core
+:::
+
+Exemple :
+
+```yaml
+components:
+  schemas:
+    Authority:
+      description: Permissions of a user
+      type: integer
+      format: int32
+      enum:
+        - 1000
+        - 2000
+        - 3000
+      x-enum-descriptions:
+        - Has the right to access the application
+        - Can read user informations
+        - Can update user informations
+```
+
+### enumNameExtensionValue
+
+- Type : `string`
+- Valeur par défaut : `x-enum-descriptions`
+
+Valeur à utiliser pour l’extension des descriptions d’énumération.
+
 ## javadocConfiguration
 
 - Type: `balise de section`
