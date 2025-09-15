@@ -1,6 +1,7 @@
 package io.github.kbuntrock.model;
 
 import io.github.kbuntrock.utils.OpenApiDataType;
+import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.ParameterLocation;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -27,8 +28,8 @@ public class ParameterObject extends DataObject {
 	 */
 	private String javadocFieldName;
 
-	public ParameterObject(final String name, final Type type) {
-		super(type);
+	public ParameterObject(final String name, final Type type, final OpenApiTypeResolver openApiTypeResolver) {
+		super(type, openApiTypeResolver);
 		this.name = name;
 		this.javadocFieldName = name;
 	}

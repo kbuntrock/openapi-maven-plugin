@@ -3,10 +3,9 @@ package io.github.kbuntrock;
 
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
-import io.github.kbuntrock.configuration.EnumConfigHolder;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.configuration.NullableConfigurationHolder;
-import io.github.kbuntrock.javadoc.JavadocMap;
+import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.JavadocParser;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
 import io.github.kbuntrock.model.Tag;
@@ -133,8 +132,8 @@ public class DocumentationMojo extends AbstractMojo {
 		getLog().debug("Running on java " + version);
 
 		validateConfiguration();
-		scanJavadoc();
-		return scanProjectResourcesAndWriteSpec();
+		Map<String, ClassDocumentation> javadocMap = scanJavadoc();
+		return scanProjectResourcesAndWriteSpec(javadocMap);
 	}
 
 	private void validateConfiguration() throws MojoFailureException {
@@ -143,7 +142,6 @@ public class DocumentationMojo extends AbstractMojo {
 			throw new MojoFailureException("At least one api configuration element should be configured");
 		}
 		this.getApiConfiguration().initDefaultValues();
-		EnumConfigHolder.storeConfig(this.getApiConfiguration().getEnumConfigList());
 
 		if (apis.stream().map(ApiConfiguration::getLocations).anyMatch(locations -> locations == null || locations.isEmpty())) {
 			throw new MojoFailureException("At least one location element should be configured");
@@ -184,16 +182,16 @@ public class DocumentationMojo extends AbstractMojo {
 	 * @throws MojoFailureException
 	 * @throws MojoExecutionException
 	 */
-	private List<File> scanProjectResourcesAndWriteSpec() throws MojoFailureException {
+	private List<File> scanProjectResourcesAndWriteSpec(Map<String, ClassDocumentation> javadocMap) throws MojoFailureException {
 
 		final List<File> generatedFiles = new ArrayList<>();
 		for(final ApiConfiguration initialApiConfiguration : apis) {
 			AdditionnalSchemaLibrary.reset();
 			final ApiConfiguration apiConfig = initialApiConfiguration.mergeWithCommonApiConfiguration(this.apiConfiguration);
-			OpenApiTypeResolver openApiTypeResolver = initObjectMapperFactory(apiConfig);
+			OpenApiTypeResolver openApiTypeResolver = new OpenApiTypeResolver(project, apiConfig);
 			NullableConfigurationHolder.storeConfig(apiConfig);
 
-			final ApiResourceScanner apiResourceScanner = new ApiResourceScanner(apiConfig);
+			final ApiResourceScanner apiResourceScanner = new ApiResourceScanner(apiConfig, openApiTypeResolver, javadocMap);
 			getLog().debug("Prepare to scan");
 			final TagLibrary tagLibrary = apiResourceScanner.scanRestControllers();
 			getLog().debug("Scan done");
@@ -209,7 +207,7 @@ public class DocumentationMojo extends AbstractMojo {
 				}
 				getLog().debug("Prepared to write : " + generatedFile.getAbsolutePath());
 
-				new YamlWriter(project, apiConfig, openApiTypeResolver).write(generatedFile, tagLibrary);
+				new YamlWriter(project, apiConfig, tagLibrary).write(generatedFile, tagLibrary);
 
 				if(apiConfig.isAttachArtifact()) {
 					final String fileExtension = com.google.common.io.Files.getFileExtension(apiConfig.getFilename());
@@ -238,12 +236,6 @@ public class DocumentationMojo extends AbstractMojo {
 			}
 		}
 		return generatedFiles;
-	}
-
-	private OpenApiTypeResolver initObjectMapperFactory(final ApiConfiguration apiConfig) {
-		// Todo : for multithreading purpose, this singleton should be removed and instanciated once per module
-		OpenApiTypeResolver.INSTANCE.init(project, apiConfig);
-		return OpenApiTypeResolver.INSTANCE;
 	}
 
 	/**
@@ -287,11 +279,11 @@ public class DocumentationMojo extends AbstractMojo {
 				&& !CollectionUtils.isEmpty(javadocConfiguration.getScanLocations());
 	}
 
-	private void scanJavadoc() {
+	private Map<String, ClassDocumentation> scanJavadoc() {
 
 		if(!javadocScanEnabled) {
 			getLog().info("Javadoc scan is disabled.");
-			return;
+			return null;
 		}
 
 		if (!CollectionUtils.isEmpty(locations) && !shouldScanJavadoc()) {
@@ -308,7 +300,7 @@ public class DocumentationMojo extends AbstractMojo {
 
 		if (!shouldScanJavadoc()) {
 			getLog().info("No javadoc configuration found: scan of javadoc skipped.");
-			return;
+			return null;
 		}
 
 		final long debutJavadoc = System.currentTimeMillis();
@@ -318,11 +310,12 @@ public class DocumentationMojo extends AbstractMojo {
 			.collect(Collectors.toList());
 		final JavadocParser javadocParser = new JavadocParser(filesToScan, javadocConfiguration);
 		javadocParser.scan();
-		JavadocMap.INSTANCE.setJavadocMap(javadocParser.getJavadocMap());
 		if(!JavadocConfiguration.DISABLED_EOF_REPLACEMENT.equals(javadocConfiguration.getEndOfLineReplacement())) {
 			JavadocWrapper.setEndOfLineReplacement(javadocConfiguration.getEndOfLineReplacement());
 		}
 		getLog().info("Javadoc parsing took " + (System.currentTimeMillis() - debutJavadoc) + "ms.");
+
+		return javadocParser.getJavadocMap();
 	}
 
 	public List<ApiConfiguration> getApis() {

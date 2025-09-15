@@ -104,7 +104,7 @@ public class DataObject {
 		this.classRequired = dataObject.classRequired;
 	}
 
-	public DataObject(final Type originalType) {
+	public DataObject(final Type originalType, final OpenApiTypeResolver openApiTypeResolver) {
 		Type type = originalType;
 
 		try {
@@ -131,9 +131,9 @@ public class DataObject {
 				}
 
 				if(Map.class.isAssignableFrom(javaClass)) {
-					computeMapTypes();
+					computeMapTypes(openApiTypeResolver);
 				} else if(Collection.class.isAssignableFrom(javaClass)) {
-					computeCollectionType();
+					computeCollectionType(openApiTypeResolver);
 				}
 
 			} else if(type instanceof GenericArrayType) {
@@ -153,12 +153,12 @@ public class DataObject {
 						this.genericNameToTypeMap.put(rawJavaClass.getTypeParameters()[i].getTypeName(),
 							gpt.getActualTypeArguments()[i]);
 					}
-					this.arrayItemDataObject = new DataObject(gpt);
+					this.arrayItemDataObject = new DataObject(gpt, openApiTypeResolver);
 				} else if(gat.getGenericComponentType() instanceof Class<?>) {
 					final Class<?> clazz = (Class<?>) gat.getGenericComponentType();
 					javaClass = Class.forName("[L" + ReflectionsUtils.getClassNameFromType(clazz) + ";",
 						true, ReflectionsUtils.getProjectClassLoader());
-					this.arrayItemDataObject = new DataObject(clazz);
+					this.arrayItemDataObject = new DataObject(clazz, openApiTypeResolver);
 				} else {
 					throw new RuntimeException(
 						"A GenericArrayType with a " + gat.getGenericComponentType().getClass() + " is not and handled case.");
@@ -166,20 +166,20 @@ public class DataObject {
 			} else if(type instanceof Class) {
 				javaClass = (Class<?>) type;
 				if(Map.class.isAssignableFrom((Class<?>) type)) {
-					computeMapTypes();
+					computeMapTypes(openApiTypeResolver);
 				} else if(Collection.class.isAssignableFrom((Class<?>) type)) {
-					computeCollectionType();
+					computeCollectionType(openApiTypeResolver);
 				}
 			} else {
 				throw new RuntimeException(
 					"Type " + originalType.getTypeName() + " (+" + originalType.getClass().getSimpleName() + ") is not supported yet.");
 			}
 
-			this.openApiResolvedType = OpenApiTypeResolver.INSTANCE.resolveFromJavaClass(javaClass);
+			this.openApiResolvedType = openApiTypeResolver.resolveFromJavaClass(javaClass);
 			if(javaClass.isEnum()) {
-				computeEnum();
+				computeEnum(openApiTypeResolver);
 			} else if(javaClass.isArray() && !genericallyTyped && javaClass != byte[].class) {
-				arrayItemDataObject = new DataObject(javaClass.getComponentType());
+				arrayItemDataObject = new DataObject(javaClass.getComponentType(), openApiTypeResolver);
 			}
 
 			if(Set.class.isAssignableFrom(javaClass)) {
@@ -192,7 +192,7 @@ public class DataObject {
 
 	}
 
-	private void computeEnum() {
+	private void computeEnum(final OpenApiTypeResolver openApiTypeResolver) {
 
 		this.enumItemValues = new ArrayList<>();
 		List<String> elementWithAnnotation = new ArrayList<>();
@@ -214,7 +214,7 @@ public class DataObject {
 				this.enumItemNames = new ArrayList<>();
 				final Method method = javaClass.getMethod(elementWithAnnotation.get(0));
 				ReflectionUtils.makeAccessible(method);
-				this.openApiResolvedType = OpenApiTypeResolver.INSTANCE.resolveFromJavaClass(method.getReturnType(), false);
+				this.openApiResolvedType = openApiTypeResolver.resolveFromJavaClass(method.getReturnType(), false);
 				for(final Object value : javaClass.getEnumConstants()) {
 					this.enumItemNames.add(((Enum) value).name());
 					this.enumItemValues.add(method.invoke(value).toString());
@@ -241,7 +241,7 @@ public class DataObject {
 				this.enumItemNames = new ArrayList<>();
 				final Field field = javaClass.getDeclaredField(elementWithAnnotation.get(0));
 				ReflectionUtils.makeAccessible(field);
-				this.openApiResolvedType = OpenApiTypeResolver.INSTANCE.resolveFromJavaClass(field.getType(), false);
+				this.openApiResolvedType = openApiTypeResolver.resolveFromJavaClass(field.getType(), false);
 				for(final Object value : javaClass.getEnumConstants()) {
 					this.enumItemNames.add(((Enum) value).name());
 					this.enumItemValues.add(field.get(value).toString());
@@ -259,19 +259,19 @@ public class DataObject {
 
 	}
 
-	private void computeMapTypes() {
+	private void computeMapTypes(final OpenApiTypeResolver openApiTypeResolver) {
 		TypeToken token = TypeToken.of(javaType);
 		TypeToken<Map> superType = token.getSupertype(Map.class);
 		Type[] resolvedArguments = ((ParameterizedType) superType.getType()).getActualTypeArguments();
-		mapKeyValueDataObjects[0] = new DataObject(resolvedArguments[0]);
-		mapKeyValueDataObjects[1] = new DataObject(resolvedArguments[1]);
+		mapKeyValueDataObjects[0] = new DataObject(resolvedArguments[0], openApiTypeResolver);
+		mapKeyValueDataObjects[1] = new DataObject(resolvedArguments[1], openApiTypeResolver);
 	}
 
-	private void computeCollectionType() {
+	private void computeCollectionType(final OpenApiTypeResolver openApiTypeResolver) {
 		TypeToken token = TypeToken.of(javaType);
 		TypeToken<Map> superType = token.getSupertype(Collection.class);
 		Type[] resolvedArguments = ((ParameterizedType) superType.getType()).getActualTypeArguments();
-		arrayItemDataObject = new DataObject(resolvedArguments[0]);
+		arrayItemDataObject = new DataObject(resolvedArguments[0], openApiTypeResolver);
 	}
 
 	/**

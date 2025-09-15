@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum EnumFunctionValue {
 	FRANCE(1000),
+	/**
+	 * Das ist Deutschland
+	 */
 	GERMANY(2000);
 
 	private final int code;

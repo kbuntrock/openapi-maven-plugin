@@ -2,6 +2,7 @@ package io.github.kbuntrock.yaml.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.github.javaparser.javadoc.JavadocBlockTag;
+import io.github.kbuntrock.TagLibrary;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -26,10 +27,10 @@ public class Content {
 	@JsonIgnore
 	private Map<String, ContentType> encoding;
 
-	public static Content fromMultipartBodies(final List<ParameterObject> parameterObjects){
+	public static Content fromMultipartBodies(final List<ParameterObject> parameterObjects, final TagLibrary tagLibrary){
 		final Content content = new Content();
 
-		final Schema schema = new Schema();
+		final Schema schema = new Schema(tagLibrary.getApiConfiguration());
 		content.schemas = new ArrayList<>();
 		content.schemas.add(schema);
 
@@ -43,15 +44,16 @@ public class Content {
 		schema.properties = parameterObjects.stream()
 			.collect(Collectors.toMap(
 				ParameterObject::getName,
-				po-> new Property(fromDataObject(po).getSingleSchema())));
+				po-> new Property(fromDataObject(po, tagLibrary).getSingleSchema())));
 
 		return content;
 	}
 
-	public static Content fromMultipartFormData(final List<ParameterObject> bodyParts, final JavadocWrapper methodJavadoc){
+	public static Content fromMultipartFormData(final List<ParameterObject> bodyParts,
+												final JavadocWrapper methodJavadoc, final TagLibrary tagLibrary){
 		final Content content = new Content();
 
-		final Schema schema = new Schema();
+		final Schema schema = new Schema(tagLibrary.getApiConfiguration());
 		content.schemas = new ArrayList<>();
 		content.schemas.add(schema);
 
@@ -65,7 +67,7 @@ public class Content {
 		content.encoding = new LinkedHashMap<>();
 		schema.properties = new LinkedHashMap<>();
 		for(ParameterObject bodyPart : bodyParts) {
-			Property property = new Property(fromDataObject(bodyPart).getSingleSchema());
+			Property property = new Property(fromDataObject(bodyPart, tagLibrary).getSingleSchema());
 			schema.properties.put(bodyPart.getName(), property);
 
 			if(bodyPart.getOpenApiResolvedType().getDefaultEncoding() != null) {
@@ -87,14 +89,14 @@ public class Content {
 		return content;
 	}
 
-	public static Content fromDataObject(final DataObject dataObject) {
+	public static Content fromDataObject(final DataObject dataObject, final TagLibrary tagLibrary) {
 		if(dataObject == null) {
 			return null;
 		}
 		final Set<String> exploredSignatures = new HashSet<>();
 		final Content content = new Content();
 		content.schemas = new ArrayList<>();
-		content.schemas.add(new Schema(dataObject, exploredSignatures));
+		content.schemas.add(new Schema(dataObject, exploredSignatures, tagLibrary));
 		return content;
 	}
 

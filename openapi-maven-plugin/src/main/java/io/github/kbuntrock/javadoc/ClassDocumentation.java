@@ -31,14 +31,13 @@ public class ClassDocumentation {
 		this.simpleName = simpleName;
 	}
 
-	public void inheritanceEnhancement(final Class<?> javaClass, final EnhancementType enhancementType) {
+	public void inheritanceEnhancement(final Class<?> javaClass, final EnhancementType enhancementType, Map<String, ClassDocumentation> javadocMap) {
 		if(inheritanceEnhancementIsDone) {
 			return;
 		}
 		inheritanceEnhancementIsDone = true;
 		this.javaClass = javaClass;
 
-		Map<String, ClassDocumentation> javadocMap = JavadocMap.INSTANCE.getJavadocMap();
 		Set<ClassDocumentation> parentsClassDocumentation = new HashSet<>();
 		if(javaClass.getSuperclass() != null && Object.class != javaClass.getSuperclass()) {
 			listInheritance(javadocMap, parentsClassDocumentation, javaClass.getSuperclass());

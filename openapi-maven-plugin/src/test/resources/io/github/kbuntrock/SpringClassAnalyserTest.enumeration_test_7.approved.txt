@@ -28,6 +28,6 @@ components:
       enum:
         - 1
         - 2
-      x-enumNames:
+      x-enum-varnames:
         - FRANCE
         - GERMANY

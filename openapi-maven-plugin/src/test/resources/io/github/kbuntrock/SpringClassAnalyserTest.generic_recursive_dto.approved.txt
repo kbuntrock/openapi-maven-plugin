@@ -102,6 +102,10 @@ components:
         - READ_USER
         - WRITE_USER
         - ACCES_APP
+      x-enum-descriptions:
+        - Reading
+        - Writing
+        - Access to the application (the most basic permission)
     GenericRecursiveDto_AccountDto:
       description: A recursive and generic object
       type: object

@@ -41,8 +41,8 @@ public class JakartaRsReader extends AstractLibraryReader {
 	private Class jakartaHttpServletRequest;
 	private Class responseAnnotation;
 
-	public JakartaRsReader(final ApiConfiguration apiConfiguration) {
-		super(apiConfiguration);
+	public JakartaRsReader(final ApiConfiguration apiConfiguration, final OpenApiTypeResolver openApiTypeResolver) {
+		super(apiConfiguration, openApiTypeResolver);
 		initClasses();
 	}
 
@@ -150,13 +150,13 @@ public class JakartaRsReader extends AstractLibraryReader {
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
 					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
 
-				if(!OpenApiTypeResolver.INSTANCE.canBeDocumented(parameter, mergedAnnotations)) {
+				if(!openApiTypeResolver.canBeDocumented(parameter, mergedAnnotations)) {
 					continue;
 				}
 				logger.debug("Parameter : " + parameter.getName());
 
 				ParameterObject paramObj = new ParameterObject(parameter.getName(),
-					genericityResolver.resolve(clazz, parameter.getParameterizedType()));
+					genericityResolver.resolve(clazz, parameter.getParameterizedType()), openApiTypeResolver);
 				paramObj = unwrapParameterObject(paramObj);
 
 				if(mergedAnnotations.get(jakartaBeanParam).isPresent()) {

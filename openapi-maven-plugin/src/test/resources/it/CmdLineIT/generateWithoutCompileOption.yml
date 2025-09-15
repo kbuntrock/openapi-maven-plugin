@@ -64,6 +64,10 @@ components:
         - ACCESS_APP
         - READ_USER
         - UPDATE_USER
+      x-enum-descriptions:
+        - Has the right to access the application
+        - Can read user informations
+        - Can update user informations
     UserDto:
       description: "A DTO representing a user, with his authorities."
       required:

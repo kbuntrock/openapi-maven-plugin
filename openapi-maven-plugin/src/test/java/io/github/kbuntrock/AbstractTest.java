@@ -3,18 +3,12 @@ package io.github.kbuntrock;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.kbuntrock.javadoc.JavadocMap;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.Logger;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.approvaltests.Approvals;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,7 +24,6 @@ public class AbstractTest {
 
 	@BeforeEach
 	public void initTest() {
-		JavadocMap.INSTANCE.setJavadocMap(new HashMap<>());
 		// In order to see all logs during testing, uncomment this :
 		// Logger.INSTANCE.setLogger(Mockito.spy(SystemStreamLog.class));
 		Logger.INSTANCE.setLogger(Mockito.mock(Log.class));

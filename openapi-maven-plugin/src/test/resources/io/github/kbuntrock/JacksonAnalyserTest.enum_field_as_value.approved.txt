@@ -35,6 +35,9 @@ components:
       enum:
         - 1000
         - 2000
-      x-enumNames:
+      x-enum-varnames:
         - FRANCE
         - GERMANY
+      x-enum-descriptions:
+        - This is the France value
+        - This is the Germany value

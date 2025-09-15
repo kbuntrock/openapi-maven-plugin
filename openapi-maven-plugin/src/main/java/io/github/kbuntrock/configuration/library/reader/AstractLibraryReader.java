@@ -34,8 +34,11 @@ public abstract class AstractLibraryReader {
 	protected final ApiConfiguration apiConfiguration;
 	protected final GenericityResolver genericityResolver = new GenericityResolver();
 
-	public AstractLibraryReader(final ApiConfiguration apiConfiguration) {
+	protected final OpenApiTypeResolver openApiTypeResolver;
+
+	public AstractLibraryReader(final ApiConfiguration apiConfiguration, final OpenApiTypeResolver openApiTypeResolver) {
 		this.apiConfiguration = apiConfiguration;
+		this.openApiTypeResolver = openApiTypeResolver;
 	}
 
 	protected static String concatenateBasePathAndMethodPath(final String basePath, final String methodPath,
@@ -60,7 +63,7 @@ public abstract class AstractLibraryReader {
 		}
 
 		DataObject dataObject = new DataObject(
-			genericityResolver.resolve(clazz, readResponseMethodType(method, mergedAnnotations)));
+			genericityResolver.resolve(clazz, readResponseMethodType(method, mergedAnnotations)), openApiTypeResolver);
 		dataObject = computeFrameworkReturnObject(dataObject);
 		logger.debug(dataObject.toString());
 		return dataObject;
@@ -78,7 +81,7 @@ public abstract class AstractLibraryReader {
 	 * @return return DataObject
 	 */
 	private DataObject computeFrameworkReturnObject(final DataObject dataObject) {
-		return OpenApiTypeResolver.INSTANCE.unwrapDataObject(dataObject, UnwrappingType.RESPONSE);
+		return openApiTypeResolver.unwrapDataObject(dataObject, UnwrappingType.RESPONSE);
 	}
 
 	protected boolean isDeprecated(final Method originalMethod) {
@@ -107,7 +110,7 @@ public abstract class AstractLibraryReader {
 	protected abstract int readResponseCode(MergedAnnotations mergedAnnotations);
 
 	protected ParameterObject unwrapParameterObject(final ParameterObject parameterObject) {
-		final DataObject dataObject = OpenApiTypeResolver.INSTANCE.unwrapDataObject(parameterObject, UnwrappingType.PARAMETER);
+		final DataObject dataObject = openApiTypeResolver.unwrapDataObject(parameterObject, UnwrappingType.PARAMETER);
 		// Pointer equality is intentional
 		if(parameterObject == dataObject) {
 			return parameterObject;
@@ -168,7 +171,7 @@ public abstract class AstractLibraryReader {
 					if (schema.isPresent()) {
 						final Class<?> implementation = schema.getClass("implementation");
 						if (implementation != null && !Void.class.equals(implementation) && !Void.TYPE.equals(implementation)) {
-							final DataObject responseObject = new DataObject(implementation);
+							final DataObject responseObject = new DataObject(implementation, openApiTypeResolver);
 							operationResponse.setDataObject(responseObject);
 						}
 					}

@@ -82,3 +82,7 @@ components:
         - READ_USER
         - WRITE_USER
         - ACCES_APP
+      x-enum-descriptions:
+        - Reading
+        - Writing
+        - Access to the application (the most basic permission)

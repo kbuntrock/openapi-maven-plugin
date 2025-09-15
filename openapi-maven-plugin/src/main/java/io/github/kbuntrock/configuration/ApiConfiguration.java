@@ -67,15 +67,17 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.pathPrefix = copy.pathPrefix;
 		merged.fileFormat = copy.fileFormat;
 		merged.loopbackOperationName = copy.loopbackOperationName;
-		merged.enumNameExtension = copy.enumNameExtension;
+		merged.enumListDescriptionEnabled = copy.enumListDescriptionEnabled;
+		merged.enumNameExtensionEnabled = copy.enumNameExtensionEnabled;
 		merged.enumNameExtensionValue = copy.enumNameExtensionValue;
+		merged.enumDescriptionExtensionEnabled = copy.enumDescriptionExtensionEnabled;
+		merged.enumDescriptionExtensionValue = copy.enumDescriptionExtensionValue;
 		merged.operationId = copy.operationId;
 		merged.freeFields = copy.freeFields;
 		merged.library = copy.library;
 		merged.tagAnnotations = copy.tagAnnotations;
 		merged.whiteList = copy.whiteList;
 		merged.blackList = copy.blackList;
-		merged.enumConfigList = copy.enumConfigList;
 		merged.extraSchemaClasses = copy.extraSchemaClasses;
 		merged.customResponseTypeAnnotation = copy.customResponseTypeAnnotation;
 		merged.defaultErrors = copy.defaultErrors;
@@ -123,9 +125,20 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		if(loopbackOperationName != null) {
 			merged.setLoopbackOperationName(loopbackOperationName);
 		}
-		if(enumNameExtension != null) {
-			merged.setEnumNameExtension(enumNameExtension);
+		if(enumListDescriptionEnabled != null) {
+			merged.setEnumListDescriptionEnabled(enumListDescriptionEnabled);
+		}
+		if(enumNameExtensionEnabled != null) {
+			merged.setEnumNameExtensionEnabled(enumNameExtensionEnabled);
+		}
+		if(enumNameExtensionValue != null) {
 			merged.setEnumNameExtensionValue(enumNameExtensionValue);
+		}
+		if(enumDescriptionExtensionEnabled != null) {
+			merged.setEnumDescriptionExtensionEnabled(enumDescriptionExtensionEnabled);
+		}
+		if(enumDescriptionExtensionValue != null) {
+			merged.setEnumDescriptionExtensionValue(enumDescriptionExtensionValue);
 		}
 		if(operationId != null) {
 			merged.setOperationId(operationId);

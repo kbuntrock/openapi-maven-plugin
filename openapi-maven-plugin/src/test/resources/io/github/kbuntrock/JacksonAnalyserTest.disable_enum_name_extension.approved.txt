@@ -6,13 +6,13 @@ info:
 servers:
   - url: ""
 tags:
-  - name: EnumFunctionAsValueController
+  - name: EnumFieldAsValueController
 paths:
   /api/my-controller/enums:
     get:
       tags:
-        - EnumFunctionAsValueController
-      operationId: EnumFunctionAsValueController.getEnums
+        - EnumFieldAsValueController
+      operationId: EnumFieldAsValueController.getEnums
       responses:
         200:
           description: successful operation
@@ -21,21 +21,20 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/EnumFunctionValue'
+                  $ref: '#/components/schemas/EnumFieldAsValue'
       x-operation-name: getEnums
 components:
   schemas:
-    EnumFunctionValue:
-      description: |2
-          * `GERMANY` - Das ist Deutschland
+    EnumFieldAsValue:
+      description: |
+        Represent some countries
+          * `FRANCE` - This is the France value
+          * `GERMANY` - This is the Germany value
       type: integer
       format: int32
       enum:
-        - 500
         - 1000
-      x-enum-varnames:
-        - FRANCE
-        - GERMANY
+        - 2000
       x-enum-descriptions:
-        - ""
-        - Das ist Deutschland
+        - This is the France value
+        - This is the Germany value

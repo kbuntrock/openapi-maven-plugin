@@ -1,19 +1,15 @@
 package io.github.kbuntrock;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
-import io.github.kbuntrock.configuration.EnumConfig;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.configuration.OperationIdHelper;
 import io.github.kbuntrock.configuration.Substitution;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
-import io.github.kbuntrock.resources.dto.TerritoryEnum;
 import io.github.kbuntrock.resources.endpoint.account.AccountController;
 import io.github.kbuntrock.resources.endpoint.annotation.AnnotatedController;
 import io.github.kbuntrock.resources.endpoint.collection.CollectionController;
@@ -46,7 +42,6 @@ import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTen;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestThree;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTwelve;
 import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTwo;
-import io.github.kbuntrock.resources.endpoint.generic.Issue138;
 import io.github.kbuntrock.resources.endpoint.generic.Issue144;
 import io.github.kbuntrock.resources.endpoint.generic.Issue144ByInterface;
 import io.github.kbuntrock.resources.endpoint.generic.Issue89;
@@ -55,6 +50,7 @@ import io.github.kbuntrock.resources.endpoint.generic.MappingObject;
 import io.github.kbuntrock.resources.endpoint.header.MultipartFileWithHeaderController;
 import io.github.kbuntrock.resources.endpoint.ignore.JsonIgnoreController;
 import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
+import io.github.kbuntrock.resources.endpoint.issues.Issue138;
 import io.github.kbuntrock.resources.endpoint.jackson.JacksonJsonPropertyController;
 import io.github.kbuntrock.resources.endpoint.map.MapController;
 import io.github.kbuntrock.resources.endpoint.multipartformdata.MultipartFormDataController;
@@ -84,17 +80,15 @@ import io.github.kbuntrock.resources.endpoint.time.TimeController;
 import io.github.kbuntrock.resources.endpoint.uuid.UuidController;
 import io.github.kbuntrock.resources.implementation.account.AccountControllerImpl;
 import io.github.kbuntrock.utils.Logger;
+import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.yaml.YamlWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
@@ -427,14 +421,17 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		apiConfiguration.setOperationIdHelper(new OperationIdHelper(apiConfiguration.getOperationId()));
 		apiConfiguration.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
 
-		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration, scanResult(SpringPathEnhancementTwoController.class));
+
+		// TODO multi-threading : check how to create the openapi-type-resolver
+		final OpenApiTypeResolver openApiTypeResolver = new OpenApiTypeResolver(null, apiConfiguration);
+		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration, scanResult(SpringPathEnhancementTwoController.class), openApiTypeResolver);
 		final Optional<Tag> tag = analyser.getTagFromClass(SpringPathEnhancementTwoController.class);
-		final TagLibrary library = new TagLibrary();
+		final TagLibrary library = new TagLibrary(openApiTypeResolver, apiConfiguration, new HashMap<>());
 		library.addTag(tag.get());
 
 		final File generatedFile = createTestFile();
 
-		new YamlWriter(createBasicMavenProject(), apiConfiguration, null).write(generatedFile, library);
+		new YamlWriter(createBasicMavenProject(), apiConfiguration, library).write(generatedFile, library);
 
 		try(final InputStream generatedFileStream = new FileInputStream(generatedFile);
 			final InputStream resourceFileStream = this.getClass().getClassLoader()

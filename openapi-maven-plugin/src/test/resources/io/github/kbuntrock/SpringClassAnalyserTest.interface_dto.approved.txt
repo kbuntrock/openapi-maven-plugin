@@ -106,6 +106,10 @@ components:
         - READ_USER
         - WRITE_USER
         - ACCES_APP
+      x-enum-descriptions:
+        - Reading
+        - Writing
+        - Access to the application (the most basic permission)
     TimeDto:
       description: An wrapping object for time values
       type: object

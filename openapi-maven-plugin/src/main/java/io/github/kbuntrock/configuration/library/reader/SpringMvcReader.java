@@ -75,8 +75,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 		primitiveWrapperTypeMap.put(Void.class, void.class);
 	}
 
-	public SpringMvcReader(final ApiConfiguration apiConfiguration) {
-		super(apiConfiguration);
+	public SpringMvcReader(final ApiConfiguration apiConfiguration, final OpenApiTypeResolver openApiTypeResolver) {
+		super(apiConfiguration, openApiTypeResolver);
 	}
 
 	@Override
@@ -156,14 +156,14 @@ public class SpringMvcReader extends AstractLibraryReader {
 				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
 					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
 
-				if(!OpenApiTypeResolver.INSTANCE.canBeDocumented(parameter, mergedAnnotations)) {
+				if(!openApiTypeResolver.canBeDocumented(parameter, mergedAnnotations)) {
 					continue;
 				}
 				logger.debug("Parameter : " + parameter.getName());
 
 				final ParameterObject paramObj = parameters.computeIfAbsent(parameter.getName(),
 					(name) -> unwrapParameterObject(
-						new ParameterObject(name, genericityResolver.resolve(clazz, parameter.getParameterizedType()))));
+						new ParameterObject(name, genericityResolver.resolve(clazz, parameter.getParameterizedType()), openApiTypeResolver)));
 
 				boolean annotationFound = false;
 				// Detect if is a header variable
@@ -272,7 +272,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 	 * @param endpointAnnotations
 	 * @param parameters
 	 */
-	private static void readRequestMappingParams(MergedAnnotations endpointAnnotations, Map<String, ParameterObject> parameters) {
+	private void readRequestMappingParams(MergedAnnotations endpointAnnotations, Map<String, ParameterObject> parameters) {
 		// Extract from RequestMapping#params javadoc :
 		// a sequence of "myParam=myValue" style expressions, with a request only mapped if each such parameter is found to have the given value.
 		// Expressions can be negated by using the "!=" operator, as in "myParam!=myValue".
@@ -289,7 +289,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 						// myParam=myValue
 						String[] array = param.split("=");
 						if(array.length == 2) {
-							ParameterObject po = new ParameterObject(array[0], Object.class);
+							ParameterObject po = new ParameterObject(array[0], Object.class, openApiTypeResolver);
 							po.setLocation(ParameterLocation.QUERY);
 							po.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
 							parameters.put(array[0], po);
@@ -297,7 +297,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 					}
 				} else {
 					// Handles empty value params
-					ParameterObject po = new ParameterObject(param, Object.class);
+					ParameterObject po = new ParameterObject(param, Object.class, openApiTypeResolver);
 					po.setAllowEmptyValue(true);
 					po.setLocation(ParameterLocation.QUERY);
 					po.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
@@ -312,7 +312,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 	 * @param endpointAnnotations
 	 * @param parameters
 	 */
-	private static void readRequestMappingHeaders(MergedAnnotations endpointAnnotations, Map<String, ParameterObject> parameters) {
+	private void readRequestMappingHeaders(MergedAnnotations endpointAnnotations, Map<String, ParameterObject> parameters) {
 		// Extract from RequestMapping#headers javadoc :
 		// a sequence of "myHeader=myValue" style expressions, with a request only mapped if each such parameter is found to have the given value.
 		// Expressions can be negated by using the "!=" operator, as in "myHeader!=myValue".
@@ -329,7 +329,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 						// myHeader=myValue
 						String[] array = param.split("=");
 						if(array.length == 2) {
-							ParameterObject po = new ParameterObject(array[0], Object.class);
+							ParameterObject po = new ParameterObject(array[0], Object.class, openApiTypeResolver);
 							po.setLocation(ParameterLocation.HEADER);
 							po.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
 							parameters.put(array[0], po);
@@ -337,7 +337,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 					}
 				} else {
 					// Handles empty value headers
-					ParameterObject po = new ParameterObject(param, Object.class);
+					ParameterObject po = new ParameterObject(param, Object.class, openApiTypeResolver);
 					po.setAllowEmptyValue(true);
 					po.setLocation(ParameterLocation.HEADER);
 					po.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
@@ -369,7 +369,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 		for(final Field field : fields) {
 			final ParameterObject fieldObj = parameters.computeIfAbsent(field.getName(),
 				(name) -> unwrapParameterObject(
-					new ParameterObject(name, paramObj.getContextualType(field.getGenericType()))));
+					new ParameterObject(name, paramObj.getContextualType(field.getGenericType()), openApiTypeResolver)));
 			fieldObj.setLocation(ParameterLocation.QUERY);
 			fieldObj.setJavadocFieldClassName(paramObj.getJavaClass().getCanonicalName());
 			// Class "requirement" has precedence on any annotation (we can't force an optional to be required ...)

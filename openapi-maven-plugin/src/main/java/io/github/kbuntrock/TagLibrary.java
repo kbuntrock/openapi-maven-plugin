@@ -1,6 +1,8 @@
 package io.github.kbuntrock;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.ParameterObject;
@@ -19,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import org.apache.maven.plugin.MojoFailureException;
 
 /**
@@ -31,10 +35,20 @@ public class TagLibrary {
 	public static final String METHOD_IS_PREFIX = "is";
 	public static final int METHOD_IS_PREFIX_SIZE = METHOD_IS_PREFIX.length();
 
+	private final OpenApiTypeResolver openApiTypeResolver;
+	private final ApiConfiguration apiConfiguration;
+	private Map<String, ClassDocumentation> javadocMap;
+
 	private final List<Tag> tags = new ArrayList<>();
 	private final Set<DataObject> schemaObjects = new HashSet<>();
 	private final Set<String> exploredSignatures = new HashSet<>();
 	final Map<Class, DataObject> classToSchemaObject = new HashMap<>();
+
+	public TagLibrary(OpenApiTypeResolver openApiTypeResolver, ApiConfiguration apiConfiguration, Map<String, ClassDocumentation> javadocMap) {
+		this.openApiTypeResolver = openApiTypeResolver;
+		this.apiConfiguration = apiConfiguration;
+		this.javadocMap = javadocMap;
+	}
 
 	public void addTag(final Tag tag) {
 		tags.add(tag);
@@ -47,7 +61,7 @@ public class TagLibrary {
 	 * @param clazz
 	 */
 	public void addExtraClass(final Class clazz) {
-		final DataObject dataObject = new DataObject(clazz);
+		final DataObject dataObject = new DataObject(clazz, openApiTypeResolver);
 		exploreDataObject(dataObject);
 	}
 
@@ -91,7 +105,7 @@ public class TagLibrary {
 			// Eventually analyse instead the generic types
 			if(dataObject.getGenericNameToTypeMap() != null) {
 				for(final Map.Entry<String, Type> entry : dataObject.getGenericNameToTypeMap().entrySet()) {
-					final DataObject genericObject = new DataObject(dataObject.getContextualType(entry.getValue()));
+					final DataObject genericObject = new DataObject(dataObject.getContextualType(entry.getValue()), openApiTypeResolver);
 					exploreDataObject(genericObject);
 				}
 			}
@@ -111,7 +125,7 @@ public class TagLibrary {
 				// Field is tagged ignore. No need to document it.
 				continue;
 			}
-			final DataObject dataObject = new DataObject(explored.getContextualType(field.getGenericType()));
+			final DataObject dataObject = new DataObject(explored.getContextualType(field.getGenericType()), openApiTypeResolver);
 			exploreDataObject(dataObject);
 		}
 		if(explored.getJavaClass().isInterface()) {
@@ -121,7 +135,7 @@ public class TagLibrary {
 				if(method.getParameters().length == 0
 					&& ((method.getName().startsWith(METHOD_GET_PREFIX) && method.getName().length() != METHOD_GET_PREFIX_SIZE) ||
 					(method.getName().startsWith(METHOD_IS_PREFIX)) && method.getName().length() != METHOD_IS_PREFIX_SIZE)) {
-					final DataObject dataObject = new DataObject(explored.getContextualType(method.getGenericReturnType()));
+					final DataObject dataObject = new DataObject(explored.getContextualType(method.getGenericReturnType()), openApiTypeResolver);
 					exploreDataObject(dataObject);
 				}
 			}
@@ -173,5 +187,21 @@ public class TagLibrary {
 				classToSchemaObject.put(object.getJavaClass(), object);
 			}
 		}
+	}
+
+	public OpenApiTypeResolver getOpenApiTypeResolver() {
+		return openApiTypeResolver;
+	}
+
+	public ApiConfiguration getApiConfiguration() {
+		return apiConfiguration;
+	}
+
+	public boolean hasJavadocMap() {
+		return javadocMap != null;
+	}
+
+	public Map<String, ClassDocumentation> getJavadocMap() {
+		return javadocMap;
 	}
 }

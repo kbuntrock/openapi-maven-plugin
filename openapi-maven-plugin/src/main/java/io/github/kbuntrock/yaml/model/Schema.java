@@ -11,11 +11,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.kbuntrock.JavaClassAnalyser;
-import io.github.kbuntrock.TagLibraryHolder;
+import io.github.kbuntrock.TagLibrary;
+import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.NullableConfigurationHolder;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.ClassDocumentation.EnhancementType;
-import io.github.kbuntrock.javadoc.JavadocMap;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
@@ -23,7 +23,6 @@ import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiConstants;
 import io.github.kbuntrock.utils.OpenApiResolvedType;
-import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.UnwrappingType;
 
 import java.lang.annotation.Annotation;
@@ -62,6 +61,8 @@ public class Schema {
 	protected List<String> enumValues;
 	@JsonIgnore
 	protected List<String> enumNames;
+	@JsonIgnore
+	protected List<String> enumDescriptions;
 	// Used in case of a Map object
 	@JsonIgnore
 	protected Schema additionalProperties;
@@ -84,12 +85,20 @@ public class Schema {
 	@JsonIgnore
 	private String parentFieldName;
 
+	/**
+	 * The json/yaml representation depends from the configuration.
+	 */
+	@JsonIgnore
+	protected ApiConfiguration apiConfiguration;
 
-	public Schema() {
+
+	public Schema(final ApiConfiguration apiConfiguration) {
+		this.apiConfiguration = apiConfiguration;
 	}
 
-	public Schema(final DataObject dataObject, final Set<String> exploredSignatures) {
-		this(dataObject, false, exploredSignatures, null, null);
+	public Schema(final DataObject dataObject, final Set<String> exploredSignatures,
+				  final TagLibrary tagLibrary) {
+		this(dataObject, false, exploredSignatures, null, null, tagLibrary);
 	}
 
 	/**
@@ -100,20 +109,25 @@ public class Schema {
 	 * @param parentDataObject
 	 * @param parentFieldName
 	 */
-	public Schema(final DataObject wrappedDataObject, final boolean mainReference, final Set<String> exploredSignatures,
-		final DataObject parentDataObject,
-		final String parentFieldName) {
+	public Schema(final DataObject wrappedDataObject,
+				  final boolean mainReference,
+				  final Set<String> exploredSignatures,
+				  final DataObject parentDataObject,
+				  final String parentFieldName,
+				  final TagLibrary tagLibrary) {
 
-		final DataObject dataObject = OpenApiTypeResolver.INSTANCE.unwrapDataObject(wrappedDataObject, UnwrappingType.SCHEMA);
+		final DataObject dataObject = tagLibrary.getOpenApiTypeResolver().unwrapDataObject(wrappedDataObject, UnwrappingType.SCHEMA);
+
+		this.apiConfiguration = tagLibrary.getApiConfiguration();
 
 		this.mainReference = mainReference;
 
 		// Javadoc handling
 		ClassDocumentation classDocumentation = null;
-		if(JavadocMap.INSTANCE.isPresent()) {
-			classDocumentation = JavadocMap.INSTANCE.getJavadocMap().get(dataObject.getJavaClass().getCanonicalName());
+		if(tagLibrary.hasJavadocMap()) {
+			classDocumentation = tagLibrary.getJavadocMap().get(dataObject.getJavaClass().getCanonicalName());
 			if(classDocumentation != null) {
-				classDocumentation.inheritanceEnhancement(dataObject.getJavaClass(), EnhancementType.BOTH);
+				classDocumentation.inheritanceEnhancement(dataObject.getJavaClass(), EnhancementType.BOTH, tagLibrary.getJavadocMap());
 			}
 			if(classDocumentation != null && mainReference) {
 				final Optional<String> optionalDescription = classDocumentation.getDescription();
@@ -134,14 +148,14 @@ public class Schema {
 
 		if(dataObject.isMap()) {
 			type = dataObject.getOpenApiResolvedType();
-			additionalProperties = new Schema(dataObject.getMapValueType(), false, exploredSignatures, parentDataObject, parentFieldName);
+			additionalProperties = new Schema(dataObject.getMapValueType(), false, exploredSignatures, parentDataObject, parentFieldName, tagLibrary);
 		} else if(dataObject.isOpenApiArray()) {
 			type = dataObject.getOpenApiResolvedType();
-			items = new Schema(dataObject.getArrayItemDataObject(), false, exploredSignatures, parentDataObject, parentFieldName);
+			items = new Schema(dataObject.getArrayItemDataObject(), false, exploredSignatures, parentDataObject, parentFieldName, tagLibrary);
 			uniqueItems = dataObject.getUniqueItems();
 
 		} else if(!mainReference && dataObject.isReferenceObject()) {
-			final DataObject referenceDataObject = TagLibraryHolder.INSTANCE.getTagLibrary().getClassToSchemaObject()
+			final DataObject referenceDataObject = tagLibrary.getClassToSchemaObject()
 				.get(dataObject.getJavaClass());
 			if(referenceDataObject == null) {
 				// Investigation on a rare bug where the reference is not found.
@@ -196,11 +210,11 @@ public class Schema {
 								propertyFieldName = jsonPropertyField.value();
 							}
 
-							final DataObject wrappedPropertyObject = new DataObject(dataObject.getContextualType(field.getGenericType()));
-							final DataObject propertyObject = OpenApiTypeResolver.INSTANCE.unwrapDataObject(wrappedPropertyObject,
+							final DataObject wrappedPropertyObject = new DataObject(dataObject.getContextualType(field.getGenericType()), tagLibrary.getOpenApiTypeResolver());
+							final DataObject propertyObject = tagLibrary.getOpenApiTypeResolver().unwrapDataObject(wrappedPropertyObject,
 								UnwrappingType.SCHEMA);
 							final Property property = new Property(propertyObject, false, propertyFieldName, exploredSignatures,
-								dataObject);
+								dataObject, tagLibrary);
 							extractConstraints(field, annotations, property);
 							properties.put(property.getName(), property);
 
@@ -250,8 +264,8 @@ public class Schema {
 								name = name.substring(0, 1).toLowerCase() + name.substring(1);
 
 								final DataObject propertyObject = new DataObject(
-									dataObject.getContextualType(method.getGenericReturnType()));
-								final Property property = new Property(propertyObject, false, name, exploredSignatures, dataObject);
+									dataObject.getContextualType(method.getGenericReturnType()), tagLibrary.getOpenApiTypeResolver());
+								final Property property = new Property(propertyObject, false, name, exploredSignatures, dataObject, tagLibrary);
 								properties.put(property.getName(), property);
 
 								// Javadoc handling
@@ -273,28 +287,33 @@ public class Schema {
 						enumValues = enumItemValues;
 						enumNames = dataObject.getEnumItemNames();
 						if(classDocumentation != null) {
+							enumDescriptions = new ArrayList<>();
+
 							final StringBuilder sb = new StringBuilder();
 							if(description != null) {
 								sb.append(description);
 								sb.append("\n");
-							} else {
-								sb.append(dataObject.getJavaClass().getSimpleName());
-								sb.append("\n");
 							}
 							for(int i = 0; i < enumItemValues.size(); i++) {
+								String descriptionValue = "";
 								final String value = enumNames == null ? enumItemValues.get(i) : enumNames.get(i);
 								final JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(value);
 								if(javadocWrapper != null) {
 									final Optional<String> desc = javadocWrapper.getDescription();
 									if(desc.isPresent()) {
-										sb.append("  * ");
-										sb.append("`");
-										sb.append(value);
-										sb.append("` - ");
-										sb.append(desc.get());
-										sb.append("\n");
+										descriptionValue = desc.get();
+
+										if(apiConfiguration.getEnumListDescriptionEnabled()) {
+											sb.append("  * ");
+											sb.append("`");
+											sb.append(value);
+											sb.append("` - ");
+											sb.append(desc.get());
+											sb.append("\n");
+										}
 									}
 								}
+								enumDescriptions.add(descriptionValue);
 							}
 							description = sb.toString();
 						}
@@ -467,8 +486,11 @@ public class Schema {
 		if(enumValues != null && !enumValues.isEmpty()) {
 			map.put("enum", enumValues);
 		}
-		if(enumNames != null && !enumNames.isEmpty()) {
-			map.put("x-enumNames", enumNames);
+		if(apiConfiguration.getEnumNameExtensionEnabled() && enumNames != null && !enumNames.isEmpty()) {
+			map.put(apiConfiguration.getEnumNameExtensionValue(), enumNames);
+		}
+		if(apiConfiguration.getEnumDescriptionExtensionEnabled() && enumDescriptions != null && !enumDescriptions.isEmpty()) {
+			map.put(apiConfiguration.getEnumDescriptionExtensionValue(), enumDescriptions);
 		}
 		if(additionalProperties != null) {
 			map.put("additionalProperties", additionalProperties);

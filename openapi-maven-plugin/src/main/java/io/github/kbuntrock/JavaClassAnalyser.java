@@ -6,7 +6,6 @@ import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.library.reader.AstractLibraryReader;
 import io.github.kbuntrock.model.Tag;
-import io.github.kbuntrock.model.annotation.OperationAnnotationInfo;
 import io.github.kbuntrock.utils.Logger;
 
 import java.lang.annotation.Annotation;
@@ -14,6 +13,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.plugin.MojoFailureException;
@@ -38,8 +38,8 @@ public class JavaClassAnalyser {
 
 	private final ScanResult classScanResult;
 
-	public JavaClassAnalyser(final ApiConfiguration apiConfiguration, ScanResult classScanResult) {
-		this.libraryReader = apiConfiguration.getLibrary().createReader(apiConfiguration);
+	public JavaClassAnalyser(final ApiConfiguration apiConfiguration, ScanResult classScanResult, final OpenApiTypeResolver openApiTypeResolver) {
+		this.libraryReader = apiConfiguration.getLibrary().createReader(apiConfiguration, openApiTypeResolver);
 		this.classScanResult = classScanResult;
 
 		// Compilation of white list / black list patterns

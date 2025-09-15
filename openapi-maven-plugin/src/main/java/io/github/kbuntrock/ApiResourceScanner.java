@@ -6,14 +6,18 @@ import io.github.classgraph.ScanResult;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.library.reader.ClassLoaderUtils;
+import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.Logger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 
@@ -25,12 +29,17 @@ public class ApiResourceScanner {
 	private final Log logger = Logger.INSTANCE.getLogger();
 
 	private final ApiConfiguration apiConfiguration;
+	private final OpenApiTypeResolver openApiTypeResolver;
+	private final Map<String, ClassDocumentation> javadocMap;
 
 	private final List<Pattern> whiteListPatterns = new ArrayList<>();
 	private final List<Pattern> blackListPatterns = new ArrayList<>();
 
-	public ApiResourceScanner(final ApiConfiguration apiConfiguration) {
+	public ApiResourceScanner(final ApiConfiguration apiConfiguration, final OpenApiTypeResolver openApiTypeResolver,
+							  final Map<String, ClassDocumentation> javadocMap) {
 		this.apiConfiguration = apiConfiguration;
+		this.openApiTypeResolver = openApiTypeResolver;
+		this.javadocMap = javadocMap;
 
 		if(apiConfiguration.getWhiteList() != null) {
 			for(final String whiteEntry : apiConfiguration.getWhiteList()) {
@@ -52,8 +61,7 @@ public class ApiResourceScanner {
 
 	public TagLibrary scanRestControllers() throws MojoFailureException {
 
-		final TagLibrary library = new TagLibrary();
-		TagLibraryHolder.INSTANCE.setTagLibrary(library);
+		final TagLibrary library = new TagLibrary(openApiTypeResolver, apiConfiguration, javadocMap);
 
 		for(final String apiLocation : apiConfiguration.getLocations()) {
 			logger.info("Scanning : " + apiLocation);
@@ -85,7 +93,7 @@ public class ApiResourceScanner {
 					String.join(", ", apiConfiguration.getTagAnnotations()) + " ]");
 
 				// Find directly or inheritedly annotated by RequestMapping classes.
-				final JavaClassAnalyser javaClassAnalyser = new JavaClassAnalyser(apiConfiguration, classScanResult);
+				final JavaClassAnalyser javaClassAnalyser = new JavaClassAnalyser(apiConfiguration, classScanResult, openApiTypeResolver);
 				for(final Class<?> restControllerClass : restControllerClasses) {
 					if(validateWhiteList(restControllerClass) && validateBlackList(restControllerClass)) {
 						javaClassAnalyser.getTagFromClass(restControllerClass).ifPresent(library::addTag);

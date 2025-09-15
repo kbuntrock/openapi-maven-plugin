@@ -19,8 +19,7 @@ import org.apache.maven.project.MavenProject;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
 
-public enum OpenApiTypeResolver {
-	INSTANCE;
+public class OpenApiTypeResolver {
 
 	/**
 	 * Special "any" type, to represent anything. Object.class is for example mapped to the any type
@@ -61,7 +60,7 @@ public enum OpenApiTypeResolver {
 	private final Set<Class<?>> nonDocumentableParameters = new HashSet<>();
 	private final Set<String> nonDocumentableParameterAnnotations = new HashSet<>();
 
-	public void init(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
+	public OpenApiTypeResolver(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
 		// Loading default encoding associations
 		initDefaultEncodingAssociations();
 		// Loading model definition
@@ -319,11 +318,11 @@ public enum OpenApiTypeResolver {
 
 				if(dataObject.getGenericNameToTypeMap() == null) {
 					// Generic object, but no parametrized data
-					return new DataObject(Object.class);
+					return new DataObject(Object.class, this);
 				}
 
 				final DataObject unwrapped = new DataObject(
-					dataObject.getGenericNameToTypeMap().get(entry.getValue().getTypeName()));
+					dataObject.getGenericNameToTypeMap().get(entry.getValue().getTypeName()), this);
 
 				// Intrinsic class requirement (ex: Optional) is carried from multiple unwrapping
 				if(dataObject.getClassRequired() != null) {
