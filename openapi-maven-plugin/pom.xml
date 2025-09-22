@@ -65,7 +65,7 @@
     <javaparser.version>3.27.0</javaparser.version>
     <classgraph.version>4.8.181</classgraph.version>
     <approvaltests.version>25.4.3</approvaltests.version>
-    <mockito.version>5.19.0</mockito.version>
+    <mockito.version>5.20.0</mockito.version>
   </properties>
 
   <dependencies>
