@@ -13,6 +13,8 @@ public class ParameterObject extends DataObject {
 	private boolean required;
 	private boolean allowEmptyValue;
 	private ParameterLocation location;
+	private String description;
+	private String example;
 	// Set only if it is a "body" parameter : json, xml, plain text, ...
 	private List<String> formats;
 
@@ -70,6 +72,22 @@ public class ParameterObject extends DataObject {
 
 	public void setLocation(final ParameterLocation location) {
 		this.location = location;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(final String description) {
+		this.description = description;
+	}
+
+	public String getExample() {
+		return example;
+	}
+
+	public void setExample(final String example) {
+		this.example = example;
 	}
 
 	public List<String> getFormats() {

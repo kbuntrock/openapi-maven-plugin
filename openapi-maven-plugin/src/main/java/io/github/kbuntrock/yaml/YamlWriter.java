@@ -276,6 +276,8 @@ public class YamlWriter {
 					parameterElement.setIn(parameter.getLocation().toString().toLowerCase(Locale.ENGLISH));
 					parameterElement.setRequired(parameter.isRequired());
 					parameterElement.setAllowEmptyValue(parameter.isAllowEmptyValue());
+					parameterElement.setDescription(parameter.getDescription());
+					parameterElement.setExample(parameter.getExample());
 
 					final Property schema = new Property(Content.fromDataObject(parameter, tagLibrary).getSingleSchema());
 
