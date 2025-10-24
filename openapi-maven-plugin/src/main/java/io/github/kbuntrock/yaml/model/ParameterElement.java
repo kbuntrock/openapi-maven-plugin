@@ -7,6 +7,8 @@ public class ParameterElement {
 
 	private String name;
 	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String summary;
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String description;
 	private String in;
 	private boolean required;
@@ -53,6 +55,14 @@ public class ParameterElement {
 
 	public void setSchema(Property schema) {
 		this.schema = schema;
+	}
+
+	public String getSummary() {
+		return summary;
+	}
+
+	public void setSummary(String summary) {
+		this.summary = summary;
 	}
 
 	public String getDescription() {

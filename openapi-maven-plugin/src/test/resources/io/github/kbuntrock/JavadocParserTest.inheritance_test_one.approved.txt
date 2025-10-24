@@ -7,7 +7,10 @@ servers:
   - url: ""
 tags:
   - name: ChildClassOne
-    description: A beautiful description of ChildClassOne
+    description: |-
+      A beautiful description of ChildClassOne
+
+      Subtitle
 paths:
   /api/child-class-one/can-encapsulate:
     get:
@@ -71,6 +74,7 @@ paths:
         - ChildClassOne
       operationId: getName
       description: Return the name of this controller
+      summary: name getter
       responses:
         200:
           description: the name

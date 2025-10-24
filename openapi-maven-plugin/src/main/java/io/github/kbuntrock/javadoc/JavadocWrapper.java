@@ -70,17 +70,12 @@ public class JavadocWrapper {
 		return Optional.empty();
 	}
 
+	public Optional<String> getSummary() {
+		return JavadocElementParser.getSummary(javadoc.getDescription(), endOfLineReplacement);
+	}
+
 	public Optional<String> getDescription() {
-		if(javadoc.getDescription() != null) {
-			String desc = javadoc.getDescription().toText();
-			if(endOfLineReplacement != null) {
-				desc = desc.replaceAll("\\r\\n", endOfLineReplacement).replaceAll("\\n", endOfLineReplacement);
-			}
-			if(!desc.isEmpty()) {
-				return Optional.of(desc);
-			}
-		}
-		return Optional.empty();
+		return JavadocElementParser.getDescription(javadoc.getDescription(), endOfLineReplacement);
 	}
 
 	public boolean isInheritTagFound() {
@@ -94,15 +89,14 @@ public class JavadocWrapper {
 				Logger.INSTANCE.getLogger().debug(entry.getKey() + " : " + entry.getValue().getContent().toText());
 			}
 		}
-
 	}
 
 	public void printReturn() {
 		if(blockTagsByType != null) {
 			final Optional<JavadocBlockTag> returnTag = getReturnBlockTag();
-			if(returnTag.isPresent()) {
-				Logger.INSTANCE.getLogger().debug("Return : " + returnTag.get().getContent().toText());
-			}
+			returnTag.ifPresent(javadocBlockTag ->
+				Logger.INSTANCE.getLogger().debug("Return : " + javadocBlockTag.getContent().toText()));
 		}
 	}
+
 }

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * A beautiful description of ChildClassOne
+ * {@summary The first child}
+ * Subtitle
  *
  * @author Kevin Buntrock
  */
@@ -40,6 +42,7 @@ public class ChildClassOne extends ParentAbstract implements ParentInterface {
 
 	/**
 	 * Return the name of this controller
+	 * {@summary name getter}
 	 *
 	 * @return the name
 	 */

@@ -24,7 +24,6 @@ import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiConstants;
 import io.github.kbuntrock.utils.OpenApiResolvedType;
 import io.github.kbuntrock.utils.UnwrappingType;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -48,6 +47,8 @@ import org.springframework.core.annotation.MergedAnnotations;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Schema {
 
+	@JsonIgnore
+	protected String summary;
 	@JsonIgnore
 	protected String description;
 	@JsonIgnore
@@ -224,6 +225,9 @@ public class Schema {
 								if(javadocWrapper != null) {
 									final Optional<String> desc = javadocWrapper.getDescription();
 									property.setDescription(desc.get());
+
+									final Optional<String> summary = javadocWrapper.getSummary();
+									property.setSummary(summary.orElse(null));
 								}
 							}
 
@@ -275,6 +279,9 @@ public class Schema {
 									if(javadocWrapper != null) {
 										final Optional<String> desc = javadocWrapper.getDescription();
 										property.setDescription(desc.get());
+
+										final Optional<String> summary = javadocWrapper.getSummary();
+										property.setSummary(summary.orElse(null));
 									}
 								}
 							}
@@ -439,6 +446,14 @@ public class Schema {
 
 	public void setItems(final Schema items) {
 		this.items = items;
+	}
+
+	public String getSummary() {
+		return summary;
+	}
+
+	public void setSummary(final String summary) {
+		this.summary = summary;
 	}
 
 	public String getDescription() {

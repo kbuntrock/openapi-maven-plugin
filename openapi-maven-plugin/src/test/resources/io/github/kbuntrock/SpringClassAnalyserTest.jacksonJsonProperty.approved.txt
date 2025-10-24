@@ -14,7 +14,10 @@ paths:
       tags:
         - JacksonJsonPropertyController
       operationId: findAll
-      description: "{@code GET  /users} : get the list of users"
+      description: |-
+        `GET  /users` : get the list of users
+        *SimpleUserDto*
+        [https://kbuntrock.github.io/openapi-maven-plugin](https://kbuntrock.github.io/openapi-maven-plugin)
       responses:
         200:
           description: the list of users.
