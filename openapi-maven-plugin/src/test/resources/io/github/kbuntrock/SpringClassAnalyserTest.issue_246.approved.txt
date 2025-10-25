@@ -1,0 +1,52 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: Issue246
+paths:
+  /logs:
+    get:
+      tags:
+        - Issue246
+      operationId: getLogs
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+  /logs/:
+    get:
+      tags:
+        - Issue246
+      operationId: getLogs2
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+  /logs/list:
+    get:
+      tags:
+        - Issue246
+      operationId: getLogs3
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string

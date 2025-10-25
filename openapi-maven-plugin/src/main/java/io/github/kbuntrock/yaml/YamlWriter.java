@@ -40,18 +40,8 @@ import io.github.kbuntrock.yaml.model.Specification;
 import io.github.kbuntrock.yaml.model.TagElement;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.maven.plugin.logging.Log;
@@ -199,7 +189,7 @@ public class YamlWriter {
 	private Map<String, Map<String, Operation>> createPaths(final TagLibrary tagLibrary) {
 		final Map<String, Map<String, Operation>> paths = new LinkedHashMap<>();
 
-		final Set<String> operationIds = new HashSet<>();
+		final Map<String, Integer> operationIds = new HashMap<>();
 
 		for(final Tag tag : tagLibrary.getSortedTags()) {
 
@@ -266,10 +256,11 @@ public class YamlWriter {
 					Logger.INSTANCE.getLogger().warn("Operation " + operation.getOperationId()
 						+ " path should start with a \"/\" (" + operation.getPath() + ")");
 				}
-				// Warning on operation Ids
-				if(!operationIds.add(operation.getOperationId())) {
-					Logger.INSTANCE.getLogger().warn("Operation id \"" +
-						operation.getOperationId() + "\" (" + tag.getName() + ") should be unique");
+				// Arbitrary suffix the operationId with a number if it is not unique
+				Integer nbEncounteredOperationId = operationIds.compute(operation.getOperationId(),
+						(operationId, oldValue) -> oldValue == null ? 1 : oldValue + 1);
+				if(nbEncounteredOperationId > 1) {
+					operation.setOperationId(operation.getOperationId()+nbEncounteredOperationId);
 				}
 
 				// -------------------------

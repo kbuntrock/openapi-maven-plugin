@@ -24,7 +24,7 @@ paths:
     get:
       tags:
         - OptionalController
-      operationId: optionalParameter
+      operationId: defaultParameter
       parameters:
         - name: myParam
           in: query
