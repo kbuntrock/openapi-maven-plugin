@@ -160,8 +160,7 @@ public class DataObject {
 						true, ReflectionsUtils.getProjectClassLoader());
 					this.arrayItemDataObject = new DataObject(clazz, openApiTypeResolver);
 				} else {
-					throw new RuntimeException(
-						"A GenericArrayType with a " + gat.getGenericComponentType().getClass() + " is not and handled case.");
+					javaClass = Object.class;
 				}
 			} else if(type instanceof Class) {
 				javaClass = (Class<?>) type;
@@ -171,8 +170,7 @@ public class DataObject {
 					computeCollectionType(openApiTypeResolver);
 				}
 			} else {
-				throw new RuntimeException(
-					"Type " + originalType.getTypeName() + " (+" + originalType.getClass().getSimpleName() + ") is not supported yet.");
+				javaClass = Object.class;
 			}
 
 			this.openApiResolvedType = openApiTypeResolver.resolveFromJavaClass(javaClass);

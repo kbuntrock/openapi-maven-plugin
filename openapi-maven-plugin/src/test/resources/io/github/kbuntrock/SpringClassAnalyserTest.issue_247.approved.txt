@@ -1,0 +1,97 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: Issue247
+paths:
+  /issue247:
+    get:
+      tags:
+        - Issue247
+      operationId: getEmployees
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageImpl'
+  /issue247/list:
+    get:
+      tags:
+        - Issue247
+      operationId: getEmployeesArrayOfList
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: array
+                  items: {}
+components:
+  schemas:
+    Direction:
+      type: string
+      enum:
+        - ASC
+        - DESC
+    NullHandling:
+      type: string
+      enum:
+        - NATIVE
+        - NULLS_FIRST
+        - NULLS_LAST
+    Order:
+      type: object
+      properties:
+        direction:
+          $ref: '#/components/schemas/Direction'
+        property:
+          type: string
+        ignoreCase:
+          type: boolean
+        nullHandling:
+          $ref: '#/components/schemas/NullHandling'
+    PageImpl:
+      type: object
+      properties:
+        content:
+          type: array
+          items: {}
+        pageable:
+          $ref: '#/components/schemas/Pageable'
+        total:
+          type: integer
+          format: int64
+    Pageable:
+      type: object
+      properties:
+        offset:
+          type: integer
+          format: int64
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        sort:
+          $ref: '#/components/schemas/Sort'
+        paged:
+          type: boolean
+        unpaged:
+          type: boolean
+    Sort:
+      type: object
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
