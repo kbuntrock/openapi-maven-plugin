@@ -70,7 +70,7 @@ const FeatureList: FeatureItem[] = [
         imageUrl: '/img/puzzle_small.png',
         description: (
             <>
-                <Translate>Works with Spring MVC, Jakarta RS and Javax RS. Verified with JDK 8, 11, 17, and 21.</Translate>
+                <Translate>Works with Spring MVC, Jakarta REST and JAX-RS. Verified with JDK 8, 11, 17, and 21.</Translate>
             </>
         ),
     },

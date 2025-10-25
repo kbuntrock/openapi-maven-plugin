@@ -14,8 +14,8 @@ Il est conçu pour s’intégrer de manière fluide au cycle de vie Maven, renda
 - **Large support d'annotations**  
   Compatible avec:
   - Spring MVC
-  - Javax RS
-  - Jakarta RS
+  - Jakarta REST
+  - JAX-RS
 
 
 - **Analyse hybride**  

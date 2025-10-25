@@ -14,8 +14,8 @@ It is designed to integrate seamlessly into the Maven build lifecycle, making AP
 - **Broad Annotation Support**  
   Works with:
   - Spring MVC
-  - Javax RS
-  - Jakarta RS
+  - Jakarta REST
+  - JAX-RS
 
 
 - **Hybrid Analysis Approach**  
@@ -56,7 +56,7 @@ Full documentation is available in both English and French:
 ---
 ## 🔌 Swagger Core v3 annotations supports
 
-In addition to its native support for Spring MVC, Javax RS, and Jakarta RS annotations, the plugin also provides partial support for Swagger Core v3 annotations (``io.swagger.core.v3/swagger-annotations``).  
+In addition to its native support for Spring MVC, Jakarta REST, and JAX-RS annotations, the plugin also provides partial support for Swagger Core v3 annotations (``io.swagger.core.v3/swagger-annotations``).  
 While not all annotations are covered, a subset of the most commonly used ones is recognized and processed, offering extra flexibility for teams already relying on ``swagger-annotations`` in their codebase.  
 Detailed support is listed in the documentation.
 

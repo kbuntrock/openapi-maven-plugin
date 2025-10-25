@@ -11,7 +11,7 @@
   <packaging>maven-plugin</packaging>
 
   <name>openapi-maven-plugin Maven Plugin</name>
-  <description>The OpenAPI Maven Plugin analyzes Java REST controller classes and generates OpenAPI 3.x documentation. It is designed to integrate seamlessly into the Maven build lifecycle, making API documentation generation automated, fast, and reliable. Works with: Spring MVC, Javax RS and Jakarta RS.</description>
+  <description>The OpenAPI Maven Plugin analyzes Java REST controller classes and generates OpenAPI 3.x documentation. It is designed to integrate seamlessly into the Maven build lifecycle, making API documentation generation automated, fast, and reliable. Works with: Spring MVC, Jakarta REST and JAX-RS.</description>
   <url>https://github.com/kbuntrock/openapi-maven-plugin</url>
 
   <scm>
