@@ -52,6 +52,7 @@ import io.github.kbuntrock.resources.endpoint.ignore.JsonIgnoreController;
 import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
 import io.github.kbuntrock.resources.endpoint.issues.Issue138;
 import io.github.kbuntrock.resources.endpoint.issues.Issue246;
+import io.github.kbuntrock.resources.endpoint.issues.Issue247;
 import io.github.kbuntrock.resources.endpoint.jackson.JacksonJsonPropertyController;
 import io.github.kbuntrock.resources.endpoint.map.MapController;
 import io.github.kbuntrock.resources.endpoint.multipartformdata.MultipartFormDataController;
@@ -883,9 +884,13 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
 	@Test
 	public void issue_246() throws MojoFailureException, IOException, MojoExecutionException {
-
 		final DocumentationMojo mojo = createBasicMojo(Issue246.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
 
+	@Test
+	public void issue_247() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(Issue247.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 	}
 
