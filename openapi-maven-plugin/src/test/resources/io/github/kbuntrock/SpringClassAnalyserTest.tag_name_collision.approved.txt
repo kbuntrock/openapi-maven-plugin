@@ -69,7 +69,7 @@ paths:
     get:
       tags:
         - MyController
-      operationId: getInfo
+      operationId: getInfo2
       responses:
         200:
           description: successful operation
@@ -80,7 +80,7 @@ paths:
     post:
       tags:
         - MyController
-      operationId: setInfo
+      operationId: setInfo2
       responses:
         200:
           description: successful operation
@@ -91,7 +91,7 @@ paths:
     put:
       tags:
         - MyController
-      operationId: putInfo
+      operationId: putInfo2
       responses:
         200:
           description: successful operation
@@ -102,7 +102,7 @@ paths:
     patch:
       tags:
         - MyController
-      operationId: patchInfo
+      operationId: patchInfo2
       responses:
         200:
           description: successful operation
@@ -113,7 +113,7 @@ paths:
     delete:
       tags:
         - MyController
-      operationId: deleteInfo
+      operationId: deleteInfo2
       responses:
         200:
           description: successful operation
