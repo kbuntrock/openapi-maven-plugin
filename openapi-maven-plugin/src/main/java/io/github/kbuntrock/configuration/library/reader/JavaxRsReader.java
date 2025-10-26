@@ -203,6 +203,8 @@ public class JavaxRsReader extends AstractLibraryReader {
 					}
 				}
 
+				// Add eventual extra information given by a swagger annotation
+				this.setSwaggerAnnotatedParameterProperties(parameter, mergedAnnotations, paramObj);
 			}
 		}
 
