@@ -13,6 +13,7 @@ import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.UnwrappingType;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
@@ -179,5 +180,12 @@ public abstract class AstractLibraryReader {
 				operationInfo.addResponse(operationResponse);
 			}
 		}
+	}
+
+	protected void setSwaggerAnnotatedParameterProperties(final Parameter javaParameter, final MergedAnnotations mergedAnnotations, ParameterObject parameter){
+		// TODO : add code here for handling swagger @Parameter annotation
+		// javaParameter is the java original parameter
+		// you'll find in mergedAnnotations is a helper to find annotations on the javaParameter
+		// and parameter is the object you want to mutate to add / replace informations.
 	}
 }

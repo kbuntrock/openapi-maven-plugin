@@ -254,6 +254,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 					paramObj.setRequired(paramObj.getClassRequired());
 				}
 
+				// Add eventual extra information given by a swagger annotation
+				this.setSwaggerAnnotatedParameterProperties(parameter, mergedAnnotations, paramObj);
 			}
 		}
 
