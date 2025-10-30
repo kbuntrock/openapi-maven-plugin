@@ -10,6 +10,7 @@ import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.reflection.GenericityResolver;
 import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
+import io.github.kbuntrock.utils.ParameterLocation;
 import io.github.kbuntrock.utils.UnwrappingType;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -206,15 +207,20 @@ public abstract class AstractLibraryReader {
 				parameterObjects.add(paramObj);
 			}
 		}
-
+		
 		if (parameterObjects.size() > 0) endpoint.setParameters(parameterObjects);
 	}
 	
 	protected void setSwaggerAnnotatedParameterProperties(final Parameter javaParameter, final MergedAnnotations mergedAnnotations, ParameterObject parameter){
-		// TODO : add code here for handling swagger @Parameter annotation
-		// javaParameter is the java original parameter
-		// you'll find in mergedAnnotations is a helper to find annotations on the javaParameter
-		// and parameter is the object you want to mutate to add / replace informations.
+        MergedAnnotation<Annotation> parameterAnn = mergedAnnotations.get("io.swagger.v3.oas.annotations.Parameter");
+        if (parameterAnn.isPresent() && !"".equals(parameterAnn.getString("name"))) {
+            String description = parameterAnn.getString("description");
+            parameter.setDescription(description);
+            String name = parameterAnn.getString("name");
+            parameter.setName(name);
+            logger.debug("Found @Parameter " + name
+                + " param '" + parameter.getName() + "' : " + description);
+        }
 	}
 	
 	
