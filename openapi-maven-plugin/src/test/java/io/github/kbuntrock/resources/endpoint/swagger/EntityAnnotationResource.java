@@ -41,7 +41,7 @@ public class EntityAnnotationResource {
 					@ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(schema = @Schema(implementation = ErrorEntityWithAnnotations.class)))
 			})
 	@GetMapping("/unparametrized")
-	public ResponseEntity unparametrized() {
+	public ResponseEntity<?> unparametrized() {
 		return ResponseEntity.ok(new ResponseEntityWithAnnotations());
 	}
 

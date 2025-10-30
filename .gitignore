@@ -27,3 +27,6 @@ openapi-maven-plugin/src/test/resources/**/*.received.txt
 !.idea/runConfigurations/
 !.idea/codeStyles
 !.idea/saveactions_settings.xml
+*.prefs
+*.classpath
+*.project
