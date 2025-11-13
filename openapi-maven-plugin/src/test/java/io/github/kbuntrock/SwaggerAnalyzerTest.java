@@ -74,4 +74,13 @@ public class SwaggerAnalyzerTest extends AbstractTest {
 		mojo.setJavadocConfiguration(javadocConfiguration);
 		checkGenerationResult(mojo.documentProject());
 	}
+	
+	@Test
+	public void basicAnnotatedParametersWithReturnObjectsWithJavadoc() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(EntityAnnotationWithParametersResource.class.getCanonicalName());
+        JavadocConfiguration javadocConfiguration = new JavadocConfiguration();
+        javadocConfiguration.setScanLocations(Collections.singletonList("src/test/java/io/github/kbuntrock/resources/endpoint/swagger"));
+        mojo.setJavadocConfiguration(javadocConfiguration);
+		checkGenerationResult(mojo.documentProject());
+	}
 }

@@ -44,8 +44,10 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
+
 
 public class YamlWriter {
 
@@ -295,7 +297,7 @@ public class YamlWriter {
 					}
 
 					// Javadoc handling
-					if(methodJavadoc != null) {
+					if(StringUtils.isEmpty(parameterElement.getDescription()) && methodJavadoc != null) {
 						final Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(
 							parameter.getJavadocFieldName());
 						if(parameterDoc.isPresent()) {
