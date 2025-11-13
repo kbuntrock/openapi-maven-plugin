@@ -18,9 +18,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public class EntityAnnotationWithParametersResource {
 
 
-    @Operation(summary = "Search alarms")
+    @Operation(summary = "Search alarms",
+        parameters = {
+            @Parameter(name = "pv", description = "PV name", in=ParameterIn.QUERY, schema = @Schema(type = "string"), required = false, example = "*"),
+        }
+    )
     @Parameters({
-        @Parameter(name = "pv", description = "PV name", in=ParameterIn.QUERY, schema = @Schema(type = "string"), required = false, example = "*"),
         @Parameter(name = "start", description = "Start time", schema = @Schema(type = "string"), required = false, example = "2024-06-12"),
         @Parameter(name = "end", description = "End time", schema = @Schema(type = "string"), required = false, example = "2024-06-14"),
     })

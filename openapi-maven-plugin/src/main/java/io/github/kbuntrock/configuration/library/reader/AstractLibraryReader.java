@@ -122,6 +122,8 @@ public abstract class AstractLibraryReader {
 	}
 
 	protected void setSwaggerAnnotatedEndpointProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations){
+		ArrayList<ParameterObject> parameterObjects = new ArrayList<ParameterObject>();
+
 		final MergedAnnotation<Annotation> operationAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.Operation");
 		if(operationAnnotation.isPresent()) {
 			OperationAnnotationInfo operationInfo = endpoint.getOperationAnnotationInfo();
@@ -140,6 +142,9 @@ public abstract class AstractLibraryReader {
 				operationInfo.setDescription(description);
 			}
 
+			MergedAnnotation<Annotation>[] parametersArray = operationAnnotation.getAnnotationArray("parameters", Annotation.class);
+			addParameters(parameterObjects, parametersArray);
+			
 			MergedAnnotation<Annotation>[] responseArray = operationAnnotation.getAnnotationArray("responses", Annotation.class);
 
 			for (MergedAnnotation<Annotation> responseAnnotation : responseArray) {
@@ -184,28 +189,10 @@ public abstract class AstractLibraryReader {
 		}
 
 		
-		ArrayList<ParameterObject> parameterObjects = new ArrayList<ParameterObject>();
-
 		final MergedAnnotation<Annotation> parametersAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.Parameters");
 		if(parametersAnnotation.isPresent()) {
 			MergedAnnotation<Annotation>[] parametersArray = parametersAnnotation.getAnnotationArray("value", Annotation.class);
-			for (MergedAnnotation<Annotation>parameterAnnotation : parametersArray) {
-				final String paramName = parameterAnnotation.getString("name");
-				final String paramIn = parameterAnnotation.getValue("in").orElse(null).toString();
-				final String paramDescription = parameterAnnotation.getString("description");
-				final Boolean paramRequired = parameterAnnotation.getBoolean("required");
-	            MergedAnnotation<Annotation> schemaAnn = parameterAnnotation.getAnnotation("schema", Annotation.class);
-	            final String paramType = (schemaAnn != null) ? schemaAnn.getString("type") : null;
-				final String paramExample = parameterAnnotation.getString("example");
-				
-				ParameterObject paramObj = new ParameterObject(paramName, mapSchemaTypeToJavaType(paramType), openApiTypeResolver);
-				paramObj.setLocation(ParameterLocation.fromValue("".equals(paramIn) ? "query" : paramIn));
-				paramObj.setRequired(paramRequired);
-				paramObj.setDescription(paramDescription);
-				paramObj.setExample(paramExample);
-				paramObj.setSchemaReferenceName(paramExample);
-				parameterObjects.add(paramObj);
-			}
+			addParameters(parameterObjects, parametersArray);
 		}
 		
 		if (parameterObjects.size() > 0) endpoint.setParameters(parameterObjects);
@@ -223,6 +210,26 @@ public abstract class AstractLibraryReader {
         }
 	}
 	
+	private void addParameters(ArrayList<ParameterObject> parameterObjects, MergedAnnotation<Annotation>[] parametersArray) {
+		for (MergedAnnotation<Annotation>parameterAnnotation : parametersArray) {
+			final String paramName = parameterAnnotation.getString("name");
+			final String paramIn = parameterAnnotation.getValue("in").orElse(null).toString();
+			final String paramDescription = parameterAnnotation.getString("description");
+			final Boolean paramRequired = parameterAnnotation.getBoolean("required");
+            MergedAnnotation<Annotation> schemaAnn = parameterAnnotation.getAnnotation("schema", Annotation.class);
+            final String paramType = (schemaAnn != null) ? schemaAnn.getString("type") : null;
+			final String paramExample = parameterAnnotation.getString("example");
+			
+			ParameterObject paramObj = new ParameterObject(paramName, mapSchemaTypeToJavaType(paramType), openApiTypeResolver);
+			paramObj.setLocation(ParameterLocation.fromValue("".equals(paramIn) ? "query" : paramIn));
+			paramObj.setRequired(paramRequired);
+			paramObj.setDescription(paramDescription);
+			paramObj.setExample(paramExample);
+			paramObj.setSchemaReferenceName(paramExample);
+			parameterObjects.add(paramObj);
+		}
+
+	}
 	
 	private static Class<?> mapSchemaTypeToJavaType(String schemaType) {
 	    if (schemaType == null) return Object.class;
