@@ -1,7 +1,6 @@
 package io.github.kbuntrock.utils;
 
 public enum ParameterLocation {
-    DEFAULT(""),
     PATH("path"),
     QUERY("query"),
     BODY("body"),
@@ -23,7 +22,7 @@ public enum ParameterLocation {
     
     public static ParameterLocation fromValue(String value) {
         if (value == null) {
-            return DEFAULT;
+            return QUERY;
         }
         String normalized = value.trim().toLowerCase();
         for (ParameterLocation loc : values()) {
@@ -31,6 +30,6 @@ public enum ParameterLocation {
                 return loc;
             }
         }
-        return DEFAULT;
+        return QUERY;
     }
 }
