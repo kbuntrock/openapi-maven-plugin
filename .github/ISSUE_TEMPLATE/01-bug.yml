@@ -1,0 +1,24 @@
+name: Bug Report
+description: File a bug report.
+labels: ["bug"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+        
+        Simple fixes in single PRs do not require issues.
+  - type: input
+    id: version
+    attributes:
+      label: Affected version
+      description: Which version of the plugin are you using?
+    validations:
+      required: true
+  - type: textarea
+    id: message
+    attributes:
+      label: Bug description
+    validations:
+      required: true
