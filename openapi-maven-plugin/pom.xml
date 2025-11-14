@@ -51,6 +51,10 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.version>3.3.9</maven.version>
 
+    <!-- Reproducible builds, this value is set via the release process -->
+    <!-- See: https://maven.apache.org/guides/mini/guide-reproducible-builds.html -->
+    <project.build.outputTimestamp>2025-01-01T00:00:00Z</project.build.outputTimestamp>
+
     <!-- versions -->
     <spring.version>5.3.39</spring.version>
     <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
@@ -255,6 +259,11 @@
           <artifactId>maven-clean-plugin</artifactId>
           <version>3.5.0</version>
         </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>versions-maven-plugin</artifactId>
+          <version>2.19.1</version>
+        </plugin>
         <!-- see http://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_maven-plugin_packaging -->
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -415,45 +424,53 @@
   </build>
 
   <profiles>
+      <profile>
+          <!-- Activate this profile with -Pprerelease -->
+          <id>prerelease</id>
+          <build>
+              <plugins>
+
+                  <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-jar-plugin</artifactId>
+                      <executions>
+                          <execution>
+                              <id>javadoc-jar</id>
+                              <phase>prepare-package</phase>
+                              <goals>
+                                  <goal>jar</goal>
+                              </goals>
+                              <configuration>
+                                  <classifier>javadoc</classifier>
+                                  <classesDirectory>${project.basedir}</classesDirectory>
+                                  <includes>
+                                      <include>Readme-javadoc.txt</include>
+                                  </includes>
+                              </configuration>
+                          </execution>
+                      </executions>
+                  </plugin>
+
+                  <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-source-plugin</artifactId>
+                      <executions>
+                          <execution>
+                              <id>attach-source</id>
+                              <goals>
+                                  <goal>jar</goal>
+                              </goals>
+                          </execution>
+                      </executions>
+                  </plugin>
+              </plugins>
+          </build>
+      </profile>
     <profile>
       <!-- Activate this profile with -Prelease -->
       <id>release</id>
       <build>
         <plugins>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>javadoc-jar</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-                <configuration>
-                  <classifier>javadoc</classifier>
-                  <classesDirectory>${project.basedir}</classesDirectory>
-                  <includes>
-                    <include>Readme-javadoc.txt</include>
-                  </includes>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-source</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
 
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -482,6 +499,7 @@
             <version>0.9.0</version>
             <extensions>true</extensions>
             <configuration>
+              <deploymentName>openapi-maven-plugin</deploymentName>
               <publishingServerId>central</publishingServerId>
               <autoPublish>true</autoPublish>
               <waitUntil>published</waitUntil>

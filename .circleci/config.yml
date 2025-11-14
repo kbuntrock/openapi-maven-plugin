@@ -121,7 +121,7 @@ jobs:
           name: "Publish Release on GitHub"
           command: |
             VERSION=${CIRCLE_TAG}
-            ghr -t ${GITHUB_RELEASE_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./release/
+            ghr -t ${GITHUB_RELEASE_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -draft -generatenotes ${VERSION} ./release/
             
   build-tag:
     docker:
@@ -137,7 +137,7 @@ jobs:
             cd openapi-maven-plugin
             export JAVA_HOME=$JAVA17_HOME
             mvn --version
-            mvn clean install
+            mvn clean verify -Pprerelease
       - run: 
           name: move release artifacts
           command: |
@@ -149,9 +149,13 @@ jobs:
             sha1sum openapi-maven-plugin-${CIRCLE_TAG}.pom | cut -f 1 -d " " > openapi-maven-plugin-${CIRCLE_TAG}.pom.sha1
             md5sum openapi-maven-plugin-${CIRCLE_TAG}.jar | cut -f 1 -d " " > openapi-maven-plugin-${CIRCLE_TAG}.jar.md5
             sha1sum openapi-maven-plugin-${CIRCLE_TAG}.jar | cut -f 1 -d " " > openapi-maven-plugin-${CIRCLE_TAG}.jar.sha1
+            md5sum openapi-maven-plugin-${CIRCLE_TAG}.jar | cut -f 1 -d " " > openapi-maven-plugin-${CIRCLE_TAG}-javadoc.jar.md5
+            sha1sum openapi-maven-plugin-${CIRCLE_TAG}.jar | cut -f 1 -d " " > openapi-maven-plugin-${CIRCLE_TAG}-javadoc.jar.sha1
+            md5sum openapi-maven-plugin-${CIRCLE_TAG}.jar | cut -f 1 -d " " > openapi-maven-plugin-${CIRCLE_TAG}-sources.jar.md5
+            sha1sum openapi-maven-plugin-${CIRCLE_TAG}.jar | cut -f 1 -d " " > openapi-maven-plugin-${CIRCLE_TAG}-sources.jar.sha1
             pwd
             ls -l
-            jar -cvf release-bundle-${CIRCLE_TAG}.jar openapi-maven-plugin-${CIRCLE_TAG}.pom openapi-maven-plugin-${CIRCLE_TAG}.pom.md5 openapi-maven-plugin-${CIRCLE_TAG}.pom.sha1 openapi-maven-plugin-${CIRCLE_TAG}.jar openapi-maven-plugin-${CIRCLE_TAG}.jar.md5 openapi-maven-plugin-${CIRCLE_TAG}.jar.sha1
+            jar -cvf release-bundle-${CIRCLE_TAG}.jar openapi-maven-plugin-${CIRCLE_TAG}.pom openapi-maven-plugin-${CIRCLE_TAG}.pom.md5 openapi-maven-plugin-${CIRCLE_TAG}.pom.sha1 openapi-maven-plugin-${CIRCLE_TAG}.jar openapi-maven-plugin-${CIRCLE_TAG}.jar.md5 openapi-maven-plugin-${CIRCLE_TAG}.jar.sha1 openapi-maven-plugin-${CIRCLE_TAG}-javadoc.jar openapi-maven-plugin-${CIRCLE_TAG}-javadoc.jar.md5 openapi-maven-plugin-${CIRCLE_TAG}-javadoc.jar.sha1 openapi-maven-plugin-${CIRCLE_TAG}-sources.jar openapi-maven-plugin-${CIRCLE_TAG}-sources.jar.md5 openapi-maven-plugin-${CIRCLE_TAG}-sources.jar.sha1
             ls -l
             
       - persist_to_workspace:

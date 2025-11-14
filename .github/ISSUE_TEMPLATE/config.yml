@@ -1,0 +1,8 @@
+# https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository#configuring-the-template-chooser
+
+blank_issues_enabled: false
+
+contact_links:
+  - name: You have a question?
+    url: https://github.com/kbuntrock/openapi-maven-plugin/discussions
+    about: Please ask a question or discuss here
