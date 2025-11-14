@@ -1,0 +1,87 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: EntityAnnotationWithParametersResource
+paths:
+  /api/search/alarm:
+    get:
+      tags:
+        - EntityAnnotationWithParametersResource
+      operationId: searchAlarms
+      summary: Search alarms
+      parameters:
+        - name: pv
+          description: PV name
+          example: '*'
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: start
+          description: Start time
+          example: 2024-06-12
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: end
+          description: End time
+          example: 2024-06-14
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ResponseEntityWithAnnotations'
+  /api/search/alarm/pv/{pv}:
+    get:
+      tags:
+        - EntityAnnotationWithParametersResource
+      operationId: searchPv
+      summary: Search alarms by PV name
+      parameters:
+        - name: pv
+          description: PV name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ResponseEntityWithAnnotations'
+components:
+  schemas:
+    ResponseEntityWithAnnotations:
+      type: object
+      properties:
+        id:
+          description: Unique identifier for the response
+          type: string
+          example: 12345
+        status:
+          description: Status of the response
+          type: string
+          example: success
+        data:
+          description: Data returned in the response
+          type: string
+          example: "{\"key\":\"value\"}"
+        timestamp:
+          description: Timestamp of the collected data
+          type: string
+          format: date-time
+          example: 2023-10-01T12:00:00

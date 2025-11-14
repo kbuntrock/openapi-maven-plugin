@@ -10,11 +10,13 @@ import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.reflection.GenericityResolver;
 import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
+import io.github.kbuntrock.utils.ParameterLocation;
 import io.github.kbuntrock.utils.UnwrappingType;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -56,7 +58,7 @@ public abstract class AstractLibraryReader {
 		return result;
 	}
 
-	protected DataObject readResponseObject(final Class clazz, final Method method,
+	protected DataObject readResponseObject(final Class<?> clazz, final Method method,
 		final MergedAnnotations mergedAnnotations) {
 		final Class<?> returnType = method.getReturnType();
 		if(Void.class == returnType || Void.TYPE == returnType) {
@@ -97,10 +99,10 @@ public abstract class AstractLibraryReader {
 
 	public abstract List<String> readBasePaths(final Class<?> clazz, final MergedAnnotations mergedAnnotations);
 
-	public abstract void computeAnnotations(final Class clazz, final String basePath, final Method method, final MergedAnnotations mergedAnnotations,
+	public abstract void computeAnnotations(final Class<?> clazz, final String basePath, final Method method, final MergedAnnotations mergedAnnotations,
 		final Tag tagr) throws MojoFailureException;
 
-	protected abstract List<ParameterObject> readParameters(final Class clazz, final Method originalMethod, final MergedAnnotations endpointAnnotations);
+	protected abstract List<ParameterObject> readParameters(final Class<?> clazz, final Method originalMethod, final MergedAnnotations endpointAnnotations);
 
 	protected abstract List<String> readEndpointPaths(String basePath,
 		MergedAnnotation<? extends Annotation> requestMappingMergedAnnotation);
@@ -120,6 +122,8 @@ public abstract class AstractLibraryReader {
 	}
 
 	protected void setSwaggerAnnotatedEndpointProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations){
+		ArrayList<ParameterObject> parameterObjects = new ArrayList<ParameterObject>();
+
 		final MergedAnnotation<Annotation> operationAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.Operation");
 		if(operationAnnotation.isPresent()) {
 			OperationAnnotationInfo operationInfo = endpoint.getOperationAnnotationInfo();
@@ -138,6 +142,9 @@ public abstract class AstractLibraryReader {
 				operationInfo.setDescription(description);
 			}
 
+			MergedAnnotation<Annotation>[] parametersArray = operationAnnotation.getAnnotationArray("parameters", Annotation.class);
+			addParameters(parameterObjects, parametersArray);
+			
 			MergedAnnotation<Annotation>[] responseArray = operationAnnotation.getAnnotationArray("responses", Annotation.class);
 
 			for (MergedAnnotation<Annotation> responseAnnotation : responseArray) {
@@ -180,12 +187,62 @@ public abstract class AstractLibraryReader {
 				operationInfo.addResponse(operationResponse);
 			}
 		}
+
+		
+		final MergedAnnotation<Annotation> parametersAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.Parameters");
+		if(parametersAnnotation.isPresent()) {
+			MergedAnnotation<Annotation>[] parametersArray = parametersAnnotation.getAnnotationArray("value", Annotation.class);
+			addParameters(parameterObjects, parametersArray);
+		}
+		
+		if (parameterObjects.size() > 0) endpoint.setParameters(parameterObjects);
+	}
+	
+	protected void setSwaggerAnnotatedParameterProperties(final Parameter javaParameter, final MergedAnnotations mergedAnnotations, ParameterObject parameter){
+        MergedAnnotation<Annotation> parameterAnn = mergedAnnotations.get("io.swagger.v3.oas.annotations.Parameter");
+        if (parameterAnn.isPresent()) {
+            String description = parameterAnn.getString("description");
+            parameter.setDescription(description);
+            String name = parameterAnn.getString("name");
+            parameter.setName(name);
+            logger.debug("Found @Parameter " + name
+                + " param '" + parameter.getName() + "' : " + description);
+        }
+	}
+	
+	private void addParameters(ArrayList<ParameterObject> parameterObjects, MergedAnnotation<Annotation>[] parametersArray) {
+		for (MergedAnnotation<Annotation>parameterAnnotation : parametersArray) {
+			final String paramName = parameterAnnotation.getString("name");
+			final String paramIn = parameterAnnotation.getValue("in").orElse(null).toString();
+			final String paramDescription = parameterAnnotation.getString("description");
+			final Boolean paramRequired = parameterAnnotation.getBoolean("required");
+            MergedAnnotation<Annotation> schemaAnn = parameterAnnotation.getAnnotation("schema", Annotation.class);
+            final String paramType = (schemaAnn != null) ? schemaAnn.getString("type") : null;
+			final String paramExample = parameterAnnotation.getString("example");
+			
+			ParameterObject paramObj = new ParameterObject(paramName, mapSchemaTypeToJavaType(paramType), openApiTypeResolver);
+			paramObj.setLocation(ParameterLocation.fromValue("".equals(paramIn) ? "query" : paramIn));
+			paramObj.setRequired(paramRequired);
+			paramObj.setDescription(paramDescription);
+			paramObj.setExample(paramExample);
+			paramObj.setSchemaReferenceName(paramExample);
+			parameterObjects.add(paramObj);
+		}
+
+	}
+	
+	private static Class<?> mapSchemaTypeToJavaType(String schemaType) {
+	    if (schemaType == null) return Object.class;
+
+	    switch (schemaType.trim().toLowerCase()) {
+	        case "string": return String.class;
+	        case "integer": return Integer.class;
+	        case "number": return Double.class;
+	        case "boolean": return Boolean.class;
+	        case "array": return java.util.List.class;
+	        case "object": return java.util.Map.class;
+	        default: return Object.class;
+	    }
 	}
 
-	protected void setSwaggerAnnotatedParameterProperties(final Parameter javaParameter, final MergedAnnotations mergedAnnotations, ParameterObject parameter){
-		// TODO : add code here for handling swagger @Parameter annotation
-		// javaParameter is the java original parameter
-		// you'll find in mergedAnnotations is a helper to find annotations on the javaParameter
-		// and parameter is the object you want to mutate to add / replace informations.
-	}
 }

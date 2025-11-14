@@ -10,6 +10,8 @@ public class ParameterElement {
 	private String summary;
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String description;
+	@JsonInclude(Include.NON_NULL)
+	private String example;
 	private String in;
 	private boolean required;
 	@JsonInclude(Include.NON_DEFAULT)
@@ -71,5 +73,13 @@ public class ParameterElement {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getExample() {
+		return example;
+	}
+
+	public void setExample(String example) {
+		this.example = example;
 	}
 }
