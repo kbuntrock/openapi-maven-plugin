@@ -1,0 +1,447 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: Issue262
+paths:
+  /issue262/some-redirection:
+    get:
+      tags:
+        - Issue262
+      operationId: redirectUsingRedirectView
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/RedirectView'
+components:
+  schemas:
+    ApplicationContext:
+      type: object
+      properties:
+        applicationName:
+          type: string
+        autowireCapableBeanFactory:
+          $ref: '#/components/schemas/AutowireCapableBeanFactory'
+        beanDefinitionCount:
+          type: integer
+          format: int32
+        beanDefinitionNames:
+          type: array
+          items:
+            type: string
+        classLoader:
+          $ref: '#/components/schemas/ClassLoader'
+        displayName:
+          type: string
+        environment:
+          $ref: '#/components/schemas/Environment'
+        id:
+          type: string
+        parent:
+          $ref: '#/components/schemas/ApplicationContext'
+        parentBeanFactory:
+          $ref: '#/components/schemas/BeanFactory'
+        startupDate:
+          type: integer
+          format: int64
+    AutowireCapableBeanFactory:
+      type: object
+    BaseLocale:
+      type: object
+      properties:
+        language:
+          type: string
+        script:
+          type: string
+        region:
+          type: string
+        variant:
+          type: string
+        hash:
+          type: integer
+          format: int32
+    BeanFactory:
+      type: object
+    ClassLoader:
+      type: object
+    Environment:
+      type: object
+      properties:
+        activeProfiles:
+          type: array
+          items:
+            type: string
+        defaultProfiles:
+          type: array
+          items:
+            type: string
+    Extension:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        id:
+          type: string
+    FilterRegistration:
+      type: object
+      properties:
+        className:
+          type: string
+        initParameters:
+          type: object
+          additionalProperties:
+            type: string
+        name:
+          type: string
+        servletNameMappings:
+          type: array
+          items:
+            type: string
+        urlPatternMappings:
+          type: array
+          items:
+            type: string
+    HttpStatus:
+      type: string
+      enum:
+        - CONTINUE
+        - SWITCHING_PROTOCOLS
+        - PROCESSING
+        - CHECKPOINT
+        - OK
+        - CREATED
+        - ACCEPTED
+        - NON_AUTHORITATIVE_INFORMATION
+        - NO_CONTENT
+        - RESET_CONTENT
+        - PARTIAL_CONTENT
+        - MULTI_STATUS
+        - ALREADY_REPORTED
+        - IM_USED
+        - MULTIPLE_CHOICES
+        - MOVED_PERMANENTLY
+        - FOUND
+        - MOVED_TEMPORARILY
+        - SEE_OTHER
+        - NOT_MODIFIED
+        - USE_PROXY
+        - TEMPORARY_REDIRECT
+        - PERMANENT_REDIRECT
+        - BAD_REQUEST
+        - UNAUTHORIZED
+        - PAYMENT_REQUIRED
+        - FORBIDDEN
+        - NOT_FOUND
+        - METHOD_NOT_ALLOWED
+        - NOT_ACCEPTABLE
+        - PROXY_AUTHENTICATION_REQUIRED
+        - REQUEST_TIMEOUT
+        - CONFLICT
+        - GONE
+        - LENGTH_REQUIRED
+        - PRECONDITION_FAILED
+        - PAYLOAD_TOO_LARGE
+        - REQUEST_ENTITY_TOO_LARGE
+        - URI_TOO_LONG
+        - REQUEST_URI_TOO_LONG
+        - UNSUPPORTED_MEDIA_TYPE
+        - REQUESTED_RANGE_NOT_SATISFIABLE
+        - EXPECTATION_FAILED
+        - I_AM_A_TEAPOT
+        - INSUFFICIENT_SPACE_ON_RESOURCE
+        - METHOD_FAILURE
+        - DESTINATION_LOCKED
+        - UNPROCESSABLE_ENTITY
+        - LOCKED
+        - FAILED_DEPENDENCY
+        - TOO_EARLY
+        - UPGRADE_REQUIRED
+        - PRECONDITION_REQUIRED
+        - TOO_MANY_REQUESTS
+        - REQUEST_HEADER_FIELDS_TOO_LARGE
+        - UNAVAILABLE_FOR_LEGAL_REASONS
+        - INTERNAL_SERVER_ERROR
+        - NOT_IMPLEMENTED
+        - BAD_GATEWAY
+        - SERVICE_UNAVAILABLE
+        - GATEWAY_TIMEOUT
+        - HTTP_VERSION_NOT_SUPPORTED
+        - VARIANT_ALSO_NEGOTIATES
+        - INSUFFICIENT_STORAGE
+        - LOOP_DETECTED
+        - BANDWIDTH_LIMIT_EXCEEDED
+        - NOT_EXTENDED
+        - NETWORK_AUTHENTICATION_REQUIRED
+    JspConfigDescriptor:
+      type: object
+      properties:
+        jspPropertyGroups:
+          type: array
+          items:
+            $ref: '#/components/schemas/JspPropertyGroupDescriptor'
+        taglibs:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaglibDescriptor'
+    JspPropertyGroupDescriptor:
+      type: object
+      properties:
+        buffer:
+          type: string
+        defaultContentType:
+          type: string
+        deferredSyntaxAllowedAsLiteral:
+          type: string
+        elIgnored:
+          type: string
+        errorOnUndeclaredNamespace:
+          type: string
+        includeCodas:
+          type: array
+          items:
+            type: string
+        includePreludes:
+          type: array
+          items:
+            type: string
+        isXml:
+          type: string
+        pageEncoding:
+          type: string
+        scriptingInvalid:
+          type: string
+        trimDirectiveWhitespaces:
+          type: string
+        urlPatterns:
+          type: array
+          items:
+            type: string
+    Locale:
+      type: object
+      properties:
+        baseLocale:
+          $ref: '#/components/schemas/BaseLocale'
+        localeExtensions:
+          $ref: '#/components/schemas/LocaleExtensions'
+        hashCodeValue:
+          type: integer
+          format: int32
+        languageTag:
+          type: string
+    LocaleExtensions:
+      type: object
+      properties:
+        extensionMap:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Extension'
+        id:
+          type: string
+    Log:
+      type: object
+      properties:
+        debugEnabled:
+          type: boolean
+        errorEnabled:
+          type: boolean
+        fatalEnabled:
+          type: boolean
+        infoEnabled:
+          type: boolean
+        traceEnabled:
+          type: boolean
+        warnEnabled:
+          type: boolean
+    MessageSource:
+      type: object
+    MessageSourceAccessor:
+      type: object
+      properties:
+        messageSource:
+          $ref: '#/components/schemas/MessageSource'
+        defaultLocale:
+          $ref: '#/components/schemas/Locale'
+    RedirectView:
+      type: object
+      properties:
+        logger:
+          $ref: '#/components/schemas/Log'
+        applicationContext:
+          $ref: '#/components/schemas/ApplicationContext'
+        messageSourceAccessor:
+          $ref: '#/components/schemas/MessageSourceAccessor'
+        servletContext:
+          $ref: '#/components/schemas/ServletContext'
+        contentType:
+          type: string
+        requestContextAttribute:
+          type: string
+        staticAttributes:
+          type: object
+          additionalProperties: {}
+        exposePathVariables:
+          type: boolean
+        exposeContextBeansAsAttributes:
+          type: boolean
+        exposedContextBeanNames:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        beanName:
+          type: string
+        url:
+          type: string
+        contextRelative:
+          type: boolean
+        http10Compatible:
+          type: boolean
+        exposeModelAttributes:
+          type: boolean
+        encodingScheme:
+          type: string
+        statusCode:
+          $ref: '#/components/schemas/HttpStatus'
+        expandUriTemplateVariables:
+          type: boolean
+        propagateQueryParams:
+          type: boolean
+        hosts:
+          type: array
+          items:
+            type: string
+    Servlet:
+      type: object
+      properties:
+        servletConfig:
+          $ref: '#/components/schemas/ServletConfig'
+        servletInfo:
+          type: string
+    ServletConfig:
+      type: object
+      properties:
+        initParameterNames:
+          type: object
+        servletContext:
+          $ref: '#/components/schemas/ServletContext'
+        servletName:
+          type: string
+    ServletContext:
+      type: object
+      properties:
+        attributeNames:
+          type: object
+        classLoader:
+          $ref: '#/components/schemas/ClassLoader'
+        contextPath:
+          type: string
+        defaultSessionTrackingModes:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionTrackingMode'
+          uniqueItems: true
+        effectiveMajorVersion:
+          type: integer
+          format: int32
+        effectiveMinorVersion:
+          type: integer
+          format: int32
+        effectiveSessionTrackingModes:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionTrackingMode'
+          uniqueItems: true
+        filterRegistrations:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/FilterRegistration'
+        initParameterNames:
+          type: object
+        jspConfigDescriptor:
+          $ref: '#/components/schemas/JspConfigDescriptor'
+        majorVersion:
+          type: integer
+          format: int32
+        minorVersion:
+          type: integer
+          format: int32
+        requestCharacterEncoding:
+          type: string
+        responseCharacterEncoding:
+          type: string
+        serverInfo:
+          type: string
+        servletContextName:
+          type: string
+        servletNames:
+          type: object
+        servletRegistrations:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ServletRegistration'
+        servlets:
+          type: object
+        sessionCookieConfig:
+          $ref: '#/components/schemas/SessionCookieConfig'
+        sessionTimeout:
+          type: integer
+          format: int32
+        virtualServerName:
+          type: string
+    ServletRegistration:
+      type: object
+      properties:
+        className:
+          type: string
+        initParameters:
+          type: object
+          additionalProperties:
+            type: string
+        mappings:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        runAsRole:
+          type: string
+    SessionCookieConfig:
+      type: object
+      properties:
+        comment:
+          type: string
+        domain:
+          type: string
+        maxAge:
+          type: integer
+          format: int32
+        name:
+          type: string
+        path:
+          type: string
+        httpOnly:
+          type: boolean
+        secure:
+          type: boolean
+    SessionTrackingMode:
+      type: string
+      enum:
+        - COOKIE
+        - URL
+        - SSL
+    TaglibDescriptor:
+      type: object
+      properties:
+        taglibLocation:
+          type: string
+        taglibURI:
+          type: string
