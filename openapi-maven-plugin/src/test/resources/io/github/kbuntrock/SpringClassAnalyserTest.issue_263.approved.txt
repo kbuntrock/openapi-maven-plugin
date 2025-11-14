@@ -1,0 +1,72 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: ControllerOne
+paths:
+  /dummy:
+    post:
+      tags:
+        - ControllerOne
+      operationId: execute
+      parameters:
+        - name: evaluate
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: authorityEnum
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Authority'
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/TimeDto'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  description: a file in the "checkFile" case
+                  type: string
+                  format: binary
+            encoding:
+              file:
+                contentType: application/octet-stream
+        description: a time in the "execute" case
+      responses:
+        204:
+          description: successful operation
+        200:
+          description: a string in the "checkFile" case
+          content:
+            '*/*':
+              schema:
+                type: string
+components:
+  schemas:
+    Authority:
+      type: string
+      enum:
+        - READ_USER
+        - WRITE_USER
+        - ACCES_APP
+    TimeDto:
+      type: object
+      properties:
+        instant:
+          type: string
+          format: date-time
+        date:
+          type: string
+          format: date
+        dateTime:
+          type: string
+          format: date-time
