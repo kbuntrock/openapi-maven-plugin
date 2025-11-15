@@ -9,6 +9,15 @@ tags:
   - name: UserController
     description: User related apis
 paths:
+  /api/user/issue262:
+    get:
+      tags:
+        - UserController
+      operationId: redirectUsingRedirectView
+      description: Redirection somewhere
+      responses:
+        200:
+          description: the return object should not be documented
   /api/user/records:
     get:
       tags:
