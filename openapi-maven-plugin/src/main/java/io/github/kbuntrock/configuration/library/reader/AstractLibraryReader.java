@@ -61,7 +61,7 @@ public abstract class AstractLibraryReader {
 	protected DataObject readResponseObject(final Class<?> clazz, final Method method,
 		final MergedAnnotations mergedAnnotations) {
 		final Class<?> returnType = method.getReturnType();
-		if(Void.class == returnType || Void.TYPE == returnType) {
+		if(Void.class == returnType || Void.TYPE == returnType || !openApiTypeResolver.canResponseBeDocumented(returnType)) {
 			return null;
 		}
 

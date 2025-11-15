@@ -4,6 +4,7 @@ import io.github.kbuntrock.sample.Constants;
 import io.github.kbuntrock.sample.dto.UserDto;
 import io.github.kbuntrock.sample.dto.RecordDto;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
 
@@ -26,4 +27,11 @@ public interface UserController {
 	 */
 	@GetMapping("/records")
     List<RecordDto> getRecords();
+
+    /**
+     * Redirection somewhere
+     * @return the return object should not be documented
+     */
+    @GetMapping("/issue262")
+    RedirectView redirectUsingRedirectView();
 }

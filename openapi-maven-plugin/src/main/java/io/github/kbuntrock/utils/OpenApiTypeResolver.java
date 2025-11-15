@@ -60,6 +60,11 @@ public class OpenApiTypeResolver {
 	private final Set<Class<?>> nonDocumentableParameters = new HashSet<>();
 	private final Set<String> nonDocumentableParameterAnnotations = new HashSet<>();
 
+    /**
+     * Non documentable response section
+     */
+    private final Set<Class<?>> nonDocumentableResponses = new HashSet<>();
+
 	public OpenApiTypeResolver(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
 		// Loading default encoding associations
 		initDefaultEncodingAssociations();
@@ -71,7 +76,9 @@ public class OpenApiTypeResolver {
 		initUnwrappingDefinitions(mavenProject, apiConfig);
 		// Loading "non documentable" parameters classes
 		initNonDocumentableParameters(apiConfig);
-	}
+        // Loading "non documentable" reponses classes
+        initNonDocumentableResponses(apiConfig);
+    }
 
 	private void initModel(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
 		modelMap.clear();
@@ -401,5 +408,46 @@ public class OpenApiTypeResolver {
 		}
 		return true;
 	}
+
+    private void initNonDocumentableResponses(final ApiConfiguration apiConfig) {
+        nonDocumentableResponses.clear();
+
+        final ClassLoader classLoader = ReflectionsUtils.getProjectClassLoader();
+
+        final JsonNode root = YamlParserUtils.readResourceFile("/non-documentable-responses.yml");
+        root.get("common").elements().forEachRemaining(entry -> {
+            registerNonDocumentableResponses(classLoader, entry.asText(), true);
+        });
+
+        if(Library.SPRING_MVC == apiConfig.getLibrary()) {
+            root.get("spring").elements().forEachRemaining(entry -> {
+                registerNonDocumentableResponses(classLoader, entry.asText(), true);
+            });
+        }
+    }
+
+    private void registerNonDocumentableResponses(final ClassLoader classLoader, final String canonicalClassName,
+                                                   final boolean debug) {
+        try {
+            nonDocumentableResponses.add(classLoader.loadClass(canonicalClassName));
+        } catch(final ClassNotFoundException e) {
+            final String message =
+                    "Cannot load \"non documentable\" parameter class " + canonicalClassName + "(normal if associated with a non used library)";
+            if(debug) {
+                Logger.INSTANCE.getLogger().debug(message);
+            } else {
+                throw new RuntimeException(message, e);
+            }
+        }
+    }
+
+    public boolean canResponseBeDocumented(final Class<?> returnType) {
+        for(final Class<?> clazz : nonDocumentableResponses) {
+            if(clazz.isAssignableFrom(returnType)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 }

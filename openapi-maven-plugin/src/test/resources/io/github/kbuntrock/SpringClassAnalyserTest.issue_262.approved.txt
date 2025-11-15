@@ -1,0 +1,25 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: Issue262
+paths:
+  /issue262/some-redirection:
+    get:
+      tags:
+        - Issue262
+      operationId: redirectUsingRedirectView
+      parameters:
+        - name: aNumber
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        200:
+          description: successful operation
