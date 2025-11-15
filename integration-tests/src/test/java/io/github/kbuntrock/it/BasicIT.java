@@ -50,9 +50,11 @@ public class BasicIT {
 
     private void nominal_test_case(MavenExecutionResult result, final String expectedJavaVersion, final String suffix) throws IOException {
         MavenExecutionResultAssert resultAssert = assertThat(result);
-		if("17".equals(expectedJavaVersion) || "21".equals(expectedJavaVersion)) {
+		if("17".equals(expectedJavaVersion)) {
 			resultAssert.isSuccessful().out().info().contains("spec-open-api.yml : 1 tags and 3 operations generated.");
-		} else {
+		} else if("21".equals(expectedJavaVersion)) {
+            resultAssert.isSuccessful().out().info().contains("spec-open-api.yml : 1 tags and 4 operations generated.");
+        } else {
 			resultAssert.isSuccessful().out().info().contains("spec-open-api.yml : 1 tags and 2 operations generated.");
 		}
 
