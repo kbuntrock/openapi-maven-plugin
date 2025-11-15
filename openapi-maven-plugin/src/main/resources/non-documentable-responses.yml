@@ -1,0 +1,3 @@
+common:
+spring:
+  - org.springframework.web.servlet.view.AbstractView
