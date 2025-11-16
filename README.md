@@ -8,6 +8,12 @@
 The **OpenAPI Maven Plugin** analyzes Java REST controller classes and generates **OpenAPI 3.0.3 documentation**.
 It is designed to integrate seamlessly into the Maven build lifecycle, making API documentation generation **automated, fast, and reliable**.
 
+--- 
+## 📚 Documentation
+
+Full documentation is available in both English and French:  
+👉 [Project Documentation](https://kbuntrock.github.io/openapi-maven-plugin)
+
 ---
 ## ✨ Key Features
 
@@ -46,12 +52,6 @@ The plugin provides numerous options to fine-tune the generated documentation:
 - Enrich documentation with extra metadata (e.g., security schemes, licenses).
 - Define **loopback operation names**, useful for code generation tools (ex: ng-openapi-gen).
 - And more...
-
---- 
-## 📚 Documentation
-
-Full documentation is available in both English and French:  
-👉 [Project Documentation](https://kbuntrock.github.io/openapi-maven-plugin)
 
 ---
 ## 🔌 Swagger Core v3 annotations supports
