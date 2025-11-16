@@ -129,11 +129,15 @@ public class YamlWriter {
 
 		populateSpecificationFreeFields(specification, freefields);
 
+        // Write "tags" section (list of all tags presents in this documentation)
+        writeTagSection(specification);
+
 		// Write the "paths" section (all url / http verbs combination scanned)
 		specification.setPaths(createPaths(tagLibrary));
 
-        // Write "tags" section (list of all tags presents in this documentation)
-        writeTagSection(specification);
+        // Reduce tag section (remove unused tags due to merging operations)
+        reduceTagSection(specification);
+
 
 		final Map<String, Object> schemaSection = createSchemaSection(tagLibrary);
 		boolean schemaSectionCreated = false;
@@ -171,29 +175,35 @@ public class YamlWriter {
 		om.writeValue(file, specification);
 	}
 
+    private void reduceTagSection(final Specification specification ) {
+        Set<String> computedTagNames = new HashSet<>();
+        usedTags.values().forEach(tag -> computedTagNames.add(tag.computeConfiguredName(apiConfiguration)));
+        specification.getTags().removeIf(tagElement -> !computedTagNames.contains(tagElement.getName()));
+    }
+
     private void writeTagSection(final Specification specification ) {
-        specification.setTags(usedTags.values().stream()
-            .map(tag -> {
+
+        Map<String, TagElement> collected = new LinkedHashMap<>();
+        for(Tag tag : tagLibrary.getSortedTags()) {
+            String tagName = tag.computeConfiguredName(apiConfiguration);
+            if(!collected.containsKey(tagName)) {
+                TagElement tagElement;
                 if(tagLibrary.hasJavadocMap() && tag.getDescription() == null) {
                     ClassDocumentation classDocumentation = tagLibrary.getJavadocMap()
                             .computeIfAbsent(tag.getClazz().getCanonicalName(),
                                     k -> new ClassDocumentation(tag.getClazz().getCanonicalName(), tag.getClazz().getSimpleName()));
-                    // Even if there is no declared class documentation, we may enhance it with javadoc on interface and/or abstract classes
-                    if(classDocumentation == null) {
-                        classDocumentation = new ClassDocumentation(tag.getClazz().getCanonicalName(), tag.getClazz().getSimpleName());
-                        tagLibrary.getJavadocMap().put(tag.getClazz().getCanonicalName(), classDocumentation);
-                    }
-                    logger.debug(
-                            "Class documentation found for tag " + tag.getClazz().getSimpleName() + " ? " + (classDocumentation != null));
 
                     classDocumentation.inheritanceEnhancement(tag.getClazz(), ClassDocumentation.EnhancementType.METHODS, tagLibrary.getJavadocMap());
-                    return new TagElement(
-                            tag.computeConfiguredName(apiConfiguration),
+                    tagElement = new TagElement(
+                            tagName,
                             classDocumentation.getDescription().orElse(null));
+                } else {
+                    tagElement = new TagElement(tagName, tag.getDescription());
                 }
-
-                return new TagElement(tag.computeConfiguredName(apiConfiguration), tag.getDescription());
-            }).collect(Collectors.toList()));
+                collected.put(tagName, tagElement);
+            }
+        }
+        specification.setTags(new ArrayList<>(collected.values()));
     }
 
 	private Map<String, Map<String, Operation>> createPaths(final TagLibrary tagLibrary) {
@@ -521,7 +531,7 @@ public class YamlWriter {
                 return;
             }
 
-            // TODO: voir si c'est vraiment correct
+            // TODO: This part should be improved in the futur
             // Check if there is a collision in response content type.
             for(Entry<String, Content> responseContent : response.getContent().entrySet()) {
                 if(existingContent instanceof Response) {
