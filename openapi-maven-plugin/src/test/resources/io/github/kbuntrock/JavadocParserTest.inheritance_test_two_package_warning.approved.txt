@@ -8,7 +8,6 @@ servers:
 tags:
   - name: ChildClassTwo
     description: A beautiful description of ChildClassTwo
-  - name: IChildClassTwo
 paths:
   /api/child-class-two/age-plus-one:
     get:

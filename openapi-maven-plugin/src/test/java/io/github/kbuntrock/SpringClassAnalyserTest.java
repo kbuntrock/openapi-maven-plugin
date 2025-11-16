@@ -901,6 +901,18 @@ public class SpringClassAnalyserTest extends AbstractTest {
         checkGenerationResult(mojo.documentProject());
     }
 
+    public void issue_263() throws MojoFailureException, IOException, MojoExecutionException {
+        final DocumentationMojo mojo = createBasicMojo("io.github.kbuntrock.resources.endpoint.issues.issue263");
+        mojo.getApis().get(0).setTagAnnotations(Arrays.asList(
+                TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName(),
+                TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName()
+        ));
+        final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+        javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/issues/issue263"));
+        mojo.setJavadocConfiguration(javadocConfig);
+        checkGenerationResult(mojo.documentProject());
+    }
+
 	@Test
 	public void extends_map() throws MojoFailureException, IOException, MojoExecutionException {
 
@@ -996,7 +1008,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		mojo.setJavadocConfiguration(javadocConfig);
 		checkGenerationResult(mojo.documentProject());
 
-		Mockito.verify(Logger.INSTANCE.getLogger()).warn("Parameters incoherences detected in path /multiple-produced-content-types/");
+		Mockito.verify(Logger.INSTANCE.getLogger()).warn("Parameters incoherence detected in path /multiple-produced-content-types/ for {\"type\":\"string\"}");
 	}
 
 	@Test
