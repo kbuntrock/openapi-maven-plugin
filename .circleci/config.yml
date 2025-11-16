@@ -112,7 +112,7 @@ jobs:
      
   publish-github-release:
     docker:
-      - image: cibuilds/github:0.10  
+      - image: kevinbuntrock/maven-toolchain-jdk-8-11-17:latest
               
     steps:
       - attach_workspace:
