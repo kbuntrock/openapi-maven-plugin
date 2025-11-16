@@ -12,6 +12,7 @@ Les annotations et champs actuellement pris en charge sont :
   - operationId (``String``)
   - summary (``String``)
   - description (``String``)
+  - parameters (``io.swagger.v3.oas.annotations.Parameter[]``)
   - responses (``io.swagger.v3.oas.annotations.responses.ApiResponse[]``)
 - io.swagger.v3.oas.annotations.responses.ApiResponse
   - responseCode (``String``)
@@ -22,6 +23,15 @@ Les annotations et champs actuellement pris en charge sont :
 - io.swagger.v3.oas.annotations.media.Schema
   - implementation (``Class<?>``)
   - description (``String``)
+  - example (``String``)
+- io.swagger.v3.oas.annotations.Parameters
+  - value (``io.swagger.v3.oas.annotations.Parameter[]``)
+- io.swagger.v3.oas.annotations.Parameter
+  - name (``String``)
+  - in (``io.swagger.v3.oas.annotations.enums.ParameterIn``)
+  - description (``String``)
+  - required (``boolean``)
+  - schema (``io.swagger.v3.oas.annotations.media.Schema``)
   - example (``String``)
 
 ## Exemples
