@@ -3,6 +3,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.kbuntrock/openapi-maven-plugin.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.kbuntrock/openapi-maven-plugin)
 [![Build](https://circleci.com/gh/kbuntrock/openapi-maven-plugin/tree/dev.svg?style=shield)](https://circleci.com/gh/kbuntrock/openapi-maven-plugin/tree/dev)
 ![Code coverage](../badges/jacoco.svg)
+[![Reproducible Builds](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/jvm-repo-rebuild/reproducible-central/master/content/io/github/kbuntrock/openapi-maven-plugin/badge.json)](https://github.com/jvm-repo-rebuild/reproducible-central/blob/master/content/io/github/kbuntrock/openapi-maven-plugin/README.md)
 ![Licence](https://img.shields.io/github/license/kbuntrock/openapi-maven-plugin?label=Licence&color=blue)
 
 The **OpenAPI Maven Plugin** analyzes Java REST controller classes and generates **OpenAPI 3.0.3 documentation**.
@@ -66,6 +67,12 @@ Detailed support is listed in the documentation.
 - **Rigorous development**: CI tests across multiple JDKs ensure long-term stability.
 - **Focus on maintainability**: Eliminates redundant dependencies and duplicated information.
 - **Productivity boost**: Documentation generation is automated during the build phase, without manual steps.
+
+---
+## 🛡️ Reproducible builds
+
+Reproducible builds allow anyone to verify that a published binary matches the declared source code exactly, with no hidden additions or accidental modifications.
+The builds of this project are independently reconstructed. Learn more [here](https://github.com/jvm-repo-rebuild/reproducible-central/blob/master/content/io/github/kbuntrock/openapi-maven-plugin/README.md)
 
 ---
 ## 🤝 Contributing
