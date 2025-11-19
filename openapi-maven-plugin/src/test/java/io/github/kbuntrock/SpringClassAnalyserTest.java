@@ -901,6 +901,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
         checkGenerationResult(mojo.documentProject());
     }
 
+    @Test
     public void issue_263() throws MojoFailureException, IOException, MojoExecutionException {
         final DocumentationMojo mojo = createBasicMojo("io.github.kbuntrock.resources.endpoint.issues.issue263");
         mojo.getApis().get(0).setTagAnnotations(Arrays.asList(
