@@ -3,29 +3,15 @@ package io.github.kbuntrock;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.kbuntrock.context.ProjectContext;
-import io.github.kbuntrock.reflection.ReflectionsUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.approvaltests.Approvals;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
 public class AbstractTest {
-
-	@BeforeAll
-	public static void initTestClass() {
-		ReflectionsUtils.initiateTestMode();
-	}
-
-	@BeforeEach
-	public void initTest() {
-        // Nothing to do
-	}
 
     protected DocumentationMojo createDocumentationMojo() {
         DocumentationMojo mojo = new DocumentationMojo();

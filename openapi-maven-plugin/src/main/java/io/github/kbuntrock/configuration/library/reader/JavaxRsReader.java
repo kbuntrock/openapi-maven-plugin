@@ -40,12 +40,12 @@ public class JavaxRsReader extends AstractLibraryReader {
 		super(context, apiConfiguration, openApiTypeResolver);
 		try {
 			// For the validation constraint, there should be no problem if the dependency is not present.
-			jakartaNotNull = ClassLoaderUtils.getByName(JakartaRsReader.NOT_NULL_CNAME);
+			jakartaNotNull = ClassLoaderUtils.getByName(JakartaRsReader.NOT_NULL_CNAME, context.getClassLoader());
 		} catch(final ClassNotFoundException e) {
 			// Nothing to do, could be normal since it is in the validation api
 		}
 		try {
-			jakartaHttpServletRequest = ClassLoaderUtils.getByName(JakartaRsReader.HttpServletRequest_CNAME);
+			jakartaHttpServletRequest = ClassLoaderUtils.getByName(JakartaRsReader.HttpServletRequest_CNAME, context.getClassLoader());
 		} catch(final ClassNotFoundException e) {
 			// Nothing to do, could be normal since it is in the servlet api
 		}
@@ -57,7 +57,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 		if(apiConfiguration.getCustomResponseTypeAnnotation() != null) {
 			final String annotationName = apiConfiguration.getCustomResponseTypeAnnotation();
 			try {
-				responseAnnotation = ClassLoaderUtils.getByName(annotationName);
+				responseAnnotation = ClassLoaderUtils.getByName(annotationName, context.getClassLoader());
 				try {
 					final Method responseAnnotationMethod = responseAnnotation.getMethod("value");
 					if(responseAnnotationMethod.getReturnType() != Class.class) {

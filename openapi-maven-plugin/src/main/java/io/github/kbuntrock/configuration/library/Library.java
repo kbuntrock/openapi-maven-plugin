@@ -52,14 +52,6 @@ public enum Library {
 		return library;
 	}
 
-	public List<TagAnnotation> getTagAnnotations() {
-		return tagAnnotations;
-	}
-
-	public Class<? extends Annotation> getByClassName(final String className) {
-		return ClassLoaderUtils.getByNameRuntimeEx(className);
-	}
-
 	public AstractLibraryReader createReader(final ApiContext context, final ApiConfiguration apiConfiguration, final OpenApiTypeResolver openApiTypeResolver) {
 		switch(this) {
 			case JAVAX_RS:

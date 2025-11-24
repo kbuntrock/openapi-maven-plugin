@@ -73,8 +73,8 @@ public class ApiResourceScanner {
 				.ignoreClassVisibility()
 				.ignoreMethodVisibility()
 				.ignoreParentClassLoaders()
-				.addClassLoader(ReflectionsUtils.getProjectClassLoader());
-			if(ClassLoaderUtils.isClass(apiLocation)) {
+				.addClassLoader(context.getClassLoader());
+			if(ClassLoaderUtils.isClass(apiLocation, context.getClassLoader())) {
 				classGraph.acceptClasses(apiLocation);
 			} else {
 				classGraph.acceptPackages(apiLocation);
@@ -85,7 +85,7 @@ public class ApiResourceScanner {
 				Set<Class<?>> restControllerClasses = classScanResult
 					.getClassesWithAnyAnnotation(annotationNames)
 					.stream()
-					.filter(onLocation(apiLocation))
+					.filter(onLocation(apiLocation, context.getClassLoader()))
 					.map(ClassInfo::loadClass)
 					.collect(Collectors.toSet());
 
@@ -103,7 +103,7 @@ public class ApiResourceScanner {
 				// Possibly add extra data objets to the future schema section (objets which are not explicitly used by an endpoint)
 				for(final String className : apiConfiguration.getExtraSchemaClasses()) {
 					try {
-						library.addExtraClass(ReflectionsUtils.getProjectClassLoader().loadClass(className));
+						library.addExtraClass(context.getClassLoader().loadClass(className));
 					} catch(final ClassNotFoundException e) {
 						throw new MojoRuntimeException("Cannot load extra class " + className, e);
 					}
@@ -117,8 +117,8 @@ public class ApiResourceScanner {
 		return library;
 	}
 
-	private static Predicate<ClassInfo> onLocation(final String apiLocation) {
-		if(ClassLoaderUtils.isClass(apiLocation)) {
+	private static Predicate<ClassInfo> onLocation(final String apiLocation, final ClassLoader classLoader) {
+		if(ClassLoaderUtils.isClass(apiLocation, classLoader)) {
 			return classInfo -> classInfo.getName().equals(apiLocation);
 		}
 		return classInfo -> classInfo.getPackageName().startsWith(apiLocation);

@@ -111,9 +111,6 @@ public class DocumentationMojo extends AbstractMojo {
             ClassLoader projectClassLoader = createProjectDependenciesClassLoader();
             context.initClassLoader(projectClassLoader);
 
-            // TODO to delete
-			ReflectionsUtils.initiate(projectClassLoader);
-
 			// Validate the configuration, parse the javadoc, parse the compiled code, and write the documentation.
 			// This is the method to call in unit tests
 			documentProject();

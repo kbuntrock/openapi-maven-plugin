@@ -123,7 +123,7 @@ public class DataObject {
 				this.genericallyTyped = true;
 				final ParameterizedType pt = (ParameterizedType) type;
 				javaClass = Class.forName(ReflectionsUtils.getClassNameFromType(pt.getRawType()),
-					true, ReflectionsUtils.getProjectClassLoader());
+					true, openApiTypeResolver.getContext().getClassLoader());
 				genericNameToTypeMap = new HashMap<>();
 				for(int i = 0; i < pt.getActualTypeArguments().length; i++) {
 					this.genericNameToTypeMap.put(javaClass.getTypeParameters()[i].getTypeName(),
@@ -146,9 +146,9 @@ public class DataObject {
 					genericNameToTypeMap = new HashMap<>();
 					final ParameterizedType gpt = (ParameterizedType) gat.getGenericComponentType();
 					javaClass = Class.forName("[L" + ReflectionsUtils.getClassNameFromType(gpt.getRawType()) + ";",
-						true, ReflectionsUtils.getProjectClassLoader());
+						true, openApiTypeResolver.getContext().getClassLoader());
 					final Class<?> rawJavaClass = Class.forName(ReflectionsUtils.getClassNameFromType(gpt.getRawType()),
-						true, ReflectionsUtils.getProjectClassLoader());
+						true, openApiTypeResolver.getContext().getClassLoader());
 					for(int i = 0; i < gpt.getActualTypeArguments().length; i++) {
 						this.genericNameToTypeMap.put(rawJavaClass.getTypeParameters()[i].getTypeName(),
 							gpt.getActualTypeArguments()[i]);
@@ -157,7 +157,7 @@ public class DataObject {
 				} else if(gat.getGenericComponentType() instanceof Class<?>) {
 					final Class<?> clazz = (Class<?>) gat.getGenericComponentType();
 					javaClass = Class.forName("[L" + ReflectionsUtils.getClassNameFromType(clazz) + ";",
-						true, ReflectionsUtils.getProjectClassLoader());
+						true, openApiTypeResolver.getContext().getClassLoader());
 					this.arrayItemDataObject = new DataObject(clazz, openApiTypeResolver);
 				} else {
 					javaClass = Object.class;

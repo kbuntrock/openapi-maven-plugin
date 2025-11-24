@@ -430,6 +430,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		// TODO multi-threading : check how to create the openapi-type-resolver
         ProjectContext projectContext = new ProjectContext();
         projectContext.initLogger(Mockito.mock(Log.class));
+        projectContext.initClassLoader(SpringClassAnalyserTest.class.getClassLoader());
         projectContext.setProject(createBasicMavenProject());
         ApiContext apiContext = new ApiContext(projectContext);
 		final OpenApiTypeResolver openApiTypeResolver = new OpenApiTypeResolver(apiContext, apiConfiguration);
@@ -1043,7 +1044,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 			.ignoreMethodVisibility()
 			.ignoreParentClassLoaders()
 			.acceptClasses(clazz.getCanonicalName())
-			.addClassLoader(ReflectionsUtils.getProjectClassLoader())
+			.addClassLoader(SpringClassAnalyserTest.class.getClassLoader())
 			.scan();
 
 	}

@@ -77,7 +77,7 @@ public class OpenApiTypeResolver {
 		// Loading associations
 		initJavaClassAssociations(context.getProject(), apiConfig);
 		// Loading unwrapping definitions
-		initUnwrappingDefinitions(context.getProject(), apiConfig);
+		initUnwrappingDefinitions();
 		// Loading "non documentable" parameters classes
 		initNonDocumentableParameters(apiConfig);
         // Loading "non documentable" reponses classes
@@ -164,13 +164,12 @@ public class OpenApiTypeResolver {
 			// A model association file does not require to define an assignability section
 			return;
 		}
-		final ClassLoader classLoader = ReflectionsUtils.getProjectClassLoader();
 
 		rootNode.fields().forEachRemaining(entry -> {
 
 			Class<?> clazz = null;
 			try {
-				clazz = classLoader.loadClass(entry.getKey());
+				clazz = context.getClassLoader().loadClass(entry.getKey());
 			} catch(final ClassNotFoundException ex) {
                 context.getLogger().debug("Model class " + entry.getValue().asText() + " not found (could be normal)");
 			}
@@ -265,22 +264,20 @@ public class OpenApiTypeResolver {
 		return clazz.getCanonicalName();
 	}
 
-	private void initUnwrappingDefinitions(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
+	private void initUnwrappingDefinitions() {
 		responseUnwrappingMap.clear();
 		parametersUnwrappingMap.clear();
 		schemaUnwrappingMap.clear();
 
-		final ClassLoader classLoader = ReflectionsUtils.getProjectClassLoader();
-
 		final JsonNode root = YamlParserUtils.readResourceFile("/unwrapping-configuration.yml");
 		root.get("response").fields().forEachRemaining(entry -> {
-			registerUnwrappingEntry(classLoader, entry, responseUnwrappingMap, true);
+			registerUnwrappingEntry(context.getClassLoader(), entry, responseUnwrappingMap, true);
 		});
 		root.get("parameter").fields().forEachRemaining(entry -> {
-			registerUnwrappingEntry(classLoader, entry, parametersUnwrappingMap, true);
+			registerUnwrappingEntry(context.getClassLoader(), entry, parametersUnwrappingMap, true);
 		});
 		root.get("schema").fields().forEachRemaining(entry -> {
-			registerUnwrappingEntry(classLoader, entry, schemaUnwrappingMap, true);
+			registerUnwrappingEntry(context.getClassLoader(), entry, schemaUnwrappingMap, true);
 		});
 	}
 
@@ -350,16 +347,14 @@ public class OpenApiTypeResolver {
 	private void initNonDocumentableParameters(final ApiConfiguration apiConfig) {
 		nonDocumentableParameters.clear();
 
-		final ClassLoader classLoader = ReflectionsUtils.getProjectClassLoader();
-
 		final JsonNode root = YamlParserUtils.readResourceFile("/non-documentable-parameters.yml");
 		root.get("common").elements().forEachRemaining(entry -> {
-			registerNonDocumentableParameters(classLoader, entry.asText(), true);
+			registerNonDocumentableParameters(context.getClassLoader(), entry.asText(), true);
 		});
 
 		if(Library.SPRING_MVC == apiConfig.getLibrary()) {
 			root.get("spring").elements().forEachRemaining(entry -> {
-				registerNonDocumentableParameters(classLoader, entry.asText(), true);
+				registerNonDocumentableParameters(context.getClassLoader(), entry.asText(), true);
 			});
 			root.get("spring-annotations").elements().forEachRemaining(entry -> {
 				registerNonDocumentableParameterAnnotation(entry.asText());
@@ -367,7 +362,7 @@ public class OpenApiTypeResolver {
 		}
 
 		for(final String nonDocumentableParameterClass : apiConfig.getNonDocumentableParameterClasses()) {
-			registerNonDocumentableParameters(classLoader, nonDocumentableParameterClass, false);
+			registerNonDocumentableParameters(context.getClassLoader(), nonDocumentableParameterClass, false);
 		}
 
 	}
@@ -416,16 +411,14 @@ public class OpenApiTypeResolver {
     private void initNonDocumentableResponses(final ApiConfiguration apiConfig) {
         nonDocumentableResponses.clear();
 
-        final ClassLoader classLoader = ReflectionsUtils.getProjectClassLoader();
-
         final JsonNode root = YamlParserUtils.readResourceFile("/non-documentable-responses.yml");
         root.get("common").elements().forEachRemaining(entry -> {
-            registerNonDocumentableResponses(classLoader, entry.asText(), true);
+            registerNonDocumentableResponses(context.getClassLoader(), entry.asText(), true);
         });
 
         if(Library.SPRING_MVC == apiConfig.getLibrary()) {
             root.get("spring").elements().forEachRemaining(entry -> {
-                registerNonDocumentableResponses(classLoader, entry.asText(), true);
+                registerNonDocumentableResponses(context.getClassLoader(), entry.asText(), true);
             });
         }
     }
