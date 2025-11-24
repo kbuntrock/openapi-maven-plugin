@@ -8,6 +8,8 @@ import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.configuration.OperationIdHelper;
 import io.github.kbuntrock.configuration.Substitution;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
+import io.github.kbuntrock.context.ApiContext;
+import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.resources.endpoint.account.AccountController;
@@ -82,7 +84,6 @@ import io.github.kbuntrock.resources.endpoint.spring.ResponseEntityUnparametrize
 import io.github.kbuntrock.resources.endpoint.time.TimeController;
 import io.github.kbuntrock.resources.endpoint.uuid.UuidController;
 import io.github.kbuntrock.resources.implementation.account.AccountControllerImpl;
-import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.yaml.YamlWriter;
 import java.io.File;
@@ -94,6 +95,7 @@ import java.util.*;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -111,7 +113,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	}
 
 	private DocumentationMojo createBasicMojo(final String... apiLocation) {
-		final DocumentationMojo mojo = new DocumentationMojo();
+		final DocumentationMojo mojo = createDocumentationMojo();
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
 		apiConfiguration.setAttachArtifact(false);
 		apiConfiguration.setLocations(Arrays.asList(apiLocation));
@@ -347,9 +349,9 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
 		final DocumentationMojo mojo = createBasicMojo(SameOperationController.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
-		Mockito.verify(Logger.INSTANCE.getLogger())
+		Mockito.verify(mojo.getContext().getLogger())
 			.warn("More than one operation with a common content type mapped on GET : /api/same-operation in tag SameOperationController");
-		Mockito.verify(Logger.INSTANCE.getLogger(), Mockito.times(2))
+		Mockito.verify(mojo.getContext().getLogger(), Mockito.times(2))
 			.warn("More than one operation with a common content type mapped on GET : /api/same-operation/v2 in tag SameOperationController");
 	}
 
@@ -426,15 +428,19 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
 
 		// TODO multi-threading : check how to create the openapi-type-resolver
-		final OpenApiTypeResolver openApiTypeResolver = new OpenApiTypeResolver(null, apiConfiguration);
-		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiConfiguration, scanResult(SpringPathEnhancementTwoController.class), openApiTypeResolver);
+        ProjectContext projectContext = new ProjectContext();
+        projectContext.initLogger(Mockito.mock(Log.class));
+        projectContext.setProject(createBasicMavenProject());
+        ApiContext apiContext = new ApiContext(projectContext);
+		final OpenApiTypeResolver openApiTypeResolver = new OpenApiTypeResolver(apiContext, apiConfiguration);
+		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiContext, apiConfiguration, scanResult(SpringPathEnhancementTwoController.class), openApiTypeResolver);
 		final Optional<Tag> tag = analyser.getTagFromClass(SpringPathEnhancementTwoController.class);
-		final TagLibrary library = new TagLibrary(openApiTypeResolver, apiConfiguration, new HashMap<>());
+		final TagLibrary library = new TagLibrary(apiContext, openApiTypeResolver, apiConfiguration, new HashMap<>());
 		library.addTag(tag.get());
 
 		final File generatedFile = createTestFile();
 
-		new YamlWriter(createBasicMavenProject(), apiConfiguration, library).write(generatedFile, library);
+		new YamlWriter(apiContext, apiConfiguration, library).write(generatedFile, library);
 
 		try(final InputStream generatedFileStream = new FileInputStream(generatedFile);
 			final InputStream resourceFileStream = this.getClass().getClassLoader()
@@ -509,7 +515,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	@Test
 	public void interface_vs_implementation() throws MojoFailureException, IOException, MojoExecutionException {
 
-		final DocumentationMojo mojo1 = new DocumentationMojo();
+		final DocumentationMojo mojo1 = createDocumentationMojo();
 		final ApiConfiguration apiConfiguration1 = new ApiConfiguration();
 		apiConfiguration1.setAttachArtifact(false);
 		apiConfiguration1.setLocations(Collections.singletonList(AccountController.class.getCanonicalName()));
@@ -522,7 +528,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		mojo1.setApis(Collections.singletonList(apiConfiguration1));
 		mojo1.setProject(createBasicMavenProject());
 
-		final DocumentationMojo mojo2 = new DocumentationMojo();
+		final DocumentationMojo mojo2 = createDocumentationMojo();
 		final ApiConfiguration apiConfiguration2 = new ApiConfiguration();
 		apiConfiguration2.setAttachArtifact(false);
 		apiConfiguration2.setLocations(Collections.singletonList(AccountControllerImpl.class.getCanonicalName()));
@@ -712,7 +718,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 			io.github.kbuntrock.resources.endpoint.namecollision.three.MyController.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 
-		Mockito.verify(Logger.INSTANCE.getLogger()).warn("More than one operation with a common content type mapped on GET : /api/controller-3/info in tag MyController");
+		Mockito.verify(mojo.getContext().getLogger()).warn("More than one operation with a common content type mapped on GET : /api/controller-3/info in tag MyController");
 	}
 
 	@Test
@@ -1009,7 +1015,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		mojo.setJavadocConfiguration(javadocConfig);
 		checkGenerationResult(mojo.documentProject());
 
-		Mockito.verify(Logger.INSTANCE.getLogger()).warn("Parameters incoherence detected in path /multiple-produced-content-types/ for {\"type\":\"string\"}");
+		Mockito.verify(mojo.getContext().getLogger()).warn("Parameters incoherence detected in path /multiple-produced-content-types/ for {\"type\":\"string\"}");
 	}
 
 	@Test

@@ -30,7 +30,7 @@ public class Content {
 	public static Content fromMultipartBodies(final List<ParameterObject> parameterObjects, final TagLibrary tagLibrary){
 		final Content content = new Content();
 
-		final Schema schema = new Schema(tagLibrary.getApiConfiguration());
+		final Schema schema = new Schema(tagLibrary.getContext(), tagLibrary.getApiConfiguration());
 		content.schemas = new ArrayList<>();
 		content.schemas.add(schema);
 
@@ -53,7 +53,7 @@ public class Content {
 												final JavadocWrapper methodJavadoc, final TagLibrary tagLibrary){
 		final Content content = new Content();
 
-		final Schema schema = new Schema(tagLibrary.getApiConfiguration());
+		final Schema schema = new Schema(tagLibrary.getContext(), tagLibrary.getApiConfiguration());
 		content.schemas = new ArrayList<>();
 		content.schemas.add(schema);
 

@@ -3,8 +3,8 @@ package io.github.kbuntrock;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
-import io.github.kbuntrock.utils.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -24,10 +24,17 @@ public class AbstractTest {
 
 	@BeforeEach
 	public void initTest() {
-		// In order to see all logs during testing, uncomment this :
-		// Logger.INSTANCE.setLogger(Mockito.spy(SystemStreamLog.class));
-		Logger.INSTANCE.setLogger(Mockito.mock(Log.class));
+        // Nothing to do
 	}
+
+    protected DocumentationMojo createDocumentationMojo() {
+        DocumentationMojo mojo = new DocumentationMojo();
+        // In order to see all logs during testing, uncomment this:
+        // mojo.getContext().initLogger(Mockito.spy(SystemStreamLog.class));
+        mojo.getContext().initLogger(Mockito.mock(Log.class));
+        mojo.getContext().initClassLoader(AbstractTest.class.getClassLoader());
+        return mojo;
+    }
 
 	protected void checkGenerationResult(List<File> generatedFiles) throws IOException{
 		if (generatedFiles.size() == 1) {

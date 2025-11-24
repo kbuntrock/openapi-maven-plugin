@@ -3,7 +3,9 @@ package io.github.kbuntrock.javadoc;
 import com.github.javaparser.javadoc.Javadoc;
 import com.github.javaparser.javadoc.JavadocBlockTag;
 import com.github.javaparser.javadoc.description.JavadocInlineTag;
-import io.github.kbuntrock.utils.Logger;
+import io.github.kbuntrock.context.ProjectContext;
+import org.apache.maven.plugin.logging.Log;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -82,20 +84,20 @@ public class JavadocWrapper {
 		return inheritTagFound;
 	}
 
-	public void printParameters() {
+	public void printParameters(Log logger) {
 		if(paramBlockTagsByName != null && !paramBlockTagsByName.isEmpty()) {
-			Logger.INSTANCE.getLogger().debug("Parameters : ");
+            logger.debug("Parameters : ");
 			for(final Entry<String, JavadocBlockTag> entry : paramBlockTagsByName.entrySet()) {
-				Logger.INSTANCE.getLogger().debug(entry.getKey() + " : " + entry.getValue().getContent().toText());
+                logger.debug(entry.getKey() + " : " + entry.getValue().getContent().toText());
 			}
 		}
 	}
 
-	public void printReturn() {
+	public void printReturn(Log logger) {
 		if(blockTagsByType != null) {
 			final Optional<JavadocBlockTag> returnTag = getReturnBlockTag();
 			returnTag.ifPresent(javadocBlockTag ->
-				Logger.INSTANCE.getLogger().debug("Return : " + javadocBlockTag.getContent().toText()));
+                    logger.debug("Return : " + javadocBlockTag.getContent().toText()));
 		}
 	}
 

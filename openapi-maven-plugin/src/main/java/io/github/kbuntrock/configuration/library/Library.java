@@ -7,6 +7,7 @@ import io.github.kbuntrock.configuration.library.reader.ClassLoaderUtils;
 import io.github.kbuntrock.configuration.library.reader.JakartaRsReader;
 import io.github.kbuntrock.configuration.library.reader.JavaxRsReader;
 import io.github.kbuntrock.configuration.library.reader.SpringMvcReader;
+import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 
 import java.lang.annotation.Annotation;
@@ -59,14 +60,14 @@ public enum Library {
 		return ClassLoaderUtils.getByNameRuntimeEx(className);
 	}
 
-	public AstractLibraryReader createReader(final ApiConfiguration apiConfiguration, final OpenApiTypeResolver openApiTypeResolver) {
+	public AstractLibraryReader createReader(final ApiContext context, final ApiConfiguration apiConfiguration, final OpenApiTypeResolver openApiTypeResolver) {
 		switch(this) {
 			case JAVAX_RS:
-				return new JavaxRsReader(apiConfiguration, openApiTypeResolver);
+				return new JavaxRsReader(context, apiConfiguration, openApiTypeResolver);
 			case JAKARTA_RS:
-				return new JakartaRsReader(apiConfiguration, openApiTypeResolver);
+				return new JakartaRsReader(context, apiConfiguration, openApiTypeResolver);
 			case SPRING_MVC:
-				return new SpringMvcReader(apiConfiguration, openApiTypeResolver);
+				return new SpringMvcReader(context, apiConfiguration, openApiTypeResolver);
 			default:
 				throw new MojoRuntimeException(this.name() + " library not handled yet.");
 		}

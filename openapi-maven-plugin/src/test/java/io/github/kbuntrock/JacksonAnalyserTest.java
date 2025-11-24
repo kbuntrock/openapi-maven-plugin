@@ -3,11 +3,11 @@ package io.github.kbuntrock;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
+import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.resources.endpoint.enumeration.jackson.EnumAsValueFunctionPrecedenceController;
 import io.github.kbuntrock.resources.endpoint.enumeration.jackson.EnumFieldAsValueController;
 import io.github.kbuntrock.resources.endpoint.enumeration.jackson.EnumFunctionAsValueController;
 import io.github.kbuntrock.resources.endpoint.enumeration.jackson.EnumTooMuchAsValueController;
-import io.github.kbuntrock.utils.Logger;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
@@ -30,7 +30,7 @@ public class JacksonAnalyserTest extends AbstractTest {
     }
 
     private DocumentationMojo createBasicMojo(final String apiLocation) {
-        final DocumentationMojo mojo = new DocumentationMojo();
+        final DocumentationMojo mojo = createDocumentationMojo();
         final ApiConfiguration apiConfiguration = new ApiConfiguration();
         apiConfiguration.setAttachArtifact(false);
         apiConfiguration.setLocations(Collections.singletonList(apiLocation));
@@ -83,7 +83,7 @@ public class JacksonAnalyserTest extends AbstractTest {
         mojo.setJavadocConfiguration(javadocConfig);
 
         checkGenerationResult(mojo.documentProject());
-        Mockito.verify(Logger.INSTANCE.getLogger()).warn("Problem with definition of [io.github.kbuntrock.resources.dto.enumeration.EnumTooMuchAsValue]: Multiple 'as-value' methods defined [getCode,getNormalizedCode]");
+        Mockito.verify(mojo.getContext().getLogger()).warn("Problem with definition of [io.github.kbuntrock.resources.dto.enumeration.EnumTooMuchAsValue]: Multiple 'as-value' methods defined [getCode,getNormalizedCode]");
     }
 
     @Test

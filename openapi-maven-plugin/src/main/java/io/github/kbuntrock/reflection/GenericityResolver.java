@@ -1,7 +1,8 @@
 package io.github.kbuntrock.reflection;
 
 import com.google.common.reflect.TypeToken;
-import io.github.kbuntrock.utils.Logger;
+import io.github.kbuntrock.context.ApiContext;
+import io.github.kbuntrock.context.ProjectContext;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,11 +14,15 @@ import org.apache.maven.plugin.logging.Log;
  */
 public final class GenericityResolver {
 
-	private final Log logger = Logger.INSTANCE.getLogger();
 
+    private final ApiContext context;
 	private Map<ResolvingKey, Type> resolvedCache = new HashMap<>();
 
-	/**
+    public GenericityResolver(ApiContext context) {
+        this.context = context;
+    }
+
+    /**
 	 * Given a context class, resolve the given type. (mostly useful for parametrized types)
 	 * @param contextClass the context class
 	 * @param typeToResolve the type to be resolved (ex : List<T>)
@@ -25,13 +30,13 @@ public final class GenericityResolver {
 	 */
 	public Type resolve(final Class contextClass, final Type typeToResolve) {
 		Type resolved = resolvedCache.computeIfAbsent(new ResolvingKey(contextClass, typeToResolve), k -> {
-			if(logger.isDebugEnabled()) {
-				logger.debug("Computing cache key : "+contextClass.getSimpleName()+ " : "+typeToResolve.toString());
+			if(context.getLogger().isDebugEnabled()) {
+				context.getLogger().debug("Computing cache key : "+contextClass.getSimpleName()+ " : "+typeToResolve.toString());
 			}
 			return TypeToken.of(contextClass).resolveType(typeToResolve).getType();
 		});
-		if(logger.isDebugEnabled()) {
-			logger.debug("Returning resolved type for : "+contextClass.getSimpleName()+ " : "+typeToResolve.toString() + " -> "+resolved);
+		if(context.getLogger().isDebugEnabled()) {
+			context.getLogger().debug("Returning resolved type for : "+contextClass.getSimpleName()+ " : "+typeToResolve.toString() + " -> "+resolved);
 		}
 		return resolved;
 	}

@@ -1,5 +1,7 @@
 package io.github.kbuntrock.configuration.library.reader;
 
+import io.github.kbuntrock.context.ApiContext;
+import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
@@ -8,7 +10,6 @@ import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.model.annotation.OperationAnnotationInfo;
 import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.reflection.GenericityResolver;
-import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.ParameterLocation;
 import io.github.kbuntrock.utils.UnwrappingType;
@@ -32,16 +33,18 @@ import org.springframework.core.annotation.MergedAnnotations;
 
 public abstract class AstractLibraryReader {
 
-	protected final Log logger = Logger.INSTANCE.getLogger();
+    protected final ApiContext context;
 
 	protected final ApiConfiguration apiConfiguration;
-	protected final GenericityResolver genericityResolver = new GenericityResolver();
+	protected final GenericityResolver genericityResolver;
 
 	protected final OpenApiTypeResolver openApiTypeResolver;
 
-	public AstractLibraryReader(final ApiConfiguration apiConfiguration, final OpenApiTypeResolver openApiTypeResolver) {
-		this.apiConfiguration = apiConfiguration;
+	public AstractLibraryReader(final ApiContext context, final ApiConfiguration apiConfiguration, final OpenApiTypeResolver openApiTypeResolver) {
+		this.context = context;
+        this.apiConfiguration = apiConfiguration;
 		this.openApiTypeResolver = openApiTypeResolver;
+        this.genericityResolver = new GenericityResolver(context);
 	}
 
 	protected static String concatenateBasePathAndMethodPath(final String basePath, final String methodPath,
@@ -68,7 +71,7 @@ public abstract class AstractLibraryReader {
 		DataObject dataObject = new DataObject(
 			genericityResolver.resolve(clazz, readResponseMethodType(method, mergedAnnotations)), openApiTypeResolver);
 		dataObject = computeFrameworkReturnObject(dataObject);
-		logger.debug(dataObject.toString());
+		context.getLogger().debug(dataObject.toString());
 		return dataObject;
 	}
 
@@ -157,7 +160,7 @@ public abstract class AstractLibraryReader {
 					try {
 						operationResponse.setCode(Integer.parseInt(responseCode));
 					} catch (NumberFormatException e) {
-						logger.warn("Invalid response code '" + responseCode + "' for operation " + operationInfo.getOperationId() + ". Skipping response.");
+						context.getLogger().warn("Invalid response code '" + responseCode + "' for operation " + operationInfo.getOperationId() + ". Skipping response.");
 						continue;
 					}
 				}
@@ -170,7 +173,7 @@ public abstract class AstractLibraryReader {
 
 				final MergedAnnotation<Annotation>[] contentArray = responseAnnotation.getAnnotationArray("content", Annotation.class);
 				if (contentArray.length > 1) {
-					logger.warn("Multiple content annotations found for response code " + responseCode + " and operation " + operationInfo.getOperationId() + ". Only the first one will be used.");
+					context.getLogger().warn("Multiple content annotations found for response code " + responseCode + " and operation " + operationInfo.getOperationId() + ". Only the first one will be used.");
 				}
 				Optional<MergedAnnotation<Annotation>> optionalContent = Arrays.stream(contentArray).findFirst();
 				if (optionalContent.isPresent()) {
@@ -205,7 +208,7 @@ public abstract class AstractLibraryReader {
             parameter.setDescription(description);
             String name = parameterAnn.getString("name");
             parameter.setName(name);
-            logger.debug("Found @Parameter " + name
+            context.getLogger().debug("Found @Parameter " + name
                 + " param '" + parameter.getName() + "' : " + description);
         }
 	}

@@ -1,6 +1,7 @@
 package io.github.kbuntrock.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.configuration.parser.CommonParserUtils;
@@ -37,6 +38,8 @@ public class OpenApiTypeResolver {
 	private static final String ENUM = "enum";
 	public static final String JAVA_UTIL_COLLECTION = "java.util.Collection";
 
+    private final ApiContext context;
+
 	private final Map<String, OpenApiResolvedType> modelMap = new HashMap<>();
 
 	/**
@@ -65,15 +68,16 @@ public class OpenApiTypeResolver {
      */
     private final Set<Class<?>> nonDocumentableResponses = new HashSet<>();
 
-	public OpenApiTypeResolver(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
-		// Loading default encoding associations
+	public OpenApiTypeResolver(final ApiContext context, final ApiConfiguration apiConfig) {
+		this.context = context;
+        // Loading default encoding associations
 		initDefaultEncodingAssociations();
 		// Loading model definition
-		initModel(mavenProject, apiConfig);
+		initModel(context.getProject(), apiConfig);
 		// Loading associations
-		initJavaClassAssociations(mavenProject, apiConfig);
+		initJavaClassAssociations(context.getProject(), apiConfig);
 		// Loading unwrapping definitions
-		initUnwrappingDefinitions(mavenProject, apiConfig);
+		initUnwrappingDefinitions(context.getProject(), apiConfig);
 		// Loading "non documentable" parameters classes
 		initNonDocumentableParameters(apiConfig);
         // Loading "non documentable" reponses classes
@@ -168,7 +172,7 @@ public class OpenApiTypeResolver {
 			try {
 				clazz = classLoader.loadClass(entry.getKey());
 			} catch(final ClassNotFoundException ex) {
-				Logger.INSTANCE.getLogger().debug("Model class " + entry.getValue().asText() + " not found (could be normal)");
+                context.getLogger().debug("Model class " + entry.getValue().asText() + " not found (could be normal)");
 			}
 
 			if(clazz != null) {
@@ -302,7 +306,7 @@ public class OpenApiTypeResolver {
 		} catch(final ClassNotFoundException e) {
 			final String message = "Cannot load unwrapping class " + entry.getKey() + "(normal if associated with a non used library)";
 			if(debug) {
-				Logger.INSTANCE.getLogger().debug(message);
+                context.getLogger().debug(message);
 			} else {
 				throw new RuntimeException(message, e);
 			}
@@ -383,7 +387,7 @@ public class OpenApiTypeResolver {
 			final String message =
 				"Cannot load \"non documentable\" parameter class " + canonicalClassName + "(normal if associated with a non used library)";
 			if(debug) {
-				Logger.INSTANCE.getLogger().debug(message);
+                context.getLogger().debug(message);
 			} else {
 				throw new RuntimeException(message, e);
 			}
@@ -434,7 +438,7 @@ public class OpenApiTypeResolver {
             final String message =
                     "Cannot load \"non documentable\" parameter class " + canonicalClassName + "(normal if associated with a non used library)";
             if(debug) {
-                Logger.INSTANCE.getLogger().debug(message);
+                context.getLogger().debug(message);
             } else {
                 throw new RuntimeException(message, e);
             }
@@ -450,4 +454,7 @@ public class OpenApiTypeResolver {
         return true;
     }
 
+    public ApiContext getContext() {
+        return context;
+    }
 }

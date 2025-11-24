@@ -1,10 +1,10 @@
 package io.github.kbuntrock.model;
 
 import com.google.common.reflect.TypeToken;
+import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.reflection.GenericArrayTypeImpl;
 import io.github.kbuntrock.reflection.ParameterizedTypeImpl;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
-import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.OpenApiResolvedType;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
@@ -205,7 +205,7 @@ public class DataObject {
 			}
 		}
 		if(elementWithAnnotation.size() > 1) {
-			Logger.INSTANCE.getLogger().warn("Problem with definition of ["+javaClass.getCanonicalName()
+            openApiTypeResolver.getContext().getLogger().warn("Problem with definition of ["+javaClass.getCanonicalName()
 					+ "]: Multiple 'as-value' methods defined [" + elementWithAnnotation.stream().sorted().collect(Collectors.joining(",")) +"]");
 		} else if(elementWithAnnotation.size() == 1) {
             try {
@@ -220,7 +220,7 @@ public class DataObject {
 				// Method has precedence over fields, we return here
 				return;
             } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-				Logger.INSTANCE.getLogger().error("Error while representing enumeration "+javaClass.getCanonicalName()+"#"+elementWithAnnotation.get(0)+"()", e);
+                openApiTypeResolver.getContext().getLogger().error("Error while representing enumeration "+javaClass.getCanonicalName()+"#"+elementWithAnnotation.get(0)+"()", e);
             }
         }
 
@@ -232,7 +232,7 @@ public class DataObject {
 			}
 		}
 		if(elementWithAnnotation.size() > 1) {
-			Logger.INSTANCE.getLogger().warn("Problem with definition of ["+javaClass.getCanonicalName()
+            openApiTypeResolver.getContext().getLogger().warn("Problem with definition of ["+javaClass.getCanonicalName()
 					+ "]: Multiple 'as-value' fields defined [" + elementWithAnnotation.stream().sorted().collect(Collectors.joining(",")) +"]");
 		} else if(elementWithAnnotation.size() == 1) {
 			try {
@@ -246,7 +246,7 @@ public class DataObject {
 				}
 				return;
 			} catch (NoSuchFieldException | IllegalAccessException e) {
-				Logger.INSTANCE.getLogger().error("Error while representing enumeration "+javaClass.getCanonicalName()+"#"+elementWithAnnotation.get(0), e);
+                openApiTypeResolver.getContext().getLogger().error("Error while representing enumeration "+javaClass.getCanonicalName()+"#"+elementWithAnnotation.get(0), e);
 			}
 
         }

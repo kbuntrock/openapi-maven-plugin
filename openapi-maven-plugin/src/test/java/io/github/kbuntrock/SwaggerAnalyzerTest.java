@@ -27,7 +27,7 @@ public class SwaggerAnalyzerTest extends AbstractTest {
 	}
 
 	private DocumentationMojo createBasicMojo(final String... apiLocation) {
-		final DocumentationMojo mojo = new DocumentationMojo();
+		final DocumentationMojo mojo = createDocumentationMojo();
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
 		apiConfiguration.setAttachArtifact(false);
 		apiConfiguration.setLocations(Arrays.asList(apiLocation));

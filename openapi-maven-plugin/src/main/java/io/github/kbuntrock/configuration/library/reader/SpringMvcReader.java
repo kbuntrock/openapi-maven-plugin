@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.NullableConfigurationHolder;
+import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.OperationType;
@@ -75,8 +76,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 		primitiveWrapperTypeMap.put(Void.class, void.class);
 	}
 
-	public SpringMvcReader(final ApiConfiguration apiConfiguration, final OpenApiTypeResolver openApiTypeResolver) {
-		super(apiConfiguration, openApiTypeResolver);
+	public SpringMvcReader(final ApiContext context, final ApiConfiguration apiConfiguration, final OpenApiTypeResolver openApiTypeResolver) {
+		super(context, apiConfiguration, openApiTypeResolver);
 	}
 
 	@Override
@@ -100,7 +101,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 
 			final RequestMethod[] requestMethods = requestMappingMergedAnnotation.getEnumArray("method", RequestMethod.class);
 			if(requestMethods.length > 0) {
-				logger.debug("Parsing request method : " + method.getName());
+				context.getLogger().debug("Parsing request method : " + method.getName());
 				final String methodIdentifier = JavaClassAnalyser.createMethodIdentifier(method);
 				final List<ParameterObject> parameterObjects = readParameters(clazz, method, mergedAnnotations);
 				final DataObject responseObject = readResponseObject(clazz, method, mergedAnnotations);
@@ -120,7 +121,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 						endpoint.setDeprecated(isDeprecated(method));
 						setSwaggerAnnotatedEndpointProperties(endpoint, mergedAnnotations);
 						tag.addEndpoint(endpoint);
-						logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
+						context.getLogger().debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
 					}
 				}
 			}
@@ -139,7 +140,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 	 */
 	@Override
 	protected List<ParameterObject> readParameters(final Class clazz, final Method originalMethod, final MergedAnnotations endpointAnnotations) {
-		logger.debug("Reading parameters from " + originalMethod.getName());
+		context.getLogger().debug("Reading parameters from " + originalMethod.getName());
 
 		// Set of the method in the original class and eventually the methods in the parent classes / interfaces
 		final Set<Method> overridenMethods = MethodUtils.getOverrideHierarchy(originalMethod, ClassUtils.Interfaces.INCLUDE);
@@ -159,7 +160,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 				if(!openApiTypeResolver.canBeDocumented(parameter, mergedAnnotations)) {
 					continue;
 				}
-				logger.debug("Parameter : " + parameter.getName());
+				context.getLogger().debug("Parameter : " + parameter.getName());
 
 				final ParameterObject paramObj = parameters.computeIfAbsent(parameter.getName(),
 					(name) -> unwrapParameterObject(
@@ -178,7 +179,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 					if(!StringUtils.isEmpty(value)) {
 						paramObj.setName(value);
 					}
-					logger.debug("RequestHeader annotation detected (" + paramObj.getName() + ")");
+					context.getLogger().debug("RequestHeader annotation detected (" + paramObj.getName() + ")");
 				}
 
 				// Detect if is a path variable
@@ -192,7 +193,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 					if(!StringUtils.isEmpty(value)) {
 						paramObj.setName(value);
 					}
-					logger.debug("PathVariable annotation detected (" + paramObj.getName() + ")");
+					context.getLogger().debug("PathVariable annotation detected (" + paramObj.getName() + ")");
 				}
 
 				// Detect if is a query variable
@@ -213,7 +214,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 					if(!StringUtils.isEmpty(value)) {
 						paramObj.setName(value);
 					}
-					logger.debug(
+					context.getLogger().debug(
 						"RequestParam annotation detected (" + paramObj.getName() + "), location is " + paramObj.getLocation().toString());
 				}
 
@@ -223,7 +224,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 					annotationFound = true;
 					paramObj.setLocation(ParameterLocation.BODY);
 					paramObj.setRequired(requestBodyMA.getBoolean("required"));
-					logger.debug("RequestBody annotation detected, location is " + paramObj.getLocation().toString());
+					context.getLogger().debug("RequestBody annotation detected, location is " + paramObj.getLocation().toString());
 				}
 
 				// Detect if is a request part parameter
@@ -236,7 +237,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 					if(!StringUtils.isEmpty(value)) {
 						paramObj.setName(value);
 					}
-					logger.debug("RequestPart annotation detected, location is " + paramObj.getLocation().toString());
+					context.getLogger().debug("RequestPart annotation detected, location is " + paramObj.getLocation().toString());
 				}
 
 				if(!annotationFound) {
