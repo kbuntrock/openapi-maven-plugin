@@ -46,9 +46,9 @@ public class TagLibrary {
 	private final Set<String> exploredSignatures = new HashSet<>();
 	final Map<Class, DataObject> classToSchemaObject = new HashMap<>();
 
-	public TagLibrary(final ApiContext context, OpenApiTypeResolver openApiTypeResolver, ApiConfiguration apiConfiguration, Map<String, ClassDocumentation> javadocMap) {
-		this.openApiTypeResolver = openApiTypeResolver;
-		this.apiConfiguration = apiConfiguration;
+	public TagLibrary(final ApiContext context, Map<String, ClassDocumentation> javadocMap) {
+		this.openApiTypeResolver = context.getOpenApiTypeResolver();
+		this.apiConfiguration = context.getApiConfiguration();
 		this.javadocMap = javadocMap;
         this.context = context;
 	}

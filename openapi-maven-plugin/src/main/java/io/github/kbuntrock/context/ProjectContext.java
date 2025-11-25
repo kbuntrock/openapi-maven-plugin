@@ -1,5 +1,6 @@
 package io.github.kbuntrock.context;
 
+import io.github.kbuntrock.configuration.library.reader.ClassLoaderHelper;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
@@ -18,6 +19,8 @@ public final class ProjectContext {
 
     private MavenProject project;
 
+    private ClassLoaderHelper classLoaderHelper;
+
     public void initLogger(Log logger) {
         if(this.logger == null) {
             this.logger = logger;
@@ -27,6 +30,7 @@ public final class ProjectContext {
     public void initClassLoader(ClassLoader classLoader) {
         if(this.classLoader == null) {
             this.classLoader = classLoader;
+            this.classLoaderHelper = new ClassLoaderHelper(classLoader);
         }
     }
 
@@ -46,4 +50,7 @@ public final class ProjectContext {
         return project;
     }
 
+    public ClassLoaderHelper getClassLoaderHelper() {
+        return classLoaderHelper;
+    }
 }

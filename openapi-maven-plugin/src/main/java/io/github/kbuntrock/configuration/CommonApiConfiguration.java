@@ -11,11 +11,11 @@ import org.apache.maven.plugins.annotations.Parameter;
  */
 public class CommonApiConfiguration {
 
-	public static String SEPARATOR_CLASS_METHOD = "#";
+	public static final String SEPARATOR_CLASS_METHOD = "#";
 
-	public static String DEFAULT_OPERATION_ID = "{class_name}.{method_name}";
-	public static String DEFAULT_LIBRARY = Library.SPRING_MVC.name();
-	public static List<String> DEFAULT_TAG_ANNOTATIONS = new ArrayList<>();
+	public static final String DEFAULT_OPERATION_ID = "{class_name}.{method_name}";
+	public static final String DEFAULT_LIBRARY = Library.SPRING_MVC.name();
+	public static final List<String> DEFAULT_TAG_ANNOTATIONS = new ArrayList<>();
 
 	static {
 		DEFAULT_TAG_ANNOTATIONS.add(TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName());

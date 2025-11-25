@@ -18,10 +18,6 @@ import java.util.Optional;
  */
 public class JavadocWrapper {
 
-	private static final String INHERIT_DOC_TAG_NAME = "inheritDoc";
-
-	private static String endOfLineReplacement = null;
-
 	private final Javadoc javadoc;
 
 	private Map<JavadocBlockTag.Type, List<JavadocBlockTag>> blockTagsByType;
@@ -31,10 +27,6 @@ public class JavadocWrapper {
 
 	public JavadocWrapper(final Javadoc javadoc) {
 		this.javadoc = javadoc;
-	}
-
-	public static void setEndOfLineReplacement(final String endOfLineReplacement) {
-		JavadocWrapper.endOfLineReplacement = endOfLineReplacement;
 	}
 
 	public Javadoc getJavadoc() {
@@ -73,11 +65,11 @@ public class JavadocWrapper {
 	}
 
 	public Optional<String> getSummary() {
-		return JavadocElementParser.getSummary(javadoc.getDescription(), endOfLineReplacement);
+		return JavadocElementParser.getSummary(javadoc.getDescription());
 	}
 
 	public Optional<String> getDescription() {
-		return JavadocElementParser.getDescription(javadoc.getDescription(), endOfLineReplacement);
+		return JavadocElementParser.getDescription(javadoc.getDescription());
 	}
 
 	public boolean isInheritTagFound() {

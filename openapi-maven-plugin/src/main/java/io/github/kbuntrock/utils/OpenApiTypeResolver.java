@@ -68,20 +68,20 @@ public class OpenApiTypeResolver {
      */
     private final Set<Class<?>> nonDocumentableResponses = new HashSet<>();
 
-	public OpenApiTypeResolver(final ApiContext context, final ApiConfiguration apiConfig) {
+	public OpenApiTypeResolver(final ApiContext context) {
 		this.context = context;
         // Loading default encoding associations
 		initDefaultEncodingAssociations();
 		// Loading model definition
-		initModel(context.getProject(), apiConfig);
+		initModel(context.getProject(), context.getApiConfiguration());
 		// Loading associations
-		initJavaClassAssociations(context.getProject(), apiConfig);
+		initJavaClassAssociations(context.getProject(), context.getApiConfiguration());
 		// Loading unwrapping definitions
 		initUnwrappingDefinitions();
 		// Loading "non documentable" parameters classes
-		initNonDocumentableParameters(apiConfig);
+		initNonDocumentableParameters(context.getApiConfiguration());
         // Loading "non documentable" reponses classes
-        initNonDocumentableResponses(apiConfig);
+        initNonDocumentableResponses(context.getApiConfiguration());
     }
 
 	private void initModel(final MavenProject mavenProject, final ApiConfiguration apiConfig) {

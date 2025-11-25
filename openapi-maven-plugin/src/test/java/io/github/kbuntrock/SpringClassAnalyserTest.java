@@ -11,6 +11,7 @@ import io.github.kbuntrock.configuration.library.TagAnnotation;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.resources.endpoint.account.AccountController;
 import io.github.kbuntrock.resources.endpoint.annotation.AnnotatedController;
@@ -432,11 +433,13 @@ public class SpringClassAnalyserTest extends AbstractTest {
         projectContext.initLogger(Mockito.mock(Log.class));
         projectContext.initClassLoader(SpringClassAnalyserTest.class.getClassLoader());
         projectContext.setProject(createBasicMavenProject());
-        ApiContext apiContext = new ApiContext(projectContext);
-		final OpenApiTypeResolver openApiTypeResolver = new OpenApiTypeResolver(apiContext, apiConfiguration);
+        ApiContext apiContext = new ApiContext(projectContext, new AdditionnalSchemaLibrary());
+        apiContext.setApiConfiguration(apiConfiguration);
+		final OpenApiTypeResolver openApiTypeResolver = new OpenApiTypeResolver(apiContext);
+        apiContext.setOpenApiTypeResolver(new OpenApiTypeResolver(apiContext));
 		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiContext, apiConfiguration, scanResult(SpringPathEnhancementTwoController.class), openApiTypeResolver);
 		final Optional<Tag> tag = analyser.getTagFromClass(SpringPathEnhancementTwoController.class);
-		final TagLibrary library = new TagLibrary(apiContext, openApiTypeResolver, apiConfiguration, new HashMap<>());
+		final TagLibrary library = new TagLibrary(apiContext, new HashMap<>());
 		library.addTag(tag.get());
 
 		final File generatedFile = createTestFile();

@@ -2,10 +2,9 @@ package io.github.kbuntrock.configuration;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class NullableConfigurationHolder {
+public class NullableConfiguration {
 
 	private static final String defaultJakartaNullable = "jakarta.annotation.Nullable";
 	private static final String defaultJavaxNullable = "javax.annotation.Nullable";
@@ -17,13 +16,11 @@ public class NullableConfigurationHolder {
 	private static final String defaultJavaxNotBlank = "javax.validation.constraints.NotBlank";
 	private static final String defaultJavaxNotEmpty = "javax.validation.constraints.NotEmpty";
 
-	private static List<String> nullableAnnotations;
+	private final List<String> nullableAnnotations;
+	private final List<String> nonNullAnnotations;
+	private final boolean defaultNonNullableFields;
 
-	private static List<String> nonNullAnnotations;
-
-	private static boolean defaultNonNullableFields;
-
-	public static void storeConfig(final CommonApiConfiguration commonApiConfiguration) {
+	public NullableConfiguration(final CommonApiConfiguration commonApiConfiguration) {
 		defaultNonNullableFields = commonApiConfiguration.defaultNonNullableFields != null
 			&& commonApiConfiguration.defaultNonNullableFields;
 
@@ -48,26 +45,26 @@ public class NullableConfigurationHolder {
 
 	}
 
-	private static List<String> getNullableAnnotations() {
+	private List<String> getNullableAnnotations() {
 		return nullableAnnotations;
 	}
 
-	private static List<String> getNonNullAnnotations() {
+	private List<String> getNonNullAnnotations() {
 		return nonNullAnnotations;
 	}
 
-	public static boolean isDefaultNonNullableFields() {
+	public boolean isDefaultNonNullableFields() {
 		return defaultNonNullableFields;
 	}
 
-	public static boolean hasNullableAnnotation(final List<Annotation> annotations) {
+	public boolean hasNullableAnnotation(final List<Annotation> annotations) {
 		return annotations.stream()
 			.map(annotation -> annotation.annotationType().getName())
 			.anyMatch(name -> getNullableAnnotations().contains(name));
 	}
 
 
-	public static boolean hasNonNullAnnotation(final List<Annotation> annotations) {
+	public boolean hasNonNullAnnotation(final List<Annotation> annotations) {
 		return annotations.stream()
 			.map(annotation -> annotation.annotationType().getName())
 			.anyMatch(name -> getNonNullAnnotations().contains(name));

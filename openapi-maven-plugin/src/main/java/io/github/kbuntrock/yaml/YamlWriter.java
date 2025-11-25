@@ -624,7 +624,7 @@ public class YamlWriter {
 				: dataObject.getSchemaReferenceName(), schema);
 		}
 		// Add the additional eventual recursive entries.
-		for(final Map.Entry<String, DataObject> entry : AdditionnalSchemaLibrary.getMap().entrySet()) {
+		for(final Map.Entry<String, DataObject> entry : context.getAdditionnalSchemaLibrary().getMap().entrySet()) {
 			final Set<String> exploredSignatures = new HashSet<>();
 			final Schema schema = new Schema(entry.getValue(), true, exploredSignatures, null, null, tagLibrary);
 			schemas.put(entry.getKey(), schema);

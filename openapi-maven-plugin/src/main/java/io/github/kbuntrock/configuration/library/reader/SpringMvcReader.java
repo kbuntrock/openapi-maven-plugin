@@ -3,7 +3,6 @@ package io.github.kbuntrock.configuration.library.reader;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.configuration.ApiConfiguration;
-import io.github.kbuntrock.configuration.NullableConfigurationHolder;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
@@ -294,7 +293,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 						if(array.length == 2) {
 							ParameterObject po = new ParameterObject(array[0], Object.class, openApiTypeResolver);
 							po.setLocation(ParameterLocation.QUERY);
-							po.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
+							po.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
 							parameters.put(array[0], po);
 						}
 					}
@@ -303,7 +302,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 					ParameterObject po = new ParameterObject(param, Object.class, openApiTypeResolver);
 					po.setAllowEmptyValue(true);
 					po.setLocation(ParameterLocation.QUERY);
-					po.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
+					po.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
 					parameters.put(param, po);
 				}
 			}
@@ -334,7 +333,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 						if(array.length == 2) {
 							ParameterObject po = new ParameterObject(array[0], Object.class, openApiTypeResolver);
 							po.setLocation(ParameterLocation.HEADER);
-							po.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
+							po.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
 							parameters.put(array[0], po);
 						}
 					}
@@ -343,7 +342,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 					ParameterObject po = new ParameterObject(param, Object.class, openApiTypeResolver);
 					po.setAllowEmptyValue(true);
 					po.setLocation(ParameterLocation.HEADER);
-					po.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
+					po.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
 					parameters.put(param, po);
 				}
 			}
@@ -379,12 +378,12 @@ public class SpringMvcReader extends AstractLibraryReader {
 			if(fieldObj.getClassRequired() != null) {
 				fieldObj.setRequired(paramObj.getClassRequired());
 			} else {
-				if(NullableConfigurationHolder.hasNonNullAnnotation(Arrays.asList(field.getAnnotations()))) {
+				if(context.getNullableConfiguration().hasNonNullAnnotation(Arrays.asList(field.getAnnotations()))) {
 					fieldObj.setRequired(true);
-				} else if(NullableConfigurationHolder.hasNullableAnnotation(Arrays.asList(field.getAnnotations()))) {
+				} else if(context.getNullableConfiguration().hasNullableAnnotation(Arrays.asList(field.getAnnotations()))) {
 					fieldObj.setRequired(false);
 				} else {
-					fieldObj.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
+					fieldObj.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
 				}
 			}
 		}

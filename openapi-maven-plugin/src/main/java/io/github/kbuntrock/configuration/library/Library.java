@@ -3,14 +3,12 @@ package io.github.kbuntrock.configuration.library;
 import io.github.kbuntrock.MojoRuntimeException;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.library.reader.AstractLibraryReader;
-import io.github.kbuntrock.configuration.library.reader.ClassLoaderUtils;
 import io.github.kbuntrock.configuration.library.reader.JakartaRsReader;
 import io.github.kbuntrock.configuration.library.reader.JavaxRsReader;
 import io.github.kbuntrock.configuration.library.reader.SpringMvcReader;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

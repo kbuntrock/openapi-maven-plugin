@@ -1,15 +1,20 @@
 package io.github.kbuntrock.configuration.library.reader;
 
 import io.github.kbuntrock.MojoRuntimeException;
-import io.github.kbuntrock.reflection.ReflectionsUtils;
+
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-public final class ClassLoaderUtils {
+public final class ClassLoaderHelper {
 
-	private static final Map<String, Class> map = new ConcurrentHashMap<>();
+    private final ClassLoader classLoader;
+	private final Map<String, Class> map = new HashMap<>();
 
-	public static Class getByName(final String canonicalName, final ClassLoader classLoader) throws ClassNotFoundException {
+    public ClassLoaderHelper(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
+
+    public Class getByName(final String canonicalName) throws ClassNotFoundException {
 
 		Class clazz = map.get(canonicalName);
 		if(clazz == null) {
@@ -20,10 +25,10 @@ public final class ClassLoaderUtils {
 
 	}
 
-	public static Class getByNameRuntimeEx(final String canonicalName, final ClassLoader classLoader) {
+	public Class getByNameRuntimeEx(final String canonicalName) {
 
 		try {
-			return getByName(canonicalName, classLoader);
+			return getByName(canonicalName);
 		} catch(final ClassNotFoundException e) {
 			throw new MojoRuntimeException(
 				canonicalName + " cannot be loaded. Please check if the correct dependencies are in your project classpath.", e);
@@ -31,9 +36,9 @@ public final class ClassLoaderUtils {
 
 	}
 
-	public static boolean isClass(final String canonicalName, final ClassLoader classLoader) {
+	public boolean isClass(final String canonicalName) {
 		try {
-			Class<?> clazz = getByName(canonicalName, classLoader);
+			Class<?> clazz = getByName(canonicalName);
 			return clazz != null;
 		} catch(ClassNotFoundException e) {
 			return false;

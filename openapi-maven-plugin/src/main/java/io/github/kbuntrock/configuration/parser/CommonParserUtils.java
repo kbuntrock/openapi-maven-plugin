@@ -19,6 +19,7 @@ import org.apache.maven.project.MavenProject;
 public final class CommonParserUtils {
 
 	private CommonParserUtils() {
+        // Nothing to do
 	}
 
 	/**

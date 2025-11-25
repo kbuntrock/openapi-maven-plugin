@@ -17,21 +17,20 @@ public class JavadocElementParser {
 
 	public static final Pattern hrefLinkRegex = Pattern.compile("href=\"(.*?)\"");
 
-	public static Optional<String> getSummary(JavadocDescription description, String endOfLineReplacement) {
-		return processJavadocElements(description, endOfLineReplacement, elements -> elements
+	public static Optional<String> getSummary(JavadocDescription description) {
+		return processJavadocElements(description, elements -> elements
 			.filter(onlyTagsOfType(JavadocTag.SUMMARY))
 			.map(JavadocElementParser::toTagContent));
 	}
 
-	public static Optional<String> getDescription(JavadocDescription description, String endOfLineReplacement1) {
-		return processJavadocElements(description, endOfLineReplacement1, elements -> elements
+	public static Optional<String> getDescription(JavadocDescription description) {
+		return processJavadocElements(description, elements -> elements
 			.filter(JavadocElementParser::onlySnippetsAndFormattingTags)
 			.map(JavadocElementParser::formatDescriptionElement));
 	}
 
 	private static Optional<String> processJavadocElements(
 		JavadocDescription description,
-		String endOfLineReplacement,
 		Function<Stream<JavadocDescriptionElement>, Stream<String>> elementProcessor) {
 		return Optional.ofNullable(description)
 			.map(JavadocDescription::getElements)
@@ -39,7 +38,6 @@ public class JavadocElementParser {
 			.map(elementProcessor)
 			.map(s -> s.collect(Collectors.joining()))
 			.map(s -> s.replaceAll("\r\n", "\n"))
-			.map(s -> removeNewlinesIfActivated(s, endOfLineReplacement))
 			.filter(text -> !text.isEmpty())
 			.map(String::trim);
 	}
@@ -95,11 +93,5 @@ public class JavadocElementParser {
 		return onlySnippets(e) || (
 			e instanceof JavadocInlineTag &&
 				JavadocTag.isFormattingTag(((JavadocInlineTag) e).getName()));
-	}
-
-	private static String removeNewlinesIfActivated(String text, String endOfLineReplacement) {
-		return endOfLineReplacement != null
-			? text.replaceAll("\\r\\n", endOfLineReplacement).replaceAll("\\n", endOfLineReplacement)
-			: text;
 	}
 }

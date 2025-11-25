@@ -4,15 +4,13 @@ package io.github.kbuntrock;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
-import io.github.kbuntrock.configuration.NullableConfigurationHolder;
+import io.github.kbuntrock.configuration.NullableConfiguration;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.JavadocParser;
-import io.github.kbuntrock.javadoc.JavadocWrapper;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
-import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.CollectionUtils;
 import io.github.kbuntrock.utils.FileUtils;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
@@ -184,13 +182,13 @@ public class DocumentationMojo extends AbstractMojo {
 
 		final List<File> generatedFiles = new ArrayList<>();
 		for(final ApiConfiguration initialApiConfiguration : apis) {
-            ApiContext apiContext = new ApiContext(context);
-			AdditionnalSchemaLibrary.reset();
+            ApiContext apiContext = new ApiContext(context, new AdditionnalSchemaLibrary());
 			final ApiConfiguration apiConfig = initialApiConfiguration.mergeWithCommonApiConfiguration(this.apiConfiguration);
-			OpenApiTypeResolver openApiTypeResolver = new OpenApiTypeResolver(apiContext, apiConfig);
-			NullableConfigurationHolder.storeConfig(apiConfig);
+            apiContext.setApiConfiguration(apiConfig);
+            apiContext.setOpenApiTypeResolver(new OpenApiTypeResolver(apiContext));
+            apiContext.setNullableConfiguration(new NullableConfiguration(apiConfig));
 
-			final ApiResourceScanner apiResourceScanner = new ApiResourceScanner(apiContext, apiConfig, openApiTypeResolver, javadocMap);
+			final ApiResourceScanner apiResourceScanner = new ApiResourceScanner(apiContext, javadocMap);
             context.getLogger().debug("Prepare to scan");
 			final TagLibrary tagLibrary = apiResourceScanner.scanRestControllers();
             context.getLogger().debug("Scan done");
@@ -309,9 +307,6 @@ public class DocumentationMojo extends AbstractMojo {
 			.collect(Collectors.toList());
 		final JavadocParser javadocParser = new JavadocParser(context, filesToScan, javadocConfiguration);
 		javadocParser.scan();
-		if(!JavadocConfiguration.DISABLED_EOF_REPLACEMENT.equals(javadocConfiguration.getEndOfLineReplacement())) {
-			JavadocWrapper.setEndOfLineReplacement(javadocConfiguration.getEndOfLineReplacement());
-		}
         context.getLogger().info("Javadoc parsing took " + (System.currentTimeMillis() - debutJavadoc) + "ms.");
 
 		return javadocParser.getJavadocMap();

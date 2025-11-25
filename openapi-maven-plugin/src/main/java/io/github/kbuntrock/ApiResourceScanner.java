@@ -5,10 +5,10 @@ import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ScanResult;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
-import io.github.kbuntrock.configuration.library.reader.ClassLoaderUtils;
+import io.github.kbuntrock.configuration.library.reader.ClassLoaderHelper;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
-import io.github.kbuntrock.reflection.ReflectionsUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,11 +34,10 @@ public class ApiResourceScanner {
 	private final List<Pattern> whiteListPatterns = new ArrayList<>();
 	private final List<Pattern> blackListPatterns = new ArrayList<>();
 
-	public ApiResourceScanner(final ApiContext context, ApiConfiguration apiConfiguration, final OpenApiTypeResolver openApiTypeResolver,
-							  final Map<String, ClassDocumentation> javadocMap) {
+	public ApiResourceScanner(final ApiContext context, final Map<String, ClassDocumentation> javadocMap) {
         this.context = context;
-		this.apiConfiguration = apiConfiguration;
-		this.openApiTypeResolver = openApiTypeResolver;
+		this.apiConfiguration = context.getApiConfiguration();
+		this.openApiTypeResolver = context.getOpenApiTypeResolver();
 		this.javadocMap = javadocMap;
 
 		if(apiConfiguration.getWhiteList() != null) {
@@ -61,7 +60,7 @@ public class ApiResourceScanner {
 
 	public TagLibrary scanRestControllers() throws MojoFailureException {
 
-		final TagLibrary library = new TagLibrary(context, openApiTypeResolver, apiConfiguration, javadocMap);
+		final TagLibrary library = new TagLibrary(context, javadocMap);
 
 		for(final String apiLocation : apiConfiguration.getLocations()) {
 			context.getLogger().info("Scanning : " + apiLocation);
@@ -74,7 +73,7 @@ public class ApiResourceScanner {
 				.ignoreMethodVisibility()
 				.ignoreParentClassLoaders()
 				.addClassLoader(context.getClassLoader());
-			if(ClassLoaderUtils.isClass(apiLocation, context.getClassLoader())) {
+			if(context.getClassLoaderHelper().isClass(apiLocation)) {
 				classGraph.acceptClasses(apiLocation);
 			} else {
 				classGraph.acceptPackages(apiLocation);
@@ -85,7 +84,7 @@ public class ApiResourceScanner {
 				Set<Class<?>> restControllerClasses = classScanResult
 					.getClassesWithAnyAnnotation(annotationNames)
 					.stream()
-					.filter(onLocation(apiLocation, context.getClassLoader()))
+					.filter(onLocation(apiLocation, context.getClassLoaderHelper()))
 					.map(ClassInfo::loadClass)
 					.collect(Collectors.toSet());
 
@@ -117,8 +116,8 @@ public class ApiResourceScanner {
 		return library;
 	}
 
-	private static Predicate<ClassInfo> onLocation(final String apiLocation, final ClassLoader classLoader) {
-		if(ClassLoaderUtils.isClass(apiLocation, classLoader)) {
+	private static Predicate<ClassInfo> onLocation(final String apiLocation, final ClassLoaderHelper classLoaderHelper) {
+		if(classLoaderHelper.isClass(apiLocation)) {
 			return classInfo -> classInfo.getName().equals(apiLocation);
 		}
 		return classInfo -> classInfo.getPackageName().startsWith(apiLocation);
