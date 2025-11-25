@@ -2,6 +2,7 @@ package io.github.kbuntrock.configuration.library.reader;
 
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.OperationType;
@@ -35,16 +36,16 @@ public class JavaxRsReader extends AstractLibraryReader {
 	private Class jakartaHttpServletRequest;
 	private Class responseAnnotation;
 
-	public JavaxRsReader(final ApiConfiguration apiConfiguration, final OpenApiTypeResolver openApiTypeResolver) {
-		super(apiConfiguration, openApiTypeResolver);
+	public JavaxRsReader(final ApiContext context, final ApiConfiguration apiConfiguration, final OpenApiTypeResolver openApiTypeResolver) {
+		super(context, apiConfiguration, openApiTypeResolver);
 		try {
 			// For the validation constraint, there should be no problem if the dependency is not present.
-			jakartaNotNull = ClassLoaderUtils.getByName(JakartaRsReader.NOT_NULL_CNAME);
+			jakartaNotNull = context.getClassLoaderHelper().getByName(JakartaRsReader.NOT_NULL_CNAME);
 		} catch(final ClassNotFoundException e) {
 			// Nothing to do, could be normal since it is in the validation api
 		}
 		try {
-			jakartaHttpServletRequest = ClassLoaderUtils.getByName(JakartaRsReader.HttpServletRequest_CNAME);
+			jakartaHttpServletRequest = context.getClassLoaderHelper().getByName(JakartaRsReader.HttpServletRequest_CNAME);
 		} catch(final ClassNotFoundException e) {
 			// Nothing to do, could be normal since it is in the servlet api
 		}
@@ -56,7 +57,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 		if(apiConfiguration.getCustomResponseTypeAnnotation() != null) {
 			final String annotationName = apiConfiguration.getCustomResponseTypeAnnotation();
 			try {
-				responseAnnotation = ClassLoaderUtils.getByName(annotationName);
+				responseAnnotation = context.getClassLoaderHelper().getByName(annotationName);
 				try {
 					final Method responseAnnotationMethod = responseAnnotation.getMethod("value");
 					if(responseAnnotationMethod.getReturnType() != Class.class) {
@@ -111,7 +112,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 					endpoint.setDeprecated(isDeprecated(method));
 					setSwaggerAnnotatedEndpointProperties(endpoint, mergedAnnotations);
 					tag.addEndpoint(endpoint);
-					logger.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
+					context.getLogger().debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
 				}
 			}
 		}
@@ -120,7 +121,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 
 	@Override
 	protected List<ParameterObject> readParameters(final Class clazz, final Method originalMethod, final MergedAnnotations endpointAnnotations) {
-		logger.debug("Reading parameters from " + originalMethod.getName());
+		context.getLogger().debug("Reading parameters from " + originalMethod.getName());
 
 		// Set of the method in the original class and eventually the methods in the parent classes / interfaces
 		final Set<Method> overridenMethods = MethodUtils.getOverrideHierarchy(originalMethod, ClassUtils.Interfaces.INCLUDE);
@@ -139,7 +140,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 				if(!openApiTypeResolver.canBeDocumented(parameter, mergedAnnotations)) {
 					continue;
 				}
-				logger.debug("Parameter : " + parameter.getName());
+				context.getLogger().debug("Parameter : " + parameter.getName());
 
 				ParameterObject paramObj = new ParameterObject(parameter.getName(),
 					genericityResolver.resolve(clazz, parameter.getParameterizedType()), openApiTypeResolver);
@@ -169,7 +170,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 					if(!StringUtils.isEmpty(value)) {
 						paramObj.setName(value);
 					}
-					logger.debug("PathParam annotation detected (" + paramObj.getName() + ")");
+					context.getLogger().debug("PathParam annotation detected (" + paramObj.getName() + ")");
 				}
 
 				// Detect if is a query variable
@@ -187,7 +188,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 					if(!StringUtils.isEmpty(value)) {
 						paramObj.setName(value);
 					}
-					logger.debug(
+					context.getLogger().debug(
 						"QueryParam annotation detected (" + paramObj.getName() + "), location is " + paramObj.getLocation().toString());
 				}
 
@@ -195,10 +196,10 @@ public class JavaxRsReader extends AstractLibraryReader {
 				if(paramObj.getLocation() == null) {
 					if(bodyParameterDetected) {
 						bodyParameterDetected = true;
-						logger.error("Cannot set multiple body parameters, (" + paramObj.getName() + ")");
+						context.getLogger().error("Cannot set multiple body parameters, (" + paramObj.getName() + ")");
 					} else {
 						paramObj.setLocation(ParameterLocation.BODY);
-						logger.debug(
+						context.getLogger().debug(
 							"Body parameter detected (" + paramObj.getName() + "), location is " + paramObj.getLocation().toString());
 					}
 				}

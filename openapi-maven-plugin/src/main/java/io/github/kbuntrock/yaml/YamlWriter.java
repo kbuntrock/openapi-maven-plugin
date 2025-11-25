@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.github.javaparser.javadoc.JavadocBlockTag;
+import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.MojoRuntimeException;
 import io.github.kbuntrock.TagLibrary;
 import io.github.kbuntrock.configuration.ApiConfiguration;
@@ -21,7 +22,6 @@ import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
-import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.ObjectsUtils;
 import io.github.kbuntrock.utils.OpenApiConstants;
 import io.github.kbuntrock.utils.OpenApiDataType;
@@ -45,7 +45,6 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
 
@@ -55,13 +54,13 @@ public class YamlWriter {
 	private static final String SECURITY_FIELD = "security";
 	private static final String EXTERNAL_DOC_FIELD = "externalDocs";
 	private static final String FILEFORMAT_JSON = "json";
-	private final Log logger = Logger.INSTANCE.getLogger();
+
+    private final ApiContext context;
+
 
 	private final ObjectMapper om;
 	private final ApiConfiguration apiConfiguration;
 	private final TagLibrary tagLibrary;
-
-	private final MavenProject mavenProject;
 
 	private Optional<JsonNode> freefields = Optional.empty();
 	private Map<String, JsonNode> defaultErrors;
@@ -70,8 +69,8 @@ public class YamlWriter {
     // will not appear in the generated documentation. This map reference only the used ones, in order of appearance
     private Map<String, Tag> usedTags = new LinkedHashMap<>();
 
-	public YamlWriter(final MavenProject mavenProject, final ApiConfiguration apiConfiguration, final TagLibrary tagLibrary) {
-		this.mavenProject = mavenProject;
+	public YamlWriter(final ApiContext context, final ApiConfiguration apiConfiguration, final TagLibrary tagLibrary) {
+		this.context = context;
 		this.apiConfiguration = apiConfiguration;
 		this.tagLibrary = tagLibrary;
 		this.om = FILEFORMAT_JSON.equals(apiConfiguration.getFileFormat()) ?
@@ -114,9 +113,9 @@ public class YamlWriter {
 
 	public void write(final File file, final TagLibrary tagLibrary) throws IOException {
 
-		freefields = JsonParserUtils.parse(computeFreeFields(mavenProject, apiConfiguration));
+		freefields = JsonParserUtils.parse(computeFreeFields(context.getProject(), apiConfiguration));
 		final Optional<JsonNode> defaultErrorsNode = JsonParserUtils.parse(
-			CommonParserUtils.getContentFromFileOrText(mavenProject, apiConfiguration.getDefaultErrors()));
+			CommonParserUtils.getContentFromFileOrText(context.getProject(), apiConfiguration.getDefaultErrors()));
 		if(defaultErrorsNode.isPresent()) {
 			defaultErrors = new LinkedHashMap<>();
 			final Iterator<Map.Entry<String, JsonNode>> iterator = defaultErrorsNode.get().fields();
@@ -124,7 +123,7 @@ public class YamlWriter {
 		}
 
 		final Specification specification = new Specification();
-		final Info info = new Info(mavenProject.getName(), mavenProject.getVersion(), freefields);
+		final Info info = new Info(context.getProject().getName(), context.getProject().getVersion(), freefields);
 		specification.setInfo(info);
 
 		populateSpecificationFreeFields(specification, freefields);
@@ -216,7 +215,7 @@ public class YamlWriter {
 			final ClassDocumentation classDocumentation = tagLibrary.hasJavadocMap() ?
 				tagLibrary.getJavadocMap().get(tag.getClazz().getCanonicalName()) : null;
 
-			logger.debug(
+			context.getLogger().debug(
 				"Class documentation found for tag paths section " + tag.getClazz().getSimpleName() + " ? " + (classDocumentation != null));
 
 			// There is no need to try to enhance with the abstract or interfaces classes the documentation here.
@@ -251,7 +250,7 @@ public class YamlWriter {
 					if(methodJavadoc != null) {
 						methodJavadoc.sortTags();
 					}
-					logger.debug(
+					context.getLogger().debug(
 						"Method documentation found for endpoint method " + endpoint.getIdentifier() + " ? " + (methodJavadoc != null));
 				}
 
@@ -273,7 +272,7 @@ public class YamlWriter {
 
 				// Warning on paths
 				if(!operation.getPath().startsWith("/")) {
-					Logger.INSTANCE.getLogger().warn("Operation " + operation.getOperationId()
+                    context.getLogger().warn("Operation " + operation.getOperationId()
 						+ " path should start with a \"/\" (" + operation.getPath() + ")");
 				}
 				// Arbitrary suffix the operationId with a number if it is not unique
@@ -304,7 +303,7 @@ public class YamlWriter {
 					// array in path parameters are not supported
 					if(OpenApiDataType.ARRAY == parameter.getOpenApiResolvedType().getType()
 						&& ParameterLocation.PATH == parameter.getLocation()) {
-						logger.warn("Array types in path or query parameter are not allowed : "
+						context.getLogger().warn("Array types in path or query parameter are not allowed : "
 							+ endpoint.getPath() + " - " + endpoint.getType());
 					}
 					parameterElement.setSchema(schema);
@@ -324,7 +323,7 @@ public class YamlWriter {
 								parameterElement.setDescription(parameterDoc.get().getContent().toText());
 							}
 						}
-						logger.debug(
+						context.getLogger().debug(
 							"Parameter documentation found for endpoint parameter " + parameterElement.getName() + " ? "
 								+ parameterDoc.isPresent());
 					}
@@ -355,7 +354,7 @@ public class YamlWriter {
 					.filter(x -> ParameterLocation.BODY == x.getLocation())
 					.collect(Collectors.toList());
 				if(bodies.size() > 1 && !isFormData(bodies)) {
-					logger.warn("More than one body is not allowed : "
+					context.getLogger().warn("More than one body is not allowed : "
 						+ endpoint.getPath() + " - " + endpoint.getType());
 				}
 				if(!bodies.isEmpty()) {
@@ -386,7 +385,7 @@ public class YamlWriter {
 								requestBody.setDescription(parameterDoc.get().getContent().toText());
 							}
 						}
-						logger.debug(
+						context.getLogger().debug(
 							"Parameter documentation found for endpoint body " + body.getName() + " ? "
 								+ parameterDoc.isPresent());
 					}
@@ -397,7 +396,7 @@ public class YamlWriter {
 					.filter(p -> ParameterLocation.BODY_PART == p.getLocation()).collect(Collectors.toList());
 				if(!bodyParts.isEmpty()) {
 					if(operation.getRequestBody() != null) {
-						logger.warn("Cannot handle \"body\" + \"body parts\" : "
+						context.getLogger().warn("Cannot handle \"body\" + \"body parts\" : "
 							+ endpoint.getPath() + " - " + endpoint.getType());
 					} else {
 						final RequestBody requestBody = new RequestBody();
@@ -436,7 +435,7 @@ public class YamlWriter {
 							response.setDescription(returnDoc.get().getContent().toText());
 						}
 					}
-					logger.debug(
+					context.getLogger().debug(
 						"Return documentation found ? " + returnDoc.isPresent());
 				}
 
@@ -538,7 +537,7 @@ public class YamlWriter {
                     Response existingResponse = (Response) existingContent;
                     if(existingResponse.getContent().containsKey(responseContent.getKey())) {
                         // There are too many cases: this is uncommon, but it might be a valid case.
-                        logger.warn("More than one operation with a common content type mapped on " +
+                        context.getLogger().warn("More than one operation with a common content type mapped on " +
                                 operation.getName() + " : " + operation.getPath() + " in tag " + tag.getName());
 
                         if(existingResponse.getContent().get(responseContent.getKey()).getSchemaList().stream()
@@ -573,13 +572,13 @@ public class YamlWriter {
                 // We are just checking here parameters incoherencies.
                 if(existingParameter.getSchema().getReference() != null) {
                     if(!existingParameter.getSchema().getReference().equals(parameter.getSchema().getReference())) {
-                        Logger.INSTANCE.getLogger().warn("Parameters incoherence detected in path " +
+                        context.getLogger().warn("Parameters incoherence detected in path " +
                                 operation.getPath()+ " for reference "+existingParameter.getSchema().getReference());
                     }
                 }
                 if(existingParameter.getSchema().getType() != null) {
                     if(parameter.getSchema().getType() != null && !existingParameter.getSchema().getType().getNode().toString().equals(parameter.getSchema().getType().getNode().toString()))  {
-                        Logger.INSTANCE.getLogger().warn("Parameters incoherence detected in path " +
+                        context.getLogger().warn("Parameters incoherence detected in path " +
                                 operation.getPath()+ " for "+parameter.getSchema().getType().getNode().toString());
                     }
                 }
@@ -602,7 +601,7 @@ public class YamlWriter {
                         existingRequestBody.getContent().put(content.getKey(), content.getValue());
                     } else {
                         // Not handled yet
-                        Logger.INSTANCE.getLogger().warn("Merge of similar contents for operations is not supported yet ("+
+                        context.getLogger().warn("Merge of similar contents for operations is not supported yet ("+
                                 existingOperation.getPath()+ " / "+existingOperation.getName()+")");
                     }
                 }
@@ -625,7 +624,7 @@ public class YamlWriter {
 				: dataObject.getSchemaReferenceName(), schema);
 		}
 		// Add the additional eventual recursive entries.
-		for(final Map.Entry<String, DataObject> entry : AdditionnalSchemaLibrary.getMap().entrySet()) {
+		for(final Map.Entry<String, DataObject> entry : context.getAdditionnalSchemaLibrary().getMap().entrySet()) {
 			final Set<String> exploredSignatures = new HashSet<>();
 			final Schema schema = new Schema(entry.getValue(), true, exploredSignatures, null, null, tagLibrary);
 			schemas.put(entry.getKey(), schema);

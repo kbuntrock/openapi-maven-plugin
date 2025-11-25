@@ -14,15 +14,6 @@ public enum JavadocTag {
 	LINK,
 	SEE;
 
-	@Override
-	public String toString() {
-		return this.name().toLowerCase(Locale.ROOT);
-	}
-
-	public static JavadocTag fromString(String tagName) {
-		return JavadocTag.valueOf(tagName.toUpperCase(Locale.ROOT));
-	}
-
 	private static final HashSet<JavadocTag> formattingTags = new HashSet<>();
 
 	static {
@@ -30,6 +21,10 @@ public enum JavadocTag {
 		formattingTags.add(LINK);
 		formattingTags.add(SEE);
 	}
+
+    public static JavadocTag fromString(String tagName) {
+        return JavadocTag.valueOf(tagName.toUpperCase(Locale.ROOT));
+    }
 
 	public static boolean isFormattingTag(String tagName) {
 		try {
@@ -43,4 +38,9 @@ public enum JavadocTag {
 	public static boolean isFormattingTag(JavadocTag tag) {
 		return formattingTags.contains(tag);
 	}
+
+    @Override
+    public String toString() {
+        return this.name().toLowerCase(Locale.ROOT);
+    }
 }

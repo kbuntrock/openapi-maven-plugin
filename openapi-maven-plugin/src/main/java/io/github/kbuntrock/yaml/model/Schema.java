@@ -10,17 +10,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.TagLibrary;
 import io.github.kbuntrock.configuration.ApiConfiguration;
-import io.github.kbuntrock.configuration.NullableConfigurationHolder;
+import io.github.kbuntrock.configuration.NullableConfiguration;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.ClassDocumentation.EnhancementType;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
 import io.github.kbuntrock.model.DataObject;
-import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
-import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiConstants;
 import io.github.kbuntrock.utils.OpenApiResolvedType;
 import io.github.kbuntrock.utils.UnwrappingType;
@@ -92,9 +91,13 @@ public class Schema {
 	@JsonIgnore
 	protected ApiConfiguration apiConfiguration;
 
+    @JsonIgnore
+    protected ApiContext context;
 
-	public Schema(final ApiConfiguration apiConfiguration) {
+
+	public Schema(final ApiContext context, final ApiConfiguration apiConfiguration) {
 		this.apiConfiguration = apiConfiguration;
+        this.context = context;
 	}
 
 	public Schema(final DataObject dataObject, final Set<String> exploredSignatures,
@@ -120,6 +123,7 @@ public class Schema {
 		final DataObject dataObject = tagLibrary.getOpenApiTypeResolver().unwrapDataObject(wrappedDataObject, UnwrappingType.SCHEMA);
 
 		this.apiConfiguration = tagLibrary.getApiConfiguration();
+        this.context = tagLibrary.getContext();
 
 		this.mainReference = mainReference;
 
@@ -180,7 +184,7 @@ public class Schema {
 					// The fieldname + signature has already be seen. We are in a recursive loop
 					// We will have to write this field in the schema section.
 					referenceSignature = parentDataObject.getJavaClass().getSimpleName() + "_" + dataObject.getSchemaRecursiveSuffix();
-					AdditionnalSchemaLibrary.addDataObject(referenceSignature, dataObject);
+                    context.getAdditionnalSchemaLibrary().addDataObject(referenceSignature, dataObject);
 					forcedReference = true;
 				}
 			}
@@ -263,8 +267,8 @@ public class Schema {
 								} else {
 									name = method.getName().replaceFirst("is", "");
 								}
-								Logger.INSTANCE.getLogger()
-									.debug(dataObject.getJavaClass().getSimpleName() + " method name : " + method.getName() + " - " + name);
+                                context.getLogger().debug(
+                                        dataObject.getJavaClass().getSimpleName() + " method name : " + method.getName() + " - " + name);
 								name = name.substring(0, 1).toLowerCase() + name.substring(1);
 
 								final DataObject propertyObject = new DataObject(
@@ -383,12 +387,12 @@ public class Schema {
 			}
 		}
 
-		if(NullableConfigurationHolder.hasNonNullAnnotation(annotations)) {
+		if(context.getNullableConfiguration().hasNonNullAnnotation(annotations)) {
 			property.setRequired(true);
-		} else if(NullableConfigurationHolder.hasNullableAnnotation(annotations)) {
+		} else if(context.getNullableConfiguration().hasNullableAnnotation(annotations)) {
 			property.setRequired(false);
 		} else {
-			property.setRequired(NullableConfigurationHolder.isDefaultNonNullableFields());
+			property.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
 		}
 	}
 

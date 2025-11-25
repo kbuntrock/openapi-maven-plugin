@@ -1,16 +1,14 @@
 package io.github.kbuntrock;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
+import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration1Controller;
 import io.github.kbuntrock.resources.endpoint.innerclass.InnerAndLocalClassObjectsController;
 import io.github.kbuntrock.resources.endpoint.javadoc.basic.BasicController;
 import io.github.kbuntrock.resources.endpoint.javadoc.inheritance.ChildClassOne;
 import io.github.kbuntrock.resources.endpoint.javadoc.inheritance.two.ChildClassTwo;
-import io.github.kbuntrock.utils.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +35,7 @@ public class JavadocParserTest extends AbstractTest {
 	}
 
 	private DocumentationMojo createBasicMojo(final String apiLocation) {
-		final DocumentationMojo mojo = new DocumentationMojo();
+		final DocumentationMojo mojo = createDocumentationMojo();
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
 		apiConfiguration.setAttachArtifact(false);
 		apiConfiguration.setLocations(Collections.singletonList(apiLocation));
@@ -106,7 +104,7 @@ public class JavadocParserTest extends AbstractTest {
 
 		checkGenerationResult(mojo.documentProject());
 
-		Mockito.verify(Logger.INSTANCE.getLogger()).warn(
+		Mockito.verify(mojo.getContext().getLogger()).warn(
 			"More than one operation with a common content type mapped on GET : /api/child-class-two/age-plus-one in tag IChildClassTwo");
 	}
 

@@ -5,8 +5,9 @@ import io.github.classgraph.ScanResult;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.library.reader.AstractLibraryReader;
+import io.github.kbuntrock.context.ApiContext;
+import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.model.Tag;
-import io.github.kbuntrock.utils.Logger;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -29,7 +30,7 @@ import static java.util.stream.Collectors.toSet;
  */
 public class JavaClassAnalyser {
 
-	private final Log logger = Logger.INSTANCE.getLogger();
+    private final ApiContext context;
 
 	private final List<Pair<Pattern, Pattern>> whiteListPatterns = new ArrayList<>();
 	private final List<Pair<Pattern, Pattern>> blackListPatterns = new ArrayList<>();
@@ -38,8 +39,9 @@ public class JavaClassAnalyser {
 
 	private final ScanResult classScanResult;
 
-	public JavaClassAnalyser(final ApiConfiguration apiConfiguration, ScanResult classScanResult, final OpenApiTypeResolver openApiTypeResolver) {
-		this.libraryReader = apiConfiguration.getLibrary().createReader(apiConfiguration, openApiTypeResolver);
+	public JavaClassAnalyser(final ApiContext context, final ApiConfiguration apiConfiguration, ScanResult classScanResult, final OpenApiTypeResolver openApiTypeResolver) {
+		this.context = context;
+        this.libraryReader = apiConfiguration.getLibrary().createReader(context, apiConfiguration, openApiTypeResolver);
 		this.classScanResult = classScanResult;
 
 		// Compilation of white list / black list patterns
@@ -100,7 +102,7 @@ public class JavaClassAnalyser {
 	 */
 	public Optional<Tag> getTagFromClass(final Class<?> clazz) throws MojoFailureException {
 		final Tag tag = new Tag(clazz);
-		logger.debug("Parsing tag : " + tag.getName());
+		context.getLogger().debug("Parsing tag : " + tag.getName());
 
 		final MergedAnnotations mergedAnnotations = MergedAnnotations.from(clazz, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
 
@@ -135,7 +137,7 @@ public class JavaClassAnalyser {
 
 	private void parseEndpoints(final Tag tag, final String basePath, final Class<?> clazz) throws MojoFailureException {
 
-		logger.debug("Parsing endpoint " + clazz.getSimpleName());
+		context.getLogger().debug("Parsing endpoint " + clazz.getSimpleName());
 
 		Set<Method> methods = classScanResult.getClassInfo(clazz.getCanonicalName())
 			.getMethodInfo()

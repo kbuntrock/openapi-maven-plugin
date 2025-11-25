@@ -29,7 +29,7 @@ public class JaxrsClassAnalyserTest extends AbstractTest {
 	}
 
 	private DocumentationMojo createBasicMojo(final String apiLocation) {
-		final DocumentationMojo mojo = new DocumentationMojo();
+		final DocumentationMojo mojo = createDocumentationMojo();
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
 		apiConfiguration.setLibrary(Library.JAVAX_RS.name());
 		apiConfiguration.setAttachArtifact(false);

@@ -26,7 +26,7 @@ public class ModelSubstitutionTest extends AbstractTest {
 	@Test
 	public void object_substitution() throws MojoFailureException, IOException, MojoExecutionException {
 
-		final DocumentationMojo mojo = new DocumentationMojo();
+		final DocumentationMojo mojo = createDocumentationMojo();
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
 		apiConfiguration.setOpenapiModels(
 			"src/test/resources/ut/ModelSubstitutionTest/object_substitution/custom-openapi-model.yml");
@@ -45,7 +45,7 @@ public class ModelSubstitutionTest extends AbstractTest {
 	@Test
 	public void object_substitution_json_content() throws MojoFailureException, IOException, MojoExecutionException {
 
-		final DocumentationMojo mojo = new DocumentationMojo();
+		final DocumentationMojo mojo = createDocumentationMojo();
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
 		apiConfiguration.setOpenapiModels("{\n"
 			+ "  \"CustomAccountDto\": {\n"
@@ -90,7 +90,7 @@ public class ModelSubstitutionTest extends AbstractTest {
 	@Test
 	public void enum_substitution() throws MojoFailureException, IOException, MojoExecutionException {
 
-		final DocumentationMojo mojo = new DocumentationMojo();
+		final DocumentationMojo mojo = createDocumentationMojo();
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
 		apiConfiguration.setOpenapiModels(
 			"src/test/resources/ut/ModelSubstitutionTest/enum_substitution/custom-openapi-model.yml");

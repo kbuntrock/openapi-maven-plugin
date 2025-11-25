@@ -34,7 +34,7 @@ public class AllLibraryClassAnalyser extends AbstractTest {
 	}
 
 	private DocumentationMojo createBasicJaxRsMojo(final String apiLocation) {
-		final DocumentationMojo mojo = new DocumentationMojo();
+		final DocumentationMojo mojo = createDocumentationMojo();
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
 		apiConfiguration.setLibrary(Library.JAVAX_RS.name());
 		apiConfiguration.setAttachArtifact(false);
@@ -46,7 +46,7 @@ public class AllLibraryClassAnalyser extends AbstractTest {
 	}
 
 	private DocumentationMojo createBasicJakartaRsMojo(final String apiLocation) {
-		final DocumentationMojo mojo = new DocumentationMojo();
+		final DocumentationMojo mojo = createDocumentationMojo();
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
 		apiConfiguration.setLibrary(Library.JAKARTA_RS.name());
 		apiConfiguration.setAttachArtifact(false);
@@ -58,7 +58,7 @@ public class AllLibraryClassAnalyser extends AbstractTest {
 	}
 
 	private DocumentationMojo createBasicSpringMvcMojo(final String apiLocation) {
-		final DocumentationMojo mojo = new DocumentationMojo();
+		final DocumentationMojo mojo = createDocumentationMojo();
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
 		apiConfiguration.setLibrary(Library.SPRING_MVC.name());
 		apiConfiguration.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));

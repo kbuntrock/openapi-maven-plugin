@@ -19,6 +19,7 @@ import org.apache.maven.project.MavenProject;
 public final class CommonParserUtils {
 
 	private CommonParserUtils() {
+        // Nothing to do
 	}
 
 	/**
@@ -60,7 +61,7 @@ public final class CommonParserUtils {
 	}
 
 	public static Optional<JsonNode> parse(final MavenProject mavenProject, final String input) {
-		// Yaml parsing is only available when parsin a file. Direct content is always in json (yml and xml in pom do not mix well)
+		// Yaml parsing is only available when parsing a file. Direct content is always in json (yml and xml in pom do not mix well)
 		final boolean isYaml = input.endsWith(".yml") || input.endsWith(".yaml");
 		final String content = getContentFromFileOrText(mavenProject, input);
 		if(isYaml) {

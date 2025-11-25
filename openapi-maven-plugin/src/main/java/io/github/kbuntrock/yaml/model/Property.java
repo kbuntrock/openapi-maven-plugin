@@ -26,7 +26,7 @@ public class Property extends Schema {
 	private DataObject parentDataObject;
 
 	public Property(final Schema schema) {
-		super(schema.apiConfiguration);
+		super(schema.context, schema.apiConfiguration);
 		this.setProperties(schema.getProperties());
 		this.setAdditionalProperties(schema.getAdditionalProperties());
 		this.setItems(schema.getItems());

@@ -9,27 +9,9 @@ import java.util.stream.Collectors;
 
 public final class ReflectionsUtils {
 
-	private static boolean initiated = false;
-	private static ClassLoader projectClassLoader;
-
 	private ReflectionsUtils() {
-	}
-
-	public static void initiate(ClassLoader projectClassLoader) {
-		ReflectionsUtils.projectClassLoader = projectClassLoader;
-		initiated = true;
-	}
-
-	public static void initiateTestMode() {
-		ReflectionsUtils.initiate(ReflectionsUtils.class.getClassLoader());
-	}
-
-	public static ClassLoader getProjectClassLoader() {
-		if(!initiated) {
-			throw new RuntimeException("ReflectionsUtils has not been initiated.");
-		}
-		return ReflectionsUtils.projectClassLoader;
-	}
+	    // Nothing to do
+    }
 
 	public static List<Field> getAllNonStaticFields(List<Field> fields, Class<?> type) {
 		if(type.getSuperclass() != null) {

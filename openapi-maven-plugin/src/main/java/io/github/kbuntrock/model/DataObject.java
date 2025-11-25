@@ -1,10 +1,10 @@
 package io.github.kbuntrock.model;
 
 import com.google.common.reflect.TypeToken;
+import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.reflection.GenericArrayTypeImpl;
 import io.github.kbuntrock.reflection.ParameterizedTypeImpl;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
-import io.github.kbuntrock.utils.Logger;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.OpenApiResolvedType;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
@@ -123,7 +123,7 @@ public class DataObject {
 				this.genericallyTyped = true;
 				final ParameterizedType pt = (ParameterizedType) type;
 				javaClass = Class.forName(ReflectionsUtils.getClassNameFromType(pt.getRawType()),
-					true, ReflectionsUtils.getProjectClassLoader());
+					true, openApiTypeResolver.getContext().getClassLoader());
 				genericNameToTypeMap = new HashMap<>();
 				for(int i = 0; i < pt.getActualTypeArguments().length; i++) {
 					this.genericNameToTypeMap.put(javaClass.getTypeParameters()[i].getTypeName(),
@@ -146,9 +146,9 @@ public class DataObject {
 					genericNameToTypeMap = new HashMap<>();
 					final ParameterizedType gpt = (ParameterizedType) gat.getGenericComponentType();
 					javaClass = Class.forName("[L" + ReflectionsUtils.getClassNameFromType(gpt.getRawType()) + ";",
-						true, ReflectionsUtils.getProjectClassLoader());
+						true, openApiTypeResolver.getContext().getClassLoader());
 					final Class<?> rawJavaClass = Class.forName(ReflectionsUtils.getClassNameFromType(gpt.getRawType()),
-						true, ReflectionsUtils.getProjectClassLoader());
+						true, openApiTypeResolver.getContext().getClassLoader());
 					for(int i = 0; i < gpt.getActualTypeArguments().length; i++) {
 						this.genericNameToTypeMap.put(rawJavaClass.getTypeParameters()[i].getTypeName(),
 							gpt.getActualTypeArguments()[i]);
@@ -157,7 +157,7 @@ public class DataObject {
 				} else if(gat.getGenericComponentType() instanceof Class<?>) {
 					final Class<?> clazz = (Class<?>) gat.getGenericComponentType();
 					javaClass = Class.forName("[L" + ReflectionsUtils.getClassNameFromType(clazz) + ";",
-						true, ReflectionsUtils.getProjectClassLoader());
+						true, openApiTypeResolver.getContext().getClassLoader());
 					this.arrayItemDataObject = new DataObject(clazz, openApiTypeResolver);
 				} else {
 					javaClass = Object.class;
@@ -205,7 +205,7 @@ public class DataObject {
 			}
 		}
 		if(elementWithAnnotation.size() > 1) {
-			Logger.INSTANCE.getLogger().warn("Problem with definition of ["+javaClass.getCanonicalName()
+            openApiTypeResolver.getContext().getLogger().warn("Problem with definition of ["+javaClass.getCanonicalName()
 					+ "]: Multiple 'as-value' methods defined [" + elementWithAnnotation.stream().sorted().collect(Collectors.joining(",")) +"]");
 		} else if(elementWithAnnotation.size() == 1) {
             try {
@@ -220,7 +220,7 @@ public class DataObject {
 				// Method has precedence over fields, we return here
 				return;
             } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-				Logger.INSTANCE.getLogger().error("Error while representing enumeration "+javaClass.getCanonicalName()+"#"+elementWithAnnotation.get(0)+"()", e);
+                openApiTypeResolver.getContext().getLogger().error("Error while representing enumeration "+javaClass.getCanonicalName()+"#"+elementWithAnnotation.get(0)+"()", e);
             }
         }
 
@@ -232,7 +232,7 @@ public class DataObject {
 			}
 		}
 		if(elementWithAnnotation.size() > 1) {
-			Logger.INSTANCE.getLogger().warn("Problem with definition of ["+javaClass.getCanonicalName()
+            openApiTypeResolver.getContext().getLogger().warn("Problem with definition of ["+javaClass.getCanonicalName()
 					+ "]: Multiple 'as-value' fields defined [" + elementWithAnnotation.stream().sorted().collect(Collectors.joining(",")) +"]");
 		} else if(elementWithAnnotation.size() == 1) {
 			try {
@@ -246,7 +246,7 @@ public class DataObject {
 				}
 				return;
 			} catch (NoSuchFieldException | IllegalAccessException e) {
-				Logger.INSTANCE.getLogger().error("Error while representing enumeration "+javaClass.getCanonicalName()+"#"+elementWithAnnotation.get(0), e);
+                openApiTypeResolver.getContext().getLogger().error("Error while representing enumeration "+javaClass.getCanonicalName()+"#"+elementWithAnnotation.get(0), e);
 			}
 
         }

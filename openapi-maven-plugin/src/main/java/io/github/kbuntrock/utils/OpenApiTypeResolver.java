@@ -1,6 +1,7 @@
 package io.github.kbuntrock.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.configuration.parser.CommonParserUtils;
@@ -37,6 +38,8 @@ public class OpenApiTypeResolver {
 	private static final String ENUM = "enum";
 	public static final String JAVA_UTIL_COLLECTION = "java.util.Collection";
 
+    private final ApiContext context;
+
 	private final Map<String, OpenApiResolvedType> modelMap = new HashMap<>();
 
 	/**
@@ -65,19 +68,20 @@ public class OpenApiTypeResolver {
      */
     private final Set<Class<?>> nonDocumentableResponses = new HashSet<>();
 
-	public OpenApiTypeResolver(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
-		// Loading default encoding associations
+	public OpenApiTypeResolver(final ApiContext context) {
+		this.context = context;
+        // Loading default encoding associations
 		initDefaultEncodingAssociations();
 		// Loading model definition
-		initModel(mavenProject, apiConfig);
+		initModel(context.getProject(), context.getApiConfiguration());
 		// Loading associations
-		initJavaClassAssociations(mavenProject, apiConfig);
+		initJavaClassAssociations(context.getProject(), context.getApiConfiguration());
 		// Loading unwrapping definitions
-		initUnwrappingDefinitions(mavenProject, apiConfig);
+		initUnwrappingDefinitions();
 		// Loading "non documentable" parameters classes
-		initNonDocumentableParameters(apiConfig);
+		initNonDocumentableParameters(context.getApiConfiguration());
         // Loading "non documentable" reponses classes
-        initNonDocumentableResponses(apiConfig);
+        initNonDocumentableResponses(context.getApiConfiguration());
     }
 
 	private void initModel(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
@@ -160,15 +164,14 @@ public class OpenApiTypeResolver {
 			// A model association file does not require to define an assignability section
 			return;
 		}
-		final ClassLoader classLoader = ReflectionsUtils.getProjectClassLoader();
 
 		rootNode.fields().forEachRemaining(entry -> {
 
 			Class<?> clazz = null;
 			try {
-				clazz = classLoader.loadClass(entry.getKey());
+				clazz = context.getClassLoader().loadClass(entry.getKey());
 			} catch(final ClassNotFoundException ex) {
-				Logger.INSTANCE.getLogger().debug("Model class " + entry.getValue().asText() + " not found (could be normal)");
+                context.getLogger().debug("Model class " + entry.getValue().asText() + " not found (could be normal)");
 			}
 
 			if(clazz != null) {
@@ -261,22 +264,20 @@ public class OpenApiTypeResolver {
 		return clazz.getCanonicalName();
 	}
 
-	private void initUnwrappingDefinitions(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
+	private void initUnwrappingDefinitions() {
 		responseUnwrappingMap.clear();
 		parametersUnwrappingMap.clear();
 		schemaUnwrappingMap.clear();
 
-		final ClassLoader classLoader = ReflectionsUtils.getProjectClassLoader();
-
 		final JsonNode root = YamlParserUtils.readResourceFile("/unwrapping-configuration.yml");
 		root.get("response").fields().forEachRemaining(entry -> {
-			registerUnwrappingEntry(classLoader, entry, responseUnwrappingMap, true);
+			registerUnwrappingEntry(context.getClassLoader(), entry, responseUnwrappingMap, true);
 		});
 		root.get("parameter").fields().forEachRemaining(entry -> {
-			registerUnwrappingEntry(classLoader, entry, parametersUnwrappingMap, true);
+			registerUnwrappingEntry(context.getClassLoader(), entry, parametersUnwrappingMap, true);
 		});
 		root.get("schema").fields().forEachRemaining(entry -> {
-			registerUnwrappingEntry(classLoader, entry, schemaUnwrappingMap, true);
+			registerUnwrappingEntry(context.getClassLoader(), entry, schemaUnwrappingMap, true);
 		});
 	}
 
@@ -302,7 +303,7 @@ public class OpenApiTypeResolver {
 		} catch(final ClassNotFoundException e) {
 			final String message = "Cannot load unwrapping class " + entry.getKey() + "(normal if associated with a non used library)";
 			if(debug) {
-				Logger.INSTANCE.getLogger().debug(message);
+                context.getLogger().debug(message);
 			} else {
 				throw new RuntimeException(message, e);
 			}
@@ -346,16 +347,14 @@ public class OpenApiTypeResolver {
 	private void initNonDocumentableParameters(final ApiConfiguration apiConfig) {
 		nonDocumentableParameters.clear();
 
-		final ClassLoader classLoader = ReflectionsUtils.getProjectClassLoader();
-
 		final JsonNode root = YamlParserUtils.readResourceFile("/non-documentable-parameters.yml");
 		root.get("common").elements().forEachRemaining(entry -> {
-			registerNonDocumentableParameters(classLoader, entry.asText(), true);
+			registerNonDocumentableParameters(context.getClassLoader(), entry.asText(), true);
 		});
 
 		if(Library.SPRING_MVC == apiConfig.getLibrary()) {
 			root.get("spring").elements().forEachRemaining(entry -> {
-				registerNonDocumentableParameters(classLoader, entry.asText(), true);
+				registerNonDocumentableParameters(context.getClassLoader(), entry.asText(), true);
 			});
 			root.get("spring-annotations").elements().forEachRemaining(entry -> {
 				registerNonDocumentableParameterAnnotation(entry.asText());
@@ -363,7 +362,7 @@ public class OpenApiTypeResolver {
 		}
 
 		for(final String nonDocumentableParameterClass : apiConfig.getNonDocumentableParameterClasses()) {
-			registerNonDocumentableParameters(classLoader, nonDocumentableParameterClass, false);
+			registerNonDocumentableParameters(context.getClassLoader(), nonDocumentableParameterClass, false);
 		}
 
 	}
@@ -383,7 +382,7 @@ public class OpenApiTypeResolver {
 			final String message =
 				"Cannot load \"non documentable\" parameter class " + canonicalClassName + "(normal if associated with a non used library)";
 			if(debug) {
-				Logger.INSTANCE.getLogger().debug(message);
+                context.getLogger().debug(message);
 			} else {
 				throw new RuntimeException(message, e);
 			}
@@ -412,16 +411,14 @@ public class OpenApiTypeResolver {
     private void initNonDocumentableResponses(final ApiConfiguration apiConfig) {
         nonDocumentableResponses.clear();
 
-        final ClassLoader classLoader = ReflectionsUtils.getProjectClassLoader();
-
         final JsonNode root = YamlParserUtils.readResourceFile("/non-documentable-responses.yml");
         root.get("common").elements().forEachRemaining(entry -> {
-            registerNonDocumentableResponses(classLoader, entry.asText(), true);
+            registerNonDocumentableResponses(context.getClassLoader(), entry.asText(), true);
         });
 
         if(Library.SPRING_MVC == apiConfig.getLibrary()) {
             root.get("spring").elements().forEachRemaining(entry -> {
-                registerNonDocumentableResponses(classLoader, entry.asText(), true);
+                registerNonDocumentableResponses(context.getClassLoader(), entry.asText(), true);
             });
         }
     }
@@ -434,7 +431,7 @@ public class OpenApiTypeResolver {
             final String message =
                     "Cannot load \"non documentable\" parameter class " + canonicalClassName + "(normal if associated with a non used library)";
             if(debug) {
-                Logger.INSTANCE.getLogger().debug(message);
+                context.getLogger().debug(message);
             } else {
                 throw new RuntimeException(message, e);
             }
@@ -450,4 +447,7 @@ public class OpenApiTypeResolver {
         return true;
     }
 
+    public ApiContext getContext() {
+        return context;
+    }
 }

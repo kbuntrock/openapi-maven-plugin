@@ -2,6 +2,7 @@ package io.github.kbuntrock;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
@@ -36,6 +37,7 @@ public class TagLibrary {
 	public static final int METHOD_IS_PREFIX_SIZE = METHOD_IS_PREFIX.length();
 
 	private final OpenApiTypeResolver openApiTypeResolver;
+    private final ApiContext context;
 	private final ApiConfiguration apiConfiguration;
 	private Map<String, ClassDocumentation> javadocMap;
 
@@ -44,10 +46,11 @@ public class TagLibrary {
 	private final Set<String> exploredSignatures = new HashSet<>();
 	final Map<Class, DataObject> classToSchemaObject = new HashMap<>();
 
-	public TagLibrary(OpenApiTypeResolver openApiTypeResolver, ApiConfiguration apiConfiguration, Map<String, ClassDocumentation> javadocMap) {
-		this.openApiTypeResolver = openApiTypeResolver;
-		this.apiConfiguration = apiConfiguration;
+	public TagLibrary(final ApiContext context, Map<String, ClassDocumentation> javadocMap) {
+		this.openApiTypeResolver = context.getOpenApiTypeResolver();
+		this.apiConfiguration = context.getApiConfiguration();
 		this.javadocMap = javadocMap;
+        this.context = context;
 	}
 
 	public void addTag(final Tag tag) {
@@ -197,7 +200,11 @@ public class TagLibrary {
 		return apiConfiguration;
 	}
 
-	public boolean hasJavadocMap() {
+    public ApiContext getContext() {
+        return context;
+    }
+
+    public boolean hasJavadocMap() {
 		return javadocMap != null;
 	}
 
