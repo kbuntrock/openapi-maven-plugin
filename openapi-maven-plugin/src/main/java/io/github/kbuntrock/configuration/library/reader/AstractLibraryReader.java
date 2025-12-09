@@ -203,10 +203,18 @@ public abstract class AstractLibraryReader {
 	protected void setSwaggerAnnotatedParameterProperties(final Parameter javaParameter, final MergedAnnotations mergedAnnotations, ParameterObject parameter){
         MergedAnnotation<Annotation> parameterAnn = mergedAnnotations.get("io.swagger.v3.oas.annotations.Parameter");
         if (parameterAnn.isPresent()) {
-            String description = parameterAnn.getString("description");
-            parameter.setDescription(description);
-            String name = parameterAnn.getString("name");
-            parameter.setName(name);
+            final String description = parameterAnn.getString("description");
+            if (StringUtils.isNotBlank(description)) {
+                parameter.setDescription(description);
+            }
+            final String name = parameterAnn.getString("name");
+            if (StringUtils.isNotBlank(name)) {
+                parameter.setName(name);
+            }
+            final String example = parameterAnn.getString("example");
+            if (StringUtils.isNotBlank(example)) {
+                parameter.setExample(example);
+            }
             context.getLogger().debug("Found @Parameter " + name
                 + " param '" + parameter.getName() + "' : " + description);
         }

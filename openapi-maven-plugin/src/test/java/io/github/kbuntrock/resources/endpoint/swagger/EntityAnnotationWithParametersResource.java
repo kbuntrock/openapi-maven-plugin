@@ -40,4 +40,12 @@ public class EntityAnnotationWithParametersResource {
 
 	}
 
+    @Operation(summary = "Search alarms by trigger")
+    @RequestMapping(value = "/search/alarm/trigger/{trigger}", method = RequestMethod.GET)
+    public ResponseEntity<ResponseEntityWithAnnotations> searchTrigger(
+        @Parameter(description = "Trigger of the alarms", example = "rule47")
+        @PathVariable("trigger")
+        String triggerParam) {
+        return ResponseEntity.ok(new ResponseEntityWithAnnotations());
+    }
 }
