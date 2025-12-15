@@ -56,7 +56,7 @@
     <project.build.outputTimestamp>2025-11-17T07:42:05Z</project.build.outputTimestamp>
 
     <!-- versions -->
-    <spring.version>5.3.39</spring.version>
+    <spring.version>7.0.2</spring.version>
     <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
     <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
     <javax.validation-api.version>2.0.1.Final</javax.validation-api.version>
