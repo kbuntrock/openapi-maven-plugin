@@ -16,8 +16,11 @@ public interface BasicController {
 
 	/**
 	 * Description of endpoint something3
-	 * @param userId a user id as a long
-	 * @param myDto a dto representing a SimpleUserDto
+	 *
+	 * @param userId
+	 *            a user id as a long
+	 * @param myDto
+	 *            a dto representing a SimpleUserDto
 	 * @return true or false
 	 */
 	@PostMapping("something3")
@@ -25,8 +28,11 @@ public interface BasicController {
 
 	/**
 	 * Description of endpoint something1
-	 * @param userId a user id as a string
-	 * @param myDto  a dto still representing a SimpleUserDto
+	 *
+	 * @param userId
+	 *            a user id as a string
+	 * @param myDto
+	 *            a dto still representing a SimpleUserDto
 	 * @return still true or false
 	 */
 	@PostMapping("something1")
@@ -34,8 +40,11 @@ public interface BasicController {
 
 	/**
 	 * Description of endpoint something2
-	 * @param userId still a user id as a string
-	 * @param myDto a dto representing an Authority
+	 *
+	 * @param userId
+	 *            still a user id as a string
+	 * @param myDto
+	 *            a dto representing an Authority
 	 * @return 0 if false, 1 if true
 	 */
 	@PostMapping("something2")

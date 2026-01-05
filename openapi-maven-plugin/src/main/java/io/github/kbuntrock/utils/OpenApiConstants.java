@@ -7,10 +7,12 @@ public class OpenApiConstants {
 	public static final String TYPE = "type";
 
 	/**
-	 * Elements in the "components" section, except the "schemas" (ordered by the specification : https://swagger.io/docs/specification/components/)
+	 * Elements in the "components" section, except the "schemas" (ordered by the specification :
+	 * https://swagger.io/docs/specification/components/)
 	 */
-	public static final String[] COMPONENTS_STRUCTURE = {"parameters", "securitySchemes", "requestBodies", "responses", "headers",
-		"examples", "links", "callbacks"};
+	public static final String[] COMPONENTS_STRUCTURE = { "parameters", "securitySchemes", "requestBodies", "responses",
+			"headers",
+			"examples", "links", "callbacks" };
 
 	/**
 	 * Schemas sub-section in "components" section

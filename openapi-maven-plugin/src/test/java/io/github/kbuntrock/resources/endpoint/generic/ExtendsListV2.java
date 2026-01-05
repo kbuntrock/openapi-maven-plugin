@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/extends-list-v2")
 public interface ExtendsListV2 {
 
-
 	@GetMapping(path = "/")
 	GenericExtendsList<Long> getList();
 

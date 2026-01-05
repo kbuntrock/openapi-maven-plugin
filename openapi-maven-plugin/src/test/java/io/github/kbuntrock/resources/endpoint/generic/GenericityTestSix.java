@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping(Constants.BASE_API + "/genericity-test-six")
 public interface GenericityTestSix {
 
-
 	@PostMapping(path = "authority-map")
 	Map<TerritoryEnum, List<? extends AccountDto>> findTerritoireGeographiqueByCriteria(@RequestParam Long sectionId);
 }

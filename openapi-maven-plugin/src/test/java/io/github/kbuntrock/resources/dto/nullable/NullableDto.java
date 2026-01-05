@@ -5,18 +5,18 @@ import javax.validation.constraints.NotNull;
 
 public class NullableDto {
 
-    private String defaultValue;
+	private String defaultValue;
 
-    @NotNull
-    private String notNullableValue;
+	@NotNull
+	private String notNullableValue;
 
-    @Nullable
-    private String nullableValue;
+	@Nullable
+	private String nullableValue;
 
-    @MyNotNull
-    private String myNotNull;
+	@MyNotNull
+	private String myNotNull;
 
-    @MyNullable
-    private String myNullable;
+	@MyNullable
+	private String myNullable;
 
 }

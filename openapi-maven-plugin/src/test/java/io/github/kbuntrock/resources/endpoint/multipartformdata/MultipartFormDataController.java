@@ -15,22 +15,30 @@ public interface MultipartFormDataController {
 
 	/**
 	 * Upload a file into the cloud
-	 * @param metadataDto Some metadata about this file
-	 * @param goal The upload goal
-	 * @param multipartFile The file being uploaded
+	 *
+	 * @param metadataDto
+	 *            Some metadata about this file
+	 * @param goal
+	 *            The upload goal
+	 * @param multipartFile
+	 *            The file being uploaded
 	 */
 	@PostMapping
 	void uploadDocument(@RequestPart("metadata") MetadataDto metadataDto,
 		@RequestPart String goal,
 		@RequestPart("file") MultipartFile multipartFile);
 
-
 	/**
 	 * Upload two files into the cloud
-	 * @param metadataDto Some metadata about this file
-	 * @param goal The upload goal
-	 * @param multipartFile The file 1 being uploaded
-	 * @param multipartFile2 The file 2 being uploaded
+	 *
+	 * @param metadataDto
+	 *            Some metadata about this file
+	 * @param goal
+	 *            The upload goal
+	 * @param multipartFile
+	 *            The file 1 being uploaded
+	 * @param multipartFile2
+	 *            The file 2 being uploaded
 	 */
 	@PostMapping("/two")
 	void uploadTwoDocuments(@RequestPart("metadata") MetadataDto metadataDto,
@@ -39,9 +47,13 @@ public interface MultipartFormDataController {
 
 	/**
 	 * Upload multiple files into the cloud
-	 * @param metadataDto Some metadata about this file
-	 * @param goal The upload goal
-	 * @param multipartFiles The files being uploaded
+	 *
+	 * @param metadataDto
+	 *            Some metadata about this file
+	 * @param goal
+	 *            The upload goal
+	 * @param multipartFiles
+	 *            The files being uploaded
 	 */
 	@PostMapping("/multiple")
 	void uploadMultipleDocuments(@RequestPart("metadata") MetadataDto metadataDto,

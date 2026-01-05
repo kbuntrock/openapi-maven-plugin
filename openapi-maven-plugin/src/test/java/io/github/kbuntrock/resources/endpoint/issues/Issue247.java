@@ -12,9 +12,9 @@ import java.util.List;
 @RequestMapping("/issue247")
 public interface Issue247 {
 
-    @GetMapping
-    ResponseEntity<PageImpl> getEmployees(@Parameter(hidden = true) Pageable pageable) throws Exception;
+	@GetMapping
+	ResponseEntity<PageImpl> getEmployees(@Parameter(hidden = true) Pageable pageable) throws Exception;
 
-    @GetMapping("/list")
-    ResponseEntity<List[]> getEmployeesArrayOfList() throws Exception;
+	@GetMapping("/list")
+	ResponseEntity<List[]> getEmployeesArrayOfList() throws Exception;
 }

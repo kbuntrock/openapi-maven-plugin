@@ -121,7 +121,8 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		apiConfiguration.setDefaultProduceConsumeGuessing(false);
 		apiConfiguration.setOperationId("{method_name}");
 		apiConfiguration.setLoopbackOperationName(false);
-		apiConfiguration.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
+		apiConfiguration
+			.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
 		mojo.setTestMode(true);
 		mojo.setApis(Collections.singletonList(apiConfiguration));
 		mojo.setProject(createBasicMavenProject());
@@ -220,7 +221,8 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	}
 
 	@Test
-	public void genericity_cross_reference_in_super_constructor() throws MojoFailureException, IOException, MojoExecutionException {
+	public void genericity_cross_reference_in_super_constructor()
+		throws MojoFailureException, IOException, MojoExecutionException {
 
 		final DocumentationMojo mojo = createBasicMojo(GenericityTestTwelve.class.getCanonicalName());
 
@@ -351,9 +353,11 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final DocumentationMojo mojo = createBasicMojo(SameOperationController.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 		Mockito.verify(mojo.getContext().getLogger())
-			.warn("More than one operation with a common content type mapped on GET : /api/same-operation in tag SameOperationController");
+			.warn(
+				"More than one operation with a common content type mapped on GET : /api/same-operation in tag SameOperationController");
 		Mockito.verify(mojo.getContext().getLogger(), Mockito.times(2))
-			.warn("More than one operation with a common content type mapped on GET : /api/same-operation/v2 in tag SameOperationController");
+			.warn(
+				"More than one operation with a common content type mapped on GET : /api/same-operation/v2 in tag SameOperationController");
 	}
 
 	@Test
@@ -398,7 +402,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final DocumentationMojo mojo = createBasicMojo(ResponseEntityUnparametrizedController.class.getCanonicalName());
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
 		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/spring",
-				"src/test/java/io/github/kbuntrock/resources/dto"));
+			"src/test/java/io/github/kbuntrock/resources/dto"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
 		checkGenerationResult(mojo.documentProject());
@@ -425,19 +429,20 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		apiConfiguration.setOperationId("{method_name}");
 		apiConfiguration.setLoopbackOperationName(false);
 		apiConfiguration.setOperationIdHelper(new OperationIdHelper(apiConfiguration.getOperationId()));
-		apiConfiguration.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
-
+		apiConfiguration
+			.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
 
 		// TODO multi-threading : check how to create the openapi-type-resolver
-        ProjectContext projectContext = new ProjectContext();
-        projectContext.initLogger(Mockito.mock(Log.class));
-        projectContext.initClassLoader(SpringClassAnalyserTest.class.getClassLoader());
-        projectContext.setProject(createBasicMavenProject());
-        ApiContext apiContext = new ApiContext(projectContext, new AdditionnalSchemaLibrary());
-        apiContext.setApiConfiguration(apiConfiguration);
+		ProjectContext projectContext = new ProjectContext();
+		projectContext.initLogger(Mockito.mock(Log.class));
+		projectContext.initClassLoader(SpringClassAnalyserTest.class.getClassLoader());
+		projectContext.setProject(createBasicMavenProject());
+		ApiContext apiContext = new ApiContext(projectContext, new AdditionnalSchemaLibrary());
+		apiContext.setApiConfiguration(apiConfiguration);
 		final OpenApiTypeResolver openApiTypeResolver = new OpenApiTypeResolver(apiContext);
-        apiContext.setOpenApiTypeResolver(new OpenApiTypeResolver(apiContext));
-		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiContext, apiConfiguration, scanResult(SpringPathEnhancementTwoController.class), openApiTypeResolver);
+		apiContext.setOpenApiTypeResolver(new OpenApiTypeResolver(apiContext));
+		final JavaClassAnalyser analyser = new JavaClassAnalyser(apiContext, apiConfiguration,
+			scanResult(SpringPathEnhancementTwoController.class), openApiTypeResolver);
 		final Optional<Tag> tag = analyser.getTagFromClass(SpringPathEnhancementTwoController.class);
 		final TagLibrary library = new TagLibrary(apiContext, new HashMap<>());
 		library.addTag(tag.get());
@@ -495,7 +500,8 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	@Test
 	public void generic_recursive_interface_list_dto() throws MojoFailureException, IOException, MojoExecutionException {
 
-		final DocumentationMojo mojo = createBasicMojo(GenericRecursiveInterfaceListDtoInParameterController.class.getCanonicalName());
+		final DocumentationMojo mojo = createBasicMojo(
+			GenericRecursiveInterfaceListDtoInParameterController.class.getCanonicalName());
 
 		checkGenerationResult(mojo.documentProject());
 	}
@@ -523,7 +529,8 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final ApiConfiguration apiConfiguration1 = new ApiConfiguration();
 		apiConfiguration1.setAttachArtifact(false);
 		apiConfiguration1.setLocations(Collections.singletonList(AccountController.class.getCanonicalName()));
-		apiConfiguration1.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
+		apiConfiguration1
+			.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
 		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/account",
 			"src/test/java/io/github/kbuntrock/resources/dto"));
@@ -536,7 +543,8 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final ApiConfiguration apiConfiguration2 = new ApiConfiguration();
 		apiConfiguration2.setAttachArtifact(false);
 		apiConfiguration2.setLocations(Collections.singletonList(AccountControllerImpl.class.getCanonicalName()));
-		apiConfiguration2.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName()));
+		apiConfiguration2
+			.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName()));
 		apiConfiguration2.setOperationId("{tag_name}.{method_name}");
 		final io.github.kbuntrock.configuration.Tag tag = new io.github.kbuntrock.configuration.Tag();
 		final Substitution sub = new Substitution();
@@ -669,7 +677,8 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	@Test
 	public void annotated_controller() throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(AnnotatedController.class.getCanonicalName());
-		mojo.getApis().get(0).setTagAnnotations(Collections.singletonList("io.github.kbuntrock.resources.annotation.MyRestController"));
+		mojo.getApis().get(0)
+			.setTagAnnotations(Collections.singletonList("io.github.kbuntrock.resources.annotation.MyRestController"));
 		// The result should be the same as the white list method test
 		checkGenerationResult(mojo.documentProject());
 	}
@@ -722,7 +731,8 @@ public class SpringClassAnalyserTest extends AbstractTest {
 			io.github.kbuntrock.resources.endpoint.namecollision.three.MyController.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 
-		Mockito.verify(mojo.getContext().getLogger()).warn("More than one operation with a common content type mapped on GET : /api/controller-3/info in tag MyController");
+		Mockito.verify(mojo.getContext().getLogger()).warn(
+			"More than one operation with a common content type mapped on GET : /api/controller-3/info in tag MyController");
 	}
 
 	@Test
@@ -777,7 +787,8 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	}
 
 	@Test
-	public void nullable_default_non_nullable_custom_annotation() throws MojoExecutionException, MojoFailureException, IOException {
+	public void nullable_default_non_nullable_custom_annotation()
+		throws MojoExecutionException, MojoFailureException, IOException {
 		final DocumentationMojo mojo = createBasicMojo(NullableController.class.getCanonicalName());
 		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
 		commonApiConfiguration.setDefaultNonNullableFields(true);
@@ -788,24 +799,24 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		checkGenerationResult(mojo.documentProject());
 	}
 
-    @Test
-    public void nullable_getters_setters() throws MojoExecutionException, MojoFailureException, IOException {
-        final DocumentationMojo mojo = createBasicMojo(NullableGettersSettersController.class.getCanonicalName());
-        final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
-        mojo.setApiConfiguration(commonApiConfiguration);
+	@Test
+	public void nullable_getters_setters() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(NullableGettersSettersController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		mojo.setApiConfiguration(commonApiConfiguration);
 
-        checkGenerationResult(mojo.documentProject());
-    }
+		checkGenerationResult(mojo.documentProject());
+	}
 
-    @Test
-    public void nullable_getters_setters_default_non_nullable() throws MojoExecutionException, MojoFailureException, IOException {
-        final DocumentationMojo mojo = createBasicMojo(NullableGettersSettersController.class.getCanonicalName());
-        final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
-        commonApiConfiguration.setDefaultNonNullableFields(true);
-        mojo.setApiConfiguration(commonApiConfiguration);
+	@Test
+	public void nullable_getters_setters_default_non_nullable() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(NullableGettersSettersController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		commonApiConfiguration.setDefaultNonNullableFields(true);
+		mojo.setApiConfiguration(commonApiConfiguration);
 
-        checkGenerationResult(mojo.documentProject());
-    }
+		checkGenerationResult(mojo.documentProject());
+	}
 
 	@Test
 	public void query_param_dto_binding() throws MojoFailureException, IOException, MojoExecutionException {
@@ -825,7 +836,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final DocumentationMojo mojo = createBasicMojo(QueryParamFlatMixNestedDtoBindingController.class.getCanonicalName());
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
 		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/queryparam",
-				"src/test/java/io/github/kbuntrock/resources/dto"));
+			"src/test/java/io/github/kbuntrock/resources/dto"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
 		checkGenerationResult(mojo.documentProject());
@@ -874,7 +885,8 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	}
 
 	@Test
-	public void generic_parent_bound_by_child_extrends_interface() throws MojoFailureException, IOException, MojoExecutionException {
+	public void generic_parent_bound_by_child_extrends_interface()
+		throws MojoFailureException, IOException, MojoExecutionException {
 
 		final DocumentationMojo mojo = createBasicMojo(Issue144ByInterface.class.getCanonicalName());
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
@@ -905,24 +917,23 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		checkGenerationResult(mojo.documentProject());
 	}
 
-    @Test
-    public void issue_262() throws MojoFailureException, IOException, MojoExecutionException {
-        final DocumentationMojo mojo = createBasicMojo(Issue262.class.getCanonicalName());
-        checkGenerationResult(mojo.documentProject());
-    }
+	@Test
+	public void issue_262() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(Issue262.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
 
-    @Test
-    public void issue_263() throws MojoFailureException, IOException, MojoExecutionException {
-        final DocumentationMojo mojo = createBasicMojo("io.github.kbuntrock.resources.endpoint.issues.issue263");
-        mojo.getApis().get(0).setTagAnnotations(Arrays.asList(
-                TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName(),
-                TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName()
-        ));
-        final JavadocConfiguration javadocConfig = new JavadocConfiguration();
-        javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/issues/issue263"));
-        mojo.setJavadocConfiguration(javadocConfig);
-        checkGenerationResult(mojo.documentProject());
-    }
+	@Test
+	public void issue_263() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo("io.github.kbuntrock.resources.endpoint.issues.issue263");
+		mojo.getApis().get(0).setTagAnnotations(Arrays.asList(
+			TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName(),
+			TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName()));
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/issues/issue263"));
+		mojo.setJavadocConfiguration(javadocConfig);
+		checkGenerationResult(mojo.documentProject());
+	}
 
 	@Test
 	public void extends_map() throws MojoFailureException, IOException, MojoExecutionException {
@@ -1019,7 +1030,8 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		mojo.setJavadocConfiguration(javadocConfig);
 		checkGenerationResult(mojo.documentProject());
 
-		Mockito.verify(mojo.getContext().getLogger()).warn("Parameters incoherence detected in path /multiple-produced-content-types/ for {\"type\":\"string\"}");
+		Mockito.verify(mojo.getContext().getLogger())
+			.warn("Parameters incoherence detected in path /multiple-produced-content-types/ for {\"type\":\"string\"}");
 	}
 
 	@Test

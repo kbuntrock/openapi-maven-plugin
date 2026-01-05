@@ -197,7 +197,8 @@ public class DataObject {
 
 		for(final Method method : javaClass.getMethods()) {
 			if(method.getParameters().length == 0) {
-				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(method,
+					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
 				MergedAnnotation<Annotation> jsonAsValue = mergedAnnotations.get(JACKSON_ANNOTATION_JSON_VALUE);
 				if(jsonAsValue.isPresent()) {
 					elementWithAnnotation.add(method.getName());
@@ -205,10 +206,11 @@ public class DataObject {
 			}
 		}
 		if(elementWithAnnotation.size() > 1) {
-            openApiTypeResolver.getContext().getLogger().warn("Problem with definition of ["+javaClass.getCanonicalName()
-					+ "]: Multiple 'as-value' methods defined [" + elementWithAnnotation.stream().sorted().collect(Collectors.joining(",")) +"]");
+			openApiTypeResolver.getContext().getLogger().warn("Problem with definition of [" + javaClass.getCanonicalName()
+				+ "]: Multiple 'as-value' methods defined ["
+				+ elementWithAnnotation.stream().sorted().collect(Collectors.joining(",")) + "]");
 		} else if(elementWithAnnotation.size() == 1) {
-            try {
+			try {
 				this.enumItemNames = new ArrayList<>();
 				final Method method = javaClass.getMethod(elementWithAnnotation.get(0));
 				ReflectionUtils.makeAccessible(method);
@@ -219,21 +221,24 @@ public class DataObject {
 				}
 				// Method has precedence over fields, we return here
 				return;
-            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-                openApiTypeResolver.getContext().getLogger().error("Error while representing enumeration "+javaClass.getCanonicalName()+"#"+elementWithAnnotation.get(0)+"()", e);
-            }
-        }
+			} catch(NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+				openApiTypeResolver.getContext().getLogger().error("Error while representing enumeration "
+					+ javaClass.getCanonicalName() + "#" + elementWithAnnotation.get(0) + "()", e);
+			}
+		}
 
 		for(final Field field : javaClass.getDeclaredFields()) {
-			final MergedAnnotations mergedAnnotations = MergedAnnotations.from(field, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+			final MergedAnnotations mergedAnnotations = MergedAnnotations.from(field,
+				MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
 			MergedAnnotation<Annotation> jsonAsValue = mergedAnnotations.get(JACKSON_ANNOTATION_JSON_VALUE);
 			if(jsonAsValue.isPresent()) {
 				elementWithAnnotation.add(field.getName());
 			}
 		}
 		if(elementWithAnnotation.size() > 1) {
-            openApiTypeResolver.getContext().getLogger().warn("Problem with definition of ["+javaClass.getCanonicalName()
-					+ "]: Multiple 'as-value' fields defined [" + elementWithAnnotation.stream().sorted().collect(Collectors.joining(",")) +"]");
+			openApiTypeResolver.getContext().getLogger().warn("Problem with definition of [" + javaClass.getCanonicalName()
+				+ "]: Multiple 'as-value' fields defined ["
+				+ elementWithAnnotation.stream().sorted().collect(Collectors.joining(",")) + "]");
 		} else if(elementWithAnnotation.size() == 1) {
 			try {
 				this.enumItemNames = new ArrayList<>();
@@ -245,11 +250,13 @@ public class DataObject {
 					this.enumItemValues.add(field.get(value).toString());
 				}
 				return;
-			} catch (NoSuchFieldException | IllegalAccessException e) {
-                openApiTypeResolver.getContext().getLogger().error("Error while representing enumeration "+javaClass.getCanonicalName()+"#"+elementWithAnnotation.get(0), e);
+			} catch(NoSuchFieldException | IllegalAccessException e) {
+				openApiTypeResolver.getContext().getLogger().error(
+					"Error while representing enumeration " + javaClass.getCanonicalName() + "#" + elementWithAnnotation.get(0),
+					e);
 			}
 
-        }
+		}
 		// Classic way to fill the enumeration values, based on the name.
 		for(final Object value : javaClass.getEnumConstants()) {
 			this.enumItemValues.add(((Enum) value).name());
@@ -363,27 +370,30 @@ public class DataObject {
 	}
 
 	public String getSignature() {
-		final String genericJoin = genericNameToTypeMap == null ? "" : genericNameToTypeMap.values()
-			.stream().map(v -> v.getTypeName()).collect(Collectors.joining("_"));
+		final String genericJoin = genericNameToTypeMap == null ? ""
+			: genericNameToTypeMap.values()
+				.stream().map(v -> v.getTypeName()).collect(Collectors.joining("_"));
 		final String signature = javaClass.toGenericString() + "#" + genericJoin;
 		return signature;
 	}
 
 	public String getSchemaRecursiveSuffix() {
-		final String genericJoin = genericNameToTypeMap == null ? "" : genericNameToTypeMap.values()
-			.stream().map(v -> {
-				if(v instanceof Class) {
-					return ((Class) v).getSimpleName();
-				}
-				return v.getTypeName();
-			}).collect(Collectors.joining("_"));
+		final String genericJoin = genericNameToTypeMap == null ? ""
+			: genericNameToTypeMap.values()
+				.stream().map(v -> {
+					if(v instanceof Class) {
+						return ((Class) v).getSimpleName();
+					}
+					return v.getTypeName();
+				}).collect(Collectors.joining("_"));
 		return genericJoin;
 	}
 
 	/**
 	 * Get the type, or the parameterized contextual one if the default is a generic.
 	 *
-	 * @param genericType method.getGenericReturnType() or field.getGenericType()
+	 * @param genericType
+	 *            method.getGenericReturnType() or field.getGenericType()
 	 * @return a type
 	 */
 	public Type getContextualType(final Type genericType) {
@@ -418,8 +428,10 @@ public class DataObject {
 						return substitionArrayType;
 					}
 				} else {
-					throw new RuntimeException("Type : " + ((GenericArrayType) genericType).getGenericComponentType().getClass().toString()
-						+ " not handled in generic array contextual substitution. Scanned object is : " + this.getJavaClass().getName());
+					throw new RuntimeException(
+						"Type : " + ((GenericArrayType) genericType).getGenericComponentType().getClass().toString()
+							+ " not handled in generic array contextual substitution. Scanned object is : "
+							+ this.getJavaClass().getName());
 				}
 
 			}
@@ -452,8 +464,8 @@ public class DataObject {
 	private void doContextualSubstitution(final ParameterizedTypeImpl substitution) {
 		for(int i = 0; i < substitution.getActualTypeArguments().length; i++) {
 			if(this.getGenericNameToTypeMap().containsKey(substitution.getActualTypeArguments()[i].getTypeName())) {
-				substitution.getActualTypeArguments()[i] =
-					this.getGenericNameToTypeMap().get(substitution.getActualTypeArguments()[i].getTypeName());
+				substitution.getActualTypeArguments()[i] = this.getGenericNameToTypeMap()
+					.get(substitution.getActualTypeArguments()[i].getTypeName());
 			}
 			substitution.getActualTypeArguments()[i] = getContextualType(substitution.getActualTypeArguments()[i]);
 		}

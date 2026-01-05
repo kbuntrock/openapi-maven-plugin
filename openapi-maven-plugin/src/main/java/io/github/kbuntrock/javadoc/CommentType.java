@@ -46,5 +46,3 @@ public enum CommentType {
 		return OTHER;
 	}
 }
-
-

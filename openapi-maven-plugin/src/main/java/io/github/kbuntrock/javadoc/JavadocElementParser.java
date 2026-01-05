@@ -90,8 +90,7 @@ public class JavadocElementParser {
 	}
 
 	private static boolean onlySnippetsAndFormattingTags(JavadocDescriptionElement e) {
-		return onlySnippets(e) || (
-			e instanceof JavadocInlineTag &&
-				JavadocTag.isFormattingTag(((JavadocInlineTag) e).getName()));
+		return onlySnippets(e) || (e instanceof JavadocInlineTag &&
+			JavadocTag.isFormattingTag(((JavadocInlineTag) e).getName()));
 	}
 }

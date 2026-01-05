@@ -11,11 +11,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @RequestMapping("dummy")
 public interface ControllerOne {
 
-    /**
-     *
-     * @param myTime a time in the "execute" case
-     */
-    @PostMapping(path = "")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    void execute(@RequestBody @Valid TimeDto myTime);
+	/**
+	 *
+	 * @param myTime
+	 *            a time in the "execute" case
+	 */
+	@PostMapping(path = "")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	void execute(@RequestBody @Valid TimeDto myTime);
 }

@@ -41,7 +41,8 @@ public class JavadocWrapper {
 		blockTagsByType = new HashMap<>();
 		paramBlockTagsByName = new HashMap<>();
 		inheritTagFound = javadoc.getDescription().getElements().stream()
-				.anyMatch(e -> e instanceof JavadocInlineTag && JavadocInlineTag.Type.INHERIT_DOC == ((JavadocInlineTag) e).getType());
+			.anyMatch(
+				e -> e instanceof JavadocInlineTag && JavadocInlineTag.Type.INHERIT_DOC == ((JavadocInlineTag) e).getType());
 		for(final JavadocBlockTag blockTag : javadoc.getBlockTags()) {
 			final List<JavadocBlockTag> list = blockTagsByType.computeIfAbsent(blockTag.getType(), k -> new ArrayList<>());
 			list.add(blockTag);
@@ -78,9 +79,9 @@ public class JavadocWrapper {
 
 	public void printParameters(Log logger) {
 		if(paramBlockTagsByName != null && !paramBlockTagsByName.isEmpty()) {
-            logger.debug("Parameters : ");
+			logger.debug("Parameters : ");
 			for(final Entry<String, JavadocBlockTag> entry : paramBlockTagsByName.entrySet()) {
-                logger.debug(entry.getKey() + " : " + entry.getValue().getContent().toText());
+				logger.debug(entry.getKey() + " : " + entry.getValue().getContent().toText());
 			}
 		}
 	}
@@ -88,8 +89,7 @@ public class JavadocWrapper {
 	public void printReturn(Log logger) {
 		if(blockTagsByType != null) {
 			final Optional<JavadocBlockTag> returnTag = getReturnBlockTag();
-			returnTag.ifPresent(javadocBlockTag ->
-                    logger.debug("Return : " + javadocBlockTag.getContent().toText()));
+			returnTag.ifPresent(javadocBlockTag -> logger.debug("Return : " + javadocBlockTag.getContent().toText()));
 		}
 	}
 

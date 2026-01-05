@@ -27,7 +27,7 @@ public class Content {
 	@JsonIgnore
 	private Map<String, ContentType> encoding;
 
-	public static Content fromMultipartBodies(final List<ParameterObject> parameterObjects, final TagLibrary tagLibrary){
+	public static Content fromMultipartBodies(final List<ParameterObject> parameterObjects, final TagLibrary tagLibrary) {
 		final Content content = new Content();
 
 		final Schema schema = new Schema(tagLibrary.getContext(), tagLibrary.getApiConfiguration());
@@ -44,13 +44,13 @@ public class Content {
 		schema.properties = parameterObjects.stream()
 			.collect(Collectors.toMap(
 				ParameterObject::getName,
-				po-> new Property(fromDataObject(po, tagLibrary).getSingleSchema())));
+				po -> new Property(fromDataObject(po, tagLibrary).getSingleSchema())));
 
 		return content;
 	}
 
 	public static Content fromMultipartFormData(final List<ParameterObject> bodyParts,
-												final JavadocWrapper methodJavadoc, final TagLibrary tagLibrary){
+		final JavadocWrapper methodJavadoc, final TagLibrary tagLibrary) {
 		final Content content = new Content();
 
 		final Schema schema = new Schema(tagLibrary.getContext(), tagLibrary.getApiConfiguration());
@@ -76,7 +76,8 @@ public class Content {
 
 			// Javadoc handling
 			if(methodJavadoc != null) {
-				final Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(bodyPart.getJavadocFieldName());
+				final Optional<JavadocBlockTag> parameterDoc = methodJavadoc
+					.getParamBlockTagByName(bodyPart.getJavadocFieldName());
 				if(parameterDoc.isPresent()) {
 					final String description = parameterDoc.get().getContent().toText();
 					if(!description.isEmpty()) {
@@ -124,7 +125,7 @@ public class Content {
 			} else {
 				final Map<String, Object> schemaMap = new LinkedHashMap<>();
 				schemaMap.put("anyOf", schemas);
-				contentMap.put("schema",schemaMap);
+				contentMap.put("schema", schemaMap);
 			}
 		}
 		if(encoding != null && !encoding.isEmpty()) {

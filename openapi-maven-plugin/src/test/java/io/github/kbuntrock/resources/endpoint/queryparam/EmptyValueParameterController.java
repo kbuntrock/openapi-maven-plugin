@@ -12,7 +12,7 @@ public interface EmptyValueParameterController {
 	@GetMapping(value = "get-info", params = "contact")
 	String getInfoAboutContact();
 
-	@GetMapping(value = "get-info", params = {"auto", "moto", "plane"})
+	@GetMapping(value = "get-info", params = { "auto", "moto", "plane" })
 	String getInfoAboutVehicle();
 
 }

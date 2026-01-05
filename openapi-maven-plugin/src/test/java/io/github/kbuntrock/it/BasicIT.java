@@ -40,7 +40,8 @@ public class BasicIT {
 		Assertions.assertTrue(generatedArtifactFile2.exists());
 
 		try(final InputStream generatedFileStream = new FileInputStream(generatedArtifactFile);
-			final InputStream resourceFileStream = BasicIT.class.getClassLoader().getResourceAsStream("it/BasicIT/nominal_test_case.yml")) {
+			final InputStream resourceFileStream = BasicIT.class.getClassLoader()
+				.getResourceAsStream("it/BasicIT/nominal_test_case.yml")) {
 			assertThat(generatedFileStream).hasSameContentAs(resourceFileStream);
 		}
 
@@ -68,8 +69,9 @@ public class BasicIT {
 		Assertions.assertTrue(generatedArtifactFile.exists());
 
 		try(final InputStream generatedFileStream = new FileInputStream(generatedArtifactFile);
-			final InputStream resourceFileStream = BasicIT.class.getClassLoader().getResourceAsStream("it/BasicIT/nominal_test_case_jaxrs" +
-				".yml")) {
+			final InputStream resourceFileStream = BasicIT.class.getClassLoader()
+				.getResourceAsStream("it/BasicIT/nominal_test_case_jaxrs" +
+					".yml")) {
 			assertThat(generatedFileStream).hasSameContentAs(resourceFileStream);
 		}
 

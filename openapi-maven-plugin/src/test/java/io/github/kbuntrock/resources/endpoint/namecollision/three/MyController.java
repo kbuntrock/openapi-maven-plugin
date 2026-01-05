@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(Constants.BASE_API + "/controller-3")
 public interface MyController {
 
-
 	@GetMapping("info")
 	String getInfo();
 

@@ -50,7 +50,8 @@ public class ApiConfiguration extends CommonApiConfiguration {
 	/**
 	 * Create a ApiConfiguration version based on the common configuration + the modified values overrided in the child config
 	 *
-	 * @param commonApiConfiguration the common api configuration
+	 * @param commonApiConfiguration
+	 *            the common api configuration
 	 * @return the merged configuration
 	 */
 	public ApiConfiguration mergeWithCommonApiConfiguration(final CommonApiConfiguration commonApiConfiguration) {

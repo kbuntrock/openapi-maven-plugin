@@ -19,6 +19,6 @@ public enum EnumAsValueFunctionPrecedence {
 
 	@JsonValue
 	public int getNormalizedCode() {
-		return (code/2)+3;
+		return (code / 2) + 3;
 	}
 }

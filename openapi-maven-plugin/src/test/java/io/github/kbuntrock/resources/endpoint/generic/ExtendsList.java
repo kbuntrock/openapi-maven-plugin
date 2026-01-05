@@ -16,6 +16,7 @@ public interface ExtendsList {
 
 	/**
 	 * Get a list of uuids
+	 *
 	 * @return uuid list
 	 */
 	@GetMapping(path = "/list")

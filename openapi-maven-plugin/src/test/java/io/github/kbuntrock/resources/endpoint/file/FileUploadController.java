@@ -20,8 +20,10 @@ public interface FileUploadController {
 	/**
 	 * Upload des fichiers et renvoi leur noms
 	 *
-	 * @param myId  id sous lequel sauvegarder ces fichiers
-	 * @param files fichiers à sauvegarder
+	 * @param myId
+	 *            id sous lequel sauvegarder ces fichiers
+	 * @param files
+	 *            fichiers à sauvegarder
 	 * @return liste des noms de fichier
 	 */
 	@PostMapping(path = "/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -40,13 +42,16 @@ public interface FileUploadController {
 	/**
 	 * Upload plusieurs fichiers nommés
 	 *
-	 * @param myId  id sous lequel sauvegarder ces fichiers
-	 * @param file fichiers à sauvegarder
-	 * @param checksumFile le fichier contenant la somme de contrôle
+	 * @param myId
+	 *            id sous lequel sauvegarder ces fichiers
+	 * @param file
+	 *            fichiers à sauvegarder
+	 * @param checksumFile
+	 *            le fichier contenant la somme de contrôle
 	 */
 	@PostMapping(path = "named-files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	String uploadNamedFiles(@RequestParam long myId, @RequestParam(name = "file") MultipartFile file, @RequestParam(name = "checksumFile")
-		MultipartFile checksumFile);
+	String uploadNamedFiles(@RequestParam long myId, @RequestParam(name = "file") MultipartFile file,
+		@RequestParam(name = "checksumFile") MultipartFile checksumFile);
 
 	/**
 	 * Upload de fichier mais le fichier n'est pas requis ...
@@ -56,5 +61,6 @@ public interface FileUploadController {
 	 * @return
 	 */
 	@PostMapping(path = "non-required-files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	List<String> uploadNonRequiredFiles(@RequestParam long myId, @RequestParam(name = "files", required = false) MultipartFile[] files);
+	List<String> uploadNonRequiredFiles(@RequestParam long myId,
+		@RequestParam(name = "files", required = false) MultipartFile[] files);
 }

@@ -34,7 +34,8 @@ public class ModelSubstitutionTest extends AbstractTest {
 			"src/test/resources/ut/ModelSubstitutionTest/object_substitution/custom-model-association.yml");
 		apiConfiguration.setAttachArtifact(false);
 		apiConfiguration.setLocations(Arrays.asList(ResponseEntityController.class.getCanonicalName()));
-		apiConfiguration.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
+		apiConfiguration
+			.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
 		mojo.setTestMode(true);
 		mojo.setApis(Collections.singletonList(apiConfiguration));
 		mojo.setProject(createBasicMavenProject());
@@ -79,7 +80,8 @@ public class ModelSubstitutionTest extends AbstractTest {
 			+ "}");
 		apiConfiguration.setAttachArtifact(false);
 		apiConfiguration.setLocations(Arrays.asList(ResponseEntityController.class.getCanonicalName()));
-		apiConfiguration.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
+		apiConfiguration
+			.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
 		mojo.setTestMode(true);
 		mojo.setApis(Collections.singletonList(apiConfiguration));
 		mojo.setProject(createBasicMavenProject());
@@ -98,7 +100,8 @@ public class ModelSubstitutionTest extends AbstractTest {
 			"src/test/resources/ut/ModelSubstitutionTest/enum_substitution/custom-model-association.yml");
 		apiConfiguration.setAttachArtifact(false);
 		apiConfiguration.setLocations(Arrays.asList(ResponseEntityController.class.getCanonicalName()));
-		apiConfiguration.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
+		apiConfiguration
+			.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
 		mojo.setTestMode(true);
 		mojo.setApis(Collections.singletonList(apiConfiguration));
 		mojo.setProject(createBasicMavenProject());

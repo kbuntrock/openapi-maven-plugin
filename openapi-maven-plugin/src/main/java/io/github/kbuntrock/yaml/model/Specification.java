@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"openapi", "info", "servers", "tags", "paths", "components"})
+@JsonPropertyOrder({ "openapi", "info", "servers", "tags", "paths", "components" })
 public class Specification {
 
 	private String openapi = "3.0.3";

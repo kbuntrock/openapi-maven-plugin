@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 public final class ReflectionsUtils {
 
 	private ReflectionsUtils() {
-	    // Nothing to do
-    }
+		// Nothing to do
+	}
 
 	public static List<Field> getAllNonStaticFields(List<Field> fields, Class<?> type) {
 		if(type.getSuperclass() != null) {

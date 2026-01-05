@@ -10,6 +10,6 @@ import java.math.BigDecimal;
 @RequestMapping("/issue262")
 public interface Issue262 {
 
-    @GetMapping("/some-redirection")
-    RedirectView redirectUsingRedirectView(@RequestParam int aNumber);
+	@GetMapping("/some-redirection")
+	RedirectView redirectUsingRedirectView(@RequestParam int aNumber);
 }

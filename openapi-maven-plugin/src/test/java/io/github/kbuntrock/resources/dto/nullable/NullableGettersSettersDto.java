@@ -5,57 +5,57 @@ import javax.validation.constraints.NotNull;
 
 public class NullableGettersSettersDto {
 
-    private String noAnnotationsValue;
+	private String noAnnotationsValue;
 
-    private String nullableOnGetterValue;
+	private String nullableOnGetterValue;
 
-    private String nullableOnSetterValue;
+	private String nullableOnSetterValue;
 
-    private String notNullOnGetterValue;
+	private String notNullOnGetterValue;
 
-    private String notNullOnSetterValue;
+	private String notNullOnSetterValue;
 
-    public String getNoAnnotationsValue() {
-        return noAnnotationsValue;
-    }
+	public String getNoAnnotationsValue() {
+		return noAnnotationsValue;
+	}
 
-    public void setNoAnnotationsValue(String noAnnotationsValue) {
-        this.noAnnotationsValue = noAnnotationsValue;
-    }
+	public void setNoAnnotationsValue(String noAnnotationsValue) {
+		this.noAnnotationsValue = noAnnotationsValue;
+	}
 
-    @Nullable
-    public String getNullableOnGetterValue() {
-        return nullableOnGetterValue;
-    }
+	@Nullable
+	public String getNullableOnGetterValue() {
+		return nullableOnGetterValue;
+	}
 
-    public void setNullableOnGetterValue(String nullableOnGetterValue) {
-        this.nullableOnGetterValue = nullableOnGetterValue;
-    }
+	public void setNullableOnGetterValue(String nullableOnGetterValue) {
+		this.nullableOnGetterValue = nullableOnGetterValue;
+	}
 
-    public String getNullableOnSetterValue() {
-        return nullableOnSetterValue;
-    }
+	public String getNullableOnSetterValue() {
+		return nullableOnSetterValue;
+	}
 
-    @Nullable
-    public void setNullableOnSetterValue(String nullableOnSetterValue) {
-        this.nullableOnSetterValue = nullableOnSetterValue;
-    }
+	@Nullable
+	public void setNullableOnSetterValue(String nullableOnSetterValue) {
+		this.nullableOnSetterValue = nullableOnSetterValue;
+	}
 
-    @NotNull
-    public String getNotNullOnGetterValue() {
-        return notNullOnGetterValue;
-    }
+	@NotNull
+	public String getNotNullOnGetterValue() {
+		return notNullOnGetterValue;
+	}
 
-    public void setNotNullOnGetterValue(String notNullOnGetterValue) {
-        this.notNullOnGetterValue = notNullOnGetterValue;
-    }
+	public void setNotNullOnGetterValue(String notNullOnGetterValue) {
+		this.notNullOnGetterValue = notNullOnGetterValue;
+	}
 
-    public String getNotNullOnSetterValue() {
-        return notNullOnSetterValue;
-    }
+	public String getNotNullOnSetterValue() {
+		return notNullOnSetterValue;
+	}
 
-    @NotNull
-    public void setNotNullOnSetterValue(String notNullOnSetterValue) {
-        this.notNullOnSetterValue = notNullOnSetterValue;
-    }
+	@NotNull
+	public void setNotNullOnSetterValue(String notNullOnSetterValue) {
+		this.notNullOnSetterValue = notNullOnSetterValue;
+	}
 }

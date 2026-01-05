@@ -19,6 +19,6 @@ public enum EnumTooMuchAsValue {
 
 	@JsonValue
 	public int getNormalizedCode() {
-		return code/2;
+		return code / 2;
 	}
 }

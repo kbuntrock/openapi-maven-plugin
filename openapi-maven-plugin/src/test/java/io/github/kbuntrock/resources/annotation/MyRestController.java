@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * @author Kévin Buntrock
  */
-@Target({ElementType.TYPE})
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @RestController
 public @interface MyRestController {

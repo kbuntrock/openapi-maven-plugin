@@ -14,8 +14,11 @@ public interface MultipleProducedContentTypesParameterIncoherence {
 
 	/**
 	 * Get some value
-	 * @param firstname a given firstname
-	 * @param surname a mistake in a parameter
+	 *
+	 * @param firstname
+	 *            a given firstname
+	 * @param surname
+	 *            a mistake in a parameter
 	 * @return
 	 */
 	@GetMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -23,9 +26,13 @@ public interface MultipleProducedContentTypesParameterIncoherence {
 
 	/**
 	 * Produce some xml
-	 * @param surname a given surname
-	 * @param gender the gender
-	 * @param age current age
+	 *
+	 * @param surname
+	 *            a given surname
+	 * @param gender
+	 *            the gender
+	 * @param age
+	 *            current age
 	 * @return
 	 */
 	@GetMapping(path = "/", produces = MediaType.APPLICATION_XML_VALUE)

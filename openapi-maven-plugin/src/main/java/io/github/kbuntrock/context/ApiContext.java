@@ -10,59 +10,59 @@ import org.apache.maven.project.MavenProject;
 
 public final class ApiContext {
 
-    private final ProjectContext projectContext;
-    private final AdditionnalSchemaLibrary additionnalSchemaLibrary;
+	private final ProjectContext projectContext;
+	private final AdditionnalSchemaLibrary additionnalSchemaLibrary;
 
-    private ApiConfiguration apiConfiguration;
-    private NullableConfiguration nullableConfiguration;
-    private OpenApiTypeResolver openApiTypeResolver;
+	private ApiConfiguration apiConfiguration;
+	private NullableConfiguration nullableConfiguration;
+	private OpenApiTypeResolver openApiTypeResolver;
 
-    public ApiContext(final ProjectContext projectContext, final AdditionnalSchemaLibrary additionnalSchemaLibrary) {
-        this.projectContext = projectContext;
-        this.additionnalSchemaLibrary = additionnalSchemaLibrary;
-    }
+	public ApiContext(final ProjectContext projectContext, final AdditionnalSchemaLibrary additionnalSchemaLibrary) {
+		this.projectContext = projectContext;
+		this.additionnalSchemaLibrary = additionnalSchemaLibrary;
+	}
 
-    public Log getLogger() {
-        return projectContext.getLogger();
-    }
+	public Log getLogger() {
+		return projectContext.getLogger();
+	}
 
-    public ClassLoader getClassLoader() {
-        return projectContext.getClassLoader();
-    }
+	public ClassLoader getClassLoader() {
+		return projectContext.getClassLoader();
+	}
 
-    public MavenProject getProject() {
-        return projectContext.getProject();
-    }
+	public MavenProject getProject() {
+		return projectContext.getProject();
+	}
 
-    public ClassLoaderHelper getClassLoaderHelper() {
-        return projectContext.getClassLoaderHelper();
-    }
+	public ClassLoaderHelper getClassLoaderHelper() {
+		return projectContext.getClassLoaderHelper();
+	}
 
-    public AdditionnalSchemaLibrary getAdditionnalSchemaLibrary() {
-        return additionnalSchemaLibrary;
-    }
+	public AdditionnalSchemaLibrary getAdditionnalSchemaLibrary() {
+		return additionnalSchemaLibrary;
+	}
 
-    public ApiConfiguration getApiConfiguration() {
-        return apiConfiguration;
-    }
+	public ApiConfiguration getApiConfiguration() {
+		return apiConfiguration;
+	}
 
-    public void setApiConfiguration(ApiConfiguration apiConfiguration) {
-        this.apiConfiguration = apiConfiguration;
-    }
+	public void setApiConfiguration(ApiConfiguration apiConfiguration) {
+		this.apiConfiguration = apiConfiguration;
+	}
 
-    public NullableConfiguration getNullableConfiguration() {
-        return nullableConfiguration;
-    }
+	public NullableConfiguration getNullableConfiguration() {
+		return nullableConfiguration;
+	}
 
-    public void setNullableConfiguration(NullableConfiguration nullableConfiguration) {
-        this.nullableConfiguration = nullableConfiguration;
-    }
+	public void setNullableConfiguration(NullableConfiguration nullableConfiguration) {
+		this.nullableConfiguration = nullableConfiguration;
+	}
 
-    public OpenApiTypeResolver getOpenApiTypeResolver() {
-        return openApiTypeResolver;
-    }
+	public OpenApiTypeResolver getOpenApiTypeResolver() {
+		return openApiTypeResolver;
+	}
 
-    public void setOpenApiTypeResolver(OpenApiTypeResolver openApiTypeResolver) {
-        this.openApiTypeResolver = openApiTypeResolver;
-    }
+	public void setOpenApiTypeResolver(OpenApiTypeResolver openApiTypeResolver) {
+		this.openApiTypeResolver = openApiTypeResolver;
+	}
 }

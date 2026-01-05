@@ -26,7 +26,8 @@ public final class JsonParserUtils {
 	/**
 	 * Parse a configuration value representing a json document
 	 *
-	 * @param jsonContent Can represent a path to a json file, or directly a json string
+	 * @param jsonContent
+	 *            Can represent a path to a json file, or directly a json string
 	 * @return the parsed json node
 	 */
 	public static Optional<JsonNode> parse(final String jsonContent) {

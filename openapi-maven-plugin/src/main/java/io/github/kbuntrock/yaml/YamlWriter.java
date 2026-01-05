@@ -47,7 +47,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.project.MavenProject;
 
-
 public class YamlWriter {
 
 	private static final String SERVERS_FIELD = "servers";
@@ -55,8 +54,7 @@ public class YamlWriter {
 	private static final String EXTERNAL_DOC_FIELD = "externalDocs";
 	private static final String FILEFORMAT_JSON = "json";
 
-    private final ApiContext context;
-
+	private final ApiContext context;
 
 	private final ObjectMapper om;
 	private final ApiConfiguration apiConfiguration;
@@ -65,17 +63,17 @@ public class YamlWriter {
 	private Optional<JsonNode> freefields = Optional.empty();
 	private Map<String, JsonNode> defaultErrors;
 
-    // Due to the merging capabilities for functions with the same path/verb, it is possible that some listed tags
-    // will not appear in the generated documentation. This map reference only the used ones, in order of appearance
-    private Map<String, Tag> usedTags = new LinkedHashMap<>();
+	// Due to the merging capabilities for functions with the same path/verb, it is possible that some listed tags
+	// will not appear in the generated documentation. This map reference only the used ones, in order of appearance
+	private Map<String, Tag> usedTags = new LinkedHashMap<>();
 
 	public YamlWriter(final ApiContext context, final ApiConfiguration apiConfiguration, final TagLibrary tagLibrary) {
 		this.context = context;
 		this.apiConfiguration = apiConfiguration;
 		this.tagLibrary = tagLibrary;
-		this.om = FILEFORMAT_JSON.equals(apiConfiguration.getFileFormat()) ?
-			new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT) :
-			new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
+		this.om = FILEFORMAT_JSON.equals(apiConfiguration.getFileFormat())
+			? new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+			: new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
 				.enable(YAMLGenerator.Feature.INDENT_ARRAYS_WITH_INDICATOR));
 	}
 
@@ -128,15 +126,14 @@ public class YamlWriter {
 
 		populateSpecificationFreeFields(specification, freefields);
 
-        // Write "tags" section (list of all tags presents in this documentation)
-        writeTagSection(specification);
+		// Write "tags" section (list of all tags presents in this documentation)
+		writeTagSection(specification);
 
 		// Write the "paths" section (all url / http verbs combination scanned)
 		specification.setPaths(createPaths(tagLibrary));
 
-        // Reduce tag section (remove unused tags due to merging operations)
-        reduceTagSection(specification);
-
+		// Reduce tag section (remove unused tags due to merging operations)
+		reduceTagSection(specification);
 
 		final Map<String, Object> schemaSection = createSchemaSection(tagLibrary);
 		boolean schemaSectionCreated = false;
@@ -174,36 +171,37 @@ public class YamlWriter {
 		om.writeValue(file, specification);
 	}
 
-    private void reduceTagSection(final Specification specification ) {
-        Set<String> computedTagNames = new HashSet<>();
-        usedTags.values().forEach(tag -> computedTagNames.add(tag.computeConfiguredName(apiConfiguration)));
-        specification.getTags().removeIf(tagElement -> !computedTagNames.contains(tagElement.getName()));
-    }
+	private void reduceTagSection(final Specification specification) {
+		Set<String> computedTagNames = new HashSet<>();
+		usedTags.values().forEach(tag -> computedTagNames.add(tag.computeConfiguredName(apiConfiguration)));
+		specification.getTags().removeIf(tagElement -> !computedTagNames.contains(tagElement.getName()));
+	}
 
-    private void writeTagSection(final Specification specification ) {
+	private void writeTagSection(final Specification specification) {
 
-        Map<String, TagElement> collected = new LinkedHashMap<>();
-        for(Tag tag : tagLibrary.getSortedTags()) {
-            String tagName = tag.computeConfiguredName(apiConfiguration);
-            if(!collected.containsKey(tagName)) {
-                TagElement tagElement;
-                if(tagLibrary.hasJavadocMap() && tag.getDescription() == null) {
-                    ClassDocumentation classDocumentation = tagLibrary.getJavadocMap()
-                            .computeIfAbsent(tag.getClazz().getCanonicalName(),
-                                    k -> new ClassDocumentation(tag.getClazz().getCanonicalName(), tag.getClazz().getSimpleName()));
+		Map<String, TagElement> collected = new LinkedHashMap<>();
+		for(Tag tag : tagLibrary.getSortedTags()) {
+			String tagName = tag.computeConfiguredName(apiConfiguration);
+			if(!collected.containsKey(tagName)) {
+				TagElement tagElement;
+				if(tagLibrary.hasJavadocMap() && tag.getDescription() == null) {
+					ClassDocumentation classDocumentation = tagLibrary.getJavadocMap()
+						.computeIfAbsent(tag.getClazz().getCanonicalName(),
+							k -> new ClassDocumentation(tag.getClazz().getCanonicalName(), tag.getClazz().getSimpleName()));
 
-                    classDocumentation.inheritanceEnhancement(tag.getClazz(), ClassDocumentation.EnhancementType.METHODS, tagLibrary.getJavadocMap());
-                    tagElement = new TagElement(
-                            tagName,
-                            classDocumentation.getDescription().orElse(null));
-                } else {
-                    tagElement = new TagElement(tagName, tag.getDescription());
-                }
-                collected.put(tagName, tagElement);
-            }
-        }
-        specification.setTags(new ArrayList<>(collected.values()));
-    }
+					classDocumentation.inheritanceEnhancement(tag.getClazz(), ClassDocumentation.EnhancementType.METHODS,
+						tagLibrary.getJavadocMap());
+					tagElement = new TagElement(
+						tagName,
+						classDocumentation.getDescription().orElse(null));
+				} else {
+					tagElement = new TagElement(tagName, tag.getDescription());
+				}
+				collected.put(tagName, tagElement);
+			}
+		}
+		specification.setTags(new ArrayList<>(collected.values()));
+	}
 
 	private Map<String, Map<String, Operation>> createPaths(final TagLibrary tagLibrary) {
 		final Map<String, Map<String, Operation>> paths = new LinkedHashMap<>();
@@ -212,11 +210,13 @@ public class YamlWriter {
 
 		for(final Tag tag : tagLibrary.getSortedTags()) {
 
-			final ClassDocumentation classDocumentation = tagLibrary.hasJavadocMap() ?
-				tagLibrary.getJavadocMap().get(tag.getClazz().getCanonicalName()) : null;
+			final ClassDocumentation classDocumentation = tagLibrary.hasJavadocMap()
+				? tagLibrary.getJavadocMap().get(tag.getClazz().getCanonicalName())
+				: null;
 
 			context.getLogger().debug(
-				"Class documentation found for tag paths section " + tag.getClazz().getSimpleName() + " ? " + (classDocumentation != null));
+				"Class documentation found for tag paths section " + tag.getClazz().getSimpleName() + " ? "
+					+ (classDocumentation != null));
 
 			// There is no need to try to enhance with the abstract or interfaces classes the documentation here.
 			// It has already been made when we were writing the tags
@@ -236,8 +236,7 @@ public class YamlWriter {
 				final String computedTagName = tag.computeConfiguredName(apiConfiguration);
 				operation.getTags().add(computedTagName);
 				operation.setOperationId(ObjectsUtils.nonNullElse(endpoint.getOperationAnnotationInfo().getOperationId(),
-					apiConfiguration.getOperationIdHelper().toOperationId(tag.getName(), computedTagName, endpoint.getName()))
-				);
+					apiConfiguration.getOperationIdHelper().toOperationId(tag.getName(), computedTagName, endpoint.getName())));
 				if(apiConfiguration.isLoopbackOperationName()) {
 					operation.setLoopbackOperationName(endpoint.getName());
 				}
@@ -251,7 +250,8 @@ public class YamlWriter {
 						methodJavadoc.sortTags();
 					}
 					context.getLogger().debug(
-						"Method documentation found for endpoint method " + endpoint.getIdentifier() + " ? " + (methodJavadoc != null));
+						"Method documentation found for endpoint method " + endpoint.getIdentifier() + " ? "
+							+ (methodJavadoc != null));
 				}
 
 				if(endpoint.getOperationAnnotationInfo().getDescription() != null) {
@@ -272,14 +272,14 @@ public class YamlWriter {
 
 				// Warning on paths
 				if(!operation.getPath().startsWith("/")) {
-                    context.getLogger().warn("Operation " + operation.getOperationId()
+					context.getLogger().warn("Operation " + operation.getOperationId()
 						+ " path should start with a \"/\" (" + operation.getPath() + ")");
 				}
 				// Arbitrary suffix the operationId with a number if it is not unique
 				Integer nbEncounteredOperationId = operationIds.compute(operation.getOperationId(),
-						(operationId, oldValue) -> oldValue == null ? 1 : oldValue + 1);
+					(operationId, oldValue) -> oldValue == null ? 1 : oldValue + 1);
 				if(nbEncounteredOperationId > 1) {
-					operation.setOperationId(operation.getOperationId()+nbEncounteredOperationId);
+					operation.setOperationId(operation.getOperationId() + nbEncounteredOperationId);
 				}
 
 				// -------------------------
@@ -329,10 +329,12 @@ public class YamlWriter {
 					}
 					// Case where parameter is extracted from a dto (see SpringMvcReader#bindDtoToQueryParams)
 					if(parameter.getJavadocFieldClassName() != null) {
-						final ClassDocumentation queryParamBindingClassDoc = tagLibrary.hasJavadocMap() ?
-								tagLibrary.getJavadocMap().get(parameter.getJavadocFieldClassName()) : null;
+						final ClassDocumentation queryParamBindingClassDoc = tagLibrary.hasJavadocMap()
+							? tagLibrary.getJavadocMap().get(parameter.getJavadocFieldClassName())
+							: null;
 						if(queryParamBindingClassDoc != null) {
-							queryParamBindingClassDoc.inheritanceEnhancement(parameter.getJavaClass(), EnhancementType.BOTH, tagLibrary.getJavadocMap());
+							queryParamBindingClassDoc.inheritanceEnhancement(parameter.getJavaClass(), EnhancementType.BOTH,
+								tagLibrary.getJavadocMap());
 
 							final JavadocWrapper javadocParamWrapper = queryParamBindingClassDoc.getFieldsJavadoc()
 								.get(parameterElement.getName());
@@ -378,7 +380,8 @@ public class YamlWriter {
 
 					// Javadoc handling
 					if(methodJavadoc != null) {
-						final Optional<JavadocBlockTag> parameterDoc = methodJavadoc.getParamBlockTagByName(body.getJavadocFieldName());
+						final Optional<JavadocBlockTag> parameterDoc = methodJavadoc
+							.getParamBlockTagByName(body.getJavadocFieldName());
 						if(parameterDoc.isPresent()) {
 							final String description = parameterDoc.get().getContent().toText();
 							if(!description.isEmpty()) {
@@ -420,7 +423,8 @@ public class YamlWriter {
 							response.getContent().put(format, responseContent);
 						}
 					} else if(apiConfiguration.isDefaultProduceConsumeGuessing()) {
-						response.getContent().put(ProduceConsumeUtils.getDefaultValue(endpoint.getResponseObject()), responseContent);
+						response.getContent().put(ProduceConsumeUtils.getDefaultValue(endpoint.getResponseObject()),
+							responseContent);
 					} else {
 						response.getContent().put("*/*", responseContent);
 					}
@@ -449,24 +453,26 @@ public class YamlWriter {
 				}
 
 				// Add swagger documented responses
-				for (final OperationResponse operationResponse : endpoint.getOperationAnnotationInfo().getResponses()) {
+				for(final OperationResponse operationResponse : endpoint.getOperationAnnotationInfo().getResponses()) {
 					// Check if response code is already documented, if so, we merge the attributes
 					Response annotatedResponse = null;
 					Object additionalResponseObject = operation.getResponses().get(operationResponse.getCode());
-					if (additionalResponseObject != null && additionalResponseObject instanceof Response) {
+					if(additionalResponseObject != null && additionalResponseObject instanceof Response) {
 						annotatedResponse = (Response) additionalResponseObject;
 					} else {
 						annotatedResponse = new Response();
 					}
 
-					annotatedResponse.setCode(operationResponse.getCode(), apiConfiguration.getDefaultSuccessfulOperationDescription());
-					if (operationResponse.getDescription() != null) {
+					annotatedResponse.setCode(operationResponse.getCode(),
+						apiConfiguration.getDefaultSuccessfulOperationDescription());
+					if(operationResponse.getDescription() != null) {
 						annotatedResponse.setDescription(operationResponse.getDescription());
 					}
-					if (operationResponse.getDataObject() != null) {
+					if(operationResponse.getDataObject() != null) {
 						final Content responseContent = Content.fromDataObject(operationResponse.getDataObject(), tagLibrary);
-						if (apiConfiguration.isDefaultProduceConsumeGuessing()) {
-							annotatedResponse.getContent().put(ProduceConsumeUtils.getDefaultValue(operationResponse.getDataObject()), responseContent);
+						if(apiConfiguration.isDefaultProduceConsumeGuessing()) {
+							annotatedResponse.getContent()
+								.put(ProduceConsumeUtils.getDefaultValue(operationResponse.getDataObject()), responseContent);
 						} else {
 							annotatedResponse.getContent().put("*/*", responseContent);
 						}
@@ -477,9 +483,9 @@ public class YamlWriter {
 				// Check if on operation already exist for this name (GET / POST / ...) and path
 				// If a similar operation exists, we could merge it if the return content type don't overlap.
 				boolean merged = mergeCommonOperations(tag, paths, operation, response);
-                if(!merged) {
-                    usedTags.putIfAbsent(tag.getName(), tag);
-                }
+				if(!merged) {
+					usedTags.putIfAbsent(tag.getName(), tag);
+				}
 			}
 
 		}
@@ -493,126 +499,133 @@ public class YamlWriter {
 	/**
 	 * Check if a common operation exist and merge it if possible
 	 *
-	 * @param tag       the tag to document
-	 * @param paths     the already documented paths in this tag
-	 * @param operation the current operation to document
-	 * @param response  the current operation response (without the default ones)
-     * @return true if it has been merged with a previous operation
+	 * @param tag
+	 *            the tag to document
+	 * @param paths
+	 *            the already documented paths in this tag
+	 * @param operation
+	 *            the current operation to document
+	 * @param response
+	 *            the current operation response (without the default ones)
+	 * @return true if it has been merged with a previous operation
 	 */
-	private boolean mergeCommonOperations(Tag tag, Map<String, Map<String, Operation>> paths, Operation operation, Response response) {
+	private boolean mergeCommonOperations(Tag tag, Map<String, Map<String, Operation>> paths, Operation operation,
+		Response response) {
 		// Check if on operation already exist for this name (GET / POST / ...) and path
 		Operation existingOperation = paths.get(operation.getPath()).get(operation.getName().toLowerCase());
 		if(existingOperation == null) {
 			paths.get(operation.getPath()).put(operation.getName().toLowerCase(), operation);
-            return false;
+			return false;
 		}
-        // Merging responses
-        mergeCommonOperationsResponses(tag, existingOperation, operation, response);
-        // Now merging parameters
-        mergeCommonOperationsParameters(existingOperation, operation);
-        // And merging request bodies
-        mergeCommonOperationsRequestBodies(existingOperation, operation);
+		// Merging responses
+		mergeCommonOperationsResponses(tag, existingOperation, operation, response);
+		// Now merging parameters
+		mergeCommonOperationsParameters(existingOperation, operation);
+		// And merging request bodies
+		mergeCommonOperationsRequestBodies(existingOperation, operation);
 
-        // Please note that there is currently no verification on parameters being equivalent between similar response content types.
-        // The first encountered operation's parameters are the one written in the documentation.
+		// Please note that there is currently no verification on parameters being equivalent between similar response content types.
+		// The first encountered operation's parameters are the one written in the documentation.
 		return true;
 	}
 
-    private void mergeCommonOperationsResponses(final Tag tag, final Operation existingOperation, Operation operation, Response response) {
+	private void mergeCommonOperationsResponses(final Tag tag, final Operation existingOperation, Operation operation,
+		Response response) {
 
-        for(Entry<Object, Object> newResponses : operation.getResponses().entrySet()) {
+		for(Entry<Object, Object> newResponses : operation.getResponses().entrySet()) {
 
-            Object existingContent = existingOperation.getResponses().get(newResponses.getKey());
+			Object existingContent = existingOperation.getResponses().get(newResponses.getKey());
 
-            // Simple case : this response code do not exist yet => we add the response without question
-            if (existingContent == null) {
-                existingOperation.getResponses().put(newResponses.getKey(), newResponses.getValue());
-                return;
-            }
+			// Simple case : this response code do not exist yet => we add the response without question
+			if(existingContent == null) {
+				existingOperation.getResponses().put(newResponses.getKey(), newResponses.getValue());
+				return;
+			}
 
-            // TODO: This part should be improved in the futur
-            // Check if there is a collision in response content type.
-            for(Entry<String, Content> responseContent : response.getContent().entrySet()) {
-                if(existingContent instanceof Response) {
-                    Response existingResponse = (Response) existingContent;
-                    if(existingResponse.getContent().containsKey(responseContent.getKey())) {
-                        // There are too many cases: this is uncommon, but it might be a valid case.
-                        context.getLogger().warn("More than one operation with a common content type mapped on " +
-                                operation.getName() + " : " + operation.getPath() + " in tag " + tag.getName());
+			// TODO: This part should be improved in the futur
+			// Check if there is a collision in response content type.
+			for(Entry<String, Content> responseContent : response.getContent().entrySet()) {
+				if(existingContent instanceof Response) {
+					Response existingResponse = (Response) existingContent;
+					if(existingResponse.getContent().containsKey(responseContent.getKey())) {
+						// There are too many cases: this is uncommon, but it might be a valid case.
+						context.getLogger().warn("More than one operation with a common content type mapped on " +
+							operation.getName() + " : " + operation.getPath() + " in tag " + tag.getName());
 
-                        if(existingResponse.getContent().get(responseContent.getKey()).getSchemaList().stream()
-                                .noneMatch(x ->
-                                        this.writeValueAsString(x.getJsonObject())
-                                                .equals(this.writeValueAsString(responseContent.getValue().getSingleSchema()))
-                                )) {
-                            // Add response to the list of possibilities
-                            existingResponse.getContent().get(responseContent.getKey()).getSchemaList().add(responseContent.getValue()
-                                    .getSingleSchema());
-                        }
+						if(existingResponse.getContent().get(responseContent.getKey()).getSchemaList().stream()
+							.noneMatch(x -> this.writeValueAsString(x.getJsonObject())
+								.equals(this.writeValueAsString(responseContent.getValue().getSingleSchema())))) {
+							// Add response to the list of possibilities
+							existingResponse.getContent().get(responseContent.getKey()).getSchemaList()
+								.add(responseContent.getValue()
+									.getSingleSchema());
+						}
 
-                    } else {
-                        // Operation merging is required (two functions, mapped on the same name and path, but with different return content type)
-                        existingResponse.getContent().put(responseContent.getKey(), responseContent.getValue());
-                    }
-                }
-            }
+					} else {
+						// Operation merging is required (two functions, mapped on the same name and path, but with different return content type)
+						existingResponse.getContent().put(responseContent.getKey(), responseContent.getValue());
+					}
+				}
+			}
 
-        }
-    }
+		}
+	}
 
-    private void mergeCommonOperationsParameters(final Operation existingOperation, Operation operation) {
-        Map<String, ParameterElement> existingParametersByNames = existingOperation.getParameters().stream()
-                .collect(Collectors.toMap(ParameterElement::getName, Function.identity()));
-        for(ParameterElement parameter : operation.getParameters()) {
-            ParameterElement existingParameter = existingParametersByNames.get(parameter.getName());
-            if(existingParameter == null) {
-                existingOperation.getParameters().add(parameter);
-            } else {
-                // If same parameter, nothing to do.
-                // We are just checking here parameters incoherencies.
-                if(existingParameter.getSchema().getReference() != null) {
-                    if(!existingParameter.getSchema().getReference().equals(parameter.getSchema().getReference())) {
-                        context.getLogger().warn("Parameters incoherence detected in path " +
-                                operation.getPath()+ " for reference "+existingParameter.getSchema().getReference());
-                    }
-                }
-                if(existingParameter.getSchema().getType() != null) {
-                    if(parameter.getSchema().getType() != null && !existingParameter.getSchema().getType().getNode().toString().equals(parameter.getSchema().getType().getNode().toString()))  {
-                        context.getLogger().warn("Parameters incoherence detected in path " +
-                                operation.getPath()+ " for "+parameter.getSchema().getType().getNode().toString());
-                    }
-                }
-            }
-        }
-    }
+	private void mergeCommonOperationsParameters(final Operation existingOperation, Operation operation) {
+		Map<String, ParameterElement> existingParametersByNames = existingOperation.getParameters().stream()
+			.collect(Collectors.toMap(ParameterElement::getName, Function.identity()));
+		for(ParameterElement parameter : operation.getParameters()) {
+			ParameterElement existingParameter = existingParametersByNames.get(parameter.getName());
+			if(existingParameter == null) {
+				existingOperation.getParameters().add(parameter);
+			} else {
+				// If same parameter, nothing to do.
+				// We are just checking here parameters incoherencies.
+				if(existingParameter.getSchema().getReference() != null) {
+					if(!existingParameter.getSchema().getReference().equals(parameter.getSchema().getReference())) {
+						context.getLogger().warn("Parameters incoherence detected in path " +
+							operation.getPath() + " for reference " + existingParameter.getSchema().getReference());
+					}
+				}
+				if(existingParameter.getSchema().getType() != null) {
+					if(parameter.getSchema().getType() != null && !existingParameter.getSchema().getType().getNode().toString()
+						.equals(parameter.getSchema().getType().getNode().toString())) {
+						context.getLogger().warn("Parameters incoherence detected in path " +
+							operation.getPath() + " for " + parameter.getSchema().getType().getNode().toString());
+					}
+				}
+			}
+		}
+	}
 
-    private void mergeCommonOperationsRequestBodies(final Operation existingOperation, Operation operation) {
-        if(operation.getRequestBody() != null) {
-            RequestBody existingRequestBody = existingOperation.getRequestBody();
-            if(existingRequestBody== null) {
-               // Simple case: there was no previous request body => we set it with the new one
-               existingOperation.setRequestBody(operation.getRequestBody());
-            } else {
-               // Complex case: we try to merge the two request bodies
-                for(Entry<String, Content> content : operation.getRequestBody().getContent().entrySet()) {
-                    Content existingContent = existingRequestBody.getContent().get(content.getKey());
-                    if(existingContent == null) {
-                        // The content is new, so we just add it to the existing request body
-                        existingRequestBody.getContent().put(content.getKey(), content.getValue());
-                    } else {
-                        // Not handled yet
-                        context.getLogger().warn("Merge of similar contents for operations is not supported yet ("+
-                                existingOperation.getPath()+ " / "+existingOperation.getName()+")");
-                    }
-                }
-            }
-        }
-    }
+	private void mergeCommonOperationsRequestBodies(final Operation existingOperation, Operation operation) {
+		if(operation.getRequestBody() != null) {
+			RequestBody existingRequestBody = existingOperation.getRequestBody();
+			if(existingRequestBody == null) {
+				// Simple case: there was no previous request body => we set it with the new one
+				existingOperation.setRequestBody(operation.getRequestBody());
+			} else {
+				// Complex case: we try to merge the two request bodies
+				for(Entry<String, Content> content : operation.getRequestBody().getContent().entrySet()) {
+					Content existingContent = existingRequestBody.getContent().get(content.getKey());
+					if(existingContent == null) {
+						// The content is new, so we just add it to the existing request body
+						existingRequestBody.getContent().put(content.getKey(), content.getValue());
+					} else {
+						// Not handled yet
+						context.getLogger().warn("Merge of similar contents for operations is not supported yet (" +
+							existingOperation.getPath() + " / " + existingOperation.getName() + ")");
+					}
+				}
+			}
+		}
+	}
 
 	private Map<String, Object> createSchemaSection(final TagLibrary library) {
 		final List<DataObject> ordered = library.getSchemaObjects().stream()
 			.sorted(Comparator.comparing(
-				p -> p.getOpenApiResolvedType().isCompleteNode() ? p.getOpenApiResolvedType().getModelName() : p.getSchemaReferenceName()))
+				p -> p.getOpenApiResolvedType().isCompleteNode() ? p.getOpenApiResolvedType().getModelName()
+					: p.getSchemaReferenceName()))
 			.collect(Collectors.toList());
 
 		// LinkedHashMap to keep alphabetical order
@@ -640,4 +653,3 @@ public class YamlWriter {
 		}
 	}
 }
-

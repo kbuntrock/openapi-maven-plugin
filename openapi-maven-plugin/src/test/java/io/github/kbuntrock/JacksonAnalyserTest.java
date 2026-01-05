@@ -21,135 +21,137 @@ import java.util.Collections;
 
 public class JacksonAnalyserTest extends AbstractTest {
 
-    private MavenProject createBasicMavenProject() {
-        final MavenProject mavenProjet = new MavenProject();
-        mavenProjet.setName("Project using jackson");
-        mavenProjet.setVersion("v1.0");
-        mavenProjet.setFile(new File(new File("pom.xml").getAbsolutePath()));
-        return mavenProjet;
-    }
+	private MavenProject createBasicMavenProject() {
+		final MavenProject mavenProjet = new MavenProject();
+		mavenProjet.setName("Project using jackson");
+		mavenProjet.setVersion("v1.0");
+		mavenProjet.setFile(new File(new File("pom.xml").getAbsolutePath()));
+		return mavenProjet;
+	}
 
-    private DocumentationMojo createBasicMojo(final String apiLocation) {
-        final DocumentationMojo mojo = createDocumentationMojo();
-        final ApiConfiguration apiConfiguration = new ApiConfiguration();
-        apiConfiguration.setAttachArtifact(false);
-        apiConfiguration.setLocations(Collections.singletonList(apiLocation));
-        apiConfiguration.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
-        mojo.setTestMode(true);
-        mojo.setApis(Collections.singletonList(apiConfiguration));
-        mojo.setProject(createBasicMavenProject());
-        return mojo;
-    }
+	private DocumentationMojo createBasicMojo(final String apiLocation) {
+		final DocumentationMojo mojo = createDocumentationMojo();
+		final ApiConfiguration apiConfiguration = new ApiConfiguration();
+		apiConfiguration.setAttachArtifact(false);
+		apiConfiguration.setLocations(Collections.singletonList(apiLocation));
+		apiConfiguration
+			.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
+		mojo.setTestMode(true);
+		mojo.setApis(Collections.singletonList(apiConfiguration));
+		mojo.setProject(createBasicMavenProject());
+		return mojo;
+	}
 
-    @Test
-    public void enum_field_as_value() throws MojoFailureException, MojoExecutionException, IOException {
-        final DocumentationMojo mojo = createBasicMojo(EnumFieldAsValueController.class.getCanonicalName());
-        final JavadocConfiguration javadocConfig = new JavadocConfiguration();
-        javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
-                "src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
-        mojo.setJavadocConfiguration(javadocConfig);
+	@Test
+	public void enum_field_as_value() throws MojoFailureException, MojoExecutionException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(EnumFieldAsValueController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
+			"src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
+		mojo.setJavadocConfiguration(javadocConfig);
 
-        checkGenerationResult(mojo.documentProject());
-    }
+		checkGenerationResult(mojo.documentProject());
+	}
 
-    @Test
-    public void enum_function_as_value() throws MojoFailureException, MojoExecutionException, IOException {
-        final DocumentationMojo mojo = createBasicMojo(EnumFunctionAsValueController.class.getCanonicalName());
-        final JavadocConfiguration javadocConfig = new JavadocConfiguration();
-        javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
-                "src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
-        mojo.setJavadocConfiguration(javadocConfig);
+	@Test
+	public void enum_function_as_value() throws MojoFailureException, MojoExecutionException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(EnumFunctionAsValueController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
+			"src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
+		mojo.setJavadocConfiguration(javadocConfig);
 
-        checkGenerationResult(mojo.documentProject());
-    }
+		checkGenerationResult(mojo.documentProject());
+	}
 
-    @Test
-    public void enum_as_value_function_precedence() throws MojoFailureException, MojoExecutionException, IOException {
-        final DocumentationMojo mojo = createBasicMojo(EnumAsValueFunctionPrecedenceController.class.getCanonicalName());
-        final JavadocConfiguration javadocConfig = new JavadocConfiguration();
-        javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
-                "src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
-        mojo.setJavadocConfiguration(javadocConfig);
+	@Test
+	public void enum_as_value_function_precedence() throws MojoFailureException, MojoExecutionException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(EnumAsValueFunctionPrecedenceController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
+			"src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
+		mojo.setJavadocConfiguration(javadocConfig);
 
-        checkGenerationResult(mojo.documentProject());
-    }
+		checkGenerationResult(mojo.documentProject());
+	}
 
-    @Test
-    public void enum_too_much_as_value() throws MojoFailureException, MojoExecutionException, IOException {
-        final DocumentationMojo mojo = createBasicMojo(EnumTooMuchAsValueController.class.getCanonicalName());
-        final JavadocConfiguration javadocConfig = new JavadocConfiguration();
-        javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
-                "src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
-        mojo.setJavadocConfiguration(javadocConfig);
+	@Test
+	public void enum_too_much_as_value() throws MojoFailureException, MojoExecutionException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(EnumTooMuchAsValueController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
+			"src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
+		mojo.setJavadocConfiguration(javadocConfig);
 
-        checkGenerationResult(mojo.documentProject());
-        Mockito.verify(mojo.getContext().getLogger()).warn("Problem with definition of [io.github.kbuntrock.resources.dto.enumeration.EnumTooMuchAsValue]: Multiple 'as-value' methods defined [getCode,getNormalizedCode]");
-    }
+		checkGenerationResult(mojo.documentProject());
+		Mockito.verify(mojo.getContext().getLogger()).warn(
+			"Problem with definition of [io.github.kbuntrock.resources.dto.enumeration.EnumTooMuchAsValue]: Multiple 'as-value' methods defined [getCode,getNormalizedCode]");
+	}
 
-    @Test
-    public void disable_enum_name_extension() throws MojoFailureException, MojoExecutionException, IOException {
-        final DocumentationMojo mojo = createBasicMojo(EnumFieldAsValueController.class.getCanonicalName());
-        final JavadocConfiguration javadocConfig = new JavadocConfiguration();
-        javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
-                "src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
-        mojo.setJavadocConfiguration(javadocConfig);
+	@Test
+	public void disable_enum_name_extension() throws MojoFailureException, MojoExecutionException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(EnumFieldAsValueController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
+			"src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
+		mojo.setJavadocConfiguration(javadocConfig);
 
-        mojo.getApis().get(0).setEnumNameExtensionEnabled(false);
+		mojo.getApis().get(0).setEnumNameExtensionEnabled(false);
 
-        checkGenerationResult(mojo.documentProject());
-    }
+		checkGenerationResult(mojo.documentProject());
+	}
 
-    @Test
-    public void configure_enum_name_extension() throws MojoFailureException, MojoExecutionException, IOException {
-        final DocumentationMojo mojo = createBasicMojo(EnumFieldAsValueController.class.getCanonicalName());
-        final JavadocConfiguration javadocConfig = new JavadocConfiguration();
-        javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
-                "src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
-        mojo.setJavadocConfiguration(javadocConfig);
+	@Test
+	public void configure_enum_name_extension() throws MojoFailureException, MojoExecutionException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(EnumFieldAsValueController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
+			"src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
+		mojo.setJavadocConfiguration(javadocConfig);
 
-        // Change the "value name" holder
-        mojo.getApis().get(0).setEnumNameExtensionValue("x-enumNames");
+		// Change the "value name" holder
+		mojo.getApis().get(0).setEnumNameExtensionValue("x-enumNames");
 
-        checkGenerationResult(mojo.documentProject());
-    }
+		checkGenerationResult(mojo.documentProject());
+	}
 
-    @Test
-    public void disable_enum_description_extension() throws MojoFailureException, MojoExecutionException, IOException {
-        final DocumentationMojo mojo = createBasicMojo(EnumFieldAsValueController.class.getCanonicalName());
-        final JavadocConfiguration javadocConfig = new JavadocConfiguration();
-        javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
-                "src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
-        mojo.setJavadocConfiguration(javadocConfig);
+	@Test
+	public void disable_enum_description_extension() throws MojoFailureException, MojoExecutionException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(EnumFieldAsValueController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
+			"src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
+		mojo.setJavadocConfiguration(javadocConfig);
 
-        mojo.getApis().get(0).setEnumDescriptionExtensionEnabled(false);
+		mojo.getApis().get(0).setEnumDescriptionExtensionEnabled(false);
 
-        checkGenerationResult(mojo.documentProject());
-    }
+		checkGenerationResult(mojo.documentProject());
+	}
 
-    @Test
-    public void configure_enum_description_extension() throws MojoFailureException, MojoExecutionException, IOException {
-        final DocumentationMojo mojo = createBasicMojo(EnumFieldAsValueController.class.getCanonicalName());
-        final JavadocConfiguration javadocConfig = new JavadocConfiguration();
-        javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
-                "src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
-        mojo.setJavadocConfiguration(javadocConfig);
+	@Test
+	public void configure_enum_description_extension() throws MojoFailureException, MojoExecutionException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(EnumFieldAsValueController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
+			"src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
+		mojo.setJavadocConfiguration(javadocConfig);
 
-        // Change the "value description" holder
-        mojo.getApis().get(0).setEnumDescriptionExtensionValue("x-my-description");
+		// Change the "value description" holder
+		mojo.getApis().get(0).setEnumDescriptionExtensionValue("x-my-description");
 
-        checkGenerationResult(mojo.documentProject());
-    }
+		checkGenerationResult(mojo.documentProject());
+	}
 
-    @Test
-    public void disable_enum_list_description() throws MojoFailureException, MojoExecutionException, IOException {
-        final DocumentationMojo mojo = createBasicMojo(EnumFieldAsValueController.class.getCanonicalName());
-        final JavadocConfiguration javadocConfig = new JavadocConfiguration();
-        javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
-                "src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
-        mojo.setJavadocConfiguration(javadocConfig);
+	@Test
+	public void disable_enum_list_description() throws MojoFailureException, MojoExecutionException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(EnumFieldAsValueController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/enumeration/jackson",
+			"src/test/java/io/github/kbuntrock/resources/dto/enumeration"));
+		mojo.setJavadocConfiguration(javadocConfig);
 
-        mojo.getApis().get(0).setEnumListDescriptionEnabled(false);
+		mojo.getApis().get(0).setEnumListDescriptionEnabled(false);
 
-        checkGenerationResult(mojo.documentProject());
-    }
+		checkGenerationResult(mojo.documentProject());
+	}
 }

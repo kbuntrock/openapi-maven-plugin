@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class ClassDocumentation {
-	
+
 	private final String completeName;
 	private final String simpleName;
 	private JavadocWrapper javadocWrapper;
@@ -31,7 +31,8 @@ public class ClassDocumentation {
 		this.simpleName = simpleName;
 	}
 
-	public void inheritanceEnhancement(final Class<?> javaClass, final EnhancementType enhancementType, Map<String, ClassDocumentation> javadocMap) {
+	public void inheritanceEnhancement(final Class<?> javaClass, final EnhancementType enhancementType,
+		Map<String, ClassDocumentation> javadocMap) {
 		if(inheritanceEnhancementIsDone) {
 			return;
 		}
@@ -124,7 +125,6 @@ public class ClassDocumentation {
 		}
 	}
 
-
 	private void listInheritance(Map<String, ClassDocumentation> javadocMap, Set<ClassDocumentation> documentationSet,
 		Class<?> classToAdd) {
 		ClassDocumentation classDocumentation = javadocMap.get(classToAdd.getCanonicalName());
@@ -195,7 +195,9 @@ public class ClassDocumentation {
 	}
 
 	public enum EnhancementType {
-		FIELDS, METHODS, BOTH
+		FIELDS,
+		METHODS,
+		BOTH
 	}
 
 	private class JavadocEntry {

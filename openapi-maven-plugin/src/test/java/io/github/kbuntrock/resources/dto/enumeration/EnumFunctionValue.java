@@ -17,6 +17,6 @@ public enum EnumFunctionValue {
 
 	@JsonValue
 	public int getNormalizedCode() {
-		return code/2;
+		return code / 2;
 	}
 }

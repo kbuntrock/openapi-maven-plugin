@@ -15,6 +15,4 @@ public class ResponseEntityWithAnnotations {
 	@Schema(description = "Timestamp of the collected data", example = "2023-10-01T12:00:00")
 	private LocalDateTime timestamp;
 
-
-
 }

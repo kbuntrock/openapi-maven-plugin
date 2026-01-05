@@ -1,6 +1,5 @@
 package io.github.kbuntrock;
 
-
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
@@ -37,8 +36,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 
-@Mojo(name = "documentation", defaultPhase = LifecyclePhase.COMPILE,
-	requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = true)
+@Mojo(name = "documentation", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class DocumentationMojo extends AbstractMojo {
 
 	@Parameter(defaultValue = "${project}", required = true, readonly = true)
@@ -85,12 +83,12 @@ public class DocumentationMojo extends AbstractMojo {
 	@Parameter(property = "openapi.javadoc.scanEnabled", defaultValue = "true")
 	protected Boolean javadocScanEnabled = true;
 
-    @Inject
-    private MavenProjectHelper projectHelper;
+	@Inject
+	private MavenProjectHelper projectHelper;
 
-    private boolean testMode = false;
+	private boolean testMode = false;
 
-    private final ProjectContext context = new ProjectContext();
+	private final ProjectContext context = new ProjectContext();
 
 	/**
 	 * Execution of the documentation mojo
@@ -104,28 +102,28 @@ public class DocumentationMojo extends AbstractMojo {
 		try {
 			final long debut = System.currentTimeMillis();
 
-            context.initLogger(getLog());
+			context.initLogger(getLog());
 			// Prepare the class loader
-            ClassLoader projectClassLoader = createProjectDependenciesClassLoader();
-            context.initClassLoader(projectClassLoader);
+			ClassLoader projectClassLoader = createProjectDependenciesClassLoader();
+			context.initClassLoader(projectClassLoader);
 
 			// Validate the configuration, parse the javadoc, parse the compiled code, and write the documentation.
 			// This is the method to call in unit tests
 			documentProject();
 
-            context.getLogger().info("Openapi spec generation took " + (System.currentTimeMillis() - debut) + "ms.");
+			context.getLogger().info("Openapi spec generation took " + (System.currentTimeMillis() - debut) + "ms.");
 
 		} catch(final MojoRuntimeException ex) {
 			throw new MojoExecutionException(ex.getMessage(), ex.getCause());
 		}
-    }
+	}
 
 	public List<File> documentProject() throws MojoFailureException, MojoExecutionException {
-        context.setProject(project);
+		context.setProject(project);
 
 		// Log the java version
 		final String version = System.getProperty("java.version");
-        context.getLogger().debug("Running on java " + version);
+		context.getLogger().debug("Running on java " + version);
 
 		validateConfiguration();
 		Map<String, ClassDocumentation> javadocMap = scanJavadoc();
@@ -139,11 +137,12 @@ public class DocumentationMojo extends AbstractMojo {
 		}
 		this.getApiConfiguration().initDefaultValues();
 
-		if (apis.stream().map(ApiConfiguration::getLocations).anyMatch(locations -> locations == null || locations.isEmpty())) {
+		if(apis.stream().map(ApiConfiguration::getLocations).anyMatch(locations -> locations == null || locations.isEmpty())) {
 			throw new MojoFailureException("At least one location element should be configured");
 		}
-		if (apis.stream().map(ApiConfiguration::getFilename).collect(Collectors.toSet()).size() != apis.size()) {
-			throw new MojoFailureException("At least two openapi documentations have a colliding filename. Please set different ones if you wish to generate multiple documentations.");
+		if(apis.stream().map(ApiConfiguration::getFilename).collect(Collectors.toSet()).size() != apis.size()) {
+			throw new MojoFailureException(
+				"At least two openapi documentations have a colliding filename. Please set different ones if you wish to generate multiple documentations.");
 		}
 	}
 
@@ -152,8 +151,8 @@ public class DocumentationMojo extends AbstractMojo {
 	 * we add an api configuration based on all the available properties.
 	 */
 	private void createPropertyApiConfiguration() {
-		if (locations != null && !locations.isEmpty()) {
-			if (this.apis == null) {
+		if(locations != null && !locations.isEmpty()) {
+			if(this.apis == null) {
 				this.apis = new ArrayList<>();
 			}
 			ApiConfiguration apiConf = new ApiConfiguration();
@@ -182,27 +181,28 @@ public class DocumentationMojo extends AbstractMojo {
 
 		final List<File> generatedFiles = new ArrayList<>();
 		for(final ApiConfiguration initialApiConfiguration : apis) {
-            ApiContext apiContext = new ApiContext(context, new AdditionnalSchemaLibrary());
+			ApiContext apiContext = new ApiContext(context, new AdditionnalSchemaLibrary());
 			final ApiConfiguration apiConfig = initialApiConfiguration.mergeWithCommonApiConfiguration(this.apiConfiguration);
-            apiContext.setApiConfiguration(apiConfig);
-            apiContext.setOpenApiTypeResolver(new OpenApiTypeResolver(apiContext));
-            apiContext.setNullableConfiguration(new NullableConfiguration(apiConfig));
+			apiContext.setApiConfiguration(apiConfig);
+			apiContext.setOpenApiTypeResolver(new OpenApiTypeResolver(apiContext));
+			apiContext.setNullableConfiguration(new NullableConfiguration(apiConfig));
 
 			final ApiResourceScanner apiResourceScanner = new ApiResourceScanner(apiContext, javadocMap);
-            context.getLogger().debug("Prepare to scan");
+			context.getLogger().debug("Prepare to scan");
 			final TagLibrary tagLibrary = apiResourceScanner.scanRestControllers();
-            context.getLogger().debug("Scan done");
+			context.getLogger().debug("Scan done");
 
 			File generatedFile = null;
 			try {
 				if(testMode) {
 					generatedFile = Files.createTempFile(
-						apiConfig.getFilename().substring(0, apiConfig.getFilename().length() - ".yml".length()) + "_", ".yml").toFile();
+						apiConfig.getFilename().substring(0, apiConfig.getFilename().length() - ".yml".length()) + "_", ".yml")
+						.toFile();
 				} else {
 					outputDirectory.mkdirs();
 					generatedFile = new File(outputDirectory, apiConfig.getFilename());
 				}
-                context.getLogger().debug("Prepared to write : " + generatedFile.getAbsolutePath());
+				context.getLogger().debug("Prepared to write : " + generatedFile.getAbsolutePath());
 
 				new YamlWriter(apiContext, apiConfig, tagLibrary).write(generatedFile, tagLibrary);
 
@@ -224,12 +224,16 @@ public class DocumentationMojo extends AbstractMojo {
 							+ "java version used by maven is high enough to read the compiled project classes (maven toolchain is not supported yet)");
 				}
 
-				final int nbOperationsGenerated = tagLibrary.getTags().stream().map(Tag::getEndpoints).map(Collection::size).mapToInt(Integer::intValue).sum();
+				final int nbOperationsGenerated = tagLibrary.getTags().stream().map(Tag::getEndpoints).map(Collection::size)
+					.mapToInt(Integer::intValue).sum();
 				context.getLogger().info(
-					apiConfig.getFilename() + " : " + nbTagsGenerated + " tags and " + nbOperationsGenerated + " operations generated.");
+					apiConfig.getFilename() + " : " + nbTagsGenerated + " tags and " + nbOperationsGenerated
+						+ " operations generated.");
 			} catch(final IOException e) {
-				throw new MojoFailureException("Cannot write file specification file : " + (generatedFile == null ? "temporary test file"
-					: generatedFile.getAbsolutePath()), e);
+				throw new MojoFailureException(
+					"Cannot write file specification file : " + (generatedFile == null ? "temporary test file"
+						: generatedFile.getAbsolutePath()),
+					e);
 			}
 		}
 		return generatedFiles;
@@ -254,7 +258,7 @@ public class DocumentationMojo extends AbstractMojo {
 			}
 
 			final URL[] urlsForClassLoader = pathUrls.toArray(new URL[pathUrls.size()]);
-            context.getLogger().debug("urls for URLClassLoader: " + Arrays.asList(urlsForClassLoader));
+			context.getLogger().debug("urls for URLClassLoader: " + Arrays.asList(urlsForClassLoader));
 
 			// We could use a completely separated Classword but is had too much complexity while scanning the project classes since
 			// we can't use Class loaded in the pluging Classloader. We should then use classes of the project classLoader and handle cases
@@ -273,17 +277,17 @@ public class DocumentationMojo extends AbstractMojo {
 
 	private boolean shouldScanJavadoc() {
 		return javadocConfiguration != null
-				&& !CollectionUtils.isEmpty(javadocConfiguration.getScanLocations());
+			&& !CollectionUtils.isEmpty(javadocConfiguration.getScanLocations());
 	}
 
 	private Map<String, ClassDocumentation> scanJavadoc() {
 
 		if(!javadocScanEnabled) {
-            context.getLogger().info("Javadoc scan is disabled.");
+			context.getLogger().info("Javadoc scan is disabled.");
 			return null;
 		}
 
-		if (!CollectionUtils.isEmpty(locations) && !shouldScanJavadoc()) {
+		if(!CollectionUtils.isEmpty(locations) && !shouldScanJavadoc()) {
 			if(javadocConfiguration == null) {
 				javadocConfiguration = new JavadocConfiguration();
 			}
@@ -295,8 +299,8 @@ public class DocumentationMojo extends AbstractMojo {
 
 		}
 
-		if (!shouldScanJavadoc()) {
-            context.getLogger().info("No javadoc configuration found: scan of javadoc skipped.");
+		if(!shouldScanJavadoc()) {
+			context.getLogger().info("No javadoc configuration found: scan of javadoc skipped.");
 			return null;
 		}
 
@@ -307,7 +311,7 @@ public class DocumentationMojo extends AbstractMojo {
 			.collect(Collectors.toList());
 		final JavadocParser javadocParser = new JavadocParser(context, filesToScan, javadocConfiguration);
 		javadocParser.scan();
-        context.getLogger().info("Javadoc parsing took " + (System.currentTimeMillis() - debutJavadoc) + "ms.");
+		context.getLogger().info("Javadoc parsing took " + (System.currentTimeMillis() - debutJavadoc) + "ms.");
 
 		return javadocParser.getJavadocMap();
 	}
@@ -344,7 +348,7 @@ public class DocumentationMojo extends AbstractMojo {
 		this.testMode = testMode;
 	}
 
-    public ProjectContext getContext() {
-        return context;
-    }
+	public ProjectContext getContext() {
+		return context;
+	}
 }

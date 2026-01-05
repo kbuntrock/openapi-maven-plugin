@@ -15,7 +15,8 @@ public interface UuidController {
 	/**
 	 * A beautiful service
 	 *
-	 * @param myUUID initial id
+	 * @param myUUID
+	 *            initial id
 	 * @return a list of ids
 	 */
 	@GetMapping("/get-uuid-list")

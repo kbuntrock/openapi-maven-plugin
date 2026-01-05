@@ -13,44 +13,44 @@ import org.apache.maven.project.MavenProject;
  */
 public final class ProjectContext {
 
-    private Log logger;
+	private Log logger;
 
-    private ClassLoader classLoader;
+	private ClassLoader classLoader;
 
-    private MavenProject project;
+	private MavenProject project;
 
-    private ClassLoaderHelper classLoaderHelper;
+	private ClassLoaderHelper classLoaderHelper;
 
-    public void initLogger(Log logger) {
-        if(this.logger == null) {
-            this.logger = logger;
-        }
-    }
+	public void initLogger(Log logger) {
+		if(this.logger == null) {
+			this.logger = logger;
+		}
+	}
 
-    public void initClassLoader(ClassLoader classLoader) {
-        if(this.classLoader == null) {
-            this.classLoader = classLoader;
-            this.classLoaderHelper = new ClassLoaderHelper(classLoader);
-        }
-    }
+	public void initClassLoader(ClassLoader classLoader) {
+		if(this.classLoader == null) {
+			this.classLoader = classLoader;
+			this.classLoaderHelper = new ClassLoaderHelper(classLoader);
+		}
+	}
 
-    public Log getLogger() {
-        return logger;
-    }
+	public Log getLogger() {
+		return logger;
+	}
 
-    public ClassLoader getClassLoader() {
-        return classLoader;
-    }
+	public ClassLoader getClassLoader() {
+		return classLoader;
+	}
 
-    public void setProject(MavenProject project) {
-        this.project = project;
-    }
+	public void setProject(MavenProject project) {
+		this.project = project;
+	}
 
-    public MavenProject getProject() {
-        return project;
-    }
+	public MavenProject getProject() {
+		return project;
+	}
 
-    public ClassLoaderHelper getClassLoaderHelper() {
-        return classLoaderHelper;
-    }
+	public ClassLoaderHelper getClassLoaderHelper() {
+		return classLoaderHelper;
+	}
 }

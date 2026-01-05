@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @RequestMapping(Constants.BASE_API + "/genericity-test-eleven")
 public interface GenericityTestEleven {
-	
+
 	@PostMapping(path = "/search")
 	public String search(@RequestBody SearchCriteriaChildV6 searchCriteria);
 }

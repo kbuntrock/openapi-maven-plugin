@@ -20,10 +20,14 @@ public interface MultipartFileWithHeaderController {
 	/**
 	 * Allow to upload a file
 	 *
-	 * @param headers        all the headers
-	 * @param file           the provided file
-	 * @param header1        the first header
-	 * @param mySecondHeader the second header
+	 * @param headers
+	 *            all the headers
+	 * @param file
+	 *            the provided file
+	 * @param header1
+	 *            the first header
+	 * @param mySecondHeader
+	 *            the second header
 	 * @return OK if upload in success, KO otherwise
 	 */
 	@PostMapping(value = "/upload")

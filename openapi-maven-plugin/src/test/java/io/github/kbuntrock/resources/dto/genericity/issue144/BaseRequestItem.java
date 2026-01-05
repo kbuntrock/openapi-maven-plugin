@@ -17,5 +17,5 @@ public class BaseRequestItem {
 	public void setBaseField(String baseField) {
 		this.baseField = baseField;
 	}
-	
+
 }

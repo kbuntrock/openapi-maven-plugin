@@ -73,5 +73,4 @@ public class JsonMergingTest {
 		checkFileStringEquality("ut/json/merging/semi_existing_contact/merged.json", merged);
 	}
 
-
 }

@@ -14,7 +14,9 @@ public interface MultipleProducedContentTypes {
 
 	/**
 	 * produce some json
-	 * @param firstname a given firstname
+	 *
+	 * @param firstname
+	 *            a given firstname
 	 * @return
 	 */
 	@GetMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -22,7 +24,9 @@ public interface MultipleProducedContentTypes {
 
 	/**
 	 * Produce some xml
-	 * @param surname a given surname
+	 *
+	 * @param surname
+	 *            a given surname
 	 * @return
 	 */
 	@GetMapping(path = "/", produces = MediaType.APPLICATION_XML_VALUE)

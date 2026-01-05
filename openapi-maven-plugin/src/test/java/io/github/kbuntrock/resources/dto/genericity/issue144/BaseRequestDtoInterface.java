@@ -4,7 +4,9 @@ import java.util.List;
 
 /**
  * The base request dto interface
- * @param <T> T must extends BaseRequestItemInterface
+ *
+ * @param <T>
+ *            T must extends BaseRequestItemInterface
  */
 public interface BaseRequestDtoInterface<T extends BaseRequestItemInterface> {
 

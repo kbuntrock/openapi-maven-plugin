@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(Constants.BASE_API + "/genericity-test-nine")
 public interface GenericityTestNine {
 
-
 	@PostMapping(path = "search")
 	String findTerritoireGeographiqueByCriteria(@RequestBody SearchCriteriaV3 searchCriteria);
 }

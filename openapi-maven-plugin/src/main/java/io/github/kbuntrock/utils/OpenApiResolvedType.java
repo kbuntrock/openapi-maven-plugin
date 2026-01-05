@@ -41,7 +41,8 @@ public class OpenApiResolvedType {
 
 	private final String defaultEncoding;
 
-	public OpenApiResolvedType(final OpenApiDataType type, final JsonNode node, final String modelName, final String defaultEncoding) {
+	public OpenApiResolvedType(final OpenApiDataType type, final JsonNode node, final String modelName,
+		final String defaultEncoding) {
 		this.type = type;
 		this.node = node;
 		this.modelName = modelName;

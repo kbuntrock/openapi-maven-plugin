@@ -15,13 +15,13 @@ import java.util.List;
 @RestController
 public interface JacksonJsonPropertyController {
 
-    /**
+	/**
 	 * {@code GET  /users} : get the list of users
 	 * {@see SimpleUserDto}
 	 * {@link <a href="https://kbuntrock.github.io/openapi-maven-plugin">https://kbuntrock.github.io/openapi-maven-plugin</a>}
 	 *
 	 * @return the list of users.
 	 */
-    @RequestMapping(method = RequestMethod.GET)
-    List<SimpleUserDto> findAll();
+	@RequestMapping(method = RequestMethod.GET)
+	List<SimpleUserDto> findAll();
 }

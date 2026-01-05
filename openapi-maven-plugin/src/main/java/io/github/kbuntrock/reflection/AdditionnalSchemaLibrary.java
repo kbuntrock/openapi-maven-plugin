@@ -11,7 +11,7 @@ import java.util.Map;
  * @author Kevin Buntrock
  */
 public final class AdditionnalSchemaLibrary {
-	
+
 	private final Map<String, DataObject> map = new LinkedHashMap<>();
 
 	public void addDataObject(final String signature, final DataObject dataObject) {

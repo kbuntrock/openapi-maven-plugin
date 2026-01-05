@@ -3,7 +3,6 @@ package io.github.kbuntrock.resources.dto.genericity.extendsMap;
 import java.util.HashMap;
 import java.util.List;
 
-
 public class GenericExtendsObjectMap<T> extends HashMap<String, Object> {
 
 	public GenericExtendsObjectMap<T> rows(List<T> rows) {

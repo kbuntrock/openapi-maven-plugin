@@ -37,7 +37,7 @@ public class TagLibrary {
 	public static final int METHOD_IS_PREFIX_SIZE = METHOD_IS_PREFIX.length();
 
 	private final OpenApiTypeResolver openApiTypeResolver;
-    private final ApiContext context;
+	private final ApiContext context;
 	private final ApiConfiguration apiConfiguration;
 	private Map<String, ClassDocumentation> javadocMap;
 
@@ -50,7 +50,7 @@ public class TagLibrary {
 		this.openApiTypeResolver = context.getOpenApiTypeResolver();
 		this.apiConfiguration = context.getApiConfiguration();
 		this.javadocMap = javadocMap;
-        this.context = context;
+		this.context = context;
 	}
 
 	public void addTag(final Tag tag) {
@@ -69,9 +69,11 @@ public class TagLibrary {
 	}
 
 	/**
-	 * Analyse all endpoints of a tag (aka a rest controller) to extract all objects which will be written in the schema section : parameters or response.
+	 * Analyse all endpoints of a tag (aka a rest controller) to extract all objects which will be written in the schema section : parameters or
+	 * response.
 	 *
-	 * @param tag a rest controller
+	 * @param tag
+	 *            a rest controller
 	 */
 	private void exploreTagObjects(final Tag tag) {
 		for(final Endpoint endpoint : tag.getEndpoints()) {
@@ -83,8 +85,8 @@ public class TagLibrary {
 				exploreDataObject(parameterObject);
 			}
 
-			for (final OperationResponse operationResponse : endpoint.getOperationAnnotationInfo().getResponses()) {
-				if (operationResponse.getDataObject() != null) {
+			for(final OperationResponse operationResponse : endpoint.getOperationAnnotationInfo().getResponses()) {
+				if(operationResponse.getDataObject() != null) {
 					// If the response has a data object, it is a response with a body
 					exploreDataObject(operationResponse.getDataObject());
 				}
@@ -108,7 +110,8 @@ public class TagLibrary {
 			// Eventually analyse instead the generic types
 			if(dataObject.getGenericNameToTypeMap() != null) {
 				for(final Map.Entry<String, Type> entry : dataObject.getGenericNameToTypeMap().entrySet()) {
-					final DataObject genericObject = new DataObject(dataObject.getContextualType(entry.getValue()), openApiTypeResolver);
+					final DataObject genericObject = new DataObject(dataObject.getContextualType(entry.getValue()),
+						openApiTypeResolver);
 					exploreDataObject(genericObject);
 				}
 			}
@@ -137,8 +140,9 @@ public class TagLibrary {
 
 				if(method.getParameters().length == 0
 					&& ((method.getName().startsWith(METHOD_GET_PREFIX) && method.getName().length() != METHOD_GET_PREFIX_SIZE) ||
-					(method.getName().startsWith(METHOD_IS_PREFIX)) && method.getName().length() != METHOD_IS_PREFIX_SIZE)) {
-					final DataObject dataObject = new DataObject(explored.getContextualType(method.getGenericReturnType()), openApiTypeResolver);
+						(method.getName().startsWith(METHOD_IS_PREFIX)) && method.getName().length() != METHOD_IS_PREFIX_SIZE)) {
+					final DataObject dataObject = new DataObject(explored.getContextualType(method.getGenericReturnType()),
+						openApiTypeResolver);
 					exploreDataObject(dataObject);
 				}
 			}
@@ -200,11 +204,11 @@ public class TagLibrary {
 		return apiConfiguration;
 	}
 
-    public ApiContext getContext() {
-        return context;
-    }
+	public ApiContext getContext() {
+		return context;
+	}
 
-    public boolean hasJavadocMap() {
+	public boolean hasJavadocMap() {
 		return javadocMap != null;
 	}
 

@@ -42,7 +42,8 @@ public class JavadocParserTest extends AbstractTest {
 		apiConfiguration.setDefaultProduceConsumeGuessing(false);
 		apiConfiguration.setOperationId("{method_name}");
 		apiConfiguration.setLoopbackOperationName(false);
-		apiConfiguration.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
+		apiConfiguration
+			.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
 		mojo.setTestMode(true);
 		mojo.setApis(Collections.singletonList(apiConfiguration));
 		mojo.setProject(createBasicMavenProject());
@@ -56,7 +57,7 @@ public class JavadocParserTest extends AbstractTest {
 
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
 		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/javadoc/basic",
-				"src/test/java/io/github/kbuntrock/resources/dto"));
+			"src/test/java/io/github/kbuntrock/resources/dto"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
 		checkGenerationResult(mojo.documentProject());
@@ -164,7 +165,8 @@ public class JavadocParserTest extends AbstractTest {
 	public void inner_local_class_object() throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(InnerAndLocalClassObjectsController.class.getCanonicalName());
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
-		javadocConfig.setScanLocations(Collections.singletonList("src/test/java/io/github/kbuntrock/resources/endpoint/innerclass"));
+		javadocConfig
+			.setScanLocations(Collections.singletonList("src/test/java/io/github/kbuntrock/resources/endpoint/innerclass"));
 		mojo.setJavadocConfiguration(javadocConfig);
 		checkGenerationResult(mojo.documentProject());
 	}

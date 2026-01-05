@@ -61,5 +61,4 @@ public class ChildClassOne extends ParentAbstract implements ParentInterface {
 		return null;
 	}
 
-
 }
