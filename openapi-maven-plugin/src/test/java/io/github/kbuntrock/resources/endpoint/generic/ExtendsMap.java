@@ -15,6 +15,7 @@ public interface ExtendsMap {
 
 	/**
 	 * Get a child map
+	 *
 	 * @return a child map
 	 */
 	@GetMapping(path = "/child-map")
@@ -22,7 +23,9 @@ public interface ExtendsMap {
 
 	/**
 	 * Post a "extend map"
-	 * @param myMap some map
+	 *
+	 * @param myMap
+	 *            some map
 	 */
 	@PostMapping(path = "/extend-map")
 	void postExtendMap(@RequestBody ExtendsMapLong myMap);

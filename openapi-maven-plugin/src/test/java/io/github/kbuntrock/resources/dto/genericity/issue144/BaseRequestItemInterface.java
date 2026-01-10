@@ -9,5 +9,5 @@ public interface BaseRequestItemInterface {
 	 * The base field
 	 */
 	String getBaseField();
-	
+
 }

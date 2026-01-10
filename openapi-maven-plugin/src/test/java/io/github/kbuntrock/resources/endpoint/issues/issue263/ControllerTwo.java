@@ -11,15 +11,16 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("")
 public interface ControllerTwo {
 
-    /**
-     *
-     * @param evaluate
-     * @param authority
-     * @param file a file in the "checkFile" case
-     * @return a PageDto of string in the "checkFile" case
-     */
-    @PostMapping(path = "dummy", consumes = { "multipart/form-data" })
-    PageDto<String> checkFile(@RequestParam(value = "evaluate", required = false) Boolean evaluate,
-                              @RequestParam(value = "authorityEnum", required = false) Authority authority,
-                              @RequestPart(value = "file", required = false) MultipartFile file);
+	/**
+	 *
+	 * @param evaluate
+	 * @param authority
+	 * @param file
+	 *            a file in the "checkFile" case
+	 * @return a PageDto of string in the "checkFile" case
+	 */
+	@PostMapping(path = "dummy", consumes = { "multipart/form-data" })
+	PageDto<String> checkFile(@RequestParam(value = "evaluate", required = false) Boolean evaluate,
+		@RequestParam(value = "authorityEnum", required = false) Authority authority,
+		@RequestPart(value = "file", required = false) MultipartFile file);
 }

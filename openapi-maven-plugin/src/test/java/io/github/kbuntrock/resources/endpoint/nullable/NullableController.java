@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/nullable")
 public interface NullableController {
 
-    @GetMapping("/{id}")
-    NullableDto getById(@PathVariable(value = "id") Long id);
+	@GetMapping("/{id}")
+	NullableDto getById(@PathVariable(value = "id") Long id);
 }

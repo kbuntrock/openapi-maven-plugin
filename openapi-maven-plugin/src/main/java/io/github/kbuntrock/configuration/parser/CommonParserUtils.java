@@ -19,14 +19,15 @@ import org.apache.maven.project.MavenProject;
 public final class CommonParserUtils {
 
 	private CommonParserUtils() {
-        // Nothing to do
+		// Nothing to do
 	}
 
 	/**
 	 * Get the content from an undetermined input (file path or directly the content)
 	 *
 	 * @param mavenProject
-	 * @param input        a path or directly the content
+	 * @param input
+	 *            a path or directly the content
 	 * @return the content
 	 */
 	public static String getContentFromFileOrText(final MavenProject mavenProject, final String input) {

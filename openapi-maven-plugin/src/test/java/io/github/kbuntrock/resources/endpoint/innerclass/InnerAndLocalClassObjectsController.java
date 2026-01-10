@@ -13,7 +13,9 @@ public interface InnerAndLocalClassObjectsController {
 
 	/**
 	 * Get a user by its id
-	 * @param userId the user id
+	 *
+	 * @param userId
+	 *            the user id
 	 * @return a user inner class object
 	 */
 	@GetMapping("/user")

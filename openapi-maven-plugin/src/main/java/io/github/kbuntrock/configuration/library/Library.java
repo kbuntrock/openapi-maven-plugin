@@ -50,7 +50,8 @@ public enum Library {
 		return library;
 	}
 
-	public AstractLibraryReader createReader(final ApiContext context, final ApiConfiguration apiConfiguration, final OpenApiTypeResolver openApiTypeResolver) {
+	public AstractLibraryReader createReader(final ApiContext context, final ApiConfiguration apiConfiguration,
+		final OpenApiTypeResolver openApiTypeResolver) {
 		switch(this) {
 			case JAVAX_RS:
 				return new JavaxRsReader(context, apiConfiguration, openApiTypeResolver);

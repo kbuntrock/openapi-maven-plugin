@@ -8,7 +8,6 @@ import javax.ws.rs.core.Response;
  */
 public abstract class AbstractJaxrsController {
 
-
 	@ResponseType(AccountDto.class)
 	public abstract Response indirectlyPresent();
 

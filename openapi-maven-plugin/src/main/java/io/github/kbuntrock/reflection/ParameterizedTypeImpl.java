@@ -13,7 +13,7 @@ public class ParameterizedTypeImpl implements ParameterizedType {
 	private Type ownerType;
 
 	public ParameterizedTypeImpl() {
-        // Nothing to do
+		// Nothing to do
 	}
 
 	public ParameterizedTypeImpl(final ParameterizedType parameterizedType) {

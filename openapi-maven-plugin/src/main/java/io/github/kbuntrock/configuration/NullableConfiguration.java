@@ -63,7 +63,6 @@ public class NullableConfiguration {
 			.anyMatch(name -> getNullableAnnotations().contains(name));
 	}
 
-
 	public boolean hasNonNullAnnotation(final List<Annotation> annotations) {
 		return annotations.stream()
 			.map(annotation -> annotation.annotationType().getName())

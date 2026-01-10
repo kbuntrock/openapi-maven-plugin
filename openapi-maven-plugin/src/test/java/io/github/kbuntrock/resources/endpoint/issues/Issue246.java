@@ -8,6 +8,6 @@ import java.util.List;
 @RequestMapping("logs")
 public interface Issue246 {
 
-    @GetMapping(value = {"/", "", "list"})
-    List<String> getLogs();
+	@GetMapping(value = { "/", "", "list" })
+	List<String> getLogs();
 }

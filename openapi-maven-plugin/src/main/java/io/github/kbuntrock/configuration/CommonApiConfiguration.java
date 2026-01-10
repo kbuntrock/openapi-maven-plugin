@@ -54,7 +54,8 @@ public class CommonApiConfiguration {
 	protected Boolean pathEnhancement;
 
 	/**
-	 * Add a prefix to any path value (there are plenty of options to add a prefix to an api path for a webapp and it cannot be guessed by the plugin)
+	 * Add a prefix to any path value (there are plenty of options to add a prefix to an api path for a webapp and it cannot be guessed by the
+	 * plugin)
 	 */
 	@Parameter
 	protected String pathPrefix;
@@ -75,9 +76,9 @@ public class CommonApiConfiguration {
 	@Parameter
 	protected Boolean enumListDescriptionEnabled;
 	/**
-     * If true, add an enum name for all enums described by values
+	 * If true, add an enum name for all enums described by values
 	 * See https://openapi-generator.tech/docs/templating/#all-generators-core
-     */
+	 */
 	@Parameter
 	protected Boolean enumNameExtensionEnabled;
 	/**

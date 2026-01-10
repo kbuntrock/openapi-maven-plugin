@@ -5,8 +5,10 @@ import java.util.Optional;
 /**
  * This is the BaseValue declaration
  *
- * @param <T>   a first generic type
- * @param <VAL> another generic type
+ * @param <T>
+ *            a first generic type
+ * @param <VAL>
+ *            another generic type
  */
 public interface BaseValue<T, VAL> {
 

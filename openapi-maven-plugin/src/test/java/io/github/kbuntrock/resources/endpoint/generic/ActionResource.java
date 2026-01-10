@@ -1,6 +1,5 @@
 package io.github.kbuntrock.resources.endpoint.generic;
 
-
 import io.github.kbuntrock.resources.dto.genericity.ActionDto;
 import io.github.kbuntrock.resources.dto.genericity.StatusImplDto;
 import java.util.List;

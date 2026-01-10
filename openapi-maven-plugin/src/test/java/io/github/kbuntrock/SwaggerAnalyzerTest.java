@@ -34,13 +34,13 @@ public class SwaggerAnalyzerTest extends AbstractTest {
 		apiConfiguration.setDefaultProduceConsumeGuessing(false);
 		apiConfiguration.setOperationId("{method_name}");
 		apiConfiguration.setLoopbackOperationName(false);
-		apiConfiguration.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
+		apiConfiguration
+			.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
 		mojo.setTestMode(true);
 		mojo.setApis(Collections.singletonList(apiConfiguration));
 		mojo.setProject(createBasicMavenProject());
 		return mojo;
 	}
-
 
 	@Test
 	public void basicApiResponseWithReturnObjects() throws MojoFailureException, IOException, MojoExecutionException {
@@ -67,20 +67,24 @@ public class SwaggerAnalyzerTest extends AbstractTest {
 	}
 
 	@Test
-	public void basicAnnotatedAndJavadocResponseWithReturnObjects() throws MojoFailureException, IOException, MojoExecutionException {
+	public void basicAnnotatedAndJavadocResponseWithReturnObjects()
+		throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(EntityAnnotationResource.class.getCanonicalName());
 		JavadocConfiguration javadocConfiguration = new JavadocConfiguration();
-		javadocConfiguration.setScanLocations(Collections.singletonList("src/test/java/io/github/kbuntrock/resources/endpoint/swagger"));
+		javadocConfiguration
+			.setScanLocations(Collections.singletonList("src/test/java/io/github/kbuntrock/resources/endpoint/swagger"));
 		mojo.setJavadocConfiguration(javadocConfiguration);
 		checkGenerationResult(mojo.documentProject());
 	}
-	
+
 	@Test
-	public void basicAnnotatedParametersWithReturnObjectsWithJavadoc() throws MojoFailureException, IOException, MojoExecutionException {
+	public void basicAnnotatedParametersWithReturnObjectsWithJavadoc()
+		throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(EntityAnnotationWithParametersResource.class.getCanonicalName());
-        JavadocConfiguration javadocConfiguration = new JavadocConfiguration();
-        javadocConfiguration.setScanLocations(Collections.singletonList("src/test/java/io/github/kbuntrock/resources/endpoint/swagger"));
-        mojo.setJavadocConfiguration(javadocConfiguration);
+		JavadocConfiguration javadocConfiguration = new JavadocConfiguration();
+		javadocConfiguration
+			.setScanLocations(Collections.singletonList("src/test/java/io/github/kbuntrock/resources/endpoint/swagger"));
+		mojo.setJavadocConfiguration(javadocConfiguration);
 		checkGenerationResult(mojo.documentProject());
 	}
 }

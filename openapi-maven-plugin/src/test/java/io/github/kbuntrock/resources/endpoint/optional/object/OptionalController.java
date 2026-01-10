@@ -38,7 +38,8 @@ public interface OptionalController {
 	@Path("/optional-parameter")
 	@jakarta.ws.rs.GET
 	@jakarta.ws.rs.Path("/optional-parameter")
-	String optionalParameter(@RequestParam("myParam") @QueryParam("myParam") @jakarta.ws.rs.QueryParam("myParam") Optional<String> myParam);
+	String optionalParameter(
+		@RequestParam("myParam") @QueryParam("myParam") @jakarta.ws.rs.QueryParam("myParam") Optional<String> myParam);
 
 	@GetMapping("default-parameter")
 	@GET

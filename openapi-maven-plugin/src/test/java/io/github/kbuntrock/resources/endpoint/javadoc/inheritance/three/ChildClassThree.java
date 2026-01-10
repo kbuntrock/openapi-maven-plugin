@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ChildClassThree implements IChildClassThree {
 
-
 	/**
 	 * Supported functionalities, as a page
 	 *
@@ -22,7 +21,6 @@ public class ChildClassThree implements IChildClassThree {
 	public PageDto<String> getPageFunctionalities() {
 		return null;
 	}
-
 
 	@Override
 	public boolean canPrettyPrint() {

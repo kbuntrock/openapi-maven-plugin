@@ -114,7 +114,7 @@ public class ParameterObject extends DataObject {
 		this.javadocFieldName = javadocFieldName;
 	}
 
-	public boolean isMultipartFile(){
+	public boolean isMultipartFile() {
 		return MultipartFile.class == getJavaClass() ||
 			(OpenApiDataType.ARRAY == getOpenApiResolvedType().getType()
 				&& MultipartFile.class == getArrayItemDataObject().getJavaClass());

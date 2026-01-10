@@ -13,7 +13,9 @@ public interface Issue144ByInterface {
 
 	/**
 	 * Get the requested items
-	 * @param priceRequest some price request
+	 *
+	 * @param priceRequest
+	 *            some price request
 	 * @return the requested item
 	 */
 	@PutMapping(path = "/foo")

@@ -32,18 +32,19 @@ import org.springframework.core.annotation.MergedAnnotations;
 
 public abstract class AstractLibraryReader {
 
-    protected final ApiContext context;
+	protected final ApiContext context;
 
 	protected final ApiConfiguration apiConfiguration;
 	protected final GenericityResolver genericityResolver;
 
 	protected final OpenApiTypeResolver openApiTypeResolver;
 
-	public AstractLibraryReader(final ApiContext context, final ApiConfiguration apiConfiguration, final OpenApiTypeResolver openApiTypeResolver) {
+	public AstractLibraryReader(final ApiContext context, final ApiConfiguration apiConfiguration,
+		final OpenApiTypeResolver openApiTypeResolver) {
 		this.context = context;
-        this.apiConfiguration = apiConfiguration;
+		this.apiConfiguration = apiConfiguration;
 		this.openApiTypeResolver = openApiTypeResolver;
-        this.genericityResolver = new GenericityResolver(context);
+		this.genericityResolver = new GenericityResolver(context);
 	}
 
 	protected static String concatenateBasePathAndMethodPath(final String basePath, final String methodPath,
@@ -82,7 +83,8 @@ public abstract class AstractLibraryReader {
 	 * Some returned objects are handled in a specific manner by spring.
 	 * In that case, we have to adapt it
 	 *
-	 * @param dataObject source
+	 * @param dataObject
+	 *            source
 	 * @return return DataObject
 	 */
 	private DataObject computeFrameworkReturnObject(final DataObject dataObject) {
@@ -101,10 +103,12 @@ public abstract class AstractLibraryReader {
 
 	public abstract List<String> readBasePaths(final Class<?> clazz, final MergedAnnotations mergedAnnotations);
 
-	public abstract void computeAnnotations(final Class<?> clazz, final String basePath, final Method method, final MergedAnnotations mergedAnnotations,
+	public abstract void computeAnnotations(final Class<?> clazz, final String basePath, final Method method,
+		final MergedAnnotations mergedAnnotations,
 		final Tag tagr) throws MojoFailureException;
 
-	protected abstract List<ParameterObject> readParameters(final Class<?> clazz, final Method originalMethod, final MergedAnnotations endpointAnnotations);
+	protected abstract List<ParameterObject> readParameters(final Class<?> clazz, final Method originalMethod,
+		final MergedAnnotations endpointAnnotations);
 
 	protected abstract List<String> readEndpointPaths(String basePath,
 		MergedAnnotation<? extends Annotation> requestMappingMergedAnnotation);
@@ -123,7 +127,7 @@ public abstract class AstractLibraryReader {
 		return new ParameterObject(parameterObject.getName(), dataObject);
 	}
 
-	protected void setSwaggerAnnotatedEndpointProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations){
+	protected void setSwaggerAnnotatedEndpointProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations) {
 		ArrayList<ParameterObject> parameterObjects = new ArrayList<ParameterObject>();
 
 		final MergedAnnotation<Annotation> operationAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.Operation");
@@ -144,43 +148,46 @@ public abstract class AstractLibraryReader {
 				operationInfo.setDescription(description);
 			}
 
-			MergedAnnotation<Annotation>[] parametersArray = operationAnnotation.getAnnotationArray("parameters", Annotation.class);
+			MergedAnnotation<Annotation>[] parametersArray = operationAnnotation.getAnnotationArray("parameters",
+				Annotation.class);
 			addParameters(parameterObjects, parametersArray);
-			
+
 			MergedAnnotation<Annotation>[] responseArray = operationAnnotation.getAnnotationArray("responses", Annotation.class);
 
-			for (MergedAnnotation<Annotation> responseAnnotation : responseArray) {
+			for(MergedAnnotation<Annotation> responseAnnotation : responseArray) {
 				final OperationResponse operationResponse = new OperationResponse();
 				final String responseCode = responseAnnotation.getString("responseCode");
 
-				if ("default".equals(responseCode)) {
+				if("default".equals(responseCode)) {
 					operationResponse.setCode(200);
 				} else {
 					try {
 						operationResponse.setCode(Integer.parseInt(responseCode));
-					} catch (NumberFormatException e) {
-						context.getLogger().warn("Invalid response code '" + responseCode + "' for operation " + operationInfo.getOperationId() + ". Skipping response.");
+					} catch(NumberFormatException e) {
+						context.getLogger().warn("Invalid response code '" + responseCode + "' for operation "
+							+ operationInfo.getOperationId() + ". Skipping response.");
 						continue;
 					}
 				}
 
-
 				final String responseDescription = responseAnnotation.getString("description");
-				if (!StringUtils.isEmpty(responseDescription)) {
+				if(!StringUtils.isEmpty(responseDescription)) {
 					operationResponse.setDescription(responseDescription);
 				}
 
-				final MergedAnnotation<Annotation>[] contentArray = responseAnnotation.getAnnotationArray("content", Annotation.class);
-				if (contentArray.length > 1) {
-					context.getLogger().warn("Multiple content annotations found for response code " + responseCode + " and operation " + operationInfo.getOperationId() + ". Only the first one will be used.");
+				final MergedAnnotation<Annotation>[] contentArray = responseAnnotation.getAnnotationArray("content",
+					Annotation.class);
+				if(contentArray.length > 1) {
+					context.getLogger().warn("Multiple content annotations found for response code " + responseCode
+						+ " and operation " + operationInfo.getOperationId() + ". Only the first one will be used.");
 				}
 				Optional<MergedAnnotation<Annotation>> optionalContent = Arrays.stream(contentArray).findFirst();
-				if (optionalContent.isPresent()) {
+				if(optionalContent.isPresent()) {
 					final MergedAnnotation<Annotation> content = optionalContent.get();
 					final MergedAnnotation<Annotation> schema = content.getAnnotation("schema", Annotation.class);
-					if (schema.isPresent()) {
+					if(schema.isPresent()) {
 						final Class<?> implementation = schema.getClass("implementation");
-						if (implementation != null && !Void.class.equals(implementation) && !Void.TYPE.equals(implementation)) {
+						if(implementation != null && !Void.class.equals(implementation) && !Void.TYPE.equals(implementation)) {
 							final DataObject responseObject = new DataObject(implementation, openApiTypeResolver);
 							operationResponse.setDataObject(responseObject);
 						}
@@ -190,46 +197,48 @@ public abstract class AstractLibraryReader {
 			}
 		}
 
-		
-		final MergedAnnotation<Annotation> parametersAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.Parameters");
+		final MergedAnnotation<Annotation> parametersAnnotation = mergedAnnotations
+			.get("io.swagger.v3.oas.annotations.Parameters");
 		if(parametersAnnotation.isPresent()) {
 			MergedAnnotation<Annotation>[] parametersArray = parametersAnnotation.getAnnotationArray("value", Annotation.class);
 			addParameters(parameterObjects, parametersArray);
 		}
-		
-		if (parameterObjects.size() > 0) endpoint.setParameters(parameterObjects);
+
+		if(parameterObjects.size() > 0)
+			endpoint.setParameters(parameterObjects);
 	}
-	
-	protected void setSwaggerAnnotatedParameterProperties(final Parameter javaParameter, final MergedAnnotations mergedAnnotations, ParameterObject parameter){
-        MergedAnnotation<Annotation> parameterAnn = mergedAnnotations.get("io.swagger.v3.oas.annotations.Parameter");
-        if (parameterAnn.isPresent()) {
-            final String description = parameterAnn.getString("description");
-            if (StringUtils.isNotBlank(description)) {
-                parameter.setDescription(description);
-            }
-            final String name = parameterAnn.getString("name");
-            if (StringUtils.isNotBlank(name)) {
-                parameter.setName(name);
-            }
-            final String example = parameterAnn.getString("example");
-            if (StringUtils.isNotBlank(example)) {
-                parameter.setExample(example);
-            }
-            context.getLogger().debug("Found @Parameter " + name
-                + " param '" + parameter.getName() + "' : " + description);
-        }
+
+	protected void setSwaggerAnnotatedParameterProperties(final Parameter javaParameter,
+		final MergedAnnotations mergedAnnotations, ParameterObject parameter) {
+		MergedAnnotation<Annotation> parameterAnn = mergedAnnotations.get("io.swagger.v3.oas.annotations.Parameter");
+		if(parameterAnn.isPresent()) {
+			final String description = parameterAnn.getString("description");
+			if(StringUtils.isNotBlank(description)) {
+				parameter.setDescription(description);
+			}
+			final String name = parameterAnn.getString("name");
+			if(StringUtils.isNotBlank(name)) {
+				parameter.setName(name);
+			}
+			final String example = parameterAnn.getString("example");
+			if(StringUtils.isNotBlank(example)) {
+				parameter.setExample(example);
+			}
+			context.getLogger().debug("Found @Parameter " + name
+				+ " param '" + parameter.getName() + "' : " + description);
+		}
 	}
-	
+
 	private void addParameters(ArrayList<ParameterObject> parameterObjects, MergedAnnotation<Annotation>[] parametersArray) {
-		for (MergedAnnotation<Annotation>parameterAnnotation : parametersArray) {
+		for(MergedAnnotation<Annotation> parameterAnnotation : parametersArray) {
 			final String paramName = parameterAnnotation.getString("name");
 			final String paramIn = parameterAnnotation.getValue("in").orElse(null).toString();
 			final String paramDescription = parameterAnnotation.getString("description");
 			final Boolean paramRequired = parameterAnnotation.getBoolean("required");
-            MergedAnnotation<Annotation> schemaAnn = parameterAnnotation.getAnnotation("schema", Annotation.class);
-            final String paramType = (schemaAnn != null) ? schemaAnn.getString("type") : null;
+			MergedAnnotation<Annotation> schemaAnn = parameterAnnotation.getAnnotation("schema", Annotation.class);
+			final String paramType = (schemaAnn != null) ? schemaAnn.getString("type") : null;
 			final String paramExample = parameterAnnotation.getString("example");
-			
+
 			ParameterObject paramObj = new ParameterObject(paramName, mapSchemaTypeToJavaType(paramType), openApiTypeResolver);
 			paramObj.setLocation(ParameterLocation.fromValue("".equals(paramIn) ? "query" : paramIn));
 			paramObj.setRequired(paramRequired);
@@ -240,19 +249,27 @@ public abstract class AstractLibraryReader {
 		}
 
 	}
-	
-	private static Class<?> mapSchemaTypeToJavaType(String schemaType) {
-	    if (schemaType == null) return Object.class;
 
-	    switch (schemaType.trim().toLowerCase()) {
-	        case "string": return String.class;
-	        case "integer": return Integer.class;
-	        case "number": return Double.class;
-	        case "boolean": return Boolean.class;
-	        case "array": return java.util.List.class;
-	        case "object": return java.util.Map.class;
-	        default: return Object.class;
-	    }
+	private static Class<?> mapSchemaTypeToJavaType(String schemaType) {
+		if(schemaType == null)
+			return Object.class;
+
+		switch(schemaType.trim().toLowerCase()) {
+			case "string":
+				return String.class;
+			case "integer":
+				return Integer.class;
+			case "number":
+				return Double.class;
+			case "boolean":
+				return Boolean.class;
+			case "array":
+				return java.util.List.class;
+			case "object":
+				return java.util.Map.class;
+			default:
+				return Object.class;
+		}
 	}
 
 }

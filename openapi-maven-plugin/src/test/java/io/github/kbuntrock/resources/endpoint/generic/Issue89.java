@@ -21,7 +21,8 @@ public interface Issue89 {
 	/**
 	 * This api test the issue n°89
 	 *
-	 * @param myParam my awesome parameter
+	 * @param myParam
+	 *            my awesome parameter
 	 * @return my also awesome response
 	 */
 	@PostMapping(path = "/youAreAwesome-applications")

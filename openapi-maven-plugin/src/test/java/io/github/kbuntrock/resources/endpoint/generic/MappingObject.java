@@ -1,6 +1,5 @@
 package io.github.kbuntrock.resources.endpoint.generic;
 
-
 import io.github.kbuntrock.resources.dto.genericity.mappingObject.MapWithObject;
 import java.util.Map;
 import org.springframework.http.MediaType;

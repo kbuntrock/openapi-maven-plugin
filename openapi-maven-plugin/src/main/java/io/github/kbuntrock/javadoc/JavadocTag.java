@@ -22,15 +22,15 @@ public enum JavadocTag {
 		formattingTags.add(SEE);
 	}
 
-    public static JavadocTag fromString(String tagName) {
-        return JavadocTag.valueOf(tagName.toUpperCase(Locale.ROOT));
-    }
+	public static JavadocTag fromString(String tagName) {
+		return JavadocTag.valueOf(tagName.toUpperCase(Locale.ROOT));
+	}
 
 	public static boolean isFormattingTag(String tagName) {
 		try {
 			JavadocTag tag = fromString(tagName);
 			return isFormattingTag(tag);
-		} catch (IllegalArgumentException e) {
+		} catch(IllegalArgumentException e) {
 			return false;
 		}
 	}
@@ -39,8 +39,8 @@ public enum JavadocTag {
 		return formattingTags.contains(tag);
 	}
 
-    @Override
-    public String toString() {
-        return this.name().toLowerCase(Locale.ROOT);
-    }
+	@Override
+	public String toString() {
+		return this.name().toLowerCase(Locale.ROOT);
+	}
 }

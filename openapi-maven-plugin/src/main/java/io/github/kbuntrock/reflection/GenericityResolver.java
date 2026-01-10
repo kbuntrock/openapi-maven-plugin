@@ -14,29 +14,33 @@ import org.apache.maven.plugin.logging.Log;
  */
 public final class GenericityResolver {
 
-
-    private final ApiContext context;
+	private final ApiContext context;
 	private Map<ResolvingKey, Type> resolvedCache = new HashMap<>();
 
-    public GenericityResolver(ApiContext context) {
-        this.context = context;
-    }
+	public GenericityResolver(ApiContext context) {
+		this.context = context;
+	}
 
-    /**
+	/**
 	 * Given a context class, resolve the given type. (mostly useful for parametrized types)
-	 * @param contextClass the context class
-	 * @param typeToResolve the type to be resolved (ex : List<T>)
+	 *
+	 * @param contextClass
+	 *            the context class
+	 * @param typeToResolve
+	 *            the type to be resolved (ex : List<T>)
 	 * @return the resolved type (ex: List<MyDto>)
 	 */
 	public Type resolve(final Class contextClass, final Type typeToResolve) {
 		Type resolved = resolvedCache.computeIfAbsent(new ResolvingKey(contextClass, typeToResolve), k -> {
 			if(context.getLogger().isDebugEnabled()) {
-				context.getLogger().debug("Computing cache key : "+contextClass.getSimpleName()+ " : "+typeToResolve.toString());
+				context.getLogger()
+					.debug("Computing cache key : " + contextClass.getSimpleName() + " : " + typeToResolve.toString());
 			}
 			return TypeToken.of(contextClass).resolveType(typeToResolve).getType();
 		});
 		if(context.getLogger().isDebugEnabled()) {
-			context.getLogger().debug("Returning resolved type for : "+contextClass.getSimpleName()+ " : "+typeToResolve.toString() + " -> "+resolved);
+			context.getLogger().debug("Returning resolved type for : " + contextClass.getSimpleName() + " : "
+				+ typeToResolve.toString() + " -> " + resolved);
 		}
 		return resolved;
 	}

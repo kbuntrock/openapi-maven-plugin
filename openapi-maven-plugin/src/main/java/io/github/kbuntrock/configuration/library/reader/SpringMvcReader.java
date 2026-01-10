@@ -75,7 +75,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 		primitiveWrapperTypeMap.put(Void.class, void.class);
 	}
 
-	public SpringMvcReader(final ApiContext context, final ApiConfiguration apiConfiguration, final OpenApiTypeResolver openApiTypeResolver) {
+	public SpringMvcReader(final ApiContext context, final ApiConfiguration apiConfiguration,
+		final OpenApiTypeResolver openApiTypeResolver) {
 		super(context, apiConfiguration, openApiTypeResolver);
 	}
 
@@ -93,7 +94,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 	}
 
 	@Override
-	public void computeAnnotations(final Class clazz, final String basePath, final Method method, final MergedAnnotations mergedAnnotations, final Tag tag) throws MojoFailureException {
+	public void computeAnnotations(final Class clazz, final String basePath, final Method method,
+		final MergedAnnotations mergedAnnotations, final Tag tag) throws MojoFailureException {
 
 		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
 		if(requestMappingMergedAnnotation.isPresent() && !excludedByReturnType(method)) {
@@ -120,7 +122,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 						endpoint.setDeprecated(isDeprecated(method));
 						setSwaggerAnnotatedEndpointProperties(endpoint, mergedAnnotations);
 						tag.addEndpoint(endpoint);
-						context.getLogger().debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
+						context.getLogger()
+							.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
 					}
 				}
 			}
@@ -134,11 +137,13 @@ public class SpringMvcReader extends AstractLibraryReader {
 	/**
 	 * See https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/arguments.html
 	 *
-	 * @param originalMethod     inspected method
+	 * @param originalMethod
+	 *            inspected method
 	 * @return list of parameters to document
 	 */
 	@Override
-	protected List<ParameterObject> readParameters(final Class clazz, final Method originalMethod, final MergedAnnotations endpointAnnotations) {
+	protected List<ParameterObject> readParameters(final Class clazz, final Method originalMethod,
+		final MergedAnnotations endpointAnnotations) {
 		context.getLogger().debug("Reading parameters from " + originalMethod.getName());
 
 		// Set of the method in the original class and eventually the methods in the parent classes / interfaces
@@ -163,7 +168,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 
 				final ParameterObject paramObj = parameters.computeIfAbsent(parameter.getName(),
 					(name) -> unwrapParameterObject(
-						new ParameterObject(name, genericityResolver.resolve(clazz, parameter.getParameterizedType()), openApiTypeResolver)));
+						new ParameterObject(name, genericityResolver.resolve(clazz, parameter.getParameterizedType()),
+							openApiTypeResolver)));
 
 				boolean annotationFound = false;
 				// Detect if is a header variable
@@ -214,7 +220,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 						paramObj.setName(value);
 					}
 					context.getLogger().debug(
-						"RequestParam annotation detected (" + paramObj.getName() + "), location is " + paramObj.getLocation().toString());
+						"RequestParam annotation detected (" + paramObj.getName() + "), location is "
+							+ paramObj.getLocation().toString());
 				}
 
 				// Detect if is a request body parameter
@@ -223,7 +230,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 					annotationFound = true;
 					paramObj.setLocation(ParameterLocation.BODY);
 					paramObj.setRequired(requestBodyMA.getBoolean("required"));
-					context.getLogger().debug("RequestBody annotation detected, location is " + paramObj.getLocation().toString());
+					context.getLogger()
+						.debug("RequestBody annotation detected, location is " + paramObj.getLocation().toString());
 				}
 
 				// Detect if is a request part parameter
@@ -236,7 +244,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 					if(!StringUtils.isEmpty(value)) {
 						paramObj.setName(value);
 					}
-					context.getLogger().debug("RequestPart annotation detected, location is " + paramObj.getLocation().toString());
+					context.getLogger()
+						.debug("RequestPart annotation detected, location is " + paramObj.getLocation().toString());
 				}
 
 				if(!annotationFound) {
@@ -262,15 +271,17 @@ public class SpringMvcReader extends AstractLibraryReader {
 		// Last case, some Dto fields can be binded to QueryParams : http://dolszewski.com/spring/how-to-bind-requestparam-to-object/
 		// Since this functionality is not well documented, it can be for now a subset of the complete functionality
 		final Map<String, ParameterObject> unnestedParams = new LinkedHashMap<>(parameters);
-		parameters.values().stream().filter(x -> x.getLocation() == null && parameterObjectBindableToQueryParams(x)).forEach(paramObj -> {
-			bindDtoToQueryParams(unnestedParams, paramObj);
-		});
+		parameters.values().stream().filter(x -> x.getLocation() == null && parameterObjectBindableToQueryParams(x))
+			.forEach(paramObj -> {
+				bindDtoToQueryParams(unnestedParams, paramObj);
+			});
 
 		return unnestedParams.values().stream().filter(x -> x.getLocation() != null).collect(Collectors.toList());
 	}
 
 	/**
 	 * Reads parameters only present in the request mapping annotation (see {@link RequestMapping#params})
+	 *
 	 * @param endpointAnnotations
 	 * @param parameters
 	 */
@@ -311,6 +322,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 
 	/**
 	 * Reads headers only present in the request mapping annotation (see {@link RequestMapping#params})
+	 *
 	 * @param endpointAnnotations
 	 * @param parameters
 	 */
@@ -410,7 +422,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 
 		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
 
-		final Optional<ParameterObject> body = endpoint.getParameters().stream().filter(x -> ParameterLocation.BODY == x.getLocation())
+		final Optional<ParameterObject> body = endpoint.getParameters().stream()
+			.filter(x -> ParameterLocation.BODY == x.getLocation())
 			.findAny();
 		if(body.isPresent()) {
 			final String[] consumes = requestMappingMergedAnnotation.getStringArray("consumes");
@@ -426,7 +439,6 @@ public class SpringMvcReader extends AstractLibraryReader {
 		}
 	}
 
-
 	@Override
 	protected int readResponseCode(final MergedAnnotations mergedAnnotations) {
 		final MergedAnnotation<ResponseStatus> responseStatusMA = mergedAnnotations.get(ResponseStatus.class);
@@ -437,7 +449,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 	}
 
 	/**
-	 * This function must act as close as the spring version : https://github.com/spring-projects/spring-framework/blob/main/spring-beans/src/main/java/org/springframework/beans/BeanUtils.java#L691
+	 * This function must act as close as the spring version :
+	 * https://github.com/spring-projects/spring-framework/blob/main/spring-beans/src/main/java/org/springframework/beans/BeanUtils.java#L691
 	 */
 	private static boolean isSpringSimpleProperty(Class<?> type) {
 		return isSimpleValueType(type) || (type.isArray() && isSimpleValueType(type.getComponentType()));

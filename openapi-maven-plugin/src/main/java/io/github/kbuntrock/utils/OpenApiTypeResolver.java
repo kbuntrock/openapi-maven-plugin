@@ -29,7 +29,8 @@ public class OpenApiTypeResolver {
 	/**
 	 * OpenApi Object type for specific use cases (ex : files). Please note that java Object.class IS NOT mapped to this type.
 	 */
-	public static final OpenApiResolvedType OBJECT_TYPE = new OpenApiResolvedType(OpenApiDataType.OBJECT, JsonParserUtils.parse("{\"type\":\"object\"}").get(), null, null);
+	public static final OpenApiResolvedType OBJECT_TYPE = new OpenApiResolvedType(OpenApiDataType.OBJECT,
+		JsonParserUtils.parse("{\"type\":\"object\"}").get(), null, null);
 
 	private static final String EQUALITY = "equality";
 	private static final String ASSIGNABILITY = "assignability";
@@ -38,7 +39,7 @@ public class OpenApiTypeResolver {
 	private static final String ENUM = "enum";
 	public static final String JAVA_UTIL_COLLECTION = "java.util.Collection";
 
-    private final ApiContext context;
+	private final ApiContext context;
 
 	private final Map<String, OpenApiResolvedType> modelMap = new HashMap<>();
 
@@ -63,14 +64,14 @@ public class OpenApiTypeResolver {
 	private final Set<Class<?>> nonDocumentableParameters = new HashSet<>();
 	private final Set<String> nonDocumentableParameterAnnotations = new HashSet<>();
 
-    /**
-     * Non documentable response section
-     */
-    private final Set<Class<?>> nonDocumentableResponses = new HashSet<>();
+	/**
+	 * Non documentable response section
+	 */
+	private final Set<Class<?>> nonDocumentableResponses = new HashSet<>();
 
 	public OpenApiTypeResolver(final ApiContext context) {
 		this.context = context;
-        // Loading default encoding associations
+		// Loading default encoding associations
 		initDefaultEncodingAssociations();
 		// Loading model definition
 		initModel(context.getProject(), context.getApiConfiguration());
@@ -80,9 +81,9 @@ public class OpenApiTypeResolver {
 		initUnwrappingDefinitions();
 		// Loading "non documentable" parameters classes
 		initNonDocumentableParameters(context.getApiConfiguration());
-        // Loading "non documentable" reponses classes
-        initNonDocumentableResponses(context.getApiConfiguration());
-    }
+		// Loading "non documentable" reponses classes
+		initNonDocumentableResponses(context.getApiConfiguration());
+	}
 
 	private void initModel(final MavenProject mavenProject, final ApiConfiguration apiConfig) {
 		modelMap.clear();
@@ -101,7 +102,8 @@ public class OpenApiTypeResolver {
 		root.fields().forEachRemaining(entry -> {
 			final JsonNode modelNode = entry.getValue();
 			String defaultEncoding = defaultEncodingMap.get(entry.getKey());
-			final OpenApiResolvedType type = new OpenApiResolvedType(OpenApiDataType.fromJsonNode(modelNode), modelNode, entry.getKey(), defaultEncoding);
+			final OpenApiResolvedType type = new OpenApiResolvedType(OpenApiDataType.fromJsonNode(modelNode), modelNode,
+				entry.getKey(), defaultEncoding);
 			modelMap.put(entry.getKey(), type);
 		});
 		// Special "any" Openapi type
@@ -135,7 +137,6 @@ public class OpenApiTypeResolver {
 		});
 	}
 
-
 	private void initJavaClassAssociationsByEquality(final JsonNode root) {
 		final JsonNode equalityNode = root.get(EQUALITY);
 		if(equalityNode == null) {
@@ -150,7 +151,8 @@ public class OpenApiTypeResolver {
 				final OpenApiResolvedType resolvedType = modelMap.get(entry.getValue().asText());
 				if(resolvedType == null) {
 					throw new RuntimeException(
-						"There is no model definition to honor association : " + entry.getKey() + " -> " + entry.getValue().asText());
+						"There is no model definition to honor association : " + entry.getKey() + " -> "
+							+ entry.getValue().asText());
 				}
 				equalityMap.put(entry.getKey(), resolvedType);
 			}
@@ -171,7 +173,7 @@ public class OpenApiTypeResolver {
 			try {
 				clazz = context.getClassLoader().loadClass(entry.getKey());
 			} catch(final ClassNotFoundException ex) {
-                context.getLogger().debug("Model class " + entry.getValue().asText() + " not found (could be normal)");
+				context.getLogger().debug("Model class " + entry.getValue().asText() + " not found (could be normal)");
 			}
 
 			if(clazz != null) {
@@ -181,7 +183,8 @@ public class OpenApiTypeResolver {
 					final OpenApiResolvedType resolvedType = modelMap.get(entry.getValue().asText());
 					if(resolvedType == null) {
 						throw new RuntimeException(
-							"There is no model definition to honor association : " + entry.getKey() + " -> " + entry.getValue().asText());
+							"There is no model definition to honor association : " + entry.getKey() + " -> "
+								+ entry.getValue().asText());
 					}
 					assignabilityMap.put(clazz, resolvedType);
 				}
@@ -286,8 +289,10 @@ public class OpenApiTypeResolver {
 	 *
 	 * @param classLoader
 	 * @param entry
-	 * @param unwrappingMap the map to add the entry
-	 * @param debug         true for default plugin configuration, false for user configuration to explicitely point errors
+	 * @param unwrappingMap
+	 *            the map to add the entry
+	 * @param debug
+	 *            true for default plugin configuration, false for user configuration to explicitely point errors
 	 */
 	private void registerUnwrappingEntry(final ClassLoader classLoader, final Map.Entry<String, JsonNode> entry,
 		final Map<Class<?>, UnwrappingEntry> unwrappingMap, final boolean debug) {
@@ -301,9 +306,10 @@ public class OpenApiTypeResolver {
 			}
 			unwrappingMap.put(clazz, unwrappingEntry);
 		} catch(final ClassNotFoundException e) {
-			final String message = "Cannot load unwrapping class " + entry.getKey() + "(normal if associated with a non used library)";
+			final String message = "Cannot load unwrapping class " + entry.getKey()
+				+ "(normal if associated with a non used library)";
 			if(debug) {
-                context.getLogger().debug(message);
+				context.getLogger().debug(message);
 			} else {
 				throw new RuntimeException(message, e);
 			}
@@ -371,18 +377,20 @@ public class OpenApiTypeResolver {
 	 * Register an non documentable class in the resolver
 	 *
 	 * @param classLoader
-	 * @param canonicalClassName class to load
-	 * @param debug              true for default plugin configuration, false for user configuration to explicitely point errors
+	 * @param canonicalClassName
+	 *            class to load
+	 * @param debug
+	 *            true for default plugin configuration, false for user configuration to explicitely point errors
 	 */
 	private void registerNonDocumentableParameters(final ClassLoader classLoader, final String canonicalClassName,
 		final boolean debug) {
 		try {
 			nonDocumentableParameters.add(classLoader.loadClass(canonicalClassName));
 		} catch(final ClassNotFoundException e) {
-			final String message =
-				"Cannot load \"non documentable\" parameter class " + canonicalClassName + "(normal if associated with a non used library)";
+			final String message = "Cannot load \"non documentable\" parameter class " + canonicalClassName
+				+ "(normal if associated with a non used library)";
 			if(debug) {
-                context.getLogger().debug(message);
+				context.getLogger().debug(message);
 			} else {
 				throw new RuntimeException(message, e);
 			}
@@ -408,46 +416,46 @@ public class OpenApiTypeResolver {
 		return true;
 	}
 
-    private void initNonDocumentableResponses(final ApiConfiguration apiConfig) {
-        nonDocumentableResponses.clear();
+	private void initNonDocumentableResponses(final ApiConfiguration apiConfig) {
+		nonDocumentableResponses.clear();
 
-        final JsonNode root = YamlParserUtils.readResourceFile("/non-documentable-responses.yml");
-        root.get("common").elements().forEachRemaining(entry -> {
-            registerNonDocumentableResponses(context.getClassLoader(), entry.asText(), true);
-        });
+		final JsonNode root = YamlParserUtils.readResourceFile("/non-documentable-responses.yml");
+		root.get("common").elements().forEachRemaining(entry -> {
+			registerNonDocumentableResponses(context.getClassLoader(), entry.asText(), true);
+		});
 
-        if(Library.SPRING_MVC == apiConfig.getLibrary()) {
-            root.get("spring").elements().forEachRemaining(entry -> {
-                registerNonDocumentableResponses(context.getClassLoader(), entry.asText(), true);
-            });
-        }
-    }
+		if(Library.SPRING_MVC == apiConfig.getLibrary()) {
+			root.get("spring").elements().forEachRemaining(entry -> {
+				registerNonDocumentableResponses(context.getClassLoader(), entry.asText(), true);
+			});
+		}
+	}
 
-    private void registerNonDocumentableResponses(final ClassLoader classLoader, final String canonicalClassName,
-                                                   final boolean debug) {
-        try {
-            nonDocumentableResponses.add(classLoader.loadClass(canonicalClassName));
-        } catch(final ClassNotFoundException e) {
-            final String message =
-                    "Cannot load \"non documentable\" parameter class " + canonicalClassName + "(normal if associated with a non used library)";
-            if(debug) {
-                context.getLogger().debug(message);
-            } else {
-                throw new RuntimeException(message, e);
-            }
-        }
-    }
+	private void registerNonDocumentableResponses(final ClassLoader classLoader, final String canonicalClassName,
+		final boolean debug) {
+		try {
+			nonDocumentableResponses.add(classLoader.loadClass(canonicalClassName));
+		} catch(final ClassNotFoundException e) {
+			final String message = "Cannot load \"non documentable\" parameter class " + canonicalClassName
+				+ "(normal if associated with a non used library)";
+			if(debug) {
+				context.getLogger().debug(message);
+			} else {
+				throw new RuntimeException(message, e);
+			}
+		}
+	}
 
-    public boolean canResponseBeDocumented(final Class<?> returnType) {
-        for(final Class<?> clazz : nonDocumentableResponses) {
-            if(clazz.isAssignableFrom(returnType)) {
-                return false;
-            }
-        }
-        return true;
-    }
+	public boolean canResponseBeDocumented(final Class<?> returnType) {
+		for(final Class<?> clazz : nonDocumentableResponses) {
+			if(clazz.isAssignableFrom(returnType)) {
+				return false;
+			}
+		}
+		return true;
+	}
 
-    public ApiContext getContext() {
-        return context;
-    }
+	public ApiContext getContext() {
+		return context;
+	}
 }

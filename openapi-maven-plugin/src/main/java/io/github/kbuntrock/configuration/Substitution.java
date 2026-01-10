@@ -44,5 +44,4 @@ public class Substitution {
 		this.substitute = substitute;
 	}
 
-
 }

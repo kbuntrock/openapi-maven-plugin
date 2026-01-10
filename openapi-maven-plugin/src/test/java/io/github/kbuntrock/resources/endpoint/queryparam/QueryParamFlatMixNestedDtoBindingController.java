@@ -13,8 +13,8 @@ public interface QueryParamFlatMixNestedDtoBindingController {
 
 	@GetMapping("is-time-valid")
 	boolean isTimeValid(
-			@RequestParam(value = "queryString", required = false) String queryString,
-			TimeDto time,
-			@RequestParam(value = "page", required = false, defaultValue = "0") final int page);
+		@RequestParam(value = "queryString", required = false) String queryString,
+		TimeDto time,
+		@RequestParam(value = "page", required = false, defaultValue = "0") final int page);
 
 }

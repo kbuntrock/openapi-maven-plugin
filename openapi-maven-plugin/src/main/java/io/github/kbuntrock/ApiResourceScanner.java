@@ -1,14 +1,5 @@
 package io.github.kbuntrock;
 
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ClassInfo;
-import io.github.classgraph.ScanResult;
-import io.github.kbuntrock.configuration.ApiConfiguration;
-import io.github.kbuntrock.configuration.CommonApiConfiguration;
-import io.github.kbuntrock.configuration.library.reader.ClassLoaderHelper;
-import io.github.kbuntrock.context.ApiContext;
-import io.github.kbuntrock.javadoc.ClassDocumentation;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,15 +8,24 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import org.apache.maven.plugin.MojoFailureException;
+
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ScanResult;
+import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.configuration.CommonApiConfiguration;
+import io.github.kbuntrock.configuration.library.reader.ClassLoaderHelper;
+import io.github.kbuntrock.context.ApiContext;
+import io.github.kbuntrock.javadoc.ClassDocumentation;
+import io.github.kbuntrock.utils.OpenApiTypeResolver;
 
 /**
  * In charge of creating the tag library object based on an api configuration object.
  */
 public class ApiResourceScanner {
 
-    private final ApiContext context;
+	private final ApiContext context;
 
 	private final ApiConfiguration apiConfiguration;
 	private final OpenApiTypeResolver openApiTypeResolver;
@@ -35,7 +35,7 @@ public class ApiResourceScanner {
 	private final List<Pattern> blackListPatterns = new ArrayList<>();
 
 	public ApiResourceScanner(final ApiContext context, final Map<String, ClassDocumentation> javadocMap) {
-        this.context = context;
+		this.context = context;
 		this.apiConfiguration = context.getApiConfiguration();
 		this.openApiTypeResolver = context.getOpenApiTypeResolver();
 		this.javadocMap = javadocMap;
@@ -92,7 +92,8 @@ public class ApiResourceScanner {
 					String.join(", ", apiConfiguration.getTagAnnotations()) + " ]");
 
 				// Find directly or inheritedly annotated by RequestMapping classes.
-				final JavaClassAnalyser javaClassAnalyser = new JavaClassAnalyser(context, apiConfiguration, classScanResult, openApiTypeResolver);
+				final JavaClassAnalyser javaClassAnalyser = new JavaClassAnalyser(context, apiConfiguration, classScanResult,
+					openApiTypeResolver);
 				for(final Class<?> restControllerClass : restControllerClasses) {
 					if(validateWhiteList(restControllerClass) && validateBlackList(restControllerClass)) {
 						javaClassAnalyser.getTagFromClass(restControllerClass).ifPresent(library::addTag);
@@ -124,16 +125,18 @@ public class ApiResourceScanner {
 	}
 
 	private boolean validateWhiteList(final Class<?> restControllerClass) {
-		if (whiteListPatterns.isEmpty()) {
+		if(whiteListPatterns.isEmpty()) {
 			return true;
 		}
-		return whiteListPatterns.stream().anyMatch(whitePattern -> whitePattern.matcher(restControllerClass.getCanonicalName()).matches());
-    }
+		return whiteListPatterns.stream()
+			.anyMatch(whitePattern -> whitePattern.matcher(restControllerClass.getCanonicalName()).matches());
+	}
 
 	private boolean validateBlackList(final Class<?> restControllerClass) {
-		if (blackListPatterns.isEmpty()) {
+		if(blackListPatterns.isEmpty()) {
 			return true;
 		}
-		return blackListPatterns.stream().noneMatch(blackPattern -> blackPattern.matcher(restControllerClass.getCanonicalName()).matches());
+		return blackListPatterns.stream()
+			.noneMatch(blackPattern -> blackPattern.matcher(restControllerClass.getCanonicalName()).matches());
 	}
 }

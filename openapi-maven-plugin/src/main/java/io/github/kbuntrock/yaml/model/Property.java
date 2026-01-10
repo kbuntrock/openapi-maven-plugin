@@ -36,8 +36,9 @@ public class Property extends Schema {
 		this.setEnumValues(schema.getEnumValues());
 	}
 
-	public Property(final DataObject dataObject, final boolean mainReference, final String name, final Set<String> exploredSignatures,
-					final DataObject parentDataObject, final TagLibrary tagLibrary) {
+	public Property(final DataObject dataObject, final boolean mainReference, final String name,
+		final Set<String> exploredSignatures,
+		final DataObject parentDataObject, final TagLibrary tagLibrary) {
 		super(dataObject, mainReference, exploredSignatures, parentDataObject, name, tagLibrary);
 		if(dataObject.getClassRequired() != null) {
 			this.setRequired(dataObject.getClassRequired());

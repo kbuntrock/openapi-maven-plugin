@@ -30,7 +30,7 @@ import static java.util.stream.Collectors.toSet;
  */
 public class JavaClassAnalyser {
 
-    private final ApiContext context;
+	private final ApiContext context;
 
 	private final List<Pair<Pattern, Pattern>> whiteListPatterns = new ArrayList<>();
 	private final List<Pair<Pattern, Pattern>> blackListPatterns = new ArrayList<>();
@@ -39,9 +39,10 @@ public class JavaClassAnalyser {
 
 	private final ScanResult classScanResult;
 
-	public JavaClassAnalyser(final ApiContext context, final ApiConfiguration apiConfiguration, ScanResult classScanResult, final OpenApiTypeResolver openApiTypeResolver) {
+	public JavaClassAnalyser(final ApiContext context, final ApiConfiguration apiConfiguration, ScanResult classScanResult,
+		final OpenApiTypeResolver openApiTypeResolver) {
 		this.context = context;
-        this.libraryReader = apiConfiguration.getLibrary().createReader(context, apiConfiguration, openApiTypeResolver);
+		this.libraryReader = apiConfiguration.getLibrary().createReader(context, apiConfiguration, openApiTypeResolver);
 		this.classScanResult = classScanResult;
 
 		// Compilation of white list / black list patterns
@@ -89,14 +90,15 @@ public class JavaClassAnalyser {
 
 	public static String createMethodIdentifier(final Method method) {
 		return Arrays.stream(method.getParameters())
-				.map(p -> StringUtils.defaultString(p.getType().getSimpleName()))
-				.collect(joining(", ", method.getName() + "(", ")"));
+			.map(p -> StringUtils.defaultString(p.getType().getSimpleName()))
+			.collect(joining(", ", method.getName() + "(", ")"));
 	}
 
 	/**
 	 * Create a Tag from a java class containing REST mapping functions
 	 *
-	 * @param clazz a REST controller class
+	 * @param clazz
+	 *            a REST controller class
 	 * @return an tag (if there is at least one declared endpoint)
 	 * @throws MojoFailureException
 	 */
@@ -104,21 +106,21 @@ public class JavaClassAnalyser {
 		final Tag tag = new Tag(clazz);
 		context.getLogger().debug("Parsing tag : " + tag.getName());
 
-		final MergedAnnotations mergedAnnotations = MergedAnnotations.from(clazz, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+		final MergedAnnotations mergedAnnotations = MergedAnnotations.from(clazz,
+			MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
 
 		// Read swagger tag annotation
 		MergedAnnotation<Annotation> swaggerTag = mergedAnnotations.get("io.swagger.v3.oas.annotations.tags.Tag");
 		if(swaggerTag.isPresent()) {
 			final String tagName = swaggerTag.getString("name");
-			if (!StringUtils.isEmpty(tagName)) {
+			if(!StringUtils.isEmpty(tagName)) {
 				tag.setComputedName(tagName);
 			}
 			final String description = swaggerTag.getString("description");
-			if (!StringUtils.isEmpty(description)) {
+			if(!StringUtils.isEmpty(description)) {
 				tag.setDescription(description);
 			}
 		}
-
 
 		final List<String> basePaths = libraryReader.readBasePaths(clazz, mergedAnnotations);
 
@@ -149,7 +151,8 @@ public class JavaClassAnalyser {
 		for(final Method method : methods) {
 
 			if(validateWhiteList(clazz, method) && validateBlackList(clazz, method)) {
-				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(method, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(method,
+					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
 				libraryReader.computeAnnotations(clazz, basePath, method, mergedAnnotations, tag);
 			}
 		}

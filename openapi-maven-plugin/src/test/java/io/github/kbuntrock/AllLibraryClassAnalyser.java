@@ -61,7 +61,8 @@ public class AllLibraryClassAnalyser extends AbstractTest {
 		final DocumentationMojo mojo = createDocumentationMojo();
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
 		apiConfiguration.setLibrary(Library.SPRING_MVC.name());
-		apiConfiguration.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
+		apiConfiguration
+			.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
 		apiConfiguration.setAttachArtifact(false);
 		apiConfiguration.setLocations(Collections.singletonList(apiLocation));
 		mojo.setTestMode(true);

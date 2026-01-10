@@ -25,14 +25,41 @@ git checkout -b feature/my-awesome-feature
   - Follow the Coding Guidelines (see below)
   - Keep commits atomic and messages clear
 
-**4. Run Tests**  
+**4. Format your code**  
+
+This project uses the Eclipse formatter to standardize the code style.
+However, it is by no means necessary to use Eclipse to work on this project, and several approaches are available to format the source code according to the project’s conventions.
+
+***With Maven***
+
+You can use maven to format or verify that your code respect the project formalism:
+```
+# Formatting:
+mvn formatter:format
+
+# Or validating
+mvn formatter:validate
+```
+
+***With IntelliJ***
+
+You can use this nice plugin to use the Eclipse formatter with Jetbrain's IDE :
+https://github.com/krasa/EclipseCodeFormatter#instructions
+
+The formatter configuration is located in `openapi-maven-plugin/eclipse-formatter.xml`.
+
+***With Eclipse***
+
+The formatter configuration is located in `openapi-maven-plugin/eclipse-formatter.xml`.
+
+**5. Run Tests**  
 We use Maven for build and test automation:
 ```
 # In the openapi-maven-plugin sub-folder:
 mvn clean verify
 ```
 
-**5. Submit a Pull Request**
+**6. Submit a Pull Request**
 
 - Push your branch and open a PR against the ``dev`` branch.
 - Make sure your PR description explains what and why clearly.
@@ -60,7 +87,7 @@ When proposing a feature, please include:
 ## 🧑‍💻 Coding Guidelines
 
 - **Language**: Java 8+ (compatible with JDK 8–21).
-- **Style**: Follow standard Java conventions
+- **Style**: Follow standard Java conventions / Format your code with the provided methods.
 - **Tests**: Add unit/integration tests for new functionality.
 - **Code documentation**: Update Javadoc 
 - **General documentation**: Update at documentation located in the ``docs`` sub-folder. (at least the english portion)

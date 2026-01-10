@@ -31,17 +31,18 @@ import java.util.Optional;
 public class JavadocParser {
 
 	private static final String LOG_PREFIX = JavadocParser.class.getSimpleName() + " - ";
-	
-    private final ProjectContext context;
-    private final JavaParser javaParser;
+
+	private final ProjectContext context;
+	private final JavaParser javaParser;
 	private final Map<String, ClassDocumentation> javadocMap = new HashMap<>();
 	private final List<File> filesToScan;
 	private final JavadocVisitor visitor = new JavadocVisitor();
 
 	private final boolean debugScan;
 
-	public JavadocParser(final ProjectContext context, final List<File> filesToScan, final JavadocConfiguration javadocConfiguration) {
-        this.context = context;
+	public JavadocParser(final ProjectContext context, final List<File> filesToScan,
+		final JavadocConfiguration javadocConfiguration) {
+		this.context = context;
 		this.filesToScan = filesToScan;
 		final ParserConfiguration parserConfiguration = new ParserConfiguration();
 
@@ -51,8 +52,10 @@ public class JavadocParser {
 		if(Charset.isSupported(javadocConfiguration.getEncoding())) {
 			charset = Charset.forName(javadocConfiguration.getEncoding());
 		} else {
-			context.getLogger().warn("Encoding " + javadocConfiguration.getEncoding() + " is not supported. UTF-8 will be used instead.");
-            context.getLogger().warn("Supported encoding on this JVM are : " + String.join(", ", Charset.availableCharsets().keySet()));
+			context.getLogger()
+				.warn("Encoding " + javadocConfiguration.getEncoding() + " is not supported. UTF-8 will be used instead.");
+			context.getLogger()
+				.warn("Supported encoding on this JVM are : " + String.join(", ", Charset.availableCharsets().keySet()));
 		}
 		parserConfiguration.setCharacterEncoding(charset);
 		debugScan = javadocConfiguration.isDebugScan();
@@ -86,7 +89,8 @@ public class JavadocParser {
 				context.getLogger().debug("Summary : " + classDocumentation.getSummary());
 				context.getLogger().debug("Description : " + classDocumentation.getDescription());
 				if(!classDocumentation.getMethodsJavadocByIdentifier().isEmpty()) {
-					for(final Entry<String, JavadocWrapper> entry : classDocumentation.getMethodsJavadocByIdentifier().entrySet()) {
+					for(final Entry<String, JavadocWrapper> entry : classDocumentation.getMethodsJavadocByIdentifier()
+						.entrySet()) {
 						context.getLogger().debug("Method doc for : " + entry.getKey());
 						context.getLogger().debug("Summary : " + entry.getValue().getSummary());
 						context.getLogger().debug("Description : " + entry.getValue().getDescription());
@@ -119,7 +123,7 @@ public class JavadocParser {
 			final CompilationUnit compilationUnit = parseResult.getResult().get();
 			visitor.visit(compilationUnit, null);
 		} catch(final ParseProblemException ex) {
-            context.getLogger().warn("Error while parsing javadoc of file " + javaFile.getName() + " -> "
+			context.getLogger().warn("Error while parsing javadoc of file " + javaFile.getName() + " -> "
 				+ ex.getMessage());
 		}
 
@@ -137,7 +141,8 @@ public class JavadocParser {
 			return Optional.of(javadocMap.computeIfAbsent(dec.getFullyQualifiedName().get(),
 				key -> new ClassDocumentation(dec.getFullyQualifiedName().get(), dec.getName().asString())));
 		}
-		if(commentedNode instanceof RecordDeclaration && ((RecordDeclaration) commentedNode).getFullyQualifiedName().isPresent()) {
+		if(commentedNode instanceof RecordDeclaration
+			&& ((RecordDeclaration) commentedNode).getFullyQualifiedName().isPresent()) {
 			final String fullName = ((RecordDeclaration) commentedNode).getFullyQualifiedName().get();
 			final RecordDeclaration dec = (RecordDeclaration) commentedNode;
 			return Optional.of(javadocMap.computeIfAbsent(fullName,
@@ -170,7 +175,8 @@ public class JavadocParser {
 			super.visit(comment, arg);
 			final CommentType type = CommentType.fromNode(comment.getCommentedNode().get());
 			if(CommentType.OTHER != type) {
-				final Optional<ClassDocumentation> classDocumentation = findClassDocumentationForNode(comment.getCommentedNode().get());
+				final Optional<ClassDocumentation> classDocumentation = findClassDocumentationForNode(
+					comment.getCommentedNode().get());
 				if(classDocumentation.isPresent()) {
 					final Javadoc javadoc = comment.parse();
 					switch(type) {
@@ -202,7 +208,8 @@ public class JavadocParser {
 						case METHOD:
 							final MethodDeclaration methodDeclaration = (MethodDeclaration) comment.getCommentedNode().get();
 							JavadocWrapper wrapper = new JavadocWrapper(javadoc);
-							classDocumentation.get().getMethodsJavadocByIdentifier().put(methodDeclaration.getSignature().toString(), wrapper);
+							classDocumentation.get().getMethodsJavadocByIdentifier()
+								.put(methodDeclaration.getSignature().toString(), wrapper);
 							break;
 					}
 				}

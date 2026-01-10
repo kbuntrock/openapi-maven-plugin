@@ -1,6 +1,5 @@
 package io.github.kbuntrock.resources.dto;
 
-
 import io.github.kbuntrock.resources.Constants;
 import java.util.Set;
 import javax.validation.constraints.Email;

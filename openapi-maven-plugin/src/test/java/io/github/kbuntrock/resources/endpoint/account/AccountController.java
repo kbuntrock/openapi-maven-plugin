@@ -31,7 +31,8 @@ public interface AccountController {
 	/**
 	 * {@code POST  /account/register} : register the user.
 	 *
-	 * @param managedUserDto the managed user View Model.
+	 * @param managedUserDto
+	 *            the managed user View Model.
 	 */
 	@PostMapping("/register")
 	@ResponseStatus(HttpStatus.CREATED)
@@ -40,8 +41,10 @@ public interface AccountController {
 	/**
 	 * {@code GET  /account/activate} : activate the registered user.
 	 *
-	 * @param key the activation key.
-	 * @throws RuntimeException {@code 500 (Internal Server Error)} if the user couldn't be activated.
+	 * @param key
+	 *            the activation key.
+	 * @throws RuntimeException
+	 *             {@code 500 (Internal Server Error)} if the user couldn't be activated.
 	 */
 	@GetMapping("/activate")
 	void activateAccount(@RequestParam(value = "key") String key);
@@ -50,7 +53,8 @@ public interface AccountController {
 	 * {@code GET  /account} : get the current user.
 	 *
 	 * @return the current user.
-	 * @throws RuntimeException {@code 500 (Internal Server Error)} if the user couldn't be returned.
+	 * @throws RuntimeException
+	 *             {@code 500 (Internal Server Error)} if the user couldn't be returned.
 	 */
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	AccountDto getAccount();
@@ -58,8 +62,10 @@ public interface AccountController {
 	/**
 	 * {@code POST  /account} : update the current user information.
 	 *
-	 * @param accountDto the current user information.
-	 * @throws RuntimeException {@code 500 (Internal Server Error)} if the user login wasn't found.
+	 * @param accountDto
+	 *            the current user information.
+	 * @throws RuntimeException
+	 *             {@code 500 (Internal Server Error)} if the user login wasn't found.
 	 */
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
 	void saveAccount(@RequestBody AccountDto accountDto);
@@ -67,7 +73,8 @@ public interface AccountController {
 	/**
 	 * {@code POST  /account/change-password} : changes the current user's password.
 	 *
-	 * @param passwordChangeDto current and new password.
+	 * @param passwordChangeDto
+	 *            current and new password.
 	 */
 	@PostMapping(path = "/change-password")
 	@Deprecated
@@ -77,13 +84,14 @@ public interface AccountController {
 	 * {@code GET  /account/sessions} : get the current open sessions.
 	 *
 	 * @return the current open sessions.
-	 * @throws RuntimeException {@code 500 (Internal Server Error)} if the current open sessions couldn't be retrieved.
+	 * @throws RuntimeException
+	 *             {@code 500 (Internal Server Error)} if the current open sessions couldn't be retrieved.
 	 */
 	@GetMapping("/sessions")
 	List<PersistentTokenDto> getCurrentSessions();
 
 	/**
-	 * {@code DELETE  /account/sessions?series={series}} : invalidate an existing session.
+	 * {@code DELETE /account/sessions?series={series}} : invalidate an existing session.
 	 * <p>
 	 * - You can only delete your own sessions, not any other user's session
 	 * - If you delete one of your existing sessions, and that you are currently logged in on that session, you will
@@ -95,8 +103,10 @@ public interface AccountController {
 	 * There is an API to invalidate the current session, but there is no API to check which session uses which
 	 * cookie.
 	 *
-	 * @param series the series of an existing session.
-	 * @throws IllegalArgumentException if the series couldn't be URL decoded.
+	 * @param series
+	 *            the series of an existing session.
+	 * @throws IllegalArgumentException
+	 *             if the series couldn't be URL decoded.
 	 */
 	@DeleteMapping("/sessions/{series}")
 	void invalidateSession(@PathVariable(name = "series") String series);
@@ -104,7 +114,8 @@ public interface AccountController {
 	/**
 	 * {@code POST   /account/reset-password/init} : Send an email to reset the password of the user.
 	 *
-	 * @param mail the mail of the user.
+	 * @param mail
+	 *            the mail of the user.
 	 */
 	@PostMapping(path = "/reset-password/init")
 	void requestPasswordReset(@RequestBody String mail);
@@ -112,8 +123,10 @@ public interface AccountController {
 	/**
 	 * {@code POST   /account/reset-password/finish} : Finish to reset the password of the user.
 	 *
-	 * @param keyAndPassword the generated key and the new password.
-	 * @throws RuntimeException {@code 500 (Internal Server Error)} if the password could not be reset.
+	 * @param keyAndPassword
+	 *            the generated key and the new password.
+	 * @throws RuntimeException
+	 *             {@code 500 (Internal Server Error)} if the password could not be reset.
 	 */
 	@PostMapping(path = "/reset-password/finish")
 	void finishPasswordReset(@RequestBody KeyAndPasswordDto keyAndPassword);
@@ -121,7 +134,8 @@ public interface AccountController {
 	/**
 	 * {@code GET  /authenticate} : check if the user is authenticated, and return its login.
 	 *
-	 * @param request the HTTP request.
+	 * @param request
+	 *            the HTTP request.
 	 * @return the login if the user is authenticated.
 	 */
 	@RequestMapping(value = "/authenticate", method = RequestMethod.GET)

@@ -91,39 +91,40 @@ public class Schema {
 	@JsonIgnore
 	protected ApiConfiguration apiConfiguration;
 
-    @JsonIgnore
-    protected ApiContext context;
-
+	@JsonIgnore
+	protected ApiContext context;
 
 	public Schema(final ApiContext context, final ApiConfiguration apiConfiguration) {
 		this.apiConfiguration = apiConfiguration;
-        this.context = context;
+		this.context = context;
 	}
 
 	public Schema(final DataObject dataObject, final Set<String> exploredSignatures,
-				  final TagLibrary tagLibrary) {
+		final TagLibrary tagLibrary) {
 		this(dataObject, false, exploredSignatures, null, null, tagLibrary);
 	}
 
 	/**
 	 *
 	 * @param wrappedDataObject
-	 * @param mainReference true if we are writing the components/schemas section
+	 * @param mainReference
+	 *            true if we are writing the components/schemas section
 	 * @param exploredSignatures
 	 * @param parentDataObject
 	 * @param parentFieldName
 	 */
 	public Schema(final DataObject wrappedDataObject,
-				  final boolean mainReference,
-				  final Set<String> exploredSignatures,
-				  final DataObject parentDataObject,
-				  final String parentFieldName,
-				  final TagLibrary tagLibrary) {
+		final boolean mainReference,
+		final Set<String> exploredSignatures,
+		final DataObject parentDataObject,
+		final String parentFieldName,
+		final TagLibrary tagLibrary) {
 
-		final DataObject dataObject = tagLibrary.getOpenApiTypeResolver().unwrapDataObject(wrappedDataObject, UnwrappingType.SCHEMA);
+		final DataObject dataObject = tagLibrary.getOpenApiTypeResolver().unwrapDataObject(wrappedDataObject,
+			UnwrappingType.SCHEMA);
 
 		this.apiConfiguration = tagLibrary.getApiConfiguration();
-        this.context = tagLibrary.getContext();
+		this.context = tagLibrary.getContext();
 
 		this.mainReference = mainReference;
 
@@ -132,7 +133,8 @@ public class Schema {
 		if(tagLibrary.hasJavadocMap()) {
 			classDocumentation = tagLibrary.getJavadocMap().get(dataObject.getJavaClass().getCanonicalName());
 			if(classDocumentation != null) {
-				classDocumentation.inheritanceEnhancement(dataObject.getJavaClass(), EnhancementType.BOTH, tagLibrary.getJavadocMap());
+				classDocumentation.inheritanceEnhancement(dataObject.getJavaClass(), EnhancementType.BOTH,
+					tagLibrary.getJavadocMap());
 			}
 			if(classDocumentation != null && mainReference) {
 				final Optional<String> optionalDescription = classDocumentation.getDescription();
@@ -142,21 +144,25 @@ public class Schema {
 			}
 		}
 		// Swagger annotation on the class
-		MergedAnnotations mergedClassAnnotations = MergedAnnotations.from(dataObject.getJavaClass(), MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
-		final MergedAnnotation<Annotation> classSchemaAnnotation = mergedClassAnnotations.get("io.swagger.v3.oas.annotations.media.Schema");
-		if (classSchemaAnnotation.isPresent()) {
+		MergedAnnotations mergedClassAnnotations = MergedAnnotations.from(dataObject.getJavaClass(),
+			MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+		final MergedAnnotation<Annotation> classSchemaAnnotation = mergedClassAnnotations
+			.get("io.swagger.v3.oas.annotations.media.Schema");
+		if(classSchemaAnnotation.isPresent()) {
 			String swaggerDescription = classSchemaAnnotation.getString("description");
-			if (!StringUtils.isEmpty(swaggerDescription)) {
+			if(!StringUtils.isEmpty(swaggerDescription)) {
 				description = swaggerDescription;
 			}
 		}
 
 		if(dataObject.isMap()) {
 			type = dataObject.getOpenApiResolvedType();
-			additionalProperties = new Schema(dataObject.getMapValueType(), false, exploredSignatures, parentDataObject, parentFieldName, tagLibrary);
+			additionalProperties = new Schema(dataObject.getMapValueType(), false, exploredSignatures, parentDataObject,
+				parentFieldName, tagLibrary);
 		} else if(dataObject.isOpenApiArray()) {
 			type = dataObject.getOpenApiResolvedType();
-			items = new Schema(dataObject.getArrayItemDataObject(), false, exploredSignatures, parentDataObject, parentFieldName, tagLibrary);
+			items = new Schema(dataObject.getArrayItemDataObject(), false, exploredSignatures, parentDataObject, parentFieldName,
+				tagLibrary);
 			uniqueItems = dataObject.getUniqueItems();
 
 		} else if(!mainReference && dataObject.isReferenceObject()) {
@@ -178,13 +184,14 @@ public class Schema {
 			boolean forcedReference = false;
 			String referenceSignature = null;
 			if(parentDataObject != null && parentFieldName != null) {
-				final String objectSignature =
-					parentDataObject.getJavaClass().getSimpleName() + "_" + parentFieldName + "_" + dataObject.getSignature();
+				final String objectSignature = parentDataObject.getJavaClass().getSimpleName() + "_" + parentFieldName + "_"
+					+ dataObject.getSignature();
 				if(!exploredSignatures.add(objectSignature)) {
 					// The fieldname + signature has already be seen. We are in a recursive loop
 					// We will have to write this field in the schema section.
-					referenceSignature = parentDataObject.getJavaClass().getSimpleName() + "_" + dataObject.getSchemaRecursiveSuffix();
-                    context.getAdditionnalSchemaLibrary().addDataObject(referenceSignature, dataObject);
+					referenceSignature = parentDataObject.getJavaClass().getSimpleName() + "_"
+						+ dataObject.getSchemaRecursiveSuffix();
+					context.getAdditionnalSchemaLibrary().addDataObject(referenceSignature, dataObject);
 					forcedReference = true;
 				}
 			}
@@ -197,12 +204,13 @@ public class Schema {
 					// LinkedHashMap to keep the order of the class
 					properties = new LinkedHashMap<>();
 
-					final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), dataObject.getJavaClass());
+					final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(),
+						dataObject.getJavaClass());
 					if(!fields.isEmpty() && !dataObject.isEnum()) {
 
 						for(final Field field : fields) {
 
-                            List<Annotation> annotations = getRelevantAnnotationsForField(field);
+							List<Annotation> annotations = getRelevantAnnotationsForField(field);
 
 							if(field.isAnnotationPresent(JsonIgnore.class)) {
 								// Field is tagged ignore. No need to document it.
@@ -210,13 +218,15 @@ public class Schema {
 							}
 							// Jackson @JsonProperty annotation handling
 							String propertyFieldName = field.getName();
-                            final JsonProperty jsonPropertyField = findAnnotationByClass(annotations, JsonProperty.class);
+							final JsonProperty jsonPropertyField = findAnnotationByClass(annotations, JsonProperty.class);
 							if(jsonPropertyField != null && !jsonPropertyField.value().isEmpty()) {
 								propertyFieldName = jsonPropertyField.value();
 							}
 
-							final DataObject wrappedPropertyObject = new DataObject(dataObject.getContextualType(field.getGenericType()), tagLibrary.getOpenApiTypeResolver());
-							final DataObject propertyObject = tagLibrary.getOpenApiTypeResolver().unwrapDataObject(wrappedPropertyObject,
+							final DataObject wrappedPropertyObject = new DataObject(
+								dataObject.getContextualType(field.getGenericType()), tagLibrary.getOpenApiTypeResolver());
+							final DataObject propertyObject = tagLibrary.getOpenApiTypeResolver().unwrapDataObject(
+								wrappedPropertyObject,
 								UnwrappingType.SCHEMA);
 							final Property property = new Property(propertyObject, false, propertyFieldName, exploredSignatures,
 								dataObject, tagLibrary);
@@ -237,29 +247,31 @@ public class Schema {
 
 							// Swagger handling
 							MergedAnnotations mergedAnnotations = MergedAnnotations.from(field);
-							final MergedAnnotation<Annotation> schemaAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.media.Schema");
-							if (schemaAnnotation.isPresent()) {
+							final MergedAnnotation<Annotation> schemaAnnotation = mergedAnnotations
+								.get("io.swagger.v3.oas.annotations.media.Schema");
+							if(schemaAnnotation.isPresent()) {
 								String swaggerDescription = schemaAnnotation.getString("description");
-								if (!StringUtils.isEmpty(swaggerDescription)) {
+								if(!StringUtils.isEmpty(swaggerDescription)) {
 									property.setDescription(swaggerDescription);
 								}
 
 								String swaggerExample = schemaAnnotation.getString("example");
-								if (!StringUtils.isEmpty(swaggerExample)) {
+								if(!StringUtils.isEmpty(swaggerExample)) {
 									property.setExample(swaggerExample);
 								}
 							}
 						}
 					}
 					if(dataObject.getJavaClass().isInterface()) {
-						final List<Method> methods = Arrays.stream(dataObject.getJavaClass().getMethods()).collect(Collectors.toList());
+						final List<Method> methods = Arrays.stream(dataObject.getJavaClass().getMethods())
+							.collect(Collectors.toList());
 						methods.sort(Comparator.comparing(a -> a.getName()));
 						for(final Method method : methods) {
-							final boolean methodStartWithGet =
-								method.getName().startsWith(METHOD_GET_PREFIX) && method.getName().length() != METHOD_GET_PREFIX_SIZE;
+							final boolean methodStartWithGet = method.getName().startsWith(METHOD_GET_PREFIX)
+								&& method.getName().length() != METHOD_GET_PREFIX_SIZE;
 							if(method.getParameters().length == 0 && method.getGenericReturnType() != null
 								&& (methodStartWithGet || (method.getName().startsWith(METHOD_IS_PREFIX)
-								&& method.getName().length() != METHOD_IS_PREFIX_SIZE))) {
+									&& method.getName().length() != METHOD_IS_PREFIX_SIZE))) {
 
 								String name;
 								if(methodStartWithGet) {
@@ -267,13 +279,16 @@ public class Schema {
 								} else {
 									name = method.getName().replaceFirst("is", "");
 								}
-                                context.getLogger().debug(
-                                        dataObject.getJavaClass().getSimpleName() + " method name : " + method.getName() + " - " + name);
+								context.getLogger().debug(
+									dataObject.getJavaClass().getSimpleName() + " method name : " + method.getName() + " - "
+										+ name);
 								name = name.substring(0, 1).toLowerCase() + name.substring(1);
 
 								final DataObject propertyObject = new DataObject(
-									dataObject.getContextualType(method.getGenericReturnType()), tagLibrary.getOpenApiTypeResolver());
-								final Property property = new Property(propertyObject, false, name, exploredSignatures, dataObject, tagLibrary);
+									dataObject.getContextualType(method.getGenericReturnType()),
+									tagLibrary.getOpenApiTypeResolver());
+								final Property property = new Property(propertyObject, false, name, exploredSignatures,
+									dataObject, tagLibrary);
 								properties.put(property.getName(), property);
 
 								// Javadoc handling
@@ -343,43 +358,38 @@ public class Schema {
 		}
 	}
 
-    private <T extends Annotation> T findAnnotationByClass(List<Annotation> annotations, Class<T> annotationType) {
-        return (T) annotations.stream().filter(a -> a.annotationType().equals(annotationType)).findFirst().orElse(null);
-    }
+	private <T extends Annotation> T findAnnotationByClass(List<Annotation> annotations, Class<T> annotationType) {
+		return (T) annotations.stream().filter(a -> a.annotationType().equals(annotationType)).findFirst().orElse(null);
+	}
 
-    private List<Annotation> getRelevantAnnotationsForField(Field field) {
-        Class<?> declaringClass = field.getDeclaringClass();
-        List<Method> relatedMethods = Arrays.stream(declaringClass.getMethods())
-                .filter(isMethodGetterForField(field).or(isMethodSetterForField(field)))
-                .collect(Collectors.toList());
-        return Stream.concat(relatedMethods.stream().flatMap(method -> Arrays.stream(method.getAnnotations())),
-                        Arrays.stream(field.getAnnotations()))
-                .collect(Collectors.toList());
-    }
+	private List<Annotation> getRelevantAnnotationsForField(Field field) {
+		Class<?> declaringClass = field.getDeclaringClass();
+		List<Method> relatedMethods = Arrays.stream(declaringClass.getMethods())
+			.filter(isMethodGetterForField(field).or(isMethodSetterForField(field)))
+			.collect(Collectors.toList());
+		return Stream.concat(relatedMethods.stream().flatMap(method -> Arrays.stream(method.getAnnotations())),
+			Arrays.stream(field.getAnnotations()))
+			.collect(Collectors.toList());
+	}
 
-    private static Predicate<Method> isMethodGetterForField(Field field) {
-        return method -> (
-                                 method.getName().equalsIgnoreCase(field.getName())
-                                 || method.getName().equalsIgnoreCase("get" + field.getName())
-                                 || method.getName().equalsIgnoreCase("is" + field.getName())
-                         )
-                         && method.getReturnType().equals(field.getType())
-                         && method.getParameterCount() == 0;
-    }
+	private static Predicate<Method> isMethodGetterForField(Field field) {
+		return method -> (method.getName().equalsIgnoreCase(field.getName())
+			|| method.getName().equalsIgnoreCase("get" + field.getName())
+			|| method.getName().equalsIgnoreCase("is" + field.getName()))
+			&& method.getReturnType().equals(field.getType())
+			&& method.getParameterCount() == 0;
+	}
 
-    private static Predicate<Method> isMethodSetterForField(Field field) {
-        return method -> (
-                                 method.getName().equalsIgnoreCase(field.getName())
-                                 || method.getName().equalsIgnoreCase("set" + field.getName())
-                         )
-                         && method.getReturnType().equals(Void.TYPE)
-                         && method.getParameterCount() == 1
-                         && method.getParameterTypes()[0].equals(field.getType());
-    }
+	private static Predicate<Method> isMethodSetterForField(Field field) {
+		return method -> (method.getName().equalsIgnoreCase(field.getName())
+			|| method.getName().equalsIgnoreCase("set" + field.getName()))
+			&& method.getReturnType().equals(Void.TYPE)
+			&& method.getParameterCount() == 1
+			&& method.getParameterTypes()[0].equals(field.getType());
+	}
 
-
-    private void extractConstraints(final Field field, List<Annotation> annotations, final Property property) {
-        final Size size = findAnnotationByClass(annotations, Size.class);
+	private void extractConstraints(final Field field, List<Annotation> annotations, final Property property) {
+		final Size size = findAnnotationByClass(annotations, Size.class);
 		if(size != null) {
 			property.setMinLength(size.min());
 			if(size.max() != Integer.MAX_VALUE) {

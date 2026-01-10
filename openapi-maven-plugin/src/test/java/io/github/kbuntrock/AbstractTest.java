@@ -13,17 +13,17 @@ import org.mockito.Mockito;
 
 public class AbstractTest {
 
-    protected DocumentationMojo createDocumentationMojo() {
-        DocumentationMojo mojo = new DocumentationMojo();
-        // In order to see all logs during testing, uncomment this:
-        // mojo.getContext().initLogger(Mockito.spy(SystemStreamLog.class));
-        mojo.getContext().initLogger(Mockito.mock(Log.class));
-        mojo.getContext().initClassLoader(AbstractTest.class.getClassLoader());
-        return mojo;
-    }
+	protected DocumentationMojo createDocumentationMojo() {
+		DocumentationMojo mojo = new DocumentationMojo();
+		// In order to see all logs during testing, uncomment this:
+		// mojo.getContext().initLogger(Mockito.spy(SystemStreamLog.class));
+		mojo.getContext().initLogger(Mockito.mock(Log.class));
+		mojo.getContext().initClassLoader(AbstractTest.class.getClassLoader());
+		return mojo;
+	}
 
-	protected void checkGenerationResult(List<File> generatedFiles) throws IOException{
-		if (generatedFiles.size() == 1) {
+	protected void checkGenerationResult(List<File> generatedFiles) throws IOException {
+		if(generatedFiles.size() == 1) {
 			Approvals.verify(FileUtils.readFileToString(generatedFiles.get(0), UTF_8));
 		} else {
 			generatedFiles.forEach(file -> {

@@ -7,14 +7,14 @@ import java.util.Map;
 
 public final class ClassLoaderHelper {
 
-    private final ClassLoader classLoader;
+	private final ClassLoader classLoader;
 	private final Map<String, Class> map = new HashMap<>();
 
-    public ClassLoaderHelper(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
+	public ClassLoaderHelper(ClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
 
-    public Class getByName(final String canonicalName) throws ClassNotFoundException {
+	public Class getByName(final String canonicalName) throws ClassNotFoundException {
 
 		Class clazz = map.get(canonicalName);
 		if(clazz == null) {

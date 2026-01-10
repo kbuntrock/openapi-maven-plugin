@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class ControllerOneImpl implements ControllerOne {
-    @Override
-    public void execute(TimeDto myTime) {
+	@Override
+	public void execute(TimeDto myTime) {
 
-    }
+	}
 }
