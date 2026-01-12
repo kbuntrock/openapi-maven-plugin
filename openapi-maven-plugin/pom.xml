@@ -55,6 +55,9 @@
     <!-- See: https://maven.apache.org/guides/mini/guide-reproducible-builds.html -->
     <project.build.outputTimestamp>2025-11-17T07:42:05Z</project.build.outputTimestamp>
 
+    <!-- Used if you want to skip surefire tests but not failsafe -->
+    <skipSurefire>false</skipSurefire>
+
     <!-- versions -->
     <spring.version>5.3.39</spring.version>
     <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
@@ -359,6 +362,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skip>${skipSurefire}</skip>
+        </configuration>
       </plugin>
 
 
