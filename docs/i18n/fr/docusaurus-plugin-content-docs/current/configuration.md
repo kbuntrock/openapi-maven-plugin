@@ -704,3 +704,28 @@ True pour activer la fusion du champs "free fields" entre la section commune et 
 ```xml
 <mergeFreeFields>true</mergeFreeFields>
 ```
+
+## analytics
+
+- Type: `boolean`
+- Valeur par défaut : `true`
+
+Afin de pouvoir maintenir ce projet efficacement dans le temps, un jeu limité de données anonymes est collecté.
+Configurer à `false` pour désactiver l'envoi de données.
+
+Les données collectées sont:
+- version de Java utilisée par Maven
+- version de Maven
+- version de ce plugin
+- la librairie configurée (Spring, Jakarta REST ou JAX-RS)
+- La moitié du hash SHA-256 de l'identifiant projet (groupId + artifactId)
+
+```xml
+<configuration>
+	<analytics>false</analytics>
+</configuration>
+```
+
+:::info
+L'implémentation détaillée de ce mécanisme peut être consulté dans cette [classe](https://github.com/kbuntrock/openapi-maven-plugin/blob/dev/openapi-maven-plugin/src/main/java/io/github/kbuntrock/Analytics.java).
+:::
