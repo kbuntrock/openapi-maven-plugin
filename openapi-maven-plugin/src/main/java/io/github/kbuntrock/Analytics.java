@@ -96,7 +96,12 @@ public class Analytics {
 	}
 
 	private boolean shouldSendAnalytics() {
-		return sendAnalyticsConfigured;// && System.currentTimeMillis() % 10 == 0;
+		// Even if analytics is configured, the data are only sent approximately once out of four times in order to limit unnecessary data
+		// transfers.
+		// This results in approximately:
+		// - a 94% chance of sending information over 10 builds
+		// - a 99.7% chance of sending information over 20 builds
+		return sendAnalyticsConfigured && (System.currentTimeMillis() % 4 == 0);
 	}
 
 	private CompletableFuture<Void> postNotificationAsync(String url, String json) {

@@ -74,6 +74,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <analytics>false</analytics>
                     <apiConfiguration>
                         <tagAnnotations>
                             <annotation>RequestMapping</annotation>
