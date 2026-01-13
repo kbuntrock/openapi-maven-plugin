@@ -1,0 +1,61 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: MarkdownCommentsController
+    description: |-
+      This controller is documented with **markdown** comments
+
+      No need for a html element to indicates a line break now
+paths:
+  /api/something3:
+    post:
+      tags:
+        - MarkdownCommentsController
+      operationId: getSomething
+      description: |-
+        Description of endpoint something3
+
+        Can do:
+        - cool stuff number one
+        - cool stuff number two
+      parameters:
+        - name: userId
+          description: a user id as a long
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/SimpleUserDto'
+        description: a dto representing a SimpleUserDto
+      responses:
+        200:
+          description: true or false
+          content:
+            '*/*':
+              schema:
+                type: boolean
+components:
+  schemas:
+    SimpleUserDto:
+      description: A simple user
+      type: object
+      properties:
+        username:
+          description: User firstname
+          type: string
+        isActive:
+          description: Whether the user is active or not
+          type: boolean
+        admin:
+          description: Whether the user is an admin or not
+          type: boolean

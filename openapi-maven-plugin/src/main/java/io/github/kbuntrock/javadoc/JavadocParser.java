@@ -1,23 +1,5 @@
 package io.github.kbuntrock.javadoc;
 
-import com.github.javaparser.JavaParser;
-import com.github.javaparser.ParseProblemException;
-import com.github.javaparser.ParseResult;
-import com.github.javaparser.ParserConfiguration;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.EnumConstantDeclaration;
-import com.github.javaparser.ast.body.EnumDeclaration;
-import com.github.javaparser.ast.body.FieldDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.RecordDeclaration;
-import com.github.javaparser.ast.comments.JavadocComment;
-import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import com.github.javaparser.javadoc.Javadoc;
-import com.github.javaparser.javadoc.JavadocBlockTag;
-import io.github.kbuntrock.context.ProjectContext;
-import io.github.kbuntrock.configuration.JavadocConfiguration;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.charset.Charset;
@@ -27,6 +9,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseProblemException;
+import com.github.javaparser.ParseResult;
+import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.comments.JavadocComment;
+import com.github.javaparser.ast.comments.MarkdownComment;
+import com.github.javaparser.ast.comments.TraditionalJavadocComment;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.javadoc.Javadoc;
+import com.github.javaparser.javadoc.JavadocBlockTag;
+
+import io.github.kbuntrock.configuration.JavadocConfiguration;
+import io.github.kbuntrock.context.ProjectContext;
 
 public class JavadocParser {
 
@@ -171,8 +170,18 @@ public class JavadocParser {
 	private class JavadocVisitor extends VoidVisitorAdapter {
 
 		@Override
-		public void visit(final JavadocComment comment, final Object arg) {
+		public void visit(final TraditionalJavadocComment comment, final Object arg) {
 			super.visit(comment, arg);
+			visitInternal(comment, arg);
+		}
+
+		@Override
+		public void visit(final MarkdownComment comment, final Object arg) {
+			super.visit(comment, arg);
+			visitInternal(comment, arg);
+		}
+
+		private void visitInternal(final JavadocComment comment, final Object arg) {
 			final CommentType type = CommentType.fromNode(comment.getCommentedNode().get());
 			if(CommentType.OTHER != type) {
 				final Optional<ClassDocumentation> classDocumentation = findClassDocumentationForNode(

@@ -43,7 +43,7 @@ Uses both **compiled classes** and **source code** to enrich the generated speci
 
 
 - **Wide JDK Compatibility**  
-  Verified with JDK 8, 11, 17, and 21 (integration tests are run across these versions).
+  Verified with JDK LTS from 8 to 25 (integration tests are run across these versions).
 ---
 ## ⚙️ Configuration Options
 

@@ -391,8 +391,8 @@
   "Broad compatibility": {
     "message": "Large compatibilité"
   },
-  "Works with Spring MVC, Jakarta REST and JAX-RS. Verified with JDK 8, 11, 17, and 21.": {
-    "message": "Fonctionne avec Spring MVC, Jakarta REST et JAX-RS. Compatible avec JDK 8, 11, 17 et 21."
+  "Works with Spring MVC, Jakarta REST and JAX-RS. Verified with JDK LTS from 8 to 25.": {
+    "message": "Fonctionne avec Spring MVC, Jakarta REST et JAX-RS. Compatible avec les versions LTS du JDK de 8 à 25."
   },
   "Highly configurable": {
     "message": "Configurable"
