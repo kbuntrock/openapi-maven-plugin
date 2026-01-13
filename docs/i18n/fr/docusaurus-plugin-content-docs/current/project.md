@@ -77,3 +77,9 @@ Merci de consulter notre documentation [CONTRIBUTING.md](https://github.com/kbun
 ## 📜 License
 
 Ce projet est distribué sous la [licence MIT](https://github.com/kbuntrock/openapi-maven-plugin?tab=MIT-1-ov-file#readme)
+
+---
+## 🕵️‍♂️ Anonymous data collection
+
+Par défaut, afin d'être en capacité de maintenir efficacement ce projet dans le temps, des données anonymes d'utilisation peuvent être collectées.
+Le détail à propos de ce mécanisme / comment le désactiver est décrit [ici](/openapi-maven-plugin/fr/docs/configuration#analytics).

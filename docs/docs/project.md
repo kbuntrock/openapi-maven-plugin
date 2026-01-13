@@ -77,3 +77,9 @@ Please check our [CONTRIBUTING.md](https://github.com/kbuntrock/openapi-maven-pl
 ## 📜 License
 
 This project is licensed under the [MIT licence](https://github.com/kbuntrock/openapi-maven-plugin?tab=MIT-1-ov-file#readme)
+
+---
+## 🕵️‍♂️ Anonymous data collection
+
+By default, anonymous data might be collected to ensure this project can be effectively maintained over time.
+Detail about these data / how to deactivate this functionality is described [here](/openapi-maven-plugin/docs/configuration#analytics).

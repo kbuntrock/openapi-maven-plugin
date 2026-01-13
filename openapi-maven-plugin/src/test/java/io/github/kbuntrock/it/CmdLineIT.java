@@ -1,9 +1,6 @@
 package io.github.kbuntrock.it;
 
-import com.soebes.itf.extension.assertj.MavenExecutionResultAssert;
-import com.soebes.itf.jupiter.extension.*;
-import com.soebes.itf.jupiter.maven.MavenExecutionResult;
-import org.junit.jupiter.api.*;
+import static com.soebes.itf.extension.assertj.MavenITAssertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +8,11 @@ import java.io.InputStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 
-import static com.soebes.itf.extension.assertj.MavenITAssertions.assertThat;
+import org.junit.jupiter.api.*;
+
+import com.soebes.itf.extension.assertj.MavenExecutionResultAssert;
+import com.soebes.itf.jupiter.extension.*;
+import com.soebes.itf.jupiter.maven.MavenExecutionResult;
 
 @MavenJupiterExtension
 public class CmdLineIT {
@@ -39,6 +40,7 @@ public class CmdLineIT {
 		 */
 		@MavenTest
 		@SystemProperty(value = "openapi.locations", content = "io.github.kbuntrock.sample.enpoint")
+		@SystemProperty(value = "openapi.analytics", content = "false")
 		@Order(2)
 		public void nothingToDocument(final MavenExecutionResult result) throws IOException {
 			final MavenExecutionResultAssert resultAssert = assertThat(result);
@@ -50,6 +52,7 @@ public class CmdLineIT {
 		@MavenTest
 		@SystemProperty(value = "openapi.locations", content = "io.github.kbuntrock.sample.enpoint")
 		@SystemProperty(value = "openapi.tagAnnotations", content = "RequestMapping")
+		@SystemProperty(value = "openapi.analytics", content = "false")
 		@Order(3)
 		public void generateWithoutCompileOption(final MavenExecutionResult result) throws IOException {
 			final MavenExecutionResultAssert resultAssert = assertThat(result);
@@ -72,6 +75,7 @@ public class CmdLineIT {
 		@SystemProperty(value = "openapi.locations", content = "io.github.kbuntrock.sample.enpoint")
 		@SystemProperty(value = "openapi.tagAnnotations", content = "RequestMapping")
 		@SystemProperty(value = "openapi.filename", content = "my-doc.yml")
+		@SystemProperty(value = "openapi.analytics", content = "false")
 		@Order(4)
 		public void generateWithCompileOptionAndDifferentFilename(final MavenExecutionResult result) throws IOException {
 			final MavenExecutionResultAssert resultAssert = assertThat(result);
@@ -95,6 +99,7 @@ public class CmdLineIT {
 		@SystemProperty(value = "openapi.tagAnnotations", content = "RequestMapping")
 		@SystemProperty(value = "openapi.filename", content = "my-doc.yml")
 		@SystemProperty(value = "openapi.javadoc.scanEnabled", content = "false")
+		@SystemProperty(value = "openapi.analytics", content = "false")
 		@Order(5)
 		public void generateDisableJavadoc(final MavenExecutionResult result) throws IOException {
 			final MavenExecutionResultAssert resultAssert = assertThat(result);
@@ -120,6 +125,7 @@ public class CmdLineIT {
 		@SystemProperty(value = "openapi.tagAnnotations", content = "RequestMapping")
 		@SystemProperty(value = "openapi.filename", content = "my-doc.yml")
 		@SystemProperty(value = "openapi.javadoc.locations", content = "src/main/toto,src/main/tata")
+		@SystemProperty(value = "openapi.analytics", content = "false")
 		@Order(6)
 		public void generateWrongJavadocPath(final MavenExecutionResult result) throws IOException {
 			final MavenExecutionResultAssert resultAssert = assertThat(result);
@@ -154,6 +160,7 @@ public class CmdLineIT {
 		@SystemProperty(value = "openapi.locations", content = "io.github.kbuntrock.sample.enpoint")
 		@SystemProperty(value = "openapi.tagAnnotations", content = "RequestMapping")
 		@SystemProperty(value = "openapi.library", content = "JAKARTA_RS")
+		@SystemProperty(value = "openapi.analytics", content = "false")
 		@Order(7)
 		public void wrongLibrary(final MavenExecutionResult result) throws IOException {
 			final MavenExecutionResultAssert resultAssert = assertThat(result);

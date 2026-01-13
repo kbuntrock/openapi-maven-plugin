@@ -1,5 +1,30 @@
 package io.github.kbuntrock;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.descriptor.PluginDescriptor;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectHelper;
+import org.apache.maven.rtinfo.RuntimeInformation;
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
+
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
@@ -14,27 +39,6 @@ import io.github.kbuntrock.utils.CollectionUtils;
 import io.github.kbuntrock.utils.FileUtils;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.yaml.YamlWriter;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.util.*;
-import java.util.stream.Collectors;
-import javax.inject.Inject;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.MavenProjectHelper;
-import org.codehaus.plexus.classworlds.realm.ClassRealm;
 
 @Mojo(name = "documentation", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class DocumentationMojo extends AbstractMojo {
@@ -61,6 +65,11 @@ public class DocumentationMojo extends AbstractMojo {
 	 */
 	@Parameter(defaultValue = "${project.build.directory}", property = "outputDir", required = true)
 	private File outputDirectory;
+	/**
+	 * If true, send anonymous analytics (see website documentation and Analytics class)
+	 */
+	@Parameter(defaultValue = "true", property = "openapi.analytics")
+	protected boolean analytics;
 
 	/**
 	 * COMMAND LINES / SETTINGS / POM PROPERTIES
@@ -85,6 +94,12 @@ public class DocumentationMojo extends AbstractMojo {
 
 	@Inject
 	private MavenProjectHelper projectHelper;
+
+	@Parameter(defaultValue = "${plugin}", readonly = true, required = true)
+	private PluginDescriptor pluginDescriptor;
+
+	@Inject
+	private RuntimeInformation runtimeInformation;
 
 	private boolean testMode = false;
 
@@ -180,12 +195,19 @@ public class DocumentationMojo extends AbstractMojo {
 	private List<File> scanProjectResourcesAndWriteSpec(Map<String, ClassDocumentation> javadocMap) throws MojoFailureException {
 
 		final List<File> generatedFiles = new ArrayList<>();
-		for(final ApiConfiguration initialApiConfiguration : apis) {
+
+		for(int i = 0; i < apis.size(); i++) {
+			final ApiConfiguration initialApiConfiguration = apis.get(i);
 			ApiContext apiContext = new ApiContext(context, new AdditionnalSchemaLibrary());
 			final ApiConfiguration apiConfig = initialApiConfiguration.mergeWithCommonApiConfiguration(this.apiConfiguration);
 			apiContext.setApiConfiguration(apiConfig);
 			apiContext.setOpenApiTypeResolver(new OpenApiTypeResolver(apiContext));
 			apiContext.setNullableConfiguration(new NullableConfiguration(apiConfig));
+
+			if(i == 0) {
+				// Analytics are handled only for the first configuration
+				Analytics.build(analytics, apiConfig, project, pluginDescriptor, runtimeInformation, testMode).send();
+			}
 
 			final ApiResourceScanner apiResourceScanner = new ApiResourceScanner(apiContext, javadocMap);
 			context.getLogger().debug("Prepare to scan");

@@ -703,3 +703,28 @@ True to activate "free fields" merging between the common and the specific api c
 ```xml
 <mergeFreeFields>true</mergeFreeFields>
 ```
+
+## analytics
+
+- Type: `boolean`
+- Default value: `true`
+
+To ensure this project can be effectively maintained over time, it collects a limited set of anonymous data.
+Set to `false` to disable data collection.
+
+Collected data are:
+- Java version used to run Maven
+- Maven version
+- Version of this plugin
+- Configured library (Spring, Jakarta REST, or JAX-RS)
+- Half SHA-256 hash of the project identifier (groupId + artifactId)
+
+```xml
+<configuration>
+	<analytics>false</analytics>
+</configuration>
+```
+
+:::info
+Detailed implementation can be found in this [class](https://github.com/kbuntrock/openapi-maven-plugin/blob/dev/openapi-maven-plugin/src/main/java/io/github/kbuntrock/Analytics.java).
+:::
