@@ -79,6 +79,36 @@ jobs:
             cd integration-tests
             mvn -Dit.test=BasicIT#nominal_test_case_jdk25 clean verify
 
+      - run:
+          name: Integration tests Maven 4 JDK17
+          command: |
+            export JAVA_HOME=$JAVA17_HOME
+            ln -sf /usr/share/java/maven-4/bin/mvn /usr/bin/mvn
+            mvn --version
+            cd integration-tests
+            mvn -Dit.test=BasicIT#nominal_test_case_jdk17 clean verify
+            ln -sf /usr/share/java/maven-3/bin/mvn /usr/bin/mvn
+
+      - run:
+          name: Integration tests Maven 4 JDK21
+          command: |
+            export JAVA_HOME=$JAVA21_HOME
+            ln -sf /usr/share/java/maven-4/bin/mvn /usr/bin/mvn
+            mvn --version
+            cd integration-tests
+            mvn -Dit.test=BasicIT#nominal_test_case_jdk21 clean verify
+            ln -sf /usr/share/java/maven-3/bin/mvn /usr/bin/mvn
+
+      - run:
+          name: Integration tests Maven 4 JDK25
+          command: |
+            export JAVA_HOME=$JAVA25_HOME
+            ln -sf /usr/share/java/maven-4/bin/mvn /usr/bin/mvn
+            mvn --version
+            cd integration-tests
+            mvn -Dit.test=BasicIT#nominal_test_case_jdk25 clean verify
+            ln -sf /usr/share/java/maven-3/bin/mvn /usr/bin/mvn
+
 # try https://support.circleci.com/hc/en-us/articles/360043638052-Conditional-steps-in-jobs-and-conditional-workflows
       - when: 
           condition:
