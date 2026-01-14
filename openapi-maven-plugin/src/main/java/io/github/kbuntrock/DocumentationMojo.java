@@ -139,11 +139,15 @@ public class DocumentationMojo extends AbstractMojo {
 		// Log the java version
 		final String version = System.getProperty("java.version");
 		context.getLogger().debug("Running on java " + version);
-		context.getLogger().debug("Running on maven " + runtimeInformation.getMavenVersion());
+		context.getLogger().debug("Running on maven " + getMavenVersion());
 
 		validateConfiguration();
 		Map<String, ClassDocumentation> javadocMap = scanJavadoc();
 		return scanProjectResourcesAndWriteSpec(javadocMap);
+	}
+
+	private String getMavenVersion() {
+		return runtimeInformation == null ? "" : runtimeInformation.getMavenVersion();
 	}
 
 	private void validateConfiguration() throws MojoFailureException {
