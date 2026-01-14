@@ -139,6 +139,7 @@ public class DocumentationMojo extends AbstractMojo {
 		// Log the java version
 		final String version = System.getProperty("java.version");
 		context.getLogger().debug("Running on java " + version);
+		context.getLogger().debug("Running on maven " + runtimeInformation.getMavenVersion());
 
 		validateConfiguration();
 		Map<String, ClassDocumentation> javadocMap = scanJavadoc();

@@ -24,39 +24,60 @@ public class BasicIT {
 	@MavenGoal("install")
 	@MavenOption(MavenCLIOptions.DEBUG)
 	void nominal_test_case_jdk8(MavenExecutionResult result) throws IOException {
-		nominal_test_case(result, "1.8", "-jdk8");
+		nominal_test_case(result, "1.8", "-jdk8", "3.9");
 	}
 
 	@MavenTest
 	@MavenGoal("install")
 	@MavenOption(MavenCLIOptions.DEBUG)
 	void nominal_test_case_jdk11(MavenExecutionResult result) throws IOException {
-		nominal_test_case(result, "11", "-jdk11");
+		nominal_test_case(result, "11", "-jdk11", "3.9");
 	}
 
 	@MavenTest
 	@MavenGoal("install")
 	@MavenOption(MavenCLIOptions.DEBUG)
 	void nominal_test_case_jdk17(MavenExecutionResult result) throws IOException {
-		nominal_test_case(result, "17", "-jdk17");
+		nominal_test_case(result, "17", "-jdk17", "3.9");
 	}
 
 	@MavenTest
 	@MavenGoal("install")
 	@MavenOption(MavenCLIOptions.DEBUG)
 	void nominal_test_case_jdk21(MavenExecutionResult result) throws IOException {
-		nominal_test_case(result, "21", "-jdk21");
+		nominal_test_case(result, "21", "-jdk21", "3.9");
 	}
 
 	@MavenTest
 	@MavenGoal("install")
 	@MavenOption(MavenCLIOptions.DEBUG)
 	void nominal_test_case_jdk25(MavenExecutionResult result) throws IOException {
-		nominal_test_case(result, "25", "-jdk25");
+		nominal_test_case(result, "25", "-jdk25", "3.9");
 	}
 
-	private void nominal_test_case(MavenExecutionResult result, final String expectedJavaVersion, final String suffix)
-		throws IOException {
+	@MavenTest
+	@MavenGoal("install")
+	@MavenOption(MavenCLIOptions.DEBUG)
+	void nominal_test_case_jdk17_maven4(MavenExecutionResult result) throws IOException {
+		nominal_test_case(result, "17", "-jdk17", "4.0");
+	}
+
+	@MavenTest
+	@MavenGoal("install")
+	@MavenOption(MavenCLIOptions.DEBUG)
+	void nominal_test_case_jdk21_maven4(MavenExecutionResult result) throws IOException {
+		nominal_test_case(result, "21", "-jdk21", "4.0");
+	}
+
+	@MavenTest
+	@MavenGoal("install")
+	@MavenOption(MavenCLIOptions.DEBUG)
+	void nominal_test_case_jdk25_maven4(MavenExecutionResult result) throws IOException {
+		nominal_test_case(result, "25", "-jdk25", "4.0");
+	}
+
+	private void nominal_test_case(MavenExecutionResult result, final String expectedJavaVersion, final String suffix,
+		final String expectedMavenVersion) throws IOException {
 		MavenExecutionResultAssert resultAssert = assertThat(result);
 		if("17".equals(expectedJavaVersion)) {
 			resultAssert.isSuccessful().out().info().contains("spec-open-api.yml : 1 tags and 3 operations generated.");
@@ -70,6 +91,8 @@ public class BasicIT {
 		Assertions.assertTrue(version.startsWith(expectedJavaVersion),
 			"Java version does not match. Expected : " + expectedJavaVersion + ", got : " + version);
 		resultAssert.out().debug().contains("Running on java " + version);
+
+		resultAssert.out().debug().anyMatch(s -> s.startsWith("Running on maven " + expectedMavenVersion));
 
 		File target = new File(result.getMavenProjectResult().getTargetProjectDirectory(), "target");
 		File generatedFile = new File(target, "spec-open-api.yml");
