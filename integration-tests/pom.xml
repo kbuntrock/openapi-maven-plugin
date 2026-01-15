@@ -18,6 +18,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <spring.version>5.3.27</spring.version>
+        <itf.version>0.13.1</itf.version>
     </properties>
 
     <dependencies>
@@ -43,13 +44,13 @@
         <dependency>
             <groupId>com.soebes.itf.jupiter.extension</groupId>
             <artifactId>itf-jupiter-extension</artifactId>
-            <version>0.11.0</version>
+            <version>${itf.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.soebes.itf.jupiter.extension</groupId>
             <artifactId>itf-assertj</artifactId>
-            <version>0.11.0</version>
+            <version>${itf.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -60,7 +61,7 @@
             <plugin>
                 <groupId>com.soebes.itf.jupiter.extension</groupId>
                 <artifactId>itf-maven-plugin</artifactId>
-                <version>0.11.0</version>
+                <version>${itf.version}</version>
                 <executions>
                     <execution>
                         <id>installing</id>

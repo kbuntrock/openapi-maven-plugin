@@ -4,7 +4,6 @@ import com.soebes.itf.extension.assertj.MavenExecutionResultAssert;
 import com.soebes.itf.jupiter.extension.*;
 import com.soebes.itf.jupiter.maven.MavenExecutionResult;
 import org.junit.jupiter.api.Assertions;
-import org.springframework.util.DigestUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -94,12 +93,12 @@ public class BasicIT {
 
 		resultAssert.out().debug().anyMatch(s -> s.startsWith("Running on maven " + expectedMavenVersion));
 
-		File target = new File(result.getMavenProjectResult().getTargetProjectDirectory(), "target");
+		File target = new File(result.getMavenProjectResult().getTargetProjectDirectory().toFile(), "target");
 		File generatedFile = new File(target, "spec-open-api.yml");
 		Assertions.assertTrue(target.exists());
 		Assertions.assertTrue(generatedFile.exists());
 
-		File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory();
+		File m2Directory = result.getMavenProjectResult().getTargetCacheDirectory().toFile();
 		File generatedArtifactFile = new File(m2Directory, "/io/github/kbuntrock/openapi/it/openapi-basic-it" + suffix
 			+ "/23.5.2/openapi-basic-it" + suffix + "-23.5.2-spec-open-api.yml");
 		Assertions.assertTrue(generatedArtifactFile.exists());
