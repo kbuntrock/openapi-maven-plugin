@@ -6,21 +6,17 @@ import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.library.reader.AstractLibraryReader;
 import io.github.kbuntrock.context.ApiContext;
-import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.model.Tag;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.*;
-import java.util.regex.Pattern;
-
+import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
+import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
-import org.springframework.core.annotation.MergedAnnotation;
-import org.springframework.core.annotation.MergedAnnotations;
+
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
@@ -106,11 +102,10 @@ public class JavaClassAnalyser {
 		final Tag tag = new Tag(clazz);
 		context.getLogger().debug("Parsing tag : " + tag.getName());
 
-		final MergedAnnotations mergedAnnotations = MergedAnnotations.from(clazz,
-			MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+		final MergedAnnotations mergedAnnotations = context.getMergeAnnotationsHelper().from(clazz);
 
 		// Read swagger tag annotation
-		MergedAnnotation<Annotation> swaggerTag = mergedAnnotations.get("io.swagger.v3.oas.annotations.tags.Tag");
+		MergedAnnotation swaggerTag = mergedAnnotations.get("io.swagger.v3.oas.annotations.tags.Tag");
 		if(swaggerTag.isPresent()) {
 			final String tagName = swaggerTag.getString("name");
 			if(!StringUtils.isEmpty(tagName)) {
@@ -151,8 +146,7 @@ public class JavaClassAnalyser {
 		for(final Method method : methods) {
 
 			if(validateWhiteList(clazz, method) && validateBlackList(clazz, method)) {
-				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(method,
-					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+				final MergedAnnotations mergedAnnotations = context.getMergeAnnotationsHelper().from(method);
 				libraryReader.computeAnnotations(clazz, basePath, method, mergedAnnotations, tag);
 			}
 		}

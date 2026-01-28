@@ -4,6 +4,7 @@ import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.NullableConfiguration;
 import io.github.kbuntrock.configuration.library.reader.ClassLoaderHelper;
 import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
+import io.github.kbuntrock.reflection.annotation.MergeAnnotationsHelper;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
@@ -16,6 +17,8 @@ public final class ApiContext {
 	private ApiConfiguration apiConfiguration;
 	private NullableConfiguration nullableConfiguration;
 	private OpenApiTypeResolver openApiTypeResolver;
+
+	private MergeAnnotationsHelper mergeAnnotationsHelper;
 
 	public ApiContext(final ProjectContext projectContext, final AdditionnalSchemaLibrary additionnalSchemaLibrary) {
 		this.projectContext = projectContext;
@@ -48,6 +51,7 @@ public final class ApiContext {
 
 	public void setApiConfiguration(ApiConfiguration apiConfiguration) {
 		this.apiConfiguration = apiConfiguration;
+		this.mergeAnnotationsHelper = new MergeAnnotationsHelper(projectContext.getClassLoaderHelper());
 	}
 
 	public NullableConfiguration getNullableConfiguration() {
@@ -64,5 +68,9 @@ public final class ApiContext {
 
 	public void setOpenApiTypeResolver(OpenApiTypeResolver openApiTypeResolver) {
 		this.openApiTypeResolver = openApiTypeResolver;
+	}
+
+	public MergeAnnotationsHelper getMergeAnnotationsHelper() {
+		return mergeAnnotationsHelper;
 	}
 }

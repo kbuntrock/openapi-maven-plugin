@@ -1,47 +1,37 @@
 package io.github.kbuntrock.yaml.model;
 
-import static io.github.kbuntrock.TagLibrary.METHOD_GET_PREFIX;
-import static io.github.kbuntrock.TagLibrary.METHOD_GET_PREFIX_SIZE;
-import static io.github.kbuntrock.TagLibrary.METHOD_IS_PREFIX;
-import static io.github.kbuntrock.TagLibrary.METHOD_IS_PREFIX_SIZE;
-
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.TagLibrary;
 import io.github.kbuntrock.configuration.ApiConfiguration;
-import io.github.kbuntrock.configuration.NullableConfiguration;
+import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.ClassDocumentation.EnhancementType;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
+import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
+import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
 import io.github.kbuntrock.utils.OpenApiConstants;
 import io.github.kbuntrock.utils.OpenApiResolvedType;
 import io.github.kbuntrock.utils.UnwrappingType;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.validation.constraints.Size;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.validation.constraints.Size;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.annotation.MergedAnnotation;
-import org.springframework.core.annotation.MergedAnnotations;
+
+import static io.github.kbuntrock.TagLibrary.*;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Schema {
@@ -144,10 +134,8 @@ public class Schema {
 			}
 		}
 		// Swagger annotation on the class
-		MergedAnnotations mergedClassAnnotations = MergedAnnotations.from(dataObject.getJavaClass(),
-			MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
-		final MergedAnnotation<Annotation> classSchemaAnnotation = mergedClassAnnotations
-			.get("io.swagger.v3.oas.annotations.media.Schema");
+		MergedAnnotations mergedClassAnnotations = context.getMergeAnnotationsHelper().from(dataObject.getJavaClass());
+		final MergedAnnotation classSchemaAnnotation = mergedClassAnnotations.get("io.swagger.v3.oas.annotations.media.Schema");
 		if(classSchemaAnnotation.isPresent()) {
 			String swaggerDescription = classSchemaAnnotation.getString("description");
 			if(!StringUtils.isEmpty(swaggerDescription)) {
@@ -246,8 +234,8 @@ public class Schema {
 							}
 
 							// Swagger handling
-							MergedAnnotations mergedAnnotations = MergedAnnotations.from(field);
-							final MergedAnnotation<Annotation> schemaAnnotation = mergedAnnotations
+							MergedAnnotations mergedAnnotations = context.getMergeAnnotationsHelper().from(field);
+							final MergedAnnotation schemaAnnotation = mergedAnnotations
 								.get("io.swagger.v3.oas.annotations.media.Schema");
 							if(schemaAnnotation.isPresent()) {
 								String swaggerDescription = schemaAnnotation.getString("description");

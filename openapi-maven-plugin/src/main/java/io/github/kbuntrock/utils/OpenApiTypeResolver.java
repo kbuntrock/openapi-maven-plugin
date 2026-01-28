@@ -1,24 +1,23 @@
 package io.github.kbuntrock.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.configuration.parser.CommonParserUtils;
 import io.github.kbuntrock.configuration.parser.JsonParserUtils;
 import io.github.kbuntrock.configuration.parser.YamlParserUtils;
+import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.model.DataObject;
-import io.github.kbuntrock.reflection.ReflectionsUtils;
-import java.lang.annotation.Annotation;
+import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
+import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
+import org.apache.maven.project.MavenProject;
+
 import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.apache.maven.project.MavenProject;
-import org.springframework.core.annotation.MergedAnnotation;
-import org.springframework.core.annotation.MergedAnnotations;
 
 public class OpenApiTypeResolver {
 
@@ -408,7 +407,7 @@ public class OpenApiTypeResolver {
 			}
 		}
 		for(String annotationCanonicalName : nonDocumentableParameterAnnotations) {
-			final MergedAnnotation<Annotation> annotation = parametersAnnotations.get(annotationCanonicalName);
+			final MergedAnnotation annotation = parametersAnnotations.get(annotationCanonicalName);
 			if(annotation.isPresent()) {
 				return false;
 			}

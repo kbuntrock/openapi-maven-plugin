@@ -1,28 +1,18 @@
 package io.github.kbuntrock.model;
 
 import com.google.common.reflect.TypeToken;
-import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.reflection.GenericArrayTypeImpl;
 import io.github.kbuntrock.reflection.ParameterizedTypeImpl;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
+import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
+import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.OpenApiResolvedType;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import org.springframework.core.annotation.MergedAnnotation;
-import org.springframework.core.annotation.MergedAnnotations;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * Represent a type with all the needed informations to insert it into the openapi specification
@@ -197,9 +187,9 @@ public class DataObject {
 
 		for(final Method method : javaClass.getMethods()) {
 			if(method.getParameters().length == 0) {
-				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(method,
-					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
-				MergedAnnotation<Annotation> jsonAsValue = mergedAnnotations.get(JACKSON_ANNOTATION_JSON_VALUE);
+				final MergedAnnotations mergedAnnotations = openApiTypeResolver.getContext().getMergeAnnotationsHelper()
+					.from(method);
+				MergedAnnotation jsonAsValue = mergedAnnotations.get(JACKSON_ANNOTATION_JSON_VALUE);
 				if(jsonAsValue.isPresent()) {
 					elementWithAnnotation.add(method.getName());
 				}
@@ -213,7 +203,7 @@ public class DataObject {
 			try {
 				this.enumItemNames = new ArrayList<>();
 				final Method method = javaClass.getMethod(elementWithAnnotation.get(0));
-				ReflectionUtils.makeAccessible(method);
+				ReflectionsUtils.makeAccessible(method);
 				this.openApiResolvedType = openApiTypeResolver.resolveFromJavaClass(method.getReturnType(), false);
 				for(final Object value : javaClass.getEnumConstants()) {
 					this.enumItemNames.add(((Enum) value).name());
@@ -228,9 +218,8 @@ public class DataObject {
 		}
 
 		for(final Field field : javaClass.getDeclaredFields()) {
-			final MergedAnnotations mergedAnnotations = MergedAnnotations.from(field,
-				MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
-			MergedAnnotation<Annotation> jsonAsValue = mergedAnnotations.get(JACKSON_ANNOTATION_JSON_VALUE);
+			final MergedAnnotations mergedAnnotations = openApiTypeResolver.getContext().getMergeAnnotationsHelper().from(field);
+			MergedAnnotation jsonAsValue = mergedAnnotations.get(JACKSON_ANNOTATION_JSON_VALUE);
 			if(jsonAsValue.isPresent()) {
 				elementWithAnnotation.add(field.getName());
 			}
@@ -243,7 +232,7 @@ public class DataObject {
 			try {
 				this.enumItemNames = new ArrayList<>();
 				final Field field = javaClass.getDeclaredField(elementWithAnnotation.get(0));
-				ReflectionUtils.makeAccessible(field);
+				ReflectionsUtils.makeAccessible(field);
 				this.openApiResolvedType = openApiTypeResolver.resolveFromJavaClass(field.getType(), false);
 				for(final Object value : javaClass.getEnumConstants()) {
 					this.enumItemNames.add(((Enum) value).name());

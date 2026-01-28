@@ -3,11 +3,13 @@ package io.github.kbuntrock.model;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.ParameterLocation;
+
 import java.lang.reflect.Type;
 import java.util.List;
-import org.springframework.web.multipart.MultipartFile;
 
 public class ParameterObject extends DataObject {
+
+	private static final String MULTIPART_FILE = "org.springframework.web.multipart.MultipartFile";
 
 	private String name;
 	private boolean required;
@@ -115,8 +117,8 @@ public class ParameterObject extends DataObject {
 	}
 
 	public boolean isMultipartFile() {
-		return MultipartFile.class == getJavaClass() ||
+		return MULTIPART_FILE.equals(getJavaClass().getCanonicalName()) ||
 			(OpenApiDataType.ARRAY == getOpenApiResolvedType().getType()
-				&& MultipartFile.class == getArrayItemDataObject().getJavaClass());
+				&& MULTIPART_FILE.equals(getArrayItemDataObject().getJavaClass().getCanonicalName()));
 	}
 }

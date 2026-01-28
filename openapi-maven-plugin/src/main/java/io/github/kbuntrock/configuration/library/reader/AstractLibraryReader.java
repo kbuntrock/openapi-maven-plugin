@@ -1,8 +1,7 @@
 package io.github.kbuntrock.configuration.library.reader;
 
-import io.github.kbuntrock.context.ApiContext;
-import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.ParameterObject;
@@ -10,25 +9,20 @@ import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.model.annotation.OperationAnnotationInfo;
 import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.reflection.GenericityResolver;
+import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
+import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.ParameterLocation;
 import io.github.kbuntrock.utils.UnwrappingType;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.maven.plugin.MojoFailureException;
-import org.springframework.core.annotation.MergedAnnotation;
-import org.springframework.core.annotation.MergedAnnotations;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
+import java.util.*;
 
 public abstract class AstractLibraryReader {
 
@@ -111,7 +105,7 @@ public abstract class AstractLibraryReader {
 		final MergedAnnotations endpointAnnotations);
 
 	protected abstract List<String> readEndpointPaths(String basePath,
-		MergedAnnotation<? extends Annotation> requestMappingMergedAnnotation);
+		MergedAnnotation requestMappingMergedAnnotation);
 
 	protected abstract void setConsumeProduceProperties(Endpoint endpoint, final MergedAnnotations mergedAnnotations)
 		throws MojoFailureException;
@@ -130,7 +124,7 @@ public abstract class AstractLibraryReader {
 	protected void setSwaggerAnnotatedEndpointProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations) {
 		ArrayList<ParameterObject> parameterObjects = new ArrayList<ParameterObject>();
 
-		final MergedAnnotation<Annotation> operationAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.Operation");
+		final MergedAnnotation operationAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.Operation");
 		if(operationAnnotation.isPresent()) {
 			OperationAnnotationInfo operationInfo = endpoint.getOperationAnnotationInfo();
 			final String operationId = operationAnnotation.getString("operationId");
@@ -148,13 +142,12 @@ public abstract class AstractLibraryReader {
 				operationInfo.setDescription(description);
 			}
 
-			MergedAnnotation<Annotation>[] parametersArray = operationAnnotation.getAnnotationArray("parameters",
-				Annotation.class);
+			MergedAnnotation[] parametersArray = operationAnnotation.getAnnotationArray("parameters");
 			addParameters(parameterObjects, parametersArray);
 
-			MergedAnnotation<Annotation>[] responseArray = operationAnnotation.getAnnotationArray("responses", Annotation.class);
+			MergedAnnotation[] responseArray = operationAnnotation.getAnnotationArray("responses");
 
-			for(MergedAnnotation<Annotation> responseAnnotation : responseArray) {
+			for(MergedAnnotation responseAnnotation : responseArray) {
 				final OperationResponse operationResponse = new OperationResponse();
 				final String responseCode = responseAnnotation.getString("responseCode");
 
@@ -175,16 +168,15 @@ public abstract class AstractLibraryReader {
 					operationResponse.setDescription(responseDescription);
 				}
 
-				final MergedAnnotation<Annotation>[] contentArray = responseAnnotation.getAnnotationArray("content",
-					Annotation.class);
+				final MergedAnnotation[] contentArray = responseAnnotation.getAnnotationArray("content");
 				if(contentArray.length > 1) {
 					context.getLogger().warn("Multiple content annotations found for response code " + responseCode
 						+ " and operation " + operationInfo.getOperationId() + ". Only the first one will be used.");
 				}
-				Optional<MergedAnnotation<Annotation>> optionalContent = Arrays.stream(contentArray).findFirst();
+				Optional<MergedAnnotation> optionalContent = Arrays.stream(contentArray).findFirst();
 				if(optionalContent.isPresent()) {
-					final MergedAnnotation<Annotation> content = optionalContent.get();
-					final MergedAnnotation<Annotation> schema = content.getAnnotation("schema", Annotation.class);
+					final MergedAnnotation content = optionalContent.get();
+					final MergedAnnotation schema = content.getAnnotation("schema");
 					if(schema.isPresent()) {
 						final Class<?> implementation = schema.getClass("implementation");
 						if(implementation != null && !Void.class.equals(implementation) && !Void.TYPE.equals(implementation)) {
@@ -197,10 +189,10 @@ public abstract class AstractLibraryReader {
 			}
 		}
 
-		final MergedAnnotation<Annotation> parametersAnnotation = mergedAnnotations
+		final MergedAnnotation parametersAnnotation = mergedAnnotations
 			.get("io.swagger.v3.oas.annotations.Parameters");
 		if(parametersAnnotation.isPresent()) {
-			MergedAnnotation<Annotation>[] parametersArray = parametersAnnotation.getAnnotationArray("value", Annotation.class);
+			MergedAnnotation[] parametersArray = parametersAnnotation.getAnnotationArray("value");
 			addParameters(parameterObjects, parametersArray);
 		}
 
@@ -210,7 +202,7 @@ public abstract class AstractLibraryReader {
 
 	protected void setSwaggerAnnotatedParameterProperties(final Parameter javaParameter,
 		final MergedAnnotations mergedAnnotations, ParameterObject parameter) {
-		MergedAnnotation<Annotation> parameterAnn = mergedAnnotations.get("io.swagger.v3.oas.annotations.Parameter");
+		MergedAnnotation parameterAnn = mergedAnnotations.get("io.swagger.v3.oas.annotations.Parameter");
 		if(parameterAnn.isPresent()) {
 			final String description = parameterAnn.getString("description");
 			if(StringUtils.isNotBlank(description)) {
@@ -229,13 +221,13 @@ public abstract class AstractLibraryReader {
 		}
 	}
 
-	private void addParameters(ArrayList<ParameterObject> parameterObjects, MergedAnnotation<Annotation>[] parametersArray) {
-		for(MergedAnnotation<Annotation> parameterAnnotation : parametersArray) {
+	private void addParameters(ArrayList<ParameterObject> parameterObjects, MergedAnnotation[] parametersArray) {
+		for(MergedAnnotation parameterAnnotation : parametersArray) {
 			final String paramName = parameterAnnotation.getString("name");
 			final String paramIn = parameterAnnotation.getValue("in").orElse(null).toString();
 			final String paramDescription = parameterAnnotation.getString("description");
 			final Boolean paramRequired = parameterAnnotation.getBoolean("required");
-			MergedAnnotation<Annotation> schemaAnn = parameterAnnotation.getAnnotation("schema", Annotation.class);
+			MergedAnnotation schemaAnn = parameterAnnotation.getAnnotation("schema");
 			final String paramType = (schemaAnn != null) ? schemaAnn.getString("type") : null;
 			final String paramExample = parameterAnnotation.getString("example");
 
