@@ -155,7 +155,7 @@ public class MergeAnnotationsHelper {
 	public MergedAnnotations from(AnnotatedElement element) {
 		try {
 			Object result = staticFromMethod.invoke(null, element, springSearchStrategy);
-			return new MergedAnnotations(result, this);
+			return new SpringMergedAnnotations(result, this);
 		} catch(IllegalAccessException | InvocationTargetException e) {
 			throw new MojoRuntimeException("Cannot invoke spring MergeAnnotations from method." + ERROR_MSG_SUFFIX, e);
 		}
