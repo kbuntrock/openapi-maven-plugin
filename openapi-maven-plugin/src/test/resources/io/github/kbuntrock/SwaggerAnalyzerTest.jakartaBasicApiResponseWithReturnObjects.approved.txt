@@ -1,0 +1,98 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: Response resource API
+    description: Reference all endpoints linked to resources.
+paths:
+  /api/different_errors:
+    get:
+      tags:
+        - Response resource API
+      operationId: errorResponses
+      summary: Swagger summary
+      responses:
+        200:
+          description: Swagger Successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+        404:
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorEntity'
+        500:
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorEntity'
+  /api/responsecodeErrors:
+    get:
+      tags:
+        - Response resource API
+      operationId: errorResponsesWithNoAndErrorInResponseCode
+      summary: Swagger summary
+      responses:
+        200:
+          description: Swagger Successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+        500:
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorEntity'
+  /api/summary:
+    get:
+      tags:
+        - Response resource API
+      operationId: swaggerSummary
+      summary: Swagger summary
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+components:
+  schemas:
+    ErrorEntity:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        sessionId:
+          type: string
+        correlationId:
+          type: string
+        requestId:
+          type: string
+        errorId:
+          type: string
+        errorCode:
+          type: string
+        status:
+          type: integer
+          format: int32
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+        sourceInfo: {}
+        cause:
+          $ref: '#/components/schemas/ErrorEntity'

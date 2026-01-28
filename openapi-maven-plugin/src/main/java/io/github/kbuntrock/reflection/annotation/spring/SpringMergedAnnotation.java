@@ -1,4 +1,6 @@
-package io.github.kbuntrock.reflection.annotation;
+package io.github.kbuntrock.reflection.annotation.spring;
+
+import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
@@ -7,9 +9,9 @@ import java.util.Optional;
 public class SpringMergedAnnotation implements MergedAnnotation {
 
 	private final Object mergedAnnotation;
-	private final MergeAnnotationsHelper helper;
+	private final SpringMergeAnnotationsHelper helper;
 
-	SpringMergedAnnotation(Object mergedAnnotation, MergeAnnotationsHelper helper) {
+	SpringMergedAnnotation(Object mergedAnnotation, SpringMergeAnnotationsHelper helper) {
 		this.mergedAnnotation = mergedAnnotation;
 		this.helper = helper;
 	}

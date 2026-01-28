@@ -21,24 +21,14 @@ import java.util.stream.Collectors;
 
 public class JavaxRsReader extends AstractLibraryReader {
 
-	private Class jakartaNotNull;
-	private Class jakartaHttpServletRequest;
+	private Optional<Class> jakartaNotNull;
 	private Class responseAnnotation;
 
 	public JavaxRsReader(final ApiContext context, final ApiConfiguration apiConfiguration,
 		final OpenApiTypeResolver openApiTypeResolver) {
 		super(context, apiConfiguration, openApiTypeResolver);
-		try {
-			// For the validation constraint, there should be no problem if the dependency is not present.
-			jakartaNotNull = context.getClassLoaderHelper().getByName(JakartaRsReader.NOT_NULL_CNAME);
-		} catch(final ClassNotFoundException e) {
-			// Nothing to do, could be normal since it is in the validation api
-		}
-		try {
-			jakartaHttpServletRequest = context.getClassLoaderHelper().getByName(JakartaRsReader.HttpServletRequest_CNAME);
-		} catch(final ClassNotFoundException e) {
-			// Nothing to do, could be normal since it is in the servlet api
-		}
+		// For the validation constraint, there should be no problem if the dependency is not present.
+		jakartaNotNull = context.getClassLoaderHelper().tryToGetByName(JakartaRsReader.NOT_NULL_CNAME);
 		initCustomResponseAnnotation(apiConfiguration);
 	}
 
@@ -148,7 +138,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 				// Detect if required
 				if(notnullMA.isPresent()) {
 					paramObj.setRequired(notnullMA.isPresent());
-				} else if(jakartaNotNull != null) {
+				} else if(jakartaNotNull.isPresent()) {
 					paramObj.setRequired(mergedAnnotations.get(JakartaRsReader.NOT_NULL_CNAME).isPresent());
 				}
 
@@ -267,8 +257,11 @@ public class JavaxRsReader extends AstractLibraryReader {
 
 	@Override
 	protected Type readResponseMethodType(final Method method, final MergedAnnotations mergedAnnotations) {
-		if(responseAnnotation != null && mergedAnnotations.isPresent(responseAnnotation.getCanonicalName())) {
-			return (Class) mergedAnnotations.get(responseAnnotation.getCanonicalName()).getValue("value").get();
+		if(responseAnnotation != null) {
+			MergedAnnotation merged = mergedAnnotations.get(responseAnnotation.getCanonicalName());
+			if(merged.isPresent()) {
+				return (Class) merged.getValue("value").get();
+			}
 		}
 		return method.getGenericReturnType();
 	}

@@ -4,14 +4,32 @@ import io.github.kbuntrock.MojoRuntimeException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public final class ClassLoaderHelper {
 
 	private final ClassLoader classLoader;
 	private final Map<String, Class> map = new HashMap<>();
+	private final Map<String, Optional<Class>> tryMap = new HashMap<>();
 
 	public ClassLoaderHelper(ClassLoader classLoader) {
 		this.classLoader = classLoader;
+	}
+
+	public Optional<Class> tryToGetByName(final String canonicalName) {
+		if(tryMap.containsKey(canonicalName)) {
+			return tryMap.get(canonicalName);
+		}
+		try {
+			Optional<Class> clazz = Optional.of(Class.forName(canonicalName, true, classLoader));
+			tryMap.put(canonicalName, clazz);
+			return clazz;
+		} catch(ClassNotFoundException e) {
+			// This class is not in the classpath
+			Optional<Class> empty = Optional.empty();
+			tryMap.put(canonicalName, empty);
+			return empty;
+		}
 	}
 
 	public Class getByName(final String canonicalName) throws ClassNotFoundException {

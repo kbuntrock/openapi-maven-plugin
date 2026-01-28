@@ -25,10 +25,7 @@ public class JakartaRsReader extends AstractLibraryReader {
 	public static final String NOT_NULL_CNAME = "jakarta.validation.constraints.NotNull";
 	public static final String BEAN_PARAM_CNAME = "jakarta.ws.rs.BeanParam";
 	public static final String HttpServletRequest_CNAME = "jakarta.servlet.http.HttpServletRequest";
-	private Class jakartaPath;
-	private Class jakartaNotNull;
-	private Class jakartaBeanParam;
-	private Class jakartaHttpServletRequest;
+	private Optional<Class> jakartaNotNull;
 	private Class responseAnnotation;
 
 	public JakartaRsReader(final ApiContext context, final ApiConfiguration apiConfiguration,
@@ -38,21 +35,8 @@ public class JakartaRsReader extends AstractLibraryReader {
 	}
 
 	private void initClasses() {
-		// If the jakarta path class is not present, there is a configuration error
-		jakartaPath = context.getClassLoaderHelper().getByNameRuntimeEx(PATH_CNAME);
-		// The BeanParam class is in the same jar than the Path annotation
-		jakartaBeanParam = context.getClassLoaderHelper().getByNameRuntimeEx(BEAN_PARAM_CNAME);
-		try {
-			// For the validation constraint, there should be no problem if the dependency is not present.
-			jakartaNotNull = context.getClassLoaderHelper().getByName(NOT_NULL_CNAME);
-		} catch(final ClassNotFoundException e) {
-			// Nothing to do, could be normal since it is in the validation api
-		}
-		try {
-			jakartaHttpServletRequest = context.getClassLoaderHelper().getByName(HttpServletRequest_CNAME);
-		} catch(final ClassNotFoundException e) {
-			// Nothing to do, could be normal since it is in the servlet api
-		}
+		// For the validation constraint, there should be no problem if the dependency is not present.
+		jakartaNotNull = context.getClassLoaderHelper().tryToGetByName(NOT_NULL_CNAME);
 		initCustomResponseAnnotation(apiConfiguration);
 	}
 
@@ -163,7 +147,7 @@ public class JakartaRsReader extends AstractLibraryReader {
 				// Detect if required
 				if(notnullMA.isPresent()) {
 					paramObj.setRequired(notnullMA.isPresent());
-				} else if(jakartaNotNull != null) {
+				} else if(jakartaNotNull.isPresent()) {
 					paramObj.setRequired(mergedAnnotations.get(NOT_NULL_CNAME).isPresent());
 				}
 
@@ -260,8 +244,11 @@ public class JakartaRsReader extends AstractLibraryReader {
 
 	@Override
 	protected Type readResponseMethodType(final Method method, final MergedAnnotations mergedAnnotations) {
-		if(responseAnnotation != null && mergedAnnotations.isPresent(responseAnnotation.getCanonicalName())) {
-			return (Class) mergedAnnotations.get(responseAnnotation.getCanonicalName()).getValue("value").get();
+		if(responseAnnotation != null) {
+			MergedAnnotation merged = mergedAnnotations.get(responseAnnotation.getCanonicalName());
+			if(merged.isPresent()) {
+				return (Class) merged.getValue("value").get();
+			}
 		}
 		return method.getGenericReturnType();
 	}
