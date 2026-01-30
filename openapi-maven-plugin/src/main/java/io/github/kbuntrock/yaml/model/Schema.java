@@ -238,7 +238,7 @@ public class Schema {
 								final JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(field.getName());
 								if(javadocWrapper != null) {
 									final Optional<String> desc = javadocWrapper.getDescription();
-									property.setDescription(desc.get());
+									property.setDescription(desc.orElse(null));
 
 									final Optional<String> summary = javadocWrapper.getSummary();
 									property.setSummary(summary.orElse(null));

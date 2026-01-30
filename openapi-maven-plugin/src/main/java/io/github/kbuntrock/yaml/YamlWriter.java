@@ -340,7 +340,7 @@ public class YamlWriter {
 								.get(parameterElement.getName());
 							if(javadocParamWrapper != null) {
 								final Optional<String> desc = javadocParamWrapper.getDescription();
-								parameterElement.setDescription(desc.get());
+								parameterElement.setDescription(desc.orElse(null));
 
 								final Optional<String> summary = javadocParamWrapper.getSummary();
 								parameterElement.setSummary(summary.orElse(null));
