@@ -1,6 +1,9 @@
 package io.github.kbuntrock.it;
 
-import static com.soebes.itf.extension.assertj.MavenITAssertions.assertThat;
+import com.soebes.itf.extension.assertj.MavenExecutionResultAssert;
+import com.soebes.itf.jupiter.extension.*;
+import com.soebes.itf.jupiter.maven.MavenExecutionResult;
+import org.junit.jupiter.api.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,11 +11,7 @@ import java.io.InputStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 
-import org.junit.jupiter.api.*;
-
-import com.soebes.itf.extension.assertj.MavenExecutionResultAssert;
-import com.soebes.itf.jupiter.extension.*;
-import com.soebes.itf.jupiter.maven.MavenExecutionResult;
+import static com.soebes.itf.extension.assertj.MavenITAssertions.assertThat;
 
 @MavenJupiterExtension
 public class CmdLineIT {
@@ -166,7 +165,8 @@ public class CmdLineIT {
 			final MavenExecutionResultAssert resultAssert = assertThat(result);
 			resultAssert.isFailure().out().error().anySatisfy(s -> assertThat(s)
 				.contains(
-					"jakarta.ws.rs.Path cannot be loaded. Please check if the correct dependencies are in your project classpath."));
+					"There is nothing to document. Please check if you have correctly configured the plugin or if the java version "
+						+ "used by maven is high enough to read the compiled project classes (maven toolchain is not supported)"));
 
 		}
 	}

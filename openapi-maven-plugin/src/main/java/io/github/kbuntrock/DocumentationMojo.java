@@ -1,15 +1,19 @@
 package io.github.kbuntrock;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
+import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.configuration.CommonApiConfiguration;
+import io.github.kbuntrock.configuration.JavadocConfiguration;
+import io.github.kbuntrock.configuration.NullableConfiguration;
+import io.github.kbuntrock.context.ApiContext;
+import io.github.kbuntrock.context.ProjectContext;
+import io.github.kbuntrock.javadoc.ClassDocumentation;
+import io.github.kbuntrock.javadoc.JavadocParser;
+import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
+import io.github.kbuntrock.utils.CollectionUtils;
+import io.github.kbuntrock.utils.FileUtils;
+import io.github.kbuntrock.utils.OpenApiTypeResolver;
+import io.github.kbuntrock.yaml.YamlWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
@@ -25,20 +29,14 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.rtinfo.RuntimeInformation;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 
-import io.github.kbuntrock.configuration.ApiConfiguration;
-import io.github.kbuntrock.configuration.CommonApiConfiguration;
-import io.github.kbuntrock.configuration.JavadocConfiguration;
-import io.github.kbuntrock.configuration.NullableConfiguration;
-import io.github.kbuntrock.context.ApiContext;
-import io.github.kbuntrock.context.ProjectContext;
-import io.github.kbuntrock.javadoc.ClassDocumentation;
-import io.github.kbuntrock.javadoc.JavadocParser;
-import io.github.kbuntrock.model.Tag;
-import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
-import io.github.kbuntrock.utils.CollectionUtils;
-import io.github.kbuntrock.utils.FileUtils;
-import io.github.kbuntrock.utils.OpenApiTypeResolver;
-import io.github.kbuntrock.yaml.YamlWriter;
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Mojo(name = "documentation", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class DocumentationMojo extends AbstractMojo {
@@ -243,7 +241,7 @@ public class DocumentationMojo extends AbstractMojo {
 				if(nbTagsGenerated == 0) {
 					throw new MojoFailureException(
 						"There is nothing to document. Please check if you have correctly configured the plugin or if the "
-							+ "java version used by maven is high enough to read the compiled project classes (maven toolchain is not supported yet)");
+							+ "java version used by maven is high enough to read the compiled project classes (maven toolchain is not supported)");
 				}
 
 				final int nbOperationsGenerated = tagLibrary.getTags().stream().map(Tag::getEndpoints).map(Collection::size)
