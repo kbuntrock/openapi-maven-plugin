@@ -2,21 +2,22 @@ package io.github.kbuntrock.configuration.library.reader;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.kbuntrock.JavaClassAnalyser;
+import io.github.kbuntrock.MojoRuntimeException;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.context.ApiContext;
-import io.github.kbuntrock.model.DataObject;
-import io.github.kbuntrock.model.Endpoint;
-import io.github.kbuntrock.model.OperationType;
-import io.github.kbuntrock.model.ParameterObject;
-import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.model.*;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
+import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
+import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.ParameterLocation;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
+import org.apache.maven.plugin.MojoFailureException;
+
 import java.io.File;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
@@ -24,42 +25,14 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.time.ZoneId;
 import java.time.temporal.Temporal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Currency;
-import java.util.Date;
-import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.reflect.MethodUtils;
-import org.apache.maven.plugin.MojoFailureException;
-import org.springframework.beans.BeanUtils;
-import org.springframework.core.annotation.MergedAnnotation;
-import org.springframework.core.annotation.MergedAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.ValueConstants;
 
 public class SpringMvcReader extends AstractLibraryReader {
+
+	// Must be equal to the value defined in spring org.springframework.web.bind.annotation.ValueConstants#DEFAULT_NONE
+	private static String VALUE_CONSTANT_DEFAULT = "\n\t\t\n\t\t\n\uE000\uE001\uE002\n\t\t\t\t\n";
 
 	private static final Map<Class<?>, Class<?>> primitiveWrapperTypeMap = new IdentityHashMap<>(9);
 
@@ -75,15 +48,52 @@ public class SpringMvcReader extends AstractLibraryReader {
 		primitiveWrapperTypeMap.put(Void.class, void.class);
 	}
 
+	private final Method beanUtilsIsSimplePropertyMethod;
+	private final Method httpStatusValueMethod;
+
 	public SpringMvcReader(final ApiContext context, final ApiConfiguration apiConfiguration,
 		final OpenApiTypeResolver openApiTypeResolver) {
 		super(context, apiConfiguration, openApiTypeResolver);
+		Class<?> springBeanUtils = context.getClassLoaderHelper().getByNameRuntimeEx("org.springframework.beans.BeanUtils");
+		try {
+			beanUtilsIsSimplePropertyMethod = springBeanUtils.getMethod("isSimpleProperty", Class.class);
+			if(!Modifier.isStatic(beanUtilsIsSimplePropertyMethod.getModifiers())) {
+				throw new IllegalStateException("Spring BeanUtils \"isSimpleProperty\" method is expected to be static.");
+			}
+		} catch(NoSuchMethodException e) {
+			throw new MojoRuntimeException("Spring BeanUtils \"isSimpleProperty\" method load error.", e);
+		}
+
+		// HttpStatus block
+		Class<?> springHttpStatus = context.getClassLoaderHelper().getByNameRuntimeEx("org.springframework.http.HttpStatus");
+		try {
+			httpStatusValueMethod = springHttpStatus.getMethod("value");
+		} catch(NoSuchMethodException e) {
+			throw new MojoRuntimeException("Spring HttpStatus \"value\" method load error.", e);
+		}
+	}
+
+	private boolean isSimpleProperty(Class<?> type) {
+		try {
+			return (boolean) beanUtilsIsSimplePropertyMethod.invoke(null, type);
+		} catch(IllegalAccessException | InvocationTargetException e) {
+			throw new MojoRuntimeException("Cannot invoke spring BeanUtils#isSimpleProperty.", e);
+		}
+	}
+
+	private int httpStatusValue(Object httpStatus) {
+		try {
+			return (int) httpStatusValueMethod.invoke(httpStatus);
+		} catch(IllegalAccessException | InvocationTargetException e) {
+			throw new MojoRuntimeException("Cannot invoke spring HttpStatus#value.", e);
+		}
 	}
 
 	@Override
 	public List<String> readBasePaths(final Class<?> clazz, final MergedAnnotations mergedAnnotations) {
 		List<String> basePaths = Collections.singletonList("");
-		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
+		final MergedAnnotation requestMappingMergedAnnotation = mergedAnnotations
+			.get("org.springframework.web.bind.annotation.RequestMapping");
 		if(requestMappingMergedAnnotation.isPresent()) {
 			final String[] paths = requestMappingMergedAnnotation.getStringArray("value");
 			if(paths.length > 0) {
@@ -97,10 +107,11 @@ public class SpringMvcReader extends AstractLibraryReader {
 	public void computeAnnotations(final Class clazz, final String basePath, final Method method,
 		final MergedAnnotations mergedAnnotations, final Tag tag) throws MojoFailureException {
 
-		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
+		final MergedAnnotation requestMappingMergedAnnotation = mergedAnnotations
+			.get("org.springframework.web.bind.annotation.RequestMapping");
 		if(requestMappingMergedAnnotation.isPresent() && !excludedByReturnType(method)) {
 
-			final RequestMethod[] requestMethods = requestMappingMergedAnnotation.getEnumArray("method", RequestMethod.class);
+			final String[] requestMethods = requestMappingMergedAnnotation.getEnumArrayAsString("method");
 			if(requestMethods.length > 0) {
 				context.getLogger().debug("Parsing request method : " + method.getName());
 				final String methodIdentifier = JavaClassAnalyser.createMethodIdentifier(method);
@@ -108,10 +119,10 @@ public class SpringMvcReader extends AstractLibraryReader {
 				final DataObject responseObject = readResponseObject(clazz, method, mergedAnnotations);
 				final int responseCode = readResponseCode(mergedAnnotations);
 				final List<String> paths = readEndpointPaths(basePath, requestMappingMergedAnnotation);
-				for(final RequestMethod requestMethod : requestMethods) {
+				for(final String requestMethod : requestMethods) {
 					for(final String path : paths) {
 						final Endpoint endpoint = new Endpoint();
-						endpoint.setType(OperationType.fromJavax(requestMethod));
+						endpoint.setType(OperationType.fromSpring(requestMethod));
 						endpoint.setPath(path);
 						endpoint.setName(method.getName());
 						endpoint.setParameters(parameterObjects);
@@ -158,8 +169,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 		for(final Method method : overridenMethods) {
 			for(final Parameter parameter : method.getParameters()) {
 
-				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
-					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+				final MergedAnnotations mergedAnnotations = context.getMergeAnnotationsHelper().from(parameter);
 
 				if(!openApiTypeResolver.canBeDocumented(parameter, mergedAnnotations)) {
 					continue;
@@ -173,12 +183,13 @@ public class SpringMvcReader extends AstractLibraryReader {
 
 				boolean annotationFound = false;
 				// Detect if is a header variable
-				final MergedAnnotation<RequestHeader> headerVariableMA = mergedAnnotations.get(RequestHeader.class);
+				final MergedAnnotation headerVariableMA = mergedAnnotations
+					.get("org.springframework.web.bind.annotation.RequestHeader");
 				if(headerVariableMA.isPresent()) {
 					annotationFound = true;
 					paramObj.setLocation(ParameterLocation.HEADER);
 					paramObj.setRequired(headerVariableMA.getBoolean("required") &&
-						ValueConstants.DEFAULT_NONE.equals(headerVariableMA.getString("defaultValue")));
+						VALUE_CONSTANT_DEFAULT.equals(headerVariableMA.getString("defaultValue")));
 					// The value is equivalent to the name (alias for and user of MergedAnnotation)
 					final String value = headerVariableMA.getString("value");
 					if(!StringUtils.isEmpty(value)) {
@@ -188,7 +199,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 				}
 
 				// Detect if is a path variable
-				final MergedAnnotation<PathVariable> pathVariableMA = mergedAnnotations.get(PathVariable.class);
+				final MergedAnnotation pathVariableMA = mergedAnnotations
+					.get("org.springframework.web.bind.annotation.PathVariable");
 				if(pathVariableMA.isPresent()) {
 					annotationFound = true;
 					paramObj.setLocation(ParameterLocation.PATH);
@@ -202,7 +214,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 				}
 
 				// Detect if is a query variable
-				final MergedAnnotation<RequestParam> requestParamMA = mergedAnnotations.get(RequestParam.class);
+				final MergedAnnotation requestParamMA = mergedAnnotations
+					.get("org.springframework.web.bind.annotation.RequestParam");
 				if(requestParamMA.isPresent()) {
 					annotationFound = true;
 					if(paramObj.isMultipartFile()) {
@@ -212,7 +225,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 						paramObj.setLocation(ParameterLocation.QUERY);
 					}
 					paramObj.setRequired(requestParamMA.getBoolean("required") &&
-						ValueConstants.DEFAULT_NONE.equals(requestParamMA.getString("defaultValue")));
+						VALUE_CONSTANT_DEFAULT.equals(requestParamMA.getString("defaultValue")));
 
 					// The value is equivalent to the name (alias for and user of MergedAnnotation)
 					final String value = requestParamMA.getString("value");
@@ -225,7 +238,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 				}
 
 				// Detect if is a request body parameter
-				final MergedAnnotation<RequestBody> requestBodyMA = mergedAnnotations.get(RequestBody.class);
+				final MergedAnnotation requestBodyMA = mergedAnnotations
+					.get("org.springframework.web.bind.annotation.RequestBody");
 				if(requestBodyMA.isPresent()) {
 					annotationFound = true;
 					paramObj.setLocation(ParameterLocation.BODY);
@@ -235,7 +249,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 				}
 
 				// Detect if is a request part parameter
-				final MergedAnnotation<RequestPart> requestPartMA = mergedAnnotations.get(RequestPart.class);
+				final MergedAnnotation requestPartMA = mergedAnnotations
+					.get("org.springframework.web.bind.annotation.RequestPart");
 				if(requestPartMA.isPresent()) {
 					annotationFound = true;
 					paramObj.setLocation(ParameterLocation.BODY_PART);
@@ -280,7 +295,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 	}
 
 	/**
-	 * Reads parameters only present in the request mapping annotation (see {@link RequestMapping#params})
+	 * Reads parameters only present in the request mapping annotation (see spring RequestMapping#params)
 	 *
 	 * @param endpointAnnotations
 	 * @param parameters
@@ -291,7 +306,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 		// Expressions can be negated by using the "!=" operator, as in "myParam!=myValue".
 		// "myParam" style expressions are also supported, with such parameters having to be present in the request (allowed to have any value).
 		// Finally, "!myParam" style expressions indicate that the specified parameter is not supposed to be present in the request.
-		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = endpointAnnotations.get(RequestMapping.class);
+		final MergedAnnotation requestMappingMergedAnnotation = endpointAnnotations
+			.get("org.springframework.web.bind.annotation.RequestMapping");
 		final String[] params = requestMappingMergedAnnotation.getStringArray("params");
 		for(String param : params) {
 
@@ -321,7 +337,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 	}
 
 	/**
-	 * Reads headers only present in the request mapping annotation (see {@link RequestMapping#params})
+	 * Reads headers only present in the request mapping annotation (see spring RequestMapping#params)
 	 *
 	 * @param endpointAnnotations
 	 * @param parameters
@@ -332,7 +348,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 		// Expressions can be negated by using the "!=" operator, as in "myHeader!=myValue".
 		// "myParam" style expressions are also supported, with such parameters having to be present in the request (allowed to have any value).
 		// Finally, "!myHeader" style expressions indicate that the specified parameter is not supposed to be present in the request.
-		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = endpointAnnotations.get(RequestMapping.class);
+		final MergedAnnotation requestMappingMergedAnnotation = endpointAnnotations
+			.get("org.springframework.web.bind.annotation.RequestMapping");
 		final String[] params = requestMappingMergedAnnotation.getStringArray("headers");
 		for(String param : params) {
 
@@ -361,14 +378,14 @@ public class SpringMvcReader extends AstractLibraryReader {
 		}
 	}
 
-	private static boolean parameterObjectBindableToQueryParams(final ParameterObject paramObj) {
+	private boolean parameterObjectBindableToQueryParams(final ParameterObject paramObj) {
 		final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), paramObj.getJavaClass());
 		for(final Field field : fields) {
 			if(field.isAnnotationPresent(JsonIgnore.class)) {
 				// Field is tagged ignore. No need to document it.
 				continue;
 			}
-			if(!(BeanUtils.isSimpleProperty(field.getType()) ||
+			if(!(isSimpleProperty(field.getType()) ||
 				Collection.class.isAssignableFrom(field.getType()) ||
 				field.getType().isArray())) {
 				return false;
@@ -403,7 +420,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 
 	@Override
 	protected List<String> readEndpointPaths(final String basePath,
-		final MergedAnnotation<? extends Annotation> requestMappingMergedAnnotation) {
+		final MergedAnnotation requestMappingMergedAnnotation) {
 
 		final String[] paths = requestMappingMergedAnnotation.getStringArray("path");
 		final List<String> resolvedPaths = new ArrayList<>();
@@ -420,7 +437,8 @@ public class SpringMvcReader extends AstractLibraryReader {
 	protected void setConsumeProduceProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations)
 		throws MojoFailureException {
 
-		final MergedAnnotation<RequestMapping> requestMappingMergedAnnotation = mergedAnnotations.get(RequestMapping.class);
+		final MergedAnnotation requestMappingMergedAnnotation = mergedAnnotations
+			.get("org.springframework.web.bind.annotation.RequestMapping");
 
 		final Optional<ParameterObject> body = endpoint.getParameters().stream()
 			.filter(x -> ParameterLocation.BODY == x.getLocation())
@@ -441,11 +459,12 @@ public class SpringMvcReader extends AstractLibraryReader {
 
 	@Override
 	protected int readResponseCode(final MergedAnnotations mergedAnnotations) {
-		final MergedAnnotation<ResponseStatus> responseStatusMA = mergedAnnotations.get(ResponseStatus.class);
+		final MergedAnnotation responseStatusMA = mergedAnnotations.get("org.springframework.web.bind.annotation.ResponseStatus");
 		if(!responseStatusMA.isPresent()) {
-			return HttpStatus.OK.value();
+			return 200;
 		}
-		return responseStatusMA.getValue("value", HttpStatus.class).get().value();
+		Object httpStatus = responseStatusMA.getValue("value").get();
+		return httpStatusValue(httpStatus);
 	}
 
 	/**

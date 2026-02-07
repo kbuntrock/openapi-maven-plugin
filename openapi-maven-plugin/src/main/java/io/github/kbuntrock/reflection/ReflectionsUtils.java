@@ -1,6 +1,7 @@
 package io.github.kbuntrock.reflection;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -34,5 +35,34 @@ public final class ReflectionsUtils {
 
 	public static String getClassNameFromType(Type type) {
 		return type.toString().replaceAll("class ", "").replaceAll("interface ", "");
+	}
+
+	/**
+	 * Explicitly sets the field accessible if necessary.
+	 *
+	 * @param field
+	 *            the field to make accessible
+	 * @see java.lang.reflect.Field#setAccessible
+	 */
+	public static void makeAccessible(Field field) {
+		if((!Modifier.isPublic(field.getModifiers()) ||
+			!Modifier.isPublic(field.getDeclaringClass().getModifiers()) ||
+			Modifier.isFinal(field.getModifiers())) && !field.isAccessible()) {
+			field.setAccessible(true);
+		}
+	}
+
+	/**
+	 * Explicitly sets the method accessible if necessary.
+	 *
+	 * @param method
+	 *            the method to make accessible
+	 * @see java.lang.reflect.Method#setAccessible
+	 */
+	public static void makeAccessible(Method method) {
+		if((!Modifier.isPublic(method.getModifiers()) ||
+			!Modifier.isPublic(method.getDeclaringClass().getModifiers())) && !method.isAccessible()) {
+			method.setAccessible(true);
+		}
 	}
 }

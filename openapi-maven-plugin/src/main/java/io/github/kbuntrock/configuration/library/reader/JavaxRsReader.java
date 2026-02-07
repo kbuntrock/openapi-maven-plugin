@@ -3,53 +3,32 @@ package io.github.kbuntrock.configuration.library.reader;
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.context.ApiContext;
-import io.github.kbuntrock.model.DataObject;
-import io.github.kbuntrock.model.Endpoint;
-import io.github.kbuntrock.model.OperationType;
-import io.github.kbuntrock.model.ParameterObject;
-import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.model.*;
+import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
+import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.ParameterLocation;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.maven.plugin.MojoFailureException;
-import org.springframework.core.annotation.MergedAnnotation;
-import org.springframework.core.annotation.MergedAnnotations;
-import org.springframework.http.HttpStatus;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class JavaxRsReader extends AstractLibraryReader {
 
-	private Class jakartaNotNull;
-	private Class jakartaHttpServletRequest;
+	private Optional<Class> jakartaNotNull;
 	private Class responseAnnotation;
 
 	public JavaxRsReader(final ApiContext context, final ApiConfiguration apiConfiguration,
 		final OpenApiTypeResolver openApiTypeResolver) {
 		super(context, apiConfiguration, openApiTypeResolver);
-		try {
-			// For the validation constraint, there should be no problem if the dependency is not present.
-			jakartaNotNull = context.getClassLoaderHelper().getByName(JakartaRsReader.NOT_NULL_CNAME);
-		} catch(final ClassNotFoundException e) {
-			// Nothing to do, could be normal since it is in the validation api
-		}
-		try {
-			jakartaHttpServletRequest = context.getClassLoaderHelper().getByName(JakartaRsReader.HttpServletRequest_CNAME);
-		} catch(final ClassNotFoundException e) {
-			// Nothing to do, could be normal since it is in the servlet api
-		}
+		// For the validation constraint, there should be no problem if the dependency is not present.
+		jakartaNotNull = context.getClassLoaderHelper().tryToGetByName(JakartaRsReader.NOT_NULL_CNAME);
 		initCustomResponseAnnotation(apiConfiguration);
 	}
 
@@ -78,7 +57,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 	@Override
 	public List<String> readBasePaths(final Class<?> clazz, final MergedAnnotations mergedAnnotations) {
 		List<String> basePaths = Collections.singletonList("");
-		final MergedAnnotation<Annotation> requestMappingMergedAnnotation = mergedAnnotations.get("javax.ws.rs.Path");
+		final MergedAnnotation requestMappingMergedAnnotation = mergedAnnotations.get("javax.ws.rs.Path");
 		if(requestMappingMergedAnnotation.isPresent()) {
 			final String path = requestMappingMergedAnnotation.getString("value");
 			if(!StringUtils.isEmpty(path)) {
@@ -92,11 +71,11 @@ public class JavaxRsReader extends AstractLibraryReader {
 	public void computeAnnotations(final Class clazz, final String basePath, final Method method,
 		final MergedAnnotations mergedAnnotations, final Tag tag) throws MojoFailureException {
 
-		final MergedAnnotation<Annotation> requestMappingMergedAnnotation = mergedAnnotations.get("javax.ws.rs.Path");
+		final MergedAnnotation requestMappingMergedAnnotation = mergedAnnotations.get("javax.ws.rs.Path");
 		if(requestMappingMergedAnnotation.isPresent()) {
 
 			for(final JavaxRsHttpVerb verb : JavaxRsHttpVerb.values()) {
-				final MergedAnnotation<Annotation> m = mergedAnnotations.get(verb.getAnnotationClass());
+				final MergedAnnotation m = mergedAnnotations.get(verb.getAnnotationClass());
 				if(m.isPresent()) {
 					final String methodIdentifier = JavaClassAnalyser.createMethodIdentifier(method);
 					final List<ParameterObject> parameterObjects = readParameters(clazz, method, mergedAnnotations);
@@ -139,8 +118,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 
 			for(final Parameter parameter : method.getParameters()) {
 
-				final MergedAnnotations mergedAnnotations = MergedAnnotations.from(parameter,
-					MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
+				final MergedAnnotations mergedAnnotations = context.getMergeAnnotationsHelper().from(parameter);
 
 				if(!openApiTypeResolver.canBeDocumented(parameter, mergedAnnotations)) {
 					continue;
@@ -156,16 +134,16 @@ public class JavaxRsReader extends AstractLibraryReader {
 				}
 				parameters.putIfAbsent(paramObj.getName(), paramObj);
 
-				final MergedAnnotation<Annotation> notnullMA = mergedAnnotations.get("javax.validation.constraints.NotNull");
+				final MergedAnnotation notnullMA = mergedAnnotations.get("javax.validation.constraints.NotNull");
 				// Detect if required
 				if(notnullMA.isPresent()) {
 					paramObj.setRequired(notnullMA.isPresent());
-				} else if(jakartaNotNull != null) {
-					paramObj.setRequired(mergedAnnotations.get(jakartaNotNull).isPresent());
+				} else if(jakartaNotNull.isPresent()) {
+					paramObj.setRequired(mergedAnnotations.get(JakartaRsReader.NOT_NULL_CNAME).isPresent());
 				}
 
 				// Detect if is a path variable
-				final MergedAnnotation<Annotation> pathVariableMA = mergedAnnotations.get("javax.ws.rs.PathParam");
+				final MergedAnnotation pathVariableMA = mergedAnnotations.get("javax.ws.rs.PathParam");
 				if(pathVariableMA.isPresent()) {
 					paramObj.setLocation(ParameterLocation.PATH);
 					// Path params are required
@@ -179,7 +157,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 				}
 
 				// Detect if is a query variable
-				final MergedAnnotation<Annotation> requestParamMA = mergedAnnotations.get("javax.ws.rs.QueryParam");
+				final MergedAnnotation requestParamMA = mergedAnnotations.get("javax.ws.rs.QueryParam");
 				if(requestParamMA.isPresent()) {
 					if(paramObj.isMultipartFile()) {
 						// MultipartFile parameters are considered as a requestBody)
@@ -221,7 +199,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 
 	@Override
 	protected List<String> readEndpointPaths(final String basePath,
-		final MergedAnnotation<? extends Annotation> pathMergedAnnotation) {
+		final MergedAnnotation pathMergedAnnotation) {
 		final String path = pathMergedAnnotation.getString("value");
 		if(path == null) {
 			return Arrays.asList(concatenateBasePathAndMethodPath(basePath, "", apiConfiguration.getPathEnhancement()));
@@ -232,8 +210,8 @@ public class JavaxRsReader extends AstractLibraryReader {
 	@Override
 	protected void setConsumeProduceProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations)
 		throws MojoFailureException {
-		final MergedAnnotation<Annotation> consumesMergedAnnotation = mergedAnnotations.get("javax.ws.rs.Consumes");
-		final MergedAnnotation<Annotation> producesMergedAnnotation = mergedAnnotations.get("javax.ws.rs.Produces");
+		final MergedAnnotation consumesMergedAnnotation = mergedAnnotations.get("javax.ws.rs.Consumes");
+		final MergedAnnotation producesMergedAnnotation = mergedAnnotations.get("javax.ws.rs.Produces");
 
 		final Optional<ParameterObject> body = endpoint.getParameters().stream()
 			.filter(x -> ParameterLocation.BODY == x.getLocation())
@@ -254,7 +232,7 @@ public class JavaxRsReader extends AstractLibraryReader {
 
 	@Override
 	protected int readResponseCode(final MergedAnnotations mergedAnnotations) {
-		return HttpStatus.OK.value();
+		return 200;
 	}
 
 	private enum JavaxRsHttpVerb {
@@ -279,8 +257,11 @@ public class JavaxRsReader extends AstractLibraryReader {
 
 	@Override
 	protected Type readResponseMethodType(final Method method, final MergedAnnotations mergedAnnotations) {
-		if(responseAnnotation != null && mergedAnnotations.isPresent(responseAnnotation)) {
-			return (Class) mergedAnnotations.get(responseAnnotation).getValue("value").get();
+		if(responseAnnotation != null) {
+			MergedAnnotation merged = mergedAnnotations.get(responseAnnotation.getCanonicalName());
+			if(merged.isPresent()) {
+				return (Class) merged.getValue("value").get();
+			}
 		}
 		return method.getGenericReturnType();
 	}

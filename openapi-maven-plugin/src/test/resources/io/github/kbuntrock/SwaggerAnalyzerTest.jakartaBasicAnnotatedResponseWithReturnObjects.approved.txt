@@ -1,0 +1,159 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: EntityAnnotationResource
+paths:
+  /api/different_errors:
+    get:
+      tags:
+        - EntityAnnotationResource
+      operationId: different_errors
+      summary: Swagger summary
+      responses:
+        200:
+          description: Swagger Successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ResponseEntityWithAnnotations'
+        404:
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorEntityWithAnnotations'
+        500:
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorEntityWithAnnotations'
+  /api/summary:
+    get:
+      tags:
+        - EntityAnnotationResource
+      operationId: swaggerSummary
+      summary: Swagger summary
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ResponseEntityWithAnnotations'
+  /api/unparametrized:
+    get:
+      tags:
+        - EntityAnnotationResource
+      operationId: unparametrized
+      summary: Swagger summary of unparametrized operation
+      responses:
+        200:
+          description: The success response
+          content:
+            '*/*':
+              schema:
+                description: The success entity
+                $ref: '#/components/schemas/SuccessEntity'
+        404:
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorEntityWithAnnotations'
+        500:
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorEntityWithAnnotations'
+components:
+  schemas:
+    ErrorEntityWithAnnotations:
+      type: object
+      properties:
+        timestamp:
+          description: Timestamp of the error
+          type: string
+          format: date-time
+          example: 2023-10-01T12:00:00
+        sessionId:
+          description: Session ID associated with the error
+          type: string
+          example: session-12345
+        correlationId:
+          description: Correlation ID for tracking the request
+          type: string
+          example: correlation-67890
+        requestId:
+          description: Request ID for the operation
+          type: string
+          example: request-54321
+        errorId:
+          description: Unique identifier for the error
+          type: string
+          example: error-98765
+        errorCode:
+          description: Error code representing the type of error
+          type: string
+          example: ERR-001
+        status:
+          description: HTTP status code of the error
+          type: integer
+          format: int32
+          example: 500
+        error:
+          description: Short description of the error
+          type: string
+          example: Internal Server Error
+        message:
+          description: Detailed message about the error
+          type: string
+          example: An unexpected error occurred while processing the request.
+        path:
+          description: Path of the request that caused the error
+          type: string
+          example: /api/resource
+        extraInfo:
+          type: string
+          example: Additional information about the error
+        cause:
+          description: "The cause of the error, if any"
+          $ref: '#/components/schemas/ErrorEntityWithAnnotations'
+    ResponseEntityWithAnnotations:
+      type: object
+      properties:
+        id:
+          description: Unique identifier for the response
+          type: string
+          example: 12345
+        status:
+          description: Status of the response
+          type: string
+          example: success
+        data:
+          description: Data returned in the response
+          type: string
+          example: "{\"key\":\"value\"}"
+        timestamp:
+          description: Timestamp of the collected data
+          type: string
+          format: date-time
+          example: 2023-10-01T12:00:00
+    SuccessEntity:
+      description: The success entity
+      type: object
+      properties:
+        firstName:
+          description: The first name
+          type: string
+          example: John
+        lastName:
+          description: The last name
+          type: string
+          example: Doe
