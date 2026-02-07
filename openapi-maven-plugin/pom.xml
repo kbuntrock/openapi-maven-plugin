@@ -72,7 +72,7 @@
         <itf.version>0.13.1</itf.version>
         <javaparser.version>3.28.0</javaparser.version>
         <classgraph.version>4.8.184</classgraph.version>
-        <approvaltests.version>25.7.0</approvaltests.version>
+        <approvaltests.version>26.6.1</approvaltests.version>
         <mockito.version>5.21.0</mockito.version>
     </properties>
 
