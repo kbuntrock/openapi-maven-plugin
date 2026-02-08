@@ -10,24 +10,28 @@ import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
+import io.github.kbuntrock.utils.OpenApiTypeResolver;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import io.github.kbuntrock.utils.OpenApiTypeResolver;
-import org.apache.maven.plugin.MojoFailureException;
-
 /**
- * Keep track of tags and explore them to find every DataObject which should end up in the components/schemas section
+ * Central registry for discovered API {@link Tag}s and the associated model {@link DataObject}s
+ * that must be included under OpenAPI components/schemas.
+ * <p>
+ * Responsibilities:
+ * - Maintain the list of tags as they are discovered and eagerly explore their endpoints.
+ * - Traverse response and parameter models to collect schema {@link DataObject}s, avoiding duplicates.
+ * - Handle generic types, arrays, and interface getter-derived properties.
+ * - Provide deterministic, human-friendly schema reference names and resolve name collisions.
+ * <p>
+ * Notes on traversal:
+ * - Deduplication is based on a stable {@link DataObject#getSignature()} to prevent infinite recursion.
+ * - Only "reference objects" (objects that should be emitted as named schemas) are added directly to the set.
+ * - Generic containers are traversed to their context-aware type arguments before inspection.
  */
 public class TagLibrary {
 
@@ -36,14 +40,22 @@ public class TagLibrary {
 	public static final String METHOD_IS_PREFIX = "is";
 	public static final int METHOD_IS_PREFIX_SIZE = METHOD_IS_PREFIX.length();
 
+	/** Type resolver used when building {@link DataObject}s for schema exploration. */
 	private final OpenApiTypeResolver openApiTypeResolver;
+	/** Plugin execution context (logger, configuration access, class loader). */
 	private final ApiContext context;
+	/** Current API configuration. */
 	private final ApiConfiguration apiConfiguration;
+	/** Optional map of class canonical names to extracted javadoc metadata. */
 	private Map<String, ClassDocumentation> javadocMap;
 
+	/** All collected tags (controllers). */
 	private final List<Tag> tags = new ArrayList<>();
+	/** Set of schema objects destined for components/schemas. */
 	private final Set<DataObject> schemaObjects = new HashSet<>();
+	/** Guard set of visited signatures to avoid re-processing and cycles. */
 	private final Set<String> exploredSignatures = new HashSet<>();
+	/** Convenience index to look up schema object by its Java class. */
 	final Map<Class, DataObject> classToSchemaObject = new HashMap<>();
 
 	public TagLibrary(final ApiContext context, Map<String, ClassDocumentation> javadocMap) {
@@ -53,13 +65,20 @@ public class TagLibrary {
 		this.context = context;
 	}
 
+	/**
+	 * Register a discovered tag and immediately explore its endpoints to collect schema models.
+	 *
+	 * @param tag
+	 *            the controller tag to register
+	 */
 	public void addTag(final Tag tag) {
 		tags.add(tag);
 		exploreTagObjects(tag);
 	}
 
 	/**
-	 * Add an extra data object
+	 * Add an extra data object explicitly configured by the user so that it appears in the schema section,
+	 * even if not directly referenced by any endpoint.
 	 *
 	 * @param clazz
 	 */
@@ -69,8 +88,8 @@ public class TagLibrary {
 	}
 
 	/**
-	 * Analyse all endpoints of a tag (aka a rest controller) to extract all objects which will be written in the schema section : parameters or
-	 * response.
+	 * Analyse all endpoints of a tag (aka a REST controller) to extract all objects which will be written
+	 * in the schema section: parameters and responses.
 	 *
 	 * @param tag
 	 *            a rest controller
@@ -87,19 +106,23 @@ public class TagLibrary {
 
 			for(final OperationResponse operationResponse : endpoint.getOperationAnnotationInfo().getResponses()) {
 				if(operationResponse.getDataObject() != null) {
-					// If the response has a data object, it is a response with a body
+					// If the response has a data object, it represents a response body to document.
 					exploreDataObject(operationResponse.getDataObject());
 				}
 			}
 		}
 	}
 
+	/**
+	 * Depth-first exploration of a {@link DataObject}, with cycle prevention and handling of references,
+	 * generic containers, and Java arrays.
+	 */
 	private void exploreDataObject(final DataObject dataObject) {
-		// We don't want to explore several times the same type of objects
+		// Avoid revisiting the same logical object (prevents cycles and redundant work).
 		if(!exploredSignatures.add(dataObject.getSignature())) {
 			return;
 		}
-		// Generically typed objects are almost never written in the schema section (only when a recursive loop is detected)
+		// Reference objects are candidates for top-level schemas. Non-map references are then inspected for nested types.
 		if(dataObject.isReferenceObject()) {
 			if(schemaObjects.add(dataObject)) {
 				if(!dataObject.isMap()) {
@@ -107,7 +130,7 @@ public class TagLibrary {
 				}
 			}
 		} else if(dataObject.isGenericallyTyped()) {
-			// Eventually analyse instead the generic types
+			// For generic containers, traverse their type arguments in context (e.g., List<Foo<T>>).
 			if(dataObject.getGenericNameToTypeMap() != null) {
 				for(final Map.Entry<String, Type> entry : dataObject.getGenericNameToTypeMap().entrySet()) {
 					final DataObject genericObject = new DataObject(dataObject.getContextualType(entry.getValue()),
@@ -117,23 +140,31 @@ public class TagLibrary {
 			}
 			inspectObject(dataObject);
 		} else if(dataObject.isJavaArray()) {
+			// Traverse array item type.
 			exploreDataObject(dataObject.getArrayItemDataObject());
 		}
 	}
 
+	/**
+	 * Inspect fields and accessor methods of a complex object to discover nested types that should
+	 * be included in the schema section.
+	 */
 	private void inspectObject(final DataObject explored) {
-		if(explored.getJavaClass().isEnum() || explored.getOpenApiResolvedType().isCompleteNode()) {
+		// Enums or already "complete" nodes do not require further traversal.
+		if(explored.getJavaClass().isEnum() ||
+			explored.getOpenApiResolvedType().isCompleteNode()) {
 			return;
 		}
 		final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), explored.getJavaClass());
 		for(final Field field : fields) {
 			if(field.isAnnotationPresent(JsonIgnore.class)) {
-				// Field is tagged ignore. No need to document it.
+				// Field is explicitly ignored; skip it from schema traversal.
 				continue;
 			}
 			final DataObject dataObject = new DataObject(explored.getContextualType(field.getGenericType()), openApiTypeResolver);
 			exploreDataObject(dataObject);
 		}
+		// When exploring interfaces, also consider bean-style getters (getX/isY) without parameters.
 		if(explored.getJavaClass().isInterface()) {
 			final Method[] methods = explored.getJavaClass().getMethods();
 			for(final Method method : methods) {
@@ -150,29 +181,46 @@ public class TagLibrary {
 
 	}
 
+	/**
+	 * All collected tags (in insertion order).
+	 */
 	public Collection<Tag> getTags() {
 		return tags;
 	}
 
+	/**
+	 * Tags sorted using their natural ordering (see {@link Tag#compareTo(Object)}).
+	 */
 	public Collection<Tag> getSortedTags() {
 		return tags.stream().sorted().collect(Collectors.toList());
 	}
 
+	/**
+	 * All schema objects that will be emitted in the components/schemas section.
+	 */
 	public Set<DataObject> getSchemaObjects() {
 		return schemaObjects;
 	}
 
+	/**
+	 * Lookup map for quickly retrieving a {@link DataObject} from a Java class.
+	 */
 	public Map<Class, DataObject> getClassToSchemaObject() {
 		return classToSchemaObject;
 	}
 
 	/**
-	 * Find a short name for all dataObjects in the schema section
+	 * Compute short, human-friendly schema reference names for all {@link DataObject}s and ensure uniqueness.
+	 * <p>
+	 * Strategy:
+	 * - Iterate schema objects in deterministic order (by canonical class name) for stable outputs.
+	 * - Prefer simple class name; if already taken, append an incrementing suffix ("_1", "_2", ...).
+	 * - Maintain an index for quick class-to-schema mapping.
 	 */
 	public void resolveSchemaReferenceNames() {
-		// Find all short names in the schema section
+		// Collect all short names in the schema section
 		final Set<String> referenceNames = new HashSet<>();
-		// We want a deterministic order when renaming classes for reference with "_x". That's why we order by canonical name.
+		// Deterministic order ensures stable naming (important for diffs and client generation).
 		final List<DataObject> orderedSchemaObjects = schemaObjects.stream()
 			.sorted(Comparator.comparing(o -> o.getJavaClass().getCanonicalName())).collect(Collectors.toList());
 

@@ -15,7 +15,20 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Represent a type with all the needed informations to insert it into the openapi specification
+ * Represents a Java type together with the contextual information required to translate it
+ * into an OpenAPI schema node.
+ * <p>
+ * Responsibilities:
+ * - Capture the underlying Java {@link Type} and {@link Class} and resolve the {@link OpenApiResolvedType}.
+ * - Track generic type parameters and provide contextual substitution for nested types.
+ * - Model container relationships (arrays, collections, maps) via {@link #arrayItemDataObject} and {@link #mapKeyValueDataObjects}.
+ * - Handle enums, including Jackson {@code @JsonValue}-style representations for enum values.
+ * - Provide utilities to determine whether a type should be emitted as a named schema (reference object).
+ * <p>
+ * Notes:
+ * - Deduplication is done upstream using {@link #getSignature()} which encodes class + generic arguments.
+ * - {@link #isReferenceObject()} helps decide whether this object should appear under components/schemas.
+ * - {@link #getContextualType(Type)} applies generic substitutions using the current context.
  */
 public class DataObject {
 
@@ -27,39 +40,39 @@ public class DataObject {
 	 */
 	private DataObject[] mapKeyValueDataObjects = new DataObject[2];
 	/**
-	 * The original java class
+	 * The resolved raw Java class for {@link #javaType} (or Object.class as a fallback).
 	 */
 	private final Class<?> javaClass;
 	/**
-	 * The original java type
+	 * The original Java {@link Type} used to build this data object.
 	 */
 	private final Type javaType;
 	/**
-	 * The corresponding openapi type
+	 * The corresponding OpenAPI resolved type (primitive/object/array/map/etc.).
 	 */
 	private OpenApiResolvedType openApiResolvedType;
 	/**
-	 * The type of the items if this data object represent a java Collection or java array
+	 * The item type when this object represents a Java Collection or a Java array.
 	 */
 	private DataObject arrayItemDataObject;
 	/**
-	 * True if this data object represent a java Set. Null if not relevant.
+	 * True if this data object represents a Java Set. Null if not relevant (non-container).
 	 */
 	private Boolean uniqueItems;
 	/**
-	 * All the value's names if this data object represent a java enum
+	 * The list of enum values (as strings) when this type is an enum. May be driven by @JsonValue.
 	 */
 	private List<String> enumItemValues;
 	/**
-	 * Used only if configured
+	 * The list of enum constant names when @JsonValue is used for values (optional).
 	 */
 	private List<String> enumItemNames;
 	/**
-	 * True if this object is generically typed
+	 * True when this object is generically typed (e.g., List<T>, Map<K,V>, Optional<Foo>, T[], etc.).
 	 */
 	private boolean genericallyTyped;
 	/**
-	 * The type can be a parametrized type
+	 * Mapping from generic parameter name (e.g., "T") to the contextual {@link Type} substituted here.
 	 */
 	private Map<String, Type> genericNameToTypeMap;
 
@@ -76,7 +89,7 @@ public class DataObject {
 	private Boolean classRequired;
 
 	/**
-	 * Shallow copy for Parameter Object creation
+	 * Shallow copy for parameter/response object creation. Copies type identity and resolution data.
 	 *
 	 * @param dataObject
 	 */
@@ -94,6 +107,15 @@ public class DataObject {
 		this.classRequired = dataObject.classRequired;
 	}
 
+	/**
+	 * Build a {@link DataObject} from a Java {@link Type}, resolving container shapes, generics,
+	 * and enums. This constructor may recursively instantiate nested {@link DataObject}s (e.g., array items).
+	 *
+	 * @param originalType
+	 *            input Java type (class, parameterized, generic array, wildcard, etc.)
+	 * @param openApiTypeResolver
+	 *            resolver used to compute {@link OpenApiResolvedType}
+	 */
 	public DataObject(final Type originalType, final OpenApiTypeResolver openApiTypeResolver) {
 		Type type = originalType;
 
@@ -108,7 +130,7 @@ public class DataObject {
 
 			this.javaType = type;
 			if(type instanceof ParameterizedType) {
-				// Parameterized types (List, Map, or every custom type)
+				// Parameterized types (List, Map, Optional, or any custom parameterized type).
 
 				this.genericallyTyped = true;
 				final ParameterizedType pt = (ParameterizedType) type;
@@ -185,6 +207,7 @@ public class DataObject {
 		this.enumItemValues = new ArrayList<>();
 		List<String> elementWithAnnotation = new ArrayList<>();
 
+		// Prefer an enum "as-value" representation declared via a no-arg method annotated with @JsonValue.
 		for(final Method method : javaClass.getMethods()) {
 			if(method.getParameters().length == 0) {
 				final MergedAnnotations mergedAnnotations = openApiTypeResolver.getContext().getMergeAnnotationsHelper()
@@ -217,6 +240,7 @@ public class DataObject {
 			}
 		}
 
+		// If no method-level @JsonValue is found, check fields with @JsonValue.
 		for(final Field field : javaClass.getDeclaredFields()) {
 			final MergedAnnotations mergedAnnotations = openApiTypeResolver.getContext().getMergeAnnotationsHelper().from(field);
 			MergedAnnotation jsonAsValue = mergedAnnotations.get(JACKSON_ANNOTATION_JSON_VALUE);
@@ -254,6 +278,7 @@ public class DataObject {
 	}
 
 	private void computeMapTypes(final OpenApiTypeResolver openApiTypeResolver) {
+		// Use Guava TypeToken to recover generic type arguments erased at runtime for Map.
 		TypeToken token = TypeToken.of(javaType);
 		TypeToken<Map> superType = token.getSupertype(Map.class);
 		Type[] resolvedArguments = ((ParameterizedType) superType.getType()).getActualTypeArguments();
@@ -262,6 +287,7 @@ public class DataObject {
 	}
 
 	private void computeCollectionType(final OpenApiTypeResolver openApiTypeResolver) {
+		// Use Guava TypeToken to recover the element type erased at runtime for Collection.
 		TypeToken token = TypeToken.of(javaType);
 		TypeToken<Map> superType = token.getSupertype(Collection.class);
 		Type[] resolvedArguments = ((ParameterizedType) superType.getType()).getActualTypeArguments();
@@ -283,24 +309,24 @@ public class DataObject {
 	}
 
 	/**
-	 * @return true if the object should be considered as a "reference object", in order to get its own schema section
+	 * @return true if the object should be considered a "reference object" and get its own schema entry
 	 */
 	public boolean isReferenceObject() {
 		return !isMap() && (isEnum() || (!genericallyTyped && OpenApiDataType.OBJECT == openApiResolvedType.getType()));
 	}
 
 	/**
-	 * Generically typed object can not be written in the schema section. The have to be described in the content or response parts,
-	 * as the depends from the context
+	 * Generically typed objects cannot be emitted directly in the schema section; they should be expanded
+	 * in the content/response sections where their type arguments are known.
 	 *
-	 * @return true if the object should be described in the content or reponse parts
+	 * @return true if the object must be described inline (content/response), not as a named schema
 	 */
 	public boolean isGenericallyTypedObject() {
 		return OpenApiDataType.OBJECT == openApiResolvedType.getType() && genericallyTyped;
 	}
 
 	/**
-	 * @return true if the object is an array in the open api way
+	 * @return true if the object is an array from an OpenAPI perspective
 	 */
 	public boolean isOpenApiArray() {
 		return OpenApiDataType.ARRAY == openApiResolvedType.getType();
@@ -359,6 +385,7 @@ public class DataObject {
 	}
 
 	public String getSignature() {
+		// Encode class identity together with contextualized generic arguments to form a stable signature.
 		final String genericJoin = genericNameToTypeMap == null ? ""
 			: genericNameToTypeMap.values()
 				.stream().map(v -> v.getTypeName()).collect(Collectors.joining("_"));
@@ -367,6 +394,7 @@ public class DataObject {
 	}
 
 	public String getSchemaRecursiveSuffix() {
+		// A compact suffix that reflects generic arguments when generating recursive schema names.
 		final String genericJoin = genericNameToTypeMap == null ? ""
 			: genericNameToTypeMap.values()
 				.stream().map(v -> {
@@ -379,7 +407,8 @@ public class DataObject {
 	}
 
 	/**
-	 * Get the type, or the parameterized contextual one if the default is a generic.
+	 * Resolve a nested type using this object's generic context, returning a potentially substituted type.
+	 * For example, for {@code class Box<T>} and {@code Box<String>}, calling with {@code T} returns {@code String}.
 	 *
 	 * @param genericType
 	 *            method.getGenericReturnType() or field.getGenericType()
@@ -388,7 +417,7 @@ public class DataObject {
 	public Type getContextualType(final Type genericType) {
 
 		if(this.isGenericallyTyped()) {
-			// It is possible that we will not substitute anything. In that cas, the substitution parameterized type
+			// It is possible that we will not substitute anything. In that case, the substitution parameterized type
 			// will be equivalent to the source one.
 			if(genericType instanceof TypeVariable) {
 				final TypeVariable typeVariable = (TypeVariable) genericType;

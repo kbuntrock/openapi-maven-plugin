@@ -1,15 +1,5 @@
 package io.github.kbuntrock;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import org.apache.maven.plugin.MojoFailureException;
-
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ScanResult;
@@ -19,9 +9,30 @@ import io.github.kbuntrock.configuration.library.reader.ClassLoaderHelper;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
+import org.apache.maven.plugin.MojoFailureException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
- * In charge of creating the tag library object based on an api configuration object.
+ * High-level scanner that discovers REST controller classes and builds a {@link TagLibrary}
+ * from them according to an {@link ApiConfiguration}.
+ * <p>
+ * Responsibilities:
+ * - Configure and run ClassGraph to find classes annotated with any of the configured tag annotations.
+ * - Apply class-level whitelist/blacklist filters (regex) on discovered classes.
+ * - Delegate per-class endpoint analysis to {@link JavaClassAnalyser}.
+ * - Attach additional schema classes explicitly listed in configuration.
+ * - Resolve stable, human-friendly schema reference names at the end of the scan.
+ * <p>
+ * Filtering notes:
+ * - Entries in the whitelist/blacklist that contain only a class pattern are handled here.
+ * - Method-level filtering (class|method) is enforced in {@link JavaClassAnalyser}.
  */
 public class ApiResourceScanner {
 
@@ -31,6 +42,7 @@ public class ApiResourceScanner {
 	private final OpenApiTypeResolver openApiTypeResolver;
 	private final Map<String, ClassDocumentation> javadocMap;
 
+	/** Class-level allow/deny lists. Method-level rules are enforced later in JavaClassAnalyser. */
 	private final List<Pattern> whiteListPatterns = new ArrayList<>();
 	private final List<Pattern> blackListPatterns = new ArrayList<>();
 
@@ -40,6 +52,8 @@ public class ApiResourceScanner {
 		this.openApiTypeResolver = context.getOpenApiTypeResolver();
 		this.javadocMap = javadocMap;
 
+		// Build class-level whitelist: take the left part before the separator when present.
+		// Skip entries that start directly with the separator (they target only methods).
 		if(apiConfiguration.getWhiteList() != null) {
 			for(final String whiteEntry : apiConfiguration.getWhiteList()) {
 				final String regex = whiteEntry.split(CommonApiConfiguration.SEPARATOR_CLASS_METHOD)[0];
@@ -48,6 +62,7 @@ public class ApiResourceScanner {
 				}
 			}
 		}
+		// Build class-level blacklist: take entries that contain only one segment (class pattern).
 		if(apiConfiguration.getBlackList() != null) {
 			for(final String blackEntry : apiConfiguration.getBlackList()) {
 				final String[] regexArray = blackEntry.split(CommonApiConfiguration.SEPARATOR_CLASS_METHOD);
@@ -58,6 +73,21 @@ public class ApiResourceScanner {
 		}
 	}
 
+	/**
+	 * Scan configured locations for REST controllers and build the {@link TagLibrary}.
+	 * <p>
+	 * Steps:
+	 * - For each location, configure ClassGraph with the plugin class loader, enable class/method/annotation info,
+	 * and scope the scan to a package or a single class depending on the location.
+	 * - From the scan, collect classes annotated with any configured tag annotations.
+	 * - Apply class-level white/black lists, then analyse each class with {@link JavaClassAnalyser}.
+	 * - Register additional schema classes listed explicitly in the configuration.
+	 * - Finalize by resolving schema reference names for readability.
+	 *
+	 * @return a populated {@link TagLibrary}
+	 * @throws MojoFailureException
+	 *             if scanning or analysis fails
+	 */
 	public TagLibrary scanRestControllers() throws MojoFailureException {
 
 		final TagLibrary library = new TagLibrary(context, javadocMap);
@@ -65,6 +95,7 @@ public class ApiResourceScanner {
 		for(final String apiLocation : apiConfiguration.getLocations()) {
 			context.getLogger().info("Scanning : " + apiLocation);
 
+			// Configure ClassGraph for the plugin's scanning needs.
 			ClassGraph classGraph = new ClassGraph()
 				.enableMethodInfo()
 				.enableClassInfo()
@@ -73,6 +104,7 @@ public class ApiResourceScanner {
 				.ignoreMethodVisibility()
 				.ignoreParentClassLoaders()
 				.addClassLoader(context.getClassLoader());
+			// Support both single-class and package locations.
 			if(context.getClassLoaderHelper().isClass(apiLocation)) {
 				classGraph.acceptClasses(apiLocation);
 			} else {
@@ -80,6 +112,7 @@ public class ApiResourceScanner {
 			}
 
 			try(ScanResult classScanResult = classGraph.scan()) {
+				// Collect classes that bear any of the configured tag annotations (e.g., Spring controllers).
 				String[] annotationNames = apiConfiguration.getTagAnnotations().toArray(new String[0]);
 				Set<Class<?>> restControllerClasses = classScanResult
 					.getClassesWithAnyAnnotation(annotationNames)
@@ -91,7 +124,7 @@ public class ApiResourceScanner {
 				context.getLogger().info("Found " + restControllerClasses.size() + " annotated classes with [ " +
 					String.join(", ", apiConfiguration.getTagAnnotations()) + " ]");
 
-				// Find directly or inheritedly annotated by RequestMapping classes.
+				// Analyse each controller class and populate the TagLibrary.
 				final JavaClassAnalyser javaClassAnalyser = new JavaClassAnalyser(context, apiConfiguration, classScanResult,
 					openApiTypeResolver);
 				for(final Class<?> restControllerClass : restControllerClasses) {
@@ -100,7 +133,7 @@ public class ApiResourceScanner {
 					}
 				}
 
-				// Possibly add extra data objets to the future schema section (objets which are not explicitly used by an endpoint)
+				// Add extra data objects to the schema section (objects not explicitly referenced by endpoints).
 				for(final String className : apiConfiguration.getExtraSchemaClasses()) {
 					try {
 						library.addExtraClass(context.getClassLoader().loadClass(className));
@@ -111,12 +144,16 @@ public class ApiResourceScanner {
 			}
 		}
 
-		// When all scans are done, we set a short name for all reference objects
+		// Assign short, stable names to schema references after all scans are completed.
 		library.resolveSchemaReferenceNames();
 
 		return library;
 	}
 
+	/**
+	 * Build a predicate that constrains results to the configured location, which may
+	 * be a fully qualified class name or a package prefix.
+	 */
 	private static Predicate<ClassInfo> onLocation(final String apiLocation, final ClassLoaderHelper classLoaderHelper) {
 		if(classLoaderHelper.isClass(apiLocation)) {
 			return classInfo -> classInfo.getName().equals(apiLocation);
@@ -124,6 +161,9 @@ public class ApiResourceScanner {
 		return classInfo -> classInfo.getPackageName().startsWith(apiLocation);
 	}
 
+	/**
+	 * Class-level whitelist: when empty, allow all classes. Otherwise, only allow matches.
+	 */
 	private boolean validateWhiteList(final Class<?> restControllerClass) {
 		if(whiteListPatterns.isEmpty()) {
 			return true;
@@ -132,6 +172,9 @@ public class ApiResourceScanner {
 			.anyMatch(whitePattern -> whitePattern.matcher(restControllerClass.getCanonicalName()).matches());
 	}
 
+	/**
+	 * Class-level blacklist: when empty, allow all classes. Otherwise, exclude matches.
+	 */
 	private boolean validateBlackList(final Class<?> restControllerClass) {
 		if(blackListPatterns.isEmpty()) {
 			return true;
