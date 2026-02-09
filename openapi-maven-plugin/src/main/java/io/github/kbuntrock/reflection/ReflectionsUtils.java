@@ -8,6 +8,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Small reflection helpers for walking fields/methods and adjusting accessibility in a safe, centralized way.
+ */
 public final class ReflectionsUtils {
 
 	private ReflectionsUtils() {

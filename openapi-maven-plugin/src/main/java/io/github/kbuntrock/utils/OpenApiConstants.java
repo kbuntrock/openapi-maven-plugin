@@ -1,5 +1,8 @@
 package io.github.kbuntrock.utils;
 
+/**
+ * Constants used while building the OpenAPI document structure.
+ */
 public class OpenApiConstants {
 
 	public static final String OBJECT_REFERENCE_PREFIX = "#/components/schemas/";

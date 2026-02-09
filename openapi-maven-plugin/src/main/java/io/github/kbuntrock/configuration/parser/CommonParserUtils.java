@@ -2,6 +2,9 @@ package io.github.kbuntrock.configuration.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.kbuntrock.MojoRuntimeException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.project.MavenProject;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
@@ -10,10 +13,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.project.MavenProject;
 
 /**
+ * Utilities to read configuration snippets from files or inline text and parse them as JSON/YAML.
+ *
  * @author Kévin Buntrock
  */
 public final class CommonParserUtils {
@@ -23,12 +26,14 @@ public final class CommonParserUtils {
 	}
 
 	/**
-	 * Get the content from an undetermined input (file path or directly the content)
+	 * Resolve content from a file path relative to the Maven project base directory or treat the input as literal content when
+	 * not a valid file path.
 	 *
 	 * @param mavenProject
+	 *            the current Maven project
 	 * @param input
-	 *            a path or directly the content
-	 * @return the content
+	 *            a relative file path or the literal content
+	 * @return the resolved content string (UTF-8), or {@code null} if input is empty
 	 */
 	public static String getContentFromFileOrText(final MavenProject mavenProject, final String input) {
 		if(StringUtils.isEmpty(input)) {

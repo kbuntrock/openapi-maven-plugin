@@ -9,7 +9,7 @@ import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.JavadocParser;
 import io.github.kbuntrock.model.Tag;
-import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
+import io.github.kbuntrock.reflection.AdditionalSchemaLibrary;
 import io.github.kbuntrock.utils.CollectionUtils;
 import io.github.kbuntrock.utils.FileUtils;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
@@ -254,7 +254,7 @@ public class DocumentationMojo extends AbstractMojo {
 
 		for(int i = 0; i < apis.size(); i++) {
 			final ApiConfiguration initialApiConfiguration = apis.get(i);
-			ApiContext apiContext = new ApiContext(context, new AdditionnalSchemaLibrary());
+			ApiContext apiContext = new ApiContext(context, new AdditionalSchemaLibrary());
 			final ApiConfiguration apiConfig = initialApiConfiguration.mergeWithCommonApiConfiguration(this.apiConfiguration);
 			apiContext.setApiConfiguration(apiConfig);
 			apiContext.setOpenApiTypeResolver(new OpenApiTypeResolver(apiContext));

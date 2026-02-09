@@ -4,7 +4,7 @@ import io.github.classgraph.MethodInfo;
 import io.github.classgraph.ScanResult;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
-import io.github.kbuntrock.configuration.library.reader.AstractLibraryReader;
+import io.github.kbuntrock.configuration.library.reader.AbstractLibraryReader;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
@@ -26,7 +26,7 @@ import static java.util.stream.Collectors.toSet;
  * and translate them into OpenAPI domain objects (e.g., {@link Tag}).
  * <p>
  * Responsibilities:
- * - Resolve framework/library-specific annotations via {@link AstractLibraryReader}.
+ * - Resolve framework/library-specific annotations via {@link AbstractLibraryReader}.
  * - Apply whitelist/blacklist filters (regex) on classes and methods.
  * - Use ClassGraph {@link ScanResult} to access non-private methods.
  * - Aggregate merged annotations (class and method levels) to build OpenAPI data.
@@ -54,7 +54,7 @@ public class JavaClassAnalyser {
 	private final List<Pair<Pattern, Pattern>> blackListPatterns = new ArrayList<>();
 
 	/** Strategy to read framework/library-specific annotations (Spring, JAX-RS, etc.). */
-	private final AstractLibraryReader libraryReader;
+	private final AbstractLibraryReader libraryReader;
 
 	/** ClassGraph scan result used to list and load class methods. */
 	private final ScanResult classScanResult;
@@ -165,7 +165,7 @@ public class JavaClassAnalyser {
 
 	/**
 	 * Discover and process all non-private methods on the class that represent REST endpoints.
-	 * Filtering is applied via whitelist/blacklist prior to delegating to {@link AstractLibraryReader}
+	 * Filtering is applied via whitelist/blacklist prior to delegating to {@link AbstractLibraryReader}
 	 * for framework-specific annotation handling.
 	 */
 	private void parseEndpoints(final Tag tag, final String basePath, final Class<?> clazz) throws MojoFailureException {

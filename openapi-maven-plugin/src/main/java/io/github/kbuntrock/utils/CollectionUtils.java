@@ -2,6 +2,9 @@ package io.github.kbuntrock.utils;
 
 import java.util.Collection;
 
+/**
+ * Small collection helpers used throughout the plugin.
+ */
 public final class CollectionUtils {
 
 	/**

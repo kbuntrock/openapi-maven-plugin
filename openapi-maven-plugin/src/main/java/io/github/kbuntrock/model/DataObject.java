@@ -436,14 +436,12 @@ public class DataObject {
 					final ParameterizedTypeImpl substitution = new ParameterizedTypeImpl(
 						(ParameterizedType) genericArrayType.getGenericComponentType());
 					doContextualSubstitution(substitution);
-					final GenericArrayType substitionArrayType = new GenericArrayTypeImpl(substitution);
-					return substitionArrayType;
+					return new GenericArrayTypeImpl(substitution);
 				} else if(genericArrayType.getGenericComponentType() instanceof TypeVariable<?>) {
 					final TypeVariable<?> typeVariable = (TypeVariable<?>) genericArrayType.getGenericComponentType();
 					if(this.getGenericNameToTypeMap().containsKey(typeVariable.getName())) {
-						final GenericArrayType substitionArrayType = new GenericArrayTypeImpl(
+						return new GenericArrayTypeImpl(
 							this.getGenericNameToTypeMap().get(typeVariable.getName()));
-						return substitionArrayType;
 					}
 				} else {
 					throw new RuntimeException(
