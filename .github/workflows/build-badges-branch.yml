@@ -98,7 +98,7 @@ jobs:
         badges-directory: badges
         generate-branches-badge: true
         coverage-label: Code coverage
-        intervals: 100 80 70 60 50 0
+        intervals: 100 75 70 60 50 0
         jacoco-csv-file: openapi-maven-plugin/target/site/jacoco/jacoco.csv
 
     - name: Log coverage percentage
