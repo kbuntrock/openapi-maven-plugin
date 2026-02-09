@@ -3,6 +3,7 @@ package io.github.kbuntrock.yaml.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
+
 import java.util.Optional;
 
 public class Info {
@@ -21,9 +22,10 @@ public class Info {
 	private Object license;
 	private String version;
 
-	public Info(String title, String version, Optional<JsonNode> freefields) {
+	public Info(String title, String version, String description, Optional<JsonNode> freefields) {
 		this.title = title;
 		this.version = version;
+		this.description = description;
 		if(freefields.isPresent() && freefields.get().get(INFO_FIELD) != null) {
 			JsonNode infos = freefields.get().get(INFO_FIELD);
 			if(infos.get("title") != null) {

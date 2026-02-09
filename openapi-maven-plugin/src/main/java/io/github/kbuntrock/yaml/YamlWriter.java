@@ -7,12 +7,12 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.github.javaparser.javadoc.JavadocBlockTag;
-import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.MojoRuntimeException;
 import io.github.kbuntrock.TagLibrary;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.parser.CommonParserUtils;
 import io.github.kbuntrock.configuration.parser.JsonParserUtils;
+import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.ClassDocumentation.EnhancementType;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
@@ -21,7 +21,6 @@ import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.model.annotation.OperationResponse;
-import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
 import io.github.kbuntrock.utils.ObjectsUtils;
 import io.github.kbuntrock.utils.OpenApiConstants;
 import io.github.kbuntrock.utils.OpenApiDataType;
@@ -38,14 +37,26 @@ import io.github.kbuntrock.yaml.model.Schema;
 import io.github.kbuntrock.yaml.model.Server;
 import io.github.kbuntrock.yaml.model.Specification;
 import io.github.kbuntrock.yaml.model.TagElement;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.project.MavenProject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class YamlWriter {
 
@@ -121,7 +132,8 @@ public class YamlWriter {
 		}
 
 		final Specification specification = new Specification();
-		final Info info = new Info(context.getProject().getName(), context.getProject().getVersion(), freefields);
+		final Info info = new Info(context.getProject().getName(), context.getProject().getVersion(),
+			context.getProject().getDescription(), freefields);
 		specification.setInfo(info);
 
 		populateSpecificationFreeFields(specification, freefields);
