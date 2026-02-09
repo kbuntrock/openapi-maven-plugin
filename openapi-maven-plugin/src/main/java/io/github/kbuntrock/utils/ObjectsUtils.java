@@ -11,9 +11,12 @@ public class ObjectsUtils {
 	 *
 	 * Derived from the Objects.requireNonNullElse defined only from jdk9 version
 	 *
-	 * @param <T>        type of the objects
-	 * @param obj        primary value to test
-	 * @param defaultObj fallback value when {@code obj} is {@code null}
+	 * @param <T>
+	 *            type of the objects
+	 * @param obj
+	 *            primary value to test
+	 * @param defaultObj
+	 *            fallback value when {@code obj} is {@code null}
 	 * @return {@code obj} if non-null, otherwise {@code defaultObj}
 	 */
 	public static <T> T nonNullElse(T obj, T defaultObj) {
