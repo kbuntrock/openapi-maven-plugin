@@ -2,9 +2,9 @@ package io.github.kbuntrock.configuration;
 
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.maven.plugins.annotations.Parameter;
+
+import java.util.ArrayList;
 
 public class ApiConfiguration extends CommonApiConfiguration {
 
@@ -48,7 +48,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 	}
 
 	/**
-	 * Create a ApiConfiguration version based on the common configuration + the modified values overrided in the child config
+	 * Create a ApiConfiguration version based on the common configuration + the modified values overrode in the child config
 	 *
 	 * @param commonApiConfiguration
 	 *            the common api configuration

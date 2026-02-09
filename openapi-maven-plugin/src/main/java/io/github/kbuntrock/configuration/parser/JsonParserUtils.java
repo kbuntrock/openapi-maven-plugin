@@ -7,12 +7,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.kbuntrock.MojoRuntimeException;
-import java.util.Iterator;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Iterator;
+import java.util.Optional;
+
 /**
- * @author Kévin Buntrock
+ * JSON parsing and merging helpers for user-provided configuration snippets.
  */
 public final class JsonParserUtils {
 
@@ -20,15 +21,15 @@ public final class JsonParserUtils {
 	public static final String PRETTY_PRINT_LINE_BREAK = "\n";
 
 	private JsonParserUtils() {
-		// Cannot be instanciated
+		// Cannot be instantiated
 	}
 
 	/**
-	 * Parse a configuration value representing a json document
+	 * Parse a configuration value representing a JSON document.
 	 *
 	 * @param jsonContent
-	 *            Can represent a path to a json file, or directly a json string
-	 * @return the parsed json node
+	 *            raw JSON content
+	 * @return the parsed JSON node, or empty if the input is blank
 	 */
 	public static Optional<JsonNode> parse(final String jsonContent) {
 
@@ -69,7 +70,7 @@ public final class JsonParserUtils {
 			} else if(mutatedNode instanceof ObjectNode) {
 				// Overwrite field
 				final JsonNode value = updateNode.get(fieldName);
-				((ObjectNode) mutatedNode).put(fieldName, value);
+				((ObjectNode) mutatedNode).set(fieldName, value);
 			}
 		}
 	}

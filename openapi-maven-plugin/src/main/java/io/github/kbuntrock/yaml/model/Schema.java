@@ -175,7 +175,7 @@ public class Schema {
 				final String objectSignature = parentDataObject.getJavaClass().getSimpleName() + "_" + parentFieldName + "_"
 					+ dataObject.getSignature();
 				if(!exploredSignatures.add(objectSignature)) {
-					// The fieldname + signature has already be seen. We are in a recursive loop
+					// The field name + signature has already be seen. We are in a recursive loop
 					// We will have to write this field in the schema section.
 					referenceSignature = parentDataObject.getJavaClass().getSimpleName() + "_"
 						+ dataObject.getSchemaRecursiveSuffix();

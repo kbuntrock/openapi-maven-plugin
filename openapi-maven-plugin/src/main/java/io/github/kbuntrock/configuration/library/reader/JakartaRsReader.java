@@ -19,7 +19,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class JakartaRsReader extends AstractLibraryReader {
+public class JakartaRsReader extends AbstractLibraryReader {
 
 	private static final String PATH_CNAME = "jakarta.ws.rs.Path";
 	public static final String NOT_NULL_CNAME = "jakarta.validation.constraints.NotNull";
@@ -117,11 +117,11 @@ public class JakartaRsReader extends AstractLibraryReader {
 		context.getLogger().debug("Reading parameters from " + originalMethod.getName());
 
 		// Set of the method in the original class and eventually the methods in the parent classes / interfaces
-		final Set<Method> overridenMethods = MethodUtils.getOverrideHierarchy(originalMethod, ClassUtils.Interfaces.INCLUDE);
+		final Set<Method> overriddenMethods = MethodUtils.getOverrideHierarchy(originalMethod, ClassUtils.Interfaces.INCLUDE);
 
 		final Map<String, ParameterObject> parameters = new LinkedHashMap<>();
 
-		for(final Method method : overridenMethods) {
+		for(final Method method : overriddenMethods) {
 
 			boolean bodyParameterDetected = false;
 

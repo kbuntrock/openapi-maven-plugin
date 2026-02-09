@@ -1,6 +1,7 @@
 package io.github.kbuntrock.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public class OpenApiResolvedType {
 	private final JsonNode node;
 
 	/**
-	 * True if the json node completly describe the object (false for arrays, enum and objects described from the code)
+	 * True if the json node completely describe the object (false for arrays, enum and objects described from the code)
 	 */
 	private boolean completeNode = true;
 

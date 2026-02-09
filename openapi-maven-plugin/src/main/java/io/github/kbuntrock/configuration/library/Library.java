@@ -2,7 +2,7 @@ package io.github.kbuntrock.configuration.library;
 
 import io.github.kbuntrock.MojoRuntimeException;
 import io.github.kbuntrock.configuration.ApiConfiguration;
-import io.github.kbuntrock.configuration.library.reader.AstractLibraryReader;
+import io.github.kbuntrock.configuration.library.reader.AbstractLibraryReader;
 import io.github.kbuntrock.configuration.library.reader.JakartaRsReader;
 import io.github.kbuntrock.configuration.library.reader.JavaxRsReader;
 import io.github.kbuntrock.configuration.library.reader.SpringMvcReader;
@@ -50,7 +50,7 @@ public enum Library {
 		return library;
 	}
 
-	public AstractLibraryReader createReader(final ApiContext context, final ApiConfiguration apiConfiguration,
+	public AbstractLibraryReader createReader(final ApiContext context, final ApiConfiguration apiConfiguration,
 		final OpenApiTypeResolver openApiTypeResolver) {
 		switch(this) {
 			case JAVAX_RS:

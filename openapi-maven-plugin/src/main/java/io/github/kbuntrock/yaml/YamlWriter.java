@@ -7,12 +7,12 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.github.javaparser.javadoc.JavadocBlockTag;
-import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.MojoRuntimeException;
 import io.github.kbuntrock.TagLibrary;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.parser.CommonParserUtils;
 import io.github.kbuntrock.configuration.parser.JsonParserUtils;
+import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.ClassDocumentation.EnhancementType;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
@@ -21,32 +21,29 @@ import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.model.annotation.OperationResponse;
-import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
-import io.github.kbuntrock.utils.ObjectsUtils;
-import io.github.kbuntrock.utils.OpenApiConstants;
-import io.github.kbuntrock.utils.OpenApiDataType;
-import io.github.kbuntrock.utils.ParameterLocation;
-import io.github.kbuntrock.utils.ProduceConsumeUtils;
-import io.github.kbuntrock.yaml.model.Content;
-import io.github.kbuntrock.yaml.model.Info;
-import io.github.kbuntrock.yaml.model.Operation;
-import io.github.kbuntrock.yaml.model.ParameterElement;
-import io.github.kbuntrock.yaml.model.Property;
-import io.github.kbuntrock.yaml.model.RequestBody;
-import io.github.kbuntrock.yaml.model.Response;
-import io.github.kbuntrock.yaml.model.Schema;
-import io.github.kbuntrock.yaml.model.Server;
-import io.github.kbuntrock.yaml.model.Specification;
-import io.github.kbuntrock.yaml.model.TagElement;
+import io.github.kbuntrock.utils.*;
+import io.github.kbuntrock.yaml.model.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.project.MavenProject;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.project.MavenProject;
 
+/**
+ * Serializes the discovered API model into an OpenAPI document (YAML or JSON).
+ * <p>
+ * Responsibilities:
+ * - Build the top-level specification (info, servers, security, external docs)
+ * - Render tags, paths/operations, parameters, request bodies, and responses
+ * - Produce component schemas from discovered domain objects
+ * - Merge user-provided "free fields" and default error responses when
+ * configured
+ * </p>
+ */
 public class YamlWriter {
 
 	private static final String SERVERS_FIELD = "servers";
@@ -63,8 +60,8 @@ public class YamlWriter {
 	private Optional<JsonNode> freefields = Optional.empty();
 	private Map<String, JsonNode> defaultErrors;
 
-	// Due to the merging capabilities for functions with the same path/verb, it is possible that some listed tags
-	// will not appear in the generated documentation. This map reference only the used ones, in order of appearance
+	// Due to the merging capabilities for functions with the same path/verb, it is possible that some listed tags will not appear in the
+	// generated documentation. This map reference only the used ones, in order of appearance
 	private Map<String, Tag> usedTags = new LinkedHashMap<>();
 
 	public YamlWriter(final ApiContext context, final ApiConfiguration apiConfiguration, final TagLibrary tagLibrary) {
@@ -110,7 +107,6 @@ public class YamlWriter {
 	}
 
 	public void write(final File file, final TagLibrary tagLibrary) throws IOException {
-
 		freefields = JsonParserUtils.parse(computeFreeFields(context.getProject(), apiConfiguration));
 		final Optional<JsonNode> defaultErrorsNode = JsonParserUtils.parse(
 			CommonParserUtils.getContentFromFileOrText(context.getProject(), apiConfiguration.getDefaultErrors()));
@@ -580,7 +576,7 @@ public class YamlWriter {
 				existingOperation.getParameters().add(parameter);
 			} else {
 				// If same parameter, nothing to do.
-				// We are just checking here parameters incoherencies.
+				// We are just checking here parameters incoherence.
 				if(existingParameter.getSchema().getReference() != null) {
 					if(!existingParameter.getSchema().getReference().equals(parameter.getSchema().getReference())) {
 						context.getLogger().warn("Parameters incoherence detected in path " +

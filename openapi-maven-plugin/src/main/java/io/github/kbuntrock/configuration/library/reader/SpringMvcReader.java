@@ -29,7 +29,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class SpringMvcReader extends AstractLibraryReader {
+public class SpringMvcReader extends AbstractLibraryReader {
 
 	// Must be equal to the value defined in spring org.springframework.web.bind.annotation.ValueConstants#DEFAULT_NONE
 	private static String VALUE_CONSTANT_DEFAULT = "\n\t\t\n\t\t\n\uE000\uE001\uE002\n\t\t\t\t\n";
@@ -158,7 +158,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 		context.getLogger().debug("Reading parameters from " + originalMethod.getName());
 
 		// Set of the method in the original class and eventually the methods in the parent classes / interfaces
-		final Set<Method> overridenMethods = MethodUtils.getOverrideHierarchy(originalMethod, ClassUtils.Interfaces.INCLUDE);
+		final Set<Method> overriddenMethods = MethodUtils.getOverrideHierarchy(originalMethod, ClassUtils.Interfaces.INCLUDE);
 
 		final Map<String, ParameterObject> parameters = new LinkedHashMap<>();
 
@@ -166,7 +166,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 
 		readRequestMappingHeaders(endpointAnnotations, parameters);
 
-		for(final Method method : overridenMethods) {
+		for(final Method method : overriddenMethods) {
 			for(final Parameter parameter : method.getParameters()) {
 
 				final MergedAnnotations mergedAnnotations = context.getMergeAnnotationsHelper().from(parameter);
@@ -283,7 +283,7 @@ public class SpringMvcReader extends AstractLibraryReader {
 			}
 		}
 
-		// Last case, some Dto fields can be binded to QueryParams : http://dolszewski.com/spring/how-to-bind-requestparam-to-object/
+		// Last case, some Dto fields can be bound to QueryParams : http://dolszewski.com/spring/how-to-bind-requestparam-to-object/
 		// Since this functionality is not well documented, it can be for now a subset of the complete functionality
 		final Map<String, ParameterObject> unnestedParams = new LinkedHashMap<>(parameters);
 		parameters.values().stream().filter(x -> x.getLocation() == null && parameterObjectBindableToQueryParams(x))

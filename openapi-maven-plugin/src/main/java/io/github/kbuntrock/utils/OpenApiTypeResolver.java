@@ -19,6 +19,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+/**
+ * Resolves Java types into OpenAPI-oriented representations used during schema
+ * generation.
+ * <p>
+ * Capabilities:
+ * - Map well-known Java types to OpenAPI base models (object/array/enum/any)
+ * - Apply equality/assignability associations (overridable by user config)
+ * - Support unwrapping containers (e.g., Optional, ResponseEntity) for responses/parameters/schemas
+ * - Track non-documentable types and annotations for exclusion
+ * - Load default encodings and model associations from internal YAML resources with user overrides
+ * </p>
+ */
 public class OpenApiTypeResolver {
 
 	/**
@@ -80,7 +92,7 @@ public class OpenApiTypeResolver {
 		initUnwrappingDefinitions();
 		// Loading "non documentable" parameters classes
 		initNonDocumentableParameters(context.getApiConfiguration());
-		// Loading "non documentable" reponses classes
+		// Loading "non documentable" responses classes
 		initNonDocumentableResponses(context.getApiConfiguration());
 	}
 
@@ -239,7 +251,7 @@ public class OpenApiTypeResolver {
 	}
 
 	/**
-	 * Get the canonical name of a class with a small enhancement : it replace primitive class
+	 * Get the canonical name of a class with a small enhancement : it replaces primitive class
 	 * by the corresponding regular class
 	 *
 	 * @param clazz
@@ -291,7 +303,7 @@ public class OpenApiTypeResolver {
 	 * @param unwrappingMap
 	 *            the map to add the entry
 	 * @param debug
-	 *            true for default plugin configuration, false for user configuration to explicitely point errors
+	 *            true for default plugin configuration, false for user configuration to explicitly point errors
 	 */
 	private void registerUnwrappingEntry(final ClassLoader classLoader, final Map.Entry<String, JsonNode> entry,
 		final Map<Class<?>, UnwrappingEntry> unwrappingMap, final boolean debug) {
@@ -373,13 +385,13 @@ public class OpenApiTypeResolver {
 	}
 
 	/**
-	 * Register an non documentable class in the resolver
+	 * Register a non-documentable class in the resolver
 	 *
 	 * @param classLoader
 	 * @param canonicalClassName
 	 *            class to load
 	 * @param debug
-	 *            true for default plugin configuration, false for user configuration to explicitely point errors
+	 *            true for default plugin configuration, false for user configuration to explicitly point errors
 	 */
 	private void registerNonDocumentableParameters(final ClassLoader classLoader, final String canonicalClassName,
 		final boolean debug) {
