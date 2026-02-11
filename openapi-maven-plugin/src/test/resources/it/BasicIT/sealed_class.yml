@@ -2,6 +2,7 @@
 openapi: 3.0.3
 info:
   title: Basic integration test
+  description: Basic description test
   version: 1.0.0
 servers:
   - url: ""
