@@ -4,7 +4,7 @@ import java.io.File;
 import java.nio.file.FileSystems;
 
 /**
- * File utils
+ * File utilities for safe path concatenation and normalization.
  *
  * @author Kevin Buntrock
  */
@@ -17,11 +17,13 @@ public final class FileUtils {
 	}
 
 	/**
-	 * Concat a base path and a relative path
+	 * Concatenate a base path and a relative path, then normalize to an absolute {@link File}.
 	 *
 	 * @param basePath
+	 *            absolute or project-based root path
 	 * @param relativePath
-	 * @return
+	 *            path relative to {@code basePath}
+	 * @return normalized absolute {@link File}
 	 */
 	public static File toFile(final String basePath, final String relativePath) {
 		StringBuilder sb = new StringBuilder(basePath);

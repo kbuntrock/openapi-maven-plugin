@@ -24,7 +24,18 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.*;
 
-public abstract class AstractLibraryReader {
+/**
+ * Base reader that translates framework/library-specific annotations (Spring Web, JAX‑RS, Jakarta) into the plugin's common
+ * OpenAPI-oriented model.
+ * <p>
+ * Responsibilities:
+ * - Compute base and method paths
+ * - Extract HTTP method, parameters, request/response bodies
+ * - Interpret Swagger/OpenAPI annotations when present
+ * - Unwrap framework container types where needed (responses/parameters)
+ * </p>
+ */
+public abstract class AbstractLibraryReader {
 
 	protected final ApiContext context;
 
@@ -33,7 +44,7 @@ public abstract class AstractLibraryReader {
 
 	protected final OpenApiTypeResolver openApiTypeResolver;
 
-	public AstractLibraryReader(final ApiContext context, final ApiConfiguration apiConfiguration,
+	public AbstractLibraryReader(final ApiContext context, final ApiConfiguration apiConfiguration,
 		final OpenApiTypeResolver openApiTypeResolver) {
 		this.context = context;
 		this.apiConfiguration = apiConfiguration;
@@ -41,6 +52,17 @@ public abstract class AstractLibraryReader {
 		this.genericityResolver = new GenericityResolver(context);
 	}
 
+	/**
+	 * Concatenate base path and method path with optional automatic separators and leading slash.
+	 *
+	 * @param basePath
+	 *            controller-level base path
+	 * @param methodPath
+	 *            method-level path
+	 * @param automaticSeparator
+	 *            whether to auto-insert separators and a leading slash
+	 * @return normalized path
+	 */
 	protected static String concatenateBasePathAndMethodPath(final String basePath, final String methodPath,
 		final boolean automaticSeparator) {
 		String result = basePath + methodPath;
@@ -55,6 +77,17 @@ public abstract class AstractLibraryReader {
 		return result;
 	}
 
+	/**
+	 * Resolve the response {@link DataObject} for a method, honoring library-specific return wrappers and excluding non-documentable responses.
+	 *
+	 * @param clazz
+	 *            declaring class
+	 * @param method
+	 *            endpoint method
+	 * @param mergedAnnotations
+	 *            merged annotations view
+	 * @return response {@link DataObject} or {@code null} if not documentable
+	 */
 	protected DataObject readResponseObject(final Class<?> clazz, final Method method,
 		final MergedAnnotations mergedAnnotations) {
 		final Class<?> returnType = method.getReturnType();
@@ -69,6 +102,9 @@ public abstract class AstractLibraryReader {
 		return dataObject;
 	}
 
+	/**
+	 * Read the generic method return type, possibly overridden by library-specific behavior.
+	 */
 	protected Type readResponseMethodType(final Method method, final MergedAnnotations mergedAnnotations) {
 		return method.getGenericReturnType();
 	}
@@ -85,6 +121,9 @@ public abstract class AstractLibraryReader {
 		return openApiTypeResolver.unwrapDataObject(dataObject, UnwrappingType.RESPONSE);
 	}
 
+	/**
+	 * Determine if a method is effectively deprecated, considering overrides in the hierarchy.
+	 */
 	protected boolean isDeprecated(final Method originalMethod) {
 		final Set<Method> overridenMethods = MethodUtils.getOverrideHierarchy(originalMethod, ClassUtils.Interfaces.INCLUDE);
 		for(final Method method : overridenMethods) {
@@ -196,8 +235,9 @@ public abstract class AstractLibraryReader {
 			addParameters(parameterObjects, parametersArray);
 		}
 
-		if(parameterObjects.size() > 0)
+		if(!parameterObjects.isEmpty()) {
 			endpoint.setParameters(parameterObjects);
+		}
 	}
 
 	protected void setSwaggerAnnotatedParameterProperties(final Parameter javaParameter,

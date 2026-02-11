@@ -35,17 +35,17 @@ public class OperationIdHelper {
 				throw new RuntimeException("Token type \"" + matcher.group(2) + "\" does not exist.");
 			}
 		}
-		String[] splitted = configuration.split(REGEX);
+		String[] split = configuration.split(REGEX);
 		int index;
-		for(index = 0; index < splitted.length; index++) {
-			if(!splitted[index].isEmpty()) {
-				tokens.add(new Token(TokenType.STRING, splitted[index]));
+		for(index = 0; index < split.length; index++) {
+			if(!split[index].isEmpty()) {
+				tokens.add(new Token(TokenType.STRING, split[index]));
 			}
 			if(index < contenu.size()) {
 				tokens.add(new Token(contenu.get(index)));
 			}
 		}
-		if(splitted.length == 0) {
+		if(split.length == 0) {
 			for(TokenType c : contenu) {
 				tokens.add(new Token(c));
 			}

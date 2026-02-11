@@ -4,7 +4,7 @@ import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.NullableConfiguration;
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.configuration.library.reader.ClassLoaderHelper;
-import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
+import io.github.kbuntrock.reflection.AdditionalSchemaLibrary;
 import io.github.kbuntrock.reflection.annotation.MergeAnnotationsHelper;
 import io.github.kbuntrock.reflection.annotation.regular.RegularMergedAnnotationsHelper;
 import io.github.kbuntrock.reflection.annotation.spring.SpringMergeAnnotationsHelper;
@@ -15,7 +15,7 @@ import org.apache.maven.project.MavenProject;
 public final class ApiContext {
 
 	private final ProjectContext projectContext;
-	private final AdditionnalSchemaLibrary additionnalSchemaLibrary;
+	private final AdditionalSchemaLibrary additionalSchemaLibrary;
 
 	private ApiConfiguration apiConfiguration;
 	private NullableConfiguration nullableConfiguration;
@@ -23,9 +23,9 @@ public final class ApiContext {
 
 	private MergeAnnotationsHelper mergeAnnotationsHelper;
 
-	public ApiContext(final ProjectContext projectContext, final AdditionnalSchemaLibrary additionnalSchemaLibrary) {
+	public ApiContext(final ProjectContext projectContext, final AdditionalSchemaLibrary additionalSchemaLibrary) {
 		this.projectContext = projectContext;
-		this.additionnalSchemaLibrary = additionnalSchemaLibrary;
+		this.additionalSchemaLibrary = additionalSchemaLibrary;
 	}
 
 	public Log getLogger() {
@@ -44,8 +44,8 @@ public final class ApiContext {
 		return projectContext.getClassLoaderHelper();
 	}
 
-	public AdditionnalSchemaLibrary getAdditionnalSchemaLibrary() {
-		return additionnalSchemaLibrary;
+	public AdditionalSchemaLibrary getAdditionnalSchemaLibrary() {
+		return additionalSchemaLibrary;
 	}
 
 	public ApiConfiguration getApiConfiguration() {

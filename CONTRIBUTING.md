@@ -111,6 +111,22 @@ And run:
 
 You can preview the documentation in your browser on http://localhost:3000
 
+---
+## 🛠️ Adding plugin configuration
+
+This plugin makes it possible to generate multiple OpenAPI documentations from the same codebase.
+To keep this feature simple, the plugin configuration is mostly split into two parts:
+
+- The common configuration, defined in ``CommonApiConfiguration.java``
+- The per-document configuration, which extends and overrides the common configuration, and is located in ``ApiConfiguration.java``.
+
+This mechanism is fairly simple for users, but less so for developers of the plugin.
+Here’s what you need to keep in mind when adding a configuration parameter that is meant to be common:
+
+1. Add the parameter to ``CommonApiConfiguration.java``, along with its getters and setters.
+2. Add the allocation of this parameter in the constructor with the signature
+``public CommonApiConfiguration(final CommonApiConfiguration commonApiConfiguration)``.
+3. Add the copy/override behavior for your parameter in the ``mergeWithCommonApiConfiguration`` method in the ``ApiConfiguration.java`` class. Be sure to add it both where the property is copied from the parent and where its value may potentially be overridden.
 
 ---
 ## 📜 License

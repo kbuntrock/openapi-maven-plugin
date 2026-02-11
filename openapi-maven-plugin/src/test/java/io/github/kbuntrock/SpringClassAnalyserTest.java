@@ -7,7 +7,7 @@ import io.github.kbuntrock.configuration.library.TagAnnotation;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.model.Tag;
-import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
+import io.github.kbuntrock.reflection.AdditionalSchemaLibrary;
 import io.github.kbuntrock.resources.endpoint.account.AccountController;
 import io.github.kbuntrock.resources.endpoint.annotation.AnnotatedController;
 import io.github.kbuntrock.resources.endpoint.collection.CollectionController;
@@ -400,7 +400,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		projectContext.initLogger(Mockito.mock(Log.class));
 		projectContext.initClassLoader(SpringClassAnalyserTest.class.getClassLoader());
 		projectContext.setProject(createBasicMavenProject());
-		ApiContext apiContext = new ApiContext(projectContext, new AdditionnalSchemaLibrary());
+		ApiContext apiContext = new ApiContext(projectContext, new AdditionalSchemaLibrary());
 		apiContext.setApiConfiguration(apiConfiguration);
 		final OpenApiTypeResolver openApiTypeResolver = new OpenApiTypeResolver(apiContext);
 		apiContext.setOpenApiTypeResolver(new OpenApiTypeResolver(apiContext));

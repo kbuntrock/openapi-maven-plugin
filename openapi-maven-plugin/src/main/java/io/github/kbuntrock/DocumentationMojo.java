@@ -9,7 +9,7 @@ import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.JavadocParser;
 import io.github.kbuntrock.model.Tag;
-import io.github.kbuntrock.reflection.AdditionnalSchemaLibrary;
+import io.github.kbuntrock.reflection.AdditionalSchemaLibrary;
 import io.github.kbuntrock.utils.CollectionUtils;
 import io.github.kbuntrock.utils.FileUtils;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
@@ -38,33 +38,55 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Maven Mojo that generates OpenAPI specification files for one or more APIs of the current project.
+ * <p>
+ * It scans compiled classes using the project classpath, discovers REST resources according to the configured
+ * {@link ApiConfiguration}s, optionally enriches the output with parsed Javadoc, and writes one OpenAPI document
+ * per configured API into {@code ${project.build.directory}} (or a temporary file in test mode).
+ * </p>
+ * <p>
+ * Goal name: {@code documentation}<br/>
+ * Default phase: {@code compile}<br/>
+ * Requires dependency resolution: {@code compile+runtime}<br/>
+ * Thread-safe: {@code true}
+ * </p>
+ * <p>
+ * Configuration can be defined in the POM or passed via system properties (for example
+ * {@code -Dopenapi.locations=...}). When properties are used, an implicit {@link ApiConfiguration} is created
+ * from these values.
+ * </p>
+ */
 @Mojo(name = "documentation", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = true)
 public class DocumentationMojo extends AbstractMojo {
 
+	/**
+	 * The current Maven project.
+	 */
 	@Parameter(defaultValue = "${project}", required = true, readonly = true)
 	MavenProject project;
 	/**
-	 * A common api configuration between all described apis
+	 * Common configuration applied to all declared APIs.
 	 */
 	@Parameter
 	private CommonApiConfiguration apiConfiguration = new CommonApiConfiguration();
 	/**
-	 * A list of api configurations
+	 * The list of API configurations to document. One OpenAPI file is produced per entry.
 	 */
 	@Parameter
 	private List<ApiConfiguration> apis;
 	/**
-	 * A list of api configurations
+	 * Javadoc parsing configuration. If enabled, parsed Javadoc enriches the generated specification.
 	 */
 	@Parameter
 	private JavadocConfiguration javadocConfiguration;
 	/**
-	 * Location of the file.
+	 * Output directory for generated OpenAPI files. Defaults to {@code ${project.build.directory}}.
 	 */
 	@Parameter(defaultValue = "${project.build.directory}", property = "outputDir", required = true)
 	private File outputDirectory;
 	/**
-	 * If true, send anonymous analytics (see website documentation and Analytics class)
+	 * Whether to send anonymous analytics for the first API configuration execution.
 	 */
 	@Parameter(defaultValue = "true", property = "openapi.analytics")
 	protected boolean analytics;
@@ -104,10 +126,13 @@ public class DocumentationMojo extends AbstractMojo {
 	private final ProjectContext context = new ProjectContext();
 
 	/**
-	 * Execution of the documentation mojo
+	 * Executes the mojo: prepares logging and class loading, validates and parses configuration/Javadoc,
+	 * scans the compiled project, and writes the resulting OpenAPI documents.
 	 *
 	 * @throws MojoExecutionException
+	 *             if an unrecoverable error occurs during execution
 	 * @throws MojoFailureException
+	 *             if the configuration is invalid or no content can be generated
 	 */
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -131,6 +156,18 @@ public class DocumentationMojo extends AbstractMojo {
 		}
 	}
 
+	/**
+	 * Runs the documentation workflow and returns the list of generated files.
+	 * <p>
+	 * Extracted to facilitate unit testing.
+	 * </p>
+	 *
+	 * @return the list of generated OpenAPI files
+	 * @throws MojoFailureException
+	 *             when configuration validation fails or nothing can be documented
+	 * @throws MojoExecutionException
+	 *             on unexpected execution errors
+	 */
 	public List<File> documentProject() throws MojoFailureException, MojoExecutionException {
 		context.setProject(project);
 
@@ -143,6 +180,18 @@ public class DocumentationMojo extends AbstractMojo {
 		return scanProjectResourcesAndWriteSpec(javadocMap);
 	}
 
+	/**
+	 * Validates plugin configuration:
+	 * <ul>
+	 * <li>Builds an {@link ApiConfiguration} from system properties when applicable</li>
+	 * <li>Ensures at least one API is configured and initializes default values</li>
+	 * <li>Verifies locations are provided for each API</li>
+	 * <li>Checks that each API has a distinct output filename</li>
+	 * </ul>
+	 *
+	 * @throws MojoFailureException
+	 *             if any validation rule fails
+	 */
 	private void validateConfiguration() throws MojoFailureException {
 		createPropertyApiConfiguration();
 		if(apis == null || apis.isEmpty()) {
@@ -160,8 +209,13 @@ public class DocumentationMojo extends AbstractMojo {
 	}
 
 	/**
-	 * If "locations" have been set by property (-Dopenapi.locations=xxx, settings.xml our pom properties),
-	 * we add an api configuration based on all the available properties.
+	 * Builds an implicit {@link ApiConfiguration} from system properties when they are present.
+	 * <p>
+	 * If {@code openapi.locations} is defined (via command line, {@code settings.xml}, or POM properties),
+	 * an API configuration is synthesized using the provided properties: {@code openapi.locations},
+	 * {@code openapi.library}, {@code openapi.filename}, and {@code openapi.tagAnnotations}. The synthesized
+	 * configuration is appended to the list of APIs to generate.
+	 * </p>
 	 */
 	private void createPropertyApiConfiguration() {
 		if(locations != null && !locations.isEmpty()) {
@@ -184,11 +238,15 @@ public class DocumentationMojo extends AbstractMojo {
 	}
 
 	/**
-	 * Scan the project compiled resources and write all the documentations files
+	 * Scans compiled project resources and writes all OpenAPI documents.
 	 *
+	 * @param javadocMap
+	 *            optional map of parsed Javadoc keyed by fully qualified class name
 	 * @return the generated files
 	 * @throws MojoFailureException
+	 *             when nothing is found to document or write errors occur
 	 * @throws MojoExecutionException
+	 *             on unexpected execution errors
 	 */
 	private List<File> scanProjectResourcesAndWriteSpec(Map<String, ClassDocumentation> javadocMap) throws MojoFailureException {
 
@@ -196,14 +254,14 @@ public class DocumentationMojo extends AbstractMojo {
 
 		for(int i = 0; i < apis.size(); i++) {
 			final ApiConfiguration initialApiConfiguration = apis.get(i);
-			ApiContext apiContext = new ApiContext(context, new AdditionnalSchemaLibrary());
+			ApiContext apiContext = new ApiContext(context, new AdditionalSchemaLibrary());
 			final ApiConfiguration apiConfig = initialApiConfiguration.mergeWithCommonApiConfiguration(this.apiConfiguration);
 			apiContext.setApiConfiguration(apiConfig);
 			apiContext.setOpenApiTypeResolver(new OpenApiTypeResolver(apiContext));
 			apiContext.setNullableConfiguration(new NullableConfiguration(apiConfig));
 
 			if(i == 0) {
-				// Analytics are handled only for the first configuration
+				// Send analytics once: only for the first API configuration
 				Analytics.build(analytics, apiConfig, project, pluginDescriptor, runtimeInformation, testMode).send();
 			}
 
@@ -215,6 +273,7 @@ public class DocumentationMojo extends AbstractMojo {
 			File generatedFile = null;
 			try {
 				if(testMode) {
+					// In test mode, write to a temporary file to avoid touching the project's target directory
 					generatedFile = Files.createTempFile(
 						apiConfig.getFilename().substring(0, apiConfig.getFilename().length() - ".yml".length()) + "_", ".yml")
 						.toFile();
@@ -227,6 +286,7 @@ public class DocumentationMojo extends AbstractMojo {
 				new YamlWriter(apiContext, apiConfig, tagLibrary).write(generatedFile, tagLibrary);
 
 				if(apiConfig.isAttachArtifact()) {
+					// Compute extension and classifier-less name to attach the generated file as a Maven artifact
 					final String fileExtension = com.google.common.io.Files.getFileExtension(apiConfig.getFilename());
 					final int extensionSize = fileExtension.isEmpty() ? 0 : fileExtension.length() + 1;
 					final String fileNameWithoutExtension = apiConfig.getFilename()
@@ -239,6 +299,7 @@ public class DocumentationMojo extends AbstractMojo {
 				final int nbTagsGenerated = tagLibrary.getTags().size();
 
 				if(nbTagsGenerated == 0) {
+					// Fail fast to signal misconfiguration or incompatible Java version used during Maven build
 					throw new MojoFailureException(
 						"There is nothing to document. Please check if you have correctly configured the plugin or if the "
 							+ "java version used by maven is high enough to read the compiled project classes (maven toolchain is not supported)");
@@ -260,12 +321,16 @@ public class DocumentationMojo extends AbstractMojo {
 	}
 
 	/**
-	 * Create a classloader for the classes and dependencies of the project
-	 *
-	 * For more information, see https://maven.apache.org/guides/mini/guide-maven-classloading.html
+	 * Creates a classloader for the classes and dependencies of the project.
+	 * <p>
+	 * For more information, see https://maven.apache.org/guides/mini/guide-maven-classloading.html<br/>
+	 * The plugin's {@link ClassRealm} is reused and augmented with the project's compile and runtime classpath
+	 * elements so that project classes can be loaded while scanning.
+	 * </p>
 	 *
 	 * @return the classloader to use
 	 * @throws MojoExecutionException
+	 *             if classpath elements cannot be resolved or URLs cannot be created
 	 */
 	private ClassLoader createProjectDependenciesClassLoader() throws MojoExecutionException {
 		try {
@@ -280,10 +345,9 @@ public class DocumentationMojo extends AbstractMojo {
 			final URL[] urlsForClassLoader = pathUrls.toArray(new URL[pathUrls.size()]);
 			context.getLogger().debug("urls for URLClassLoader: " + Arrays.asList(urlsForClassLoader));
 
-			// We could use a completely separated Classword but is had too much complexity while scanning the project classes since
-			// we can't use Class loaded in the pluging Classloader. We should then use classes of the project classLoader and handle cases
-			// when there are not present
-			// We prefer add projet url to the plugin classLoader.
+			// Using a separate ClassWorld/ClassRealm for the project would complicate scanning because
+			// plugin classes could not load project types directly. Instead, we augment the plugin ClassRealm
+			// with the project's classpath URLs so both sets of classes are visible during scanning.
 			final ClassRealm classRealm = (ClassRealm) DocumentationMojo.class.getClassLoader();
 			for(final URL url : urlsForClassLoader) {
 				classRealm.addURL(url);
@@ -295,11 +359,26 @@ public class DocumentationMojo extends AbstractMojo {
 
 	}
 
+	/**
+	 * Determines whether Javadoc should be scanned based on the current configuration.
+	 *
+	 * @return true if Javadoc scan is enabled and locations are configured, false otherwise
+	 */
 	private boolean shouldScanJavadoc() {
 		return javadocConfiguration != null
 			&& !CollectionUtils.isEmpty(javadocConfiguration.getScanLocations());
 	}
 
+	/**
+	 * Parses Javadoc if enabled and configured.
+	 * <p>
+	 * When the plugin is configured via properties only, a default scan location of {@code src/main/java}
+	 * is applied unless {@code openapi.javadoc.locations} is provided. If scanning is disabled or no
+	 * configuration is found, this method returns {@code null}.
+	 * </p>
+	 *
+	 * @return a map of class FQCN to {@link ClassDocumentation}, or {@code null} if scanning is skipped
+	 */
 	private Map<String, ClassDocumentation> scanJavadoc() {
 
 		if(!javadocScanEnabled) {
@@ -308,12 +387,14 @@ public class DocumentationMojo extends AbstractMojo {
 		}
 
 		if(!CollectionUtils.isEmpty(locations) && !shouldScanJavadoc()) {
+			// When the plugin is configured via properties only, provide a sensible default scan location
 			if(javadocConfiguration == null) {
 				javadocConfiguration = new JavadocConfiguration();
 			}
 			if(CollectionUtils.isEmpty(javadocScanLocation)) {
 				javadocConfiguration.setScanLocations(Collections.singletonList("src/main/java"));
 			} else {
+				// Respect explicitly provided scan locations from properties
 				javadocConfiguration.setScanLocations(javadocScanLocation);
 			}
 
