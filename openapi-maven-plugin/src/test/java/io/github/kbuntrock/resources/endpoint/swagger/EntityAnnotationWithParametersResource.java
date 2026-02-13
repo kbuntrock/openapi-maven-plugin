@@ -20,11 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class EntityAnnotationWithParametersResource {
 
 	@Operation(summary = "Search alarms", parameters = {
-			@Parameter(name = "pv", description = "PV name", in = ParameterIn.QUERY, schema = @Schema(type = "string"), required = false, example = "*"),
+			@Parameter(name = "pv", description = "PV name", in = ParameterIn.QUERY, schema = @Schema(type = "string", example = "*"), required = false),
 	})
 	@Parameters({
 			@Parameter(name = "start", description = "Start time", schema = @Schema(type = "string"), required = false, example = "2024-06-12"),
-			@Parameter(name = "end", description = "End time", schema = @Schema(type = "string"), required = false, example = "2024-06-14"),
+			@Parameter(name = "end", description = "End time", schema = @Schema(type = "string", example = "ignored"), required = false, example = "2024-06-14"),
 	})
 	@RequestMapping(value = "/search/alarm", method = RequestMethod.GET)
 	@GET
