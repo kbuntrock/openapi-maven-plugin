@@ -1,6 +1,11 @@
 package io.github.kbuntrock;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
@@ -11,6 +16,7 @@ import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
+import io.github.kbuntrock.yaml.model.ChildObject;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -155,30 +161,37 @@ public class TagLibrary {
 			explored.getOpenApiResolvedType().isCompleteNode()) {
 			return;
 		}
-		final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), explored.getJavaClass());
-		for(final Field field : fields) {
-			if(field.isAnnotationPresent(JsonIgnore.class)) {
-				// Field is explicitly ignored; skip it from schema traversal.
+		if(apiConfiguration.getLegacySchemaMarshallingRules() == true) {
+			// To be removed in v1
+			exploreWithLegacyAlrorithm(explored);
+		} else {
+			List<ChildObject> childProperties = getPropertyObjectsToDocument(explored);
+			for(ChildObject child : childProperties) {
+				exploreDataObject(child.getDataObject());
+			}
+		}
+	}
+
+	public List<ChildObject> getPropertyObjectsToDocument(DataObject explored) {
+		List<BeanPropertyDefinition> propertyDefinitions = getPropertyDefinitions(context.getSchemaObjectMapper(),
+			explored.getJavaClass());
+		List<ChildObject> childObjects = new ArrayList<>();
+
+		for(BeanPropertyDefinition propertyDefinition : propertyDefinitions) {
+			Type genericType;
+			if(propertyDefinition.hasField()) {
+				genericType = propertyDefinition.getField().getAnnotated().getGenericType();
+			} else if(propertyDefinition.hasGetter()) {
+				genericType = propertyDefinition.getGetter().getAnnotated().getGenericReturnType();
+			} else if(propertyDefinition.hasSetter()) {
+				genericType = propertyDefinition.getSetter().getAnnotated().getGenericReturnType();
+			} else {
 				continue;
 			}
-			final DataObject dataObject = new DataObject(explored.getContextualType(field.getGenericType()), openApiTypeResolver);
-			exploreDataObject(dataObject);
+			childObjects.add(new ChildObject(propertyDefinition,
+				new DataObject(explored.getContextualType(genericType), openApiTypeResolver)));
 		}
-		// When exploring interfaces, also consider bean-style getters (getX/isY) without parameters.
-		if(explored.getJavaClass().isInterface()) {
-			final Method[] methods = explored.getJavaClass().getMethods();
-			for(final Method method : methods) {
-
-				if(method.getParameters().length == 0
-					&& ((method.getName().startsWith(METHOD_GET_PREFIX) && method.getName().length() != METHOD_GET_PREFIX_SIZE) ||
-						(method.getName().startsWith(METHOD_IS_PREFIX)) && method.getName().length() != METHOD_IS_PREFIX_SIZE)) {
-					final DataObject dataObject = new DataObject(explored.getContextualType(method.getGenericReturnType()),
-						openApiTypeResolver);
-					exploreDataObject(dataObject);
-				}
-			}
-		}
-
+		return childObjects;
 	}
 
 	/**
@@ -189,7 +202,7 @@ public class TagLibrary {
 	}
 
 	/**
-	 * Tags sorted using their natural ordering (see {@link Tag#compareTo(Object)}).
+	 * Tags sorted using their natural ordering.
 	 */
 	public Collection<Tag> getSortedTags() {
 		return tags.stream().sorted().collect(Collectors.toList());
@@ -262,5 +275,44 @@ public class TagLibrary {
 
 	public Map<String, ClassDocumentation> getJavadocMap() {
 		return javadocMap;
+	}
+
+	private List<BeanPropertyDefinition> getPropertyDefinitions(ObjectMapper mapper, Class<?> clazz) {
+		SerializationConfig config = mapper.getSerializationConfig();
+		JavaType type = config.constructType(clazz);
+		BeanDescription beanDesc = config.introspect(type);
+		return beanDesc.findProperties();
+	}
+
+	/**
+	 * To be removed in v1
+	 *
+	 * @param explored
+	 */
+	@Deprecated
+	private void exploreWithLegacyAlrorithm(DataObject explored) {
+		final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), explored.getJavaClass());
+		for(final Field field : fields) {
+			if(field.isAnnotationPresent(JsonIgnore.class)) {
+				// Field is explicitly ignored; skip it from schema traversal.
+				continue;
+			}
+			final DataObject dataObject = new DataObject(explored.getContextualType(field.getGenericType()), openApiTypeResolver);
+			exploreDataObject(dataObject);
+		}
+		// When exploring interfaces, also consider bean-style getters (getX/isY) without parameters.
+		if(explored.getJavaClass().isInterface()) {
+			final Method[] methods = explored.getJavaClass().getMethods();
+			for(final Method method : methods) {
+
+				if(method.getParameters().length == 0
+					&& ((method.getName().startsWith(METHOD_GET_PREFIX) && method.getName().length() != METHOD_GET_PREFIX_SIZE) ||
+						(method.getName().startsWith(METHOD_IS_PREFIX)) && method.getName().length() != METHOD_IS_PREFIX_SIZE)) {
+					final DataObject dataObject = new DataObject(explored.getContextualType(method.getGenericReturnType()),
+						openApiTypeResolver);
+					exploreDataObject(dataObject);
+				}
+			}
+		}
 	}
 }

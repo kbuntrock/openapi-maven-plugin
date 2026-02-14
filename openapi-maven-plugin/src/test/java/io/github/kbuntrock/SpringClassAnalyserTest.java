@@ -21,10 +21,7 @@ import io.github.kbuntrock.resources.endpoint.generic.*;
 import io.github.kbuntrock.resources.endpoint.header.MultipartFileWithHeaderController;
 import io.github.kbuntrock.resources.endpoint.ignore.JsonIgnoreController;
 import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
-import io.github.kbuntrock.resources.endpoint.issues.Issue138;
-import io.github.kbuntrock.resources.endpoint.issues.Issue246;
-import io.github.kbuntrock.resources.endpoint.issues.Issue247;
-import io.github.kbuntrock.resources.endpoint.issues.Issue262;
+import io.github.kbuntrock.resources.endpoint.issues.*;
 import io.github.kbuntrock.resources.endpoint.jackson.JacksonJsonPropertyController;
 import io.github.kbuntrock.resources.endpoint.map.MapController;
 import io.github.kbuntrock.resources.endpoint.multipartformdata.MultipartFormDataController;
@@ -876,6 +873,13 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	@Test
 	public void issue_247() throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(Issue247.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void issue_247_legacy() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(Issue247Legacy.class.getCanonicalName());
+		mojo.getApiConfiguration().setLegacySchemaMarshallingRules(true);
 		checkGenerationResult(mojo.documentProject());
 	}
 

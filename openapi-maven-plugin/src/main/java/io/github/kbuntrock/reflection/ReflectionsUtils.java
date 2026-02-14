@@ -27,15 +27,6 @@ public final class ReflectionsUtils {
 		return fields;
 	}
 
-	public static List<Field> getAllFields(List<Field> fields, Class<?> type) {
-		if(type.getSuperclass() != null) {
-			getAllFields(fields, type.getSuperclass());
-		}
-		fields.addAll(Arrays.asList(type.getDeclaredFields()));
-
-		return fields;
-	}
-
 	public static String getClassNameFromType(Type type) {
 		return type.toString().replaceAll("class ", "").replaceAll("interface ", "");
 	}

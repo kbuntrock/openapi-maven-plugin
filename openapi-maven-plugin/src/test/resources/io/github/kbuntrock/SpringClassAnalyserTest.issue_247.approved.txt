@@ -19,7 +19,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/PageImpl'
+                $ref: '#/components/schemas/PagedModel'
   /issue247/list:
     get:
       tags:
@@ -37,61 +37,26 @@ paths:
                   items: {}
 components:
   schemas:
-    Direction:
-      type: string
-      enum:
-        - ASC
-        - DESC
-    NullHandling:
-      type: string
-      enum:
-        - NATIVE
-        - NULLS_FIRST
-        - NULLS_LAST
-    Order:
+    PageMetadata:
       type: object
       properties:
-        direction:
-          $ref: '#/components/schemas/Direction'
-        property:
-          type: string
-        ignoreCase:
-          type: boolean
-        nullHandling:
-          $ref: '#/components/schemas/NullHandling'
-    PageImpl:
+        size:
+          type: integer
+          format: int64
+        number:
+          type: integer
+          format: int64
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int64
+    PagedModel:
       type: object
       properties:
         content:
           type: array
           items: {}
-        pageable:
-          $ref: '#/components/schemas/Pageable'
-        total:
-          type: integer
-          format: int64
-    Pageable:
-      type: object
-      properties:
-        offset:
-          type: integer
-          format: int64
-        pageNumber:
-          type: integer
-          format: int32
-        pageSize:
-          type: integer
-          format: int32
-        sort:
-          $ref: '#/components/schemas/Sort'
-        paged:
-          type: boolean
-        unpaged:
-          type: boolean
-    Sort:
-      type: object
-      properties:
-        orders:
-          type: array
-          items:
-            $ref: '#/components/schemas/Order'
+        page:
+          $ref: '#/components/schemas/PageMetadata'

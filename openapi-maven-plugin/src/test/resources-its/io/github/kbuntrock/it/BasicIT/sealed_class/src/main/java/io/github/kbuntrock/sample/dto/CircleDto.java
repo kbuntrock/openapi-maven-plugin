@@ -12,4 +12,7 @@ public final class CircleDto extends ShapeDto {
 	 */
 	private double radius;
 
+	public double getRadius() {
+		return radius;
+	}
 }

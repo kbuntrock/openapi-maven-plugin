@@ -2,9 +2,10 @@ package io.github.kbuntrock.configuration;
 
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
+import org.apache.maven.plugins.annotations.Parameter;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * @author Kevin Buntrock
@@ -147,6 +148,14 @@ public class CommonApiConfiguration {
 	@Parameter
 	protected List<String> nonDocumentableParameterClasses = new ArrayList<>();
 
+	/**
+	 * If true, use the legacy schema marshalling rules (not based on Jackson).
+	 * Will be removed in v1.
+	 */
+	@Parameter
+	@Deprecated
+	protected Boolean legacySchemaMarshallingRules;
+
 	public CommonApiConfiguration() {
 	}
 
@@ -179,6 +188,7 @@ public class CommonApiConfiguration {
 		this.defaultNonNullableFields = commonApiConfiguration.defaultNonNullableFields;
 		this.nonNullableAnnotation = commonApiConfiguration.nonNullableAnnotation;
 		this.nullableAnnotation = commonApiConfiguration.nullableAnnotation;
+		this.legacySchemaMarshallingRules = commonApiConfiguration.legacySchemaMarshallingRules;
 		for(final String tagAnnotation : commonApiConfiguration.tagAnnotations) {
 			this.tagAnnotations.add(tagAnnotation);
 		}
@@ -254,6 +264,9 @@ public class CommonApiConfiguration {
 		}
 		if(attachArtifact == null) {
 			attachArtifact = true;
+		}
+		if(legacySchemaMarshallingRules == null) {
+			legacySchemaMarshallingRules = false;
 		}
 	}
 
@@ -495,5 +508,13 @@ public class CommonApiConfiguration {
 
 	public void setNonDocumentableParameterClasses(final List<String> nonDocumentableParameterClasses) {
 		this.nonDocumentableParameterClasses = nonDocumentableParameterClasses;
+	}
+
+	public Boolean getLegacySchemaMarshallingRules() {
+		return legacySchemaMarshallingRules;
+	}
+
+	public void setLegacySchemaMarshallingRules(Boolean legacySchemaMarshallingRules) {
+		this.legacySchemaMarshallingRules = legacySchemaMarshallingRules;
 	}
 }

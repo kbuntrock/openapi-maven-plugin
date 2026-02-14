@@ -47,8 +47,7 @@ paths:
           description: successful operation
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
+              schema: {}
       x-operation-name: postEntityDtos
   /actions/push-one:
     post:
@@ -65,8 +64,7 @@ paths:
           description: successful operation
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
+              schema: {}
       x-operation-name: postOnlyOne
   /actions/status:
     get:
@@ -100,8 +98,6 @@ components:
           type: string
           minLength: 0
           maxLength: 15
-    Response:
-      type: object
     StatusImplDto:
       type: object
       properties:

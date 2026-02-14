@@ -23,4 +23,6 @@ assignability:
   org.springframework.core.io.InputStreamSource: string-binary
   java.util.Date: string-date-time
   java.util.Collection: array
+  javax.ws.rs.core.Response: any
+  jakarta.ws.rs.core.Response: any
 

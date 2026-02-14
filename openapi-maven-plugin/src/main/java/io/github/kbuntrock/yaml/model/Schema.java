@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.TagLibrary;
 import io.github.kbuntrock.configuration.ApiConfiguration;
@@ -27,7 +26,6 @@ import javax.validation.constraints.Size;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
@@ -198,7 +196,12 @@ public class Schema {
 					if(dataObject.isEnum()) {
 						createEnumSchemaObject(dataObject, classDocumentation);
 					} else {
-						createRegularSchemaObject(exploredSignatures, tagLibrary, dataObject, classDocumentation);
+						if(apiConfiguration.getLegacySchemaMarshallingRules() == true) {
+							// To be removed in v1
+							createLegacyRegularSchemaObject(dataObject, tagLibrary, classDocumentation, exploredSignatures);
+						} else {
+							createRegularSchemaObject(exploredSignatures, tagLibrary, dataObject, classDocumentation);
+						}
 					}
 					required = properties.values().stream()
 						.filter(Property::isRequired).map(Property::getName).collect(Collectors.toList());
@@ -255,37 +258,17 @@ public class Schema {
 	private void createRegularSchemaObject(Set<String> exploredSignatures, TagLibrary tagLibrary, DataObject dataObject,
 		ClassDocumentation classDocumentation) {
 
-		ObjectMapper mapper = new ObjectMapper();
-		// mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
-		// mapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.PUBLIC_ONLY);
-		// mapper.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.PUBLIC_ONLY);
-		// mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-		List<BeanPropertyDefinition> propertyDefinitions = getPropertyDefinitions(mapper,
-			dataObject.getJavaClass());
-		for(final BeanPropertyDefinition propertyDefinition : propertyDefinitions) {
-			String propertyFieldName = propertyDefinition.getName();
-
-			Type genericType = null;
-			if(propertyDefinition.hasField()) {
-				genericType = propertyDefinition.getField().getAnnotated().getGenericType();
-			} else if(propertyDefinition.hasGetter()) {
-				genericType = propertyDefinition.getGetter().getAnnotated().getGenericReturnType();
-			} else {
-				continue;
-			}
-
-			final DataObject wrappedPropertyObject = new DataObject(
-				dataObject.getContextualType(genericType),
-				tagLibrary.getOpenApiTypeResolver());
+		List<ChildObject> childProperties = tagLibrary.getPropertyObjectsToDocument(dataObject);
+		for(ChildObject child : childProperties) {
 			final DataObject propertyObject = tagLibrary.getOpenApiTypeResolver().unwrapDataObject(
-				wrappedPropertyObject,
+				child.getDataObject(),
 				UnwrappingType.SCHEMA);
-			final Property property = new Property(propertyObject, false, propertyFieldName, exploredSignatures,
+			final Property property = new Property(propertyObject, false, child.getName(), exploredSignatures,
 				dataObject, tagLibrary);
-			extractConstraints(propertyDefinition, property);
+			extractConstraints(child.getPropertyDefinition(), property);
 			properties.put(property.getName(), property);
 			// Javadoc and swagger annotations handling
-			setPropertyDescription(propertyDefinition, classDocumentation, property);
+			setPropertyDescription(child.getPropertyDefinition(), classDocumentation, property);
 		}
 	}
 
@@ -297,13 +280,25 @@ public class Schema {
 			if(propertyDefinition.hasField()) {
 				final JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc()
 					.get(propertyDefinition.getField().getName());
-				setPropertyDescriptionFromJavadoc(javadocWrapper, property);
+				setPropertyDescriptionFromJavadocIfEmpty(javadocWrapper, property);
 			}
 			// Methods
 			if(propertyDefinition.hasGetter()) {
 				final JavadocWrapper javadocWrapper = classDocumentation.getMethodsJavadocByIdentifier()
 					.get(JavaClassAnalyser.createMethodIdentifier(propertyDefinition.getGetter().getAnnotated()));
-				setPropertyDescriptionFromJavadoc(javadocWrapper, property);
+				setPropertyDescriptionFromJavadocIfEmpty(javadocWrapper, property);
+			}
+			if(propertyDefinition.hasSetter()) {
+				final JavadocWrapper javadocWrapper = classDocumentation.getMethodsJavadocByIdentifier()
+					.get(JavaClassAnalyser.createMethodIdentifier(propertyDefinition.getSetter().getAnnotated()));
+				setPropertyDescriptionFromJavadocIfEmpty(javadocWrapper, property);
+			}
+			// Constructor
+			if(propertyDefinition.hasConstructorParameter()) {
+				// The javadoc parsing store the documentation in "fields".
+				final JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc()
+					.get(propertyDefinition.getInternalName());
+				setPropertyDescriptionFromJavadocIfEmpty(javadocWrapper, property);
 			}
 		}
 
@@ -337,39 +332,18 @@ public class Schema {
 		}
 	}
 
-	private static void setPropertyDescriptionFromJavadoc(JavadocWrapper javadocWrapper, Property property) {
+	private static void setPropertyDescriptionFromJavadocIfEmpty(JavadocWrapper javadocWrapper, Property property) {
 		if(javadocWrapper != null) {
-			final Optional<String> desc = javadocWrapper.getDescription();
-			property.setDescription(desc.orElse(null));
+			if(property.getDescription() == null) {
+				final Optional<String> desc = javadocWrapper.getDescription();
+				property.setDescription(desc.orElse(null));
+			}
 
-			final Optional<String> summary = javadocWrapper.getSummary();
-			property.setSummary(summary.orElse(null));
+			if(property.getSummary() == null) {
+				final Optional<String> summary = javadocWrapper.getSummary();
+				property.setSummary(summary.orElse(null));
+			}
 		}
-	}
-
-	public static List<BeanPropertyDefinition> getProprietesSerialisablesDuRetour(
-		ObjectMapper mapper, Method method) {
-		SerializationConfig config = mapper.getSerializationConfig();
-		TypeFactory typeFactory = mapper.getTypeFactory();
-
-		JavaType returnType = typeFactory.constructType(method.getGenericReturnType());
-		JavaType typeToIntrospect = returnType;
-
-		if(returnType.isCollectionLikeType() || returnType.isArrayType()) {
-			typeToIntrospect = returnType.getContentType();
-		} else if(returnType.isReferenceType()) { // Optional, etc.
-			typeToIntrospect = returnType.getReferencedType();
-		}
-
-		BeanDescription beanDesc = config.introspect(typeToIntrospect);
-		return beanDesc.findProperties();
-	}
-
-	public static List<BeanPropertyDefinition> getPropertyDefinitions(ObjectMapper mapper, Class<?> clazz) {
-		SerializationConfig config = mapper.getSerializationConfig();
-		JavaType type = config.constructType(clazz);
-		BeanDescription beanDesc = config.introspect(type);
-		return beanDesc.findProperties();
 	}
 
 	private <T extends Annotation> T findAnnotationByClass(List<Annotation> annotations, Class<T> annotationType) {
@@ -565,6 +539,7 @@ public class Schema {
 	 * LEGACY PART
 	 * Do not make evolutions on this part : it will be removed in v1
 	 */
+	@Deprecated
 	private void createLegacyRegularSchemaObject(final DataObject dataObject, final TagLibrary tagLibrary,
 		final ClassDocumentation classDocumentation, final Set<String> exploredSignatures) {
 
@@ -672,6 +647,7 @@ public class Schema {
 		}
 	}
 
+	@Deprecated
 	private void extractConstraintsLegacy(final Field field, List<Annotation> annotations, final Property property) {
 		final Size size = findAnnotationByClass(annotations, Size.class);
 		if(size != null) {
