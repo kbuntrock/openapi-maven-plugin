@@ -10,4 +10,8 @@ public class SearchCriteriaV5 extends BaseSearchCriteria<SearchCriteriaV4> {
 	protected SearchCriteriaV5(final Class<SearchCriteriaV4> searchCriteriaV4Class) {
 		super(searchCriteriaV4Class);
 	}
+
+	public boolean isTata() {
+		return tata;
+	}
 }

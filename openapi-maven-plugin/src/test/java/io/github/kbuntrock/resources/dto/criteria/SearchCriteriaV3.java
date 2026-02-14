@@ -10,4 +10,8 @@ public class SearchCriteriaV3 extends BaseSearchCriteria<SearchCriteriaV3> {
 	protected SearchCriteriaV3(final Class<SearchCriteriaV3> searchCriteriaV3Class) {
 		super(searchCriteriaV3Class);
 	}
+
+	public boolean isSomeBoolean() {
+		return someBoolean;
+	}
 }

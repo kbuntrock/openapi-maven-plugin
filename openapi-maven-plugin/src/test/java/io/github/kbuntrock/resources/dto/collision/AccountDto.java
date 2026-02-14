@@ -23,4 +23,11 @@ public class AccountDto {
 		ACCES_APP
 	}
 
+	public String getPseudo() {
+		return pseudo;
+	}
+
+	public List<Authority> getAuthorityList() {
+		return authorityList;
+	}
 }

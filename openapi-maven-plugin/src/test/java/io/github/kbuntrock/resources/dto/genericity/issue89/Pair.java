@@ -9,4 +9,8 @@ public class Pair<A, B> extends Single<A> {
 	 * the b attribute
 	 */
 	private B b;
+
+	public B getB() {
+		return b;
+	}
 }

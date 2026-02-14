@@ -10,4 +10,8 @@ public class SearchCriteriaV2 extends CriteriaWithDateType {
 	public SearchCriteriaV2(final Class<? extends CriteriaDateType> dateTypeClass) {
 		super(dateTypeClass);
 	}
+
+	public String getMyString() {
+		return myString;
+	}
 }

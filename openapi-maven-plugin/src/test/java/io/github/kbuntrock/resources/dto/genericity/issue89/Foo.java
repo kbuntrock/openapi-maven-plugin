@@ -10,4 +10,7 @@ public class Foo extends Pair<Foo, Boo> {
 	 */
 	private Integer foo;
 
+	public Integer getFoo() {
+		return foo;
+	}
 }

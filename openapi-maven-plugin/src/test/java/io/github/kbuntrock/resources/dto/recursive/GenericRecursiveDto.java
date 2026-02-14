@@ -21,4 +21,16 @@ public class GenericRecursiveDto<G> {
 	 * The recursive property
 	 */
 	private GenericRecursiveDto<G> child;
+
+	public String getName() {
+		return name;
+	}
+
+	public G getWrapped() {
+		return wrapped;
+	}
+
+	public GenericRecursiveDto<G> getChild() {
+		return child;
+	}
 }

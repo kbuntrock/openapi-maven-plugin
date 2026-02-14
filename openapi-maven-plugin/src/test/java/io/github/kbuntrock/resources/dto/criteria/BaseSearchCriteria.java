@@ -11,4 +11,7 @@ public class BaseSearchCriteria<SELF extends BaseSearchCriteria<?>> extends Sear
 		self = selfClass.cast(this);
 	}
 
+	public SELF getSelf() {
+		return self;
+	}
 }

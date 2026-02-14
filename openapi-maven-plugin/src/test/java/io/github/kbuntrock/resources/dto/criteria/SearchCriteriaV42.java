@@ -5,7 +5,7 @@ package io.github.kbuntrock.resources.dto.criteria;
  */
 public class SearchCriteriaV42 extends BaseSearchCriteria<SearchCriteriaV52> {
 
-	private String toto;
+	public String toto;
 
 	protected SearchCriteriaV42() {
 		super(SearchCriteriaV52.class);
