@@ -269,8 +269,10 @@ public abstract class AbstractLibraryReader {
 			final Boolean paramRequired = parameterAnnotation.getBoolean("required");
 			MergedAnnotation schemaAnn = parameterAnnotation.getAnnotation("schema");
 			final String paramType = (schemaAnn != null) ? schemaAnn.getString("type") : null;
-			final String paramExample = parameterAnnotation.getString("example");
-
+			// Priority: @Parameter(example) > @Schema(example) per OpenAPI 3 Specs
+			final String paramExample = Optional.ofNullable(parameterAnnotation.getString("example"))
+				.filter(e -> !e.isEmpty())
+				.orElseGet(() -> schemaAnn != null ? schemaAnn.getString("example") : null);
 			ParameterObject paramObj = new ParameterObject(paramName, mapSchemaTypeToJavaType(paramType), openApiTypeResolver);
 			paramObj.setLocation(ParameterLocation.fromValue("".equals(paramIn) ? "query" : paramIn));
 			paramObj.setRequired(paramRequired);
