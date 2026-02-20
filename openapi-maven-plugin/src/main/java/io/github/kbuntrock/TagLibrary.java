@@ -1,10 +1,7 @@
 package io.github.kbuntrock;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.context.ApiContext;
@@ -13,6 +10,7 @@ import io.github.kbuntrock.model.*;
 import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
+import io.github.kbuntrock.utils.TreeNode;
 import io.github.kbuntrock.yaml.model.ChildObject;
 
 import java.lang.reflect.Field;
@@ -57,7 +55,7 @@ public class TagLibrary {
 	/** Set of schema objects destined for components/schemas. */
 	private final Set<DataObject> schemaObjects = new HashSet<>();
 	/** Guard set of visited signatures to avoid re-processing and cycles. */
-	private final Set<String> exploredSignatures = new HashSet<>();
+	private final Map<String, TreeNode<DataObject>> exploredSignatures = new HashMap<>();
 	/** Convenience index to look up schema object by its Java class. */
 	final Map<Class, DataObject> classToSchemaObject = new HashMap<>();
 
@@ -87,7 +85,7 @@ public class TagLibrary {
 	 */
 	public void addExtraClass(final Class clazz) {
 		final DataObject dataObject = new DataObject(clazz, context, Flow.BOTH);
-		exploreDataObject(dataObject);
+		exploreDataObject(new TreeNode<>(dataObject));
 	}
 
 	/**
@@ -100,17 +98,17 @@ public class TagLibrary {
 	private void exploreTagObjects(final Tag tag) {
 		for(final Endpoint endpoint : tag.getEndpoints()) {
 			if(endpoint.getResponseObject() != null) {
-				exploreDataObject(endpoint.getResponseObject());
+				exploreDataObject(new TreeNode<>(endpoint.getResponseObject()));
 			}
 
 			for(final ParameterObject parameterObject : endpoint.getParameters()) {
-				exploreDataObject(parameterObject);
+				exploreDataObject(new TreeNode<>(parameterObject));
 			}
 
 			for(final OperationResponse operationResponse : endpoint.getOperationAnnotationInfo().getResponses()) {
 				if(operationResponse.getDataObject() != null) {
 					// If the response has a data object, it represents a response body to document.
-					exploreDataObject(operationResponse.getDataObject());
+					exploreDataObject(new TreeNode<>(operationResponse.getDataObject()));
 				}
 			}
 		}
@@ -120,16 +118,17 @@ public class TagLibrary {
 	 * Depth-first exploration of a {@link DataObject}, with cycle prevention and handling of references,
 	 * generic containers, and Java arrays.
 	 */
-	private void exploreDataObject(final DataObject dataObject) {
+	private void exploreDataObject(final TreeNode<DataObject> node) {
+		DataObject dataObject = node.getValue();
 		// Avoid revisiting the same logical object (prevents cycles and redundant work).
-		if(!exploredSignatures.add(dataObject.getSignature())) {
+		if(exploredSignatures.putIfAbsent(dataObject.getSignature(), node) != null) {
 			return;
 		}
 		// Reference objects are candidates for top-level schemas. Non-map references are then inspected for nested types.
 		if(dataObject.isReferenceObject()) {
 			if(schemaObjects.add(dataObject)) {
 				if(!dataObject.isMap()) {
-					inspectObject(dataObject);
+					inspectObject(node);
 				}
 			}
 		} else if(dataObject.isGenericallyTyped()) {
@@ -138,13 +137,13 @@ public class TagLibrary {
 				for(final Map.Entry<String, Type> entry : dataObject.getGenericNameToTypeMap().entrySet()) {
 					final DataObject genericObject = new DataObject(dataObject.getContextualType(entry.getValue()),
 						context, dataObject.getFlow());
-					exploreDataObject(genericObject);
+					exploreDataObject(node.addChild(genericObject));
 				}
 			}
-			inspectObject(dataObject);
+			inspectObject(node);
 		} else if(dataObject.isJavaArray()) {
 			// Traverse array item type.
-			exploreDataObject(dataObject.getArrayItemDataObject());
+			exploreDataObject(node.addChild(dataObject.getArrayItemDataObject()));
 		}
 	}
 
@@ -152,19 +151,20 @@ public class TagLibrary {
 	 * Inspect fields and accessor methods of a complex object to discover nested types that should
 	 * be included in the schema section.
 	 */
-	private void inspectObject(final DataObject explored) {
+	private void inspectObject(final TreeNode<DataObject> exploredNode) {
 		// Enums or already "complete" nodes do not require further traversal.
+		DataObject explored = exploredNode.getValue();
 		if(explored.getJavaClass().isEnum() ||
 			explored.getOpenApiResolvedType().isCompleteNode()) {
 			return;
 		}
 		if(apiConfiguration.getLegacySchemaMarshallingRules() == true) {
 			// To be removed in v1
-			exploreWithLegacyAlrorithm(explored);
+			exploreWithLegacyAlrorithm(exploredNode);
 		} else {
 			List<ChildObject> childProperties = getPropertyObjectsToDocument(explored);
 			for(ChildObject child : childProperties) {
-				exploreDataObject(child.getDataObject());
+				exploreDataObject(exploredNode.addChild(child.getDataObject()));
 			}
 		}
 	}
@@ -180,8 +180,9 @@ public class TagLibrary {
 				genericType = propertyDefinition.getField().getAnnotated().getGenericType();
 			} else if(propertyDefinition.hasGetter()) {
 				genericType = propertyDefinition.getGetter().getAnnotated().getGenericReturnType();
-			} else if(propertyDefinition.hasSetter()) {
-				genericType = propertyDefinition.getSetter().getAnnotated().getGenericReturnType();
+			} else if(propertyDefinition.hasSetter()
+				&& propertyDefinition.getSetter().getAnnotated().getGenericParameterTypes().length == 1) {
+				genericType = propertyDefinition.getSetter().getAnnotated().getGenericParameterTypes()[0];
 			} else {
 				continue;
 			}
@@ -275,19 +276,29 @@ public class TagLibrary {
 	}
 
 	private List<BeanPropertyDefinition> getPropertyDefinitions(ObjectMapper mapper, Class<?> clazz) {
-		SerializationConfig config = mapper.getSerializationConfig();
-		JavaType type = config.constructType(clazz);
-		BeanDescription beanDesc = config.introspect(type);
-		return beanDesc.findProperties();
+		DeserializationConfig deserializationConfig = mapper.getDeserializationConfig();
+		JavaType type = deserializationConfig.constructType(clazz);
+		BeanDescription desBeanDesc = deserializationConfig.introspect(type);
+
+		SerializationConfig serializationConfig = mapper.getSerializationConfig();
+		BeanDescription serBeanDesc = serializationConfig.introspect(type);
+
+		for(BeanPropertyDefinition desB : desBeanDesc.findProperties()) {
+
+		}
+
+		// BeanDefinition definition = new BeanDefinition(desBeanDesc, serBeanDesc);
+		return desBeanDesc.findProperties();
 	}
 
 	/**
 	 * To be removed in v1
 	 *
-	 * @param explored
+	 * @param exploredNode
 	 */
 	@Deprecated
-	private void exploreWithLegacyAlrorithm(DataObject explored) {
+	private void exploreWithLegacyAlrorithm(final TreeNode<DataObject> exploredNode) {
+		DataObject explored = exploredNode.getValue();
 		final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), explored.getJavaClass());
 		for(final Field field : fields) {
 			if(field.isAnnotationPresent(JsonIgnore.class)) {
@@ -296,7 +307,7 @@ public class TagLibrary {
 			}
 			final DataObject dataObject = new DataObject(explored.getContextualType(field.getGenericType()), context,
 				explored.getFlow());
-			exploreDataObject(dataObject);
+			exploreDataObject(exploredNode.addChild(dataObject));
 		}
 		// When exploring interfaces, also consider bean-style getters (getX/isY) without parameters.
 		if(explored.getJavaClass().isInterface()) {
@@ -308,7 +319,7 @@ public class TagLibrary {
 						(method.getName().startsWith(METHOD_IS_PREFIX)) && method.getName().length() != METHOD_IS_PREFIX_SIZE)) {
 					final DataObject dataObject = new DataObject(explored.getContextualType(method.getGenericReturnType()),
 						context, explored.getFlow());
-					exploreDataObject(dataObject);
+					exploreDataObject(exploredNode.addChild(dataObject));
 				}
 			}
 		}
