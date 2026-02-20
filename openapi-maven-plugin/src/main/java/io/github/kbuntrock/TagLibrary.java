@@ -9,10 +9,7 @@ import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
-import io.github.kbuntrock.model.DataObject;
-import io.github.kbuntrock.model.Endpoint;
-import io.github.kbuntrock.model.ParameterObject;
-import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.model.*;
 import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
@@ -89,7 +86,7 @@ public class TagLibrary {
 	 * @param clazz
 	 */
 	public void addExtraClass(final Class clazz) {
-		final DataObject dataObject = new DataObject(clazz, openApiTypeResolver);
+		final DataObject dataObject = new DataObject(clazz, context, Flow.BOTH);
 		exploreDataObject(dataObject);
 	}
 
@@ -140,7 +137,7 @@ public class TagLibrary {
 			if(dataObject.getGenericNameToTypeMap() != null) {
 				for(final Map.Entry<String, Type> entry : dataObject.getGenericNameToTypeMap().entrySet()) {
 					final DataObject genericObject = new DataObject(dataObject.getContextualType(entry.getValue()),
-						openApiTypeResolver);
+						context, dataObject.getFlow());
 					exploreDataObject(genericObject);
 				}
 			}
@@ -189,7 +186,7 @@ public class TagLibrary {
 				continue;
 			}
 			childObjects.add(new ChildObject(propertyDefinition,
-				new DataObject(explored.getContextualType(genericType), openApiTypeResolver)));
+				new DataObject(explored.getContextualType(genericType), context, explored.getFlow())));
 		}
 		return childObjects;
 	}
@@ -297,7 +294,8 @@ public class TagLibrary {
 				// Field is explicitly ignored; skip it from schema traversal.
 				continue;
 			}
-			final DataObject dataObject = new DataObject(explored.getContextualType(field.getGenericType()), openApiTypeResolver);
+			final DataObject dataObject = new DataObject(explored.getContextualType(field.getGenericType()), context,
+				explored.getFlow());
 			exploreDataObject(dataObject);
 		}
 		// When exploring interfaces, also consider bean-style getters (getX/isY) without parameters.
@@ -309,7 +307,7 @@ public class TagLibrary {
 					&& ((method.getName().startsWith(METHOD_GET_PREFIX) && method.getName().length() != METHOD_GET_PREFIX_SIZE) ||
 						(method.getName().startsWith(METHOD_IS_PREFIX)) && method.getName().length() != METHOD_IS_PREFIX_SIZE)) {
 					final DataObject dataObject = new DataObject(explored.getContextualType(method.getGenericReturnType()),
-						openApiTypeResolver);
+						context, explored.getFlow());
 					exploreDataObject(dataObject);
 				}
 			}

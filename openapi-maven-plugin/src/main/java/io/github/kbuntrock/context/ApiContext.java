@@ -21,7 +21,7 @@ public final class ApiContext {
 	private ApiConfiguration apiConfiguration;
 	private NullableConfiguration nullableConfiguration;
 	private OpenApiTypeResolver openApiTypeResolver;
-	private ObjectMapper schemaObjectMapper;
+	private final ObjectMapper schemaObjectMapper;
 
 	private MergeAnnotationsHelper mergeAnnotationsHelper;
 

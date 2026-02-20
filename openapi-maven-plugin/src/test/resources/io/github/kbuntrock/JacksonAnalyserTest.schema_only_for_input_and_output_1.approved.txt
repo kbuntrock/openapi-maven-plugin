@@ -1,0 +1,83 @@
+---
+openapi: 3.0.3
+info:
+  title: Project using jackson
+  version: v1.0
+servers:
+  - url: ""
+tags:
+  - name: JacksonController1
+    description: A controller named JacksonController1
+  - name: JacksonController3
+    description: A controller named JacksonController3
+paths:
+  /api/1:
+    get:
+      tags:
+        - JacksonController1
+      operationId: JacksonController1.findAll
+      description: Find all orders
+      responses:
+        200:
+          description: all the orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderJacksonDto'
+      x-operation-name: findAll
+  /api/3:
+    post:
+      tags:
+        - JacksonController3
+      operationId: JacksonController3.create
+      description: Create an AccountJacksonDto
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountJacksonDto'
+        description: the account to be created
+      responses:
+        200:
+          description: successful operation
+      x-operation-name: create
+components:
+  schemas:
+    AccountJacksonDto:
+      description: This is a dto representing an account
+      type: object
+      properties:
+        id:
+          description: "id is Serialization only: returned in JSON, ignored on input"
+          type: string
+          format: uuid
+        email:
+          description: email is a regular field (read/write)
+          type: string
+        password:
+          description: password is deserialization only: accepted on input, never returned
+          type: string
+        createdAt:
+          description: Serialization only via JsonProperty access annotation
+          type: string
+          format: date-time
+        registrationToken:
+          description: Deserialization only via its setter (e.g., creation token)
+          type: string
+        emailDomain:
+          description: "getEmailDomain is a computed property: serialization only\
+            \ (no setter)"
+          type: string
+    OrderJacksonDto:
+      description: This is a dto representing an order
+      type: object
+      properties:
+        account:
+          description: "orderId is serialization only: emitted in JSON, ignored on\
+            \ input"
+          $ref: '#/components/schemas/AccountJacksonDto'
+        customerEmail:
+          description: customerEmail is a regular field (read/write)
+          type: string

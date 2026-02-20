@@ -126,7 +126,7 @@ public class JavaxRsReader extends AbstractLibraryReader {
 				context.getLogger().debug("Parameter : " + parameter.getName());
 
 				ParameterObject paramObj = new ParameterObject(parameter.getName(),
-					genericityResolver.resolve(clazz, parameter.getParameterizedType()), openApiTypeResolver);
+					genericityResolver.resolve(clazz, parameter.getParameterizedType()), context);
 				paramObj = unwrapParameterObject(paramObj);
 
 				if(mergedAnnotations.get("javax.ws.rs.BeanParam").isPresent()) {

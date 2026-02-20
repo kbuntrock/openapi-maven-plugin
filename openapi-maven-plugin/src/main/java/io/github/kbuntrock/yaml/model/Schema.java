@@ -563,7 +563,7 @@ public class Schema {
 				}
 
 				final DataObject wrappedPropertyObject = new DataObject(
-					dataObject.getContextualType(field.getGenericType()), tagLibrary.getOpenApiTypeResolver());
+					dataObject.getContextualType(field.getGenericType()), tagLibrary.getContext(), dataObject.getFlow());
 				final DataObject propertyObject = tagLibrary.getOpenApiTypeResolver().unwrapDataObject(
 					wrappedPropertyObject,
 					UnwrappingType.SCHEMA);
@@ -625,7 +625,7 @@ public class Schema {
 
 					final DataObject propertyObject = new DataObject(
 						dataObject.getContextualType(method.getGenericReturnType()),
-						tagLibrary.getOpenApiTypeResolver());
+						tagLibrary.getContext(), dataObject.getFlow());
 					final Property property = new Property(propertyObject, false, name, exploredSignatures,
 						dataObject, tagLibrary);
 					properties.put(property.getName(), property);
