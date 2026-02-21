@@ -8,6 +8,7 @@ import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.model.*;
 import io.github.kbuntrock.model.annotation.OperationResponse;
+import io.github.kbuntrock.reflection.BeanDefinition;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.TreeNode;
@@ -170,11 +171,11 @@ public class TagLibrary {
 	}
 
 	public List<ChildObject> getPropertyObjectsToDocument(DataObject explored) {
-		List<BeanPropertyDefinition> propertyDefinitions = getPropertyDefinitions(context.getSchemaObjectMapper(),
+		List<BeanDefinition> propertyDefinitions = getPropertyDefinitions(context.getSchemaObjectMapper(),
 			explored.getJavaClass());
 		List<ChildObject> childObjects = new ArrayList<>();
 
-		for(BeanPropertyDefinition propertyDefinition : propertyDefinitions) {
+		for(BeanDefinition propertyDefinition : propertyDefinitions) {
 			Type genericType;
 			if(propertyDefinition.hasField()) {
 				genericType = propertyDefinition.getField().getAnnotated().getGenericType();
@@ -275,20 +276,22 @@ public class TagLibrary {
 		return javadocMap;
 	}
 
-	private List<BeanPropertyDefinition> getPropertyDefinitions(ObjectMapper mapper, Class<?> clazz) {
-		DeserializationConfig deserializationConfig = mapper.getDeserializationConfig();
-		JavaType type = deserializationConfig.constructType(clazz);
-		BeanDescription desBeanDesc = deserializationConfig.introspect(type);
-
+	private List<BeanDefinition> getPropertyDefinitions(ObjectMapper mapper, Class<?> clazz) {
 		SerializationConfig serializationConfig = mapper.getSerializationConfig();
-		BeanDescription serBeanDesc = serializationConfig.introspect(type);
+		JavaType type = serializationConfig.constructType(clazz);
+		BeanDescription serializationDescription = serializationConfig.introspect(type);
 
-		for(BeanPropertyDefinition desB : desBeanDesc.findProperties()) {
+		DeserializationConfig deserializationConfig = mapper.getDeserializationConfig();
+		BeanDescription deserializationDescription = deserializationConfig.introspect(type);
 
+		Map<String, BeanPropertyDefinition> deserialMap = deserializationDescription.findProperties().stream()
+			.collect(Collectors.toMap(BeanPropertyDefinition::getName, p -> p, (a, b) -> a, LinkedHashMap::new));
+
+		List<BeanDefinition> list = new ArrayList<>();
+		for(BeanPropertyDefinition beanDef : serializationDescription.findProperties()) {
+			list.add(new BeanDefinition(beanDef, deserialMap.get(beanDef.getName())));
 		}
-
-		// BeanDefinition definition = new BeanDefinition(desBeanDesc, serBeanDesc);
-		return desBeanDesc.findProperties();
+		return list;
 	}
 
 	/**

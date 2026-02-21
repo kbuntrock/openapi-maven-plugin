@@ -1,19 +1,19 @@
 package io.github.kbuntrock.yaml.model;
 
-import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import io.github.kbuntrock.model.DataObject;
+import io.github.kbuntrock.reflection.BeanDefinition;
 
 public class ChildObject {
 
-	private BeanPropertyDefinition propertyDefinition;
+	private BeanDefinition propertyDefinition;
 	private DataObject dataObject;
 
-	public ChildObject(BeanPropertyDefinition propertyDefinition, DataObject dataObject) {
+	public ChildObject(BeanDefinition propertyDefinition, DataObject dataObject) {
 		this.propertyDefinition = propertyDefinition;
 		this.dataObject = dataObject;
 	}
 
-	public BeanPropertyDefinition getPropertyDefinition() {
+	public BeanDefinition getPropertyDefinition() {
 		return propertyDefinition;
 	}
 

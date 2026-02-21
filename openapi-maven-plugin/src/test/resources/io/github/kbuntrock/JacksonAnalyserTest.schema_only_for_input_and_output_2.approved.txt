@@ -62,19 +62,20 @@ components:
           description: email is a regular field (read/write)
           type: string
         password:
-          description: password is deserialization only: accepted on input, never returned
+          description: "password is deserialization only: accepted on input, never\
+            \ returned"
           type: string
         createdAt:
           description: Serialization only via JsonProperty access annotation
           type: string
           format: date-time
-        registrationToken:
-          description: "registrationToken is deserialization only via its setter (e.g.,\
-            \ creation token)"
-          type: string
         emailDomain:
           description: "getEmailDomain is a computed property: serialization only\
             \ (no setter)"
+          type: string
+        registrationToken:
+          description: "registrationToken is deserialization only via its setter (e.g.,\
+            \ creation token)"
           type: string
     OrderJacksonDto:
       description: This is a dto representing an order
@@ -88,5 +89,6 @@ components:
           description: customerEmail is a regular field (read/write)
           type: string
         paymentToken:
-          description: paymentToken is a deserialization only: accepted on input, never emitted
+          description: "paymentToken is a deserialization only: accepted on input,\
+            \ never emitted"
           type: string

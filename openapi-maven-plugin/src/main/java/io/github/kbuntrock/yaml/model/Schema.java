@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.TagLibrary;
 import io.github.kbuntrock.configuration.ApiConfiguration;
@@ -14,6 +13,7 @@ import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.ClassDocumentation.EnhancementType;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
 import io.github.kbuntrock.model.DataObject;
+import io.github.kbuntrock.reflection.BeanDefinition;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
@@ -272,7 +272,7 @@ public class Schema {
 		}
 	}
 
-	private void setPropertyDescription(BeanPropertyDefinition propertyDefinition, ClassDocumentation classDocumentation,
+	private void setPropertyDescription(BeanDefinition propertyDefinition, ClassDocumentation classDocumentation,
 		Property property) {
 		// Javadoc handling
 		if(classDocumentation != null) {
@@ -376,7 +376,7 @@ public class Schema {
 			&& method.getParameterTypes()[0].equals(field.getType());
 	}
 
-	private void extractConstraints(final BeanPropertyDefinition beanPropertyDefinition, final Property property) {
+	private void extractConstraints(final BeanDefinition beanPropertyDefinition, final Property property) {
 		List<Annotation> annotations = new ArrayList<>();
 		if(beanPropertyDefinition.hasField()) {
 			annotations.addAll(Arrays.asList(beanPropertyDefinition.getField().getAnnotated().getAnnotations()));
