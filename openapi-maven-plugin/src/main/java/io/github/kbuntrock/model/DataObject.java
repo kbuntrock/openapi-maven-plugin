@@ -9,6 +9,7 @@ import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.OpenApiResolvedType;
+import io.github.kbuntrock.yaml.model.ChildObject;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -89,6 +90,8 @@ public class DataObject {
 	private Boolean classRequired;
 
 	private Flow flow;
+
+	private List<ChildObject> childObjects;
 
 	/**
 	 * Shallow copy for parameter/response object creation. Copies type identity and resolution data.
@@ -508,12 +511,20 @@ public class DataObject {
 		this.flow = flow;
 	}
 
+	public List<ChildObject> getChildObjects() {
+		return childObjects;
+	}
+
+	public void setChildObjects(List<ChildObject> childObjects) {
+		this.childObjects = childObjects;
+	}
+
 	@Override
 	public boolean equals(final Object o) {
 		if(this == o) {
 			return true;
 		}
-		if(o == null || getClass() != o.getClass()) {
+		if(o == null || !(DataObject.class.isAssignableFrom(o.getClass()))) {
 			return false;
 		}
 		final DataObject that = (DataObject) o;

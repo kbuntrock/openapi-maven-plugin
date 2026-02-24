@@ -11,6 +11,6 @@ public interface ChildRequestItemInterface extends BaseRequestItemInterface {
 	/**
 	 * The child field
 	 */
-	String getChildField();
+	void setChildField(String s);
 
 }

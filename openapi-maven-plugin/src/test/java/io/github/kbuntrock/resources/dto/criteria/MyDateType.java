@@ -9,4 +9,9 @@ public class MyDateType implements CriteriaDateType {
 	public int getTimestamp() {
 		return 0;
 	}
+
+	@Override
+	public void setTimestamp(int timestamp) {
+		// nothing to do
+	}
 }

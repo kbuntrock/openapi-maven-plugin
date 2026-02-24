@@ -10,11 +10,11 @@ import java.util.List;
 public interface GenericInterfaceRecursiveListDto<E> {
 
 	@JsonProperty(index = 2)
-	String getName();
+	void setName(String s);
 
 	@JsonProperty(index = 3)
-	E getWrapped();
+	void setWrapped(E dto);
 
 	@JsonProperty(index = 1)
-	List<GenericInterfaceRecursiveListDto<E>> getChildList();
+	void setChildList(List<GenericInterfaceRecursiveListDto<E>> something);
 }

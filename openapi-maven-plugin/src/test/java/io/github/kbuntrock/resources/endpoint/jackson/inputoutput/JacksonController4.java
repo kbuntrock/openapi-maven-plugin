@@ -2,6 +2,7 @@ package io.github.kbuntrock.resources.endpoint.jackson.inputoutput;
 
 import io.github.kbuntrock.resources.Constants;
 import io.github.kbuntrock.resources.dto.jackson.OrderJacksonDto;
+import io.github.kbuntrock.resources.dto.jackson.ResumeJacksonDto;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,9 +21,19 @@ import java.util.Set;
 public interface JacksonController4 {
 
 	/**
+	 * Create a resume
+	 *
+	 * @param input
+	 *            the input object to create a resume
+	 */
+	@PostMapping("/resume")
+	void createResume(@RequestBody Optional<Set<List<Optional<Map<String, ResumeJacksonDto>>>>> input);
+
+	/**
 	 * Create something
 	 * 
 	 * @param input
+	 *            the input object
 	 */
 	@PostMapping()
 	void create(@RequestBody Optional<Set<List<Optional<Map<String, OrderJacksonDto>>>>> input);

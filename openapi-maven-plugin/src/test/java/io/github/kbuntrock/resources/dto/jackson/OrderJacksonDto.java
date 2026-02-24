@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class OrderJacksonDto {
 
 	/**
-	 * orderId is serialization only: emitted in JSON, ignored on input
+	 * account is serialization only: emitted in JSON, ignored on input
 	 */
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	private AccountJacksonDto account;

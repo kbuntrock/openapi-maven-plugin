@@ -8,6 +8,6 @@ public interface BaseRequestItemInterface {
 	/**
 	 * The base field
 	 */
-	String getBaseField();
+	void setBaseField(String baseField);
 
 }

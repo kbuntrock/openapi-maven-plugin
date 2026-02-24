@@ -11,5 +11,5 @@ public enum Flow {
 	/** Data flows only out of the API (e.g. response body). */
 	OUTPUT,
 	/** Data flows in both directions (e.g. request and response bodies). */
-	BOTH;
+	INPUT_OUTPUT;
 }

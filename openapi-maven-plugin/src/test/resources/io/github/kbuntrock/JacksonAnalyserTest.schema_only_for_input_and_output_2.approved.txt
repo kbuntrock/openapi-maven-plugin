@@ -44,10 +44,33 @@ paths:
                   type: object
                   additionalProperties:
                     $ref: '#/components/schemas/OrderJacksonDto'
+        description: the input object
       responses:
         200:
           description: successful operation
       x-operation-name: create
+  /api/4/resume:
+    post:
+      tags:
+        - JacksonController4
+      operationId: JacksonController4.createResume
+      description: Create a resume
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: array
+                items:
+                  type: object
+                  additionalProperties:
+                    $ref: '#/components/schemas/ResumeJacksonDto'
+        description: the input object to create a resume
+      responses:
+        200:
+          description: successful operation
+      x-operation-name: createResume
 components:
   schemas:
     AccountJacksonDto:
@@ -61,10 +84,6 @@ components:
         email:
           description: email is a regular field (read/write)
           type: string
-        password:
-          description: "password is deserialization only: accepted on input, never\
-            \ returned"
-          type: string
         createdAt:
           description: Serialization only via JsonProperty access annotation
           type: string
@@ -72,6 +91,10 @@ components:
         emailDomain:
           description: "getEmailDomain is a computed property: serialization only\
             \ (no setter)"
+          type: string
+        password:
+          description: "password is deserialization only: accepted on input, never\
+            \ returned"
           type: string
         registrationToken:
           description: "registrationToken is deserialization only via its setter (e.g.,\
@@ -82,7 +105,7 @@ components:
       type: object
       properties:
         account:
-          description: "orderId is serialization only: emitted in JSON, ignored on\
+          description: "account is serialization only: emitted in JSON, ignored on\
             \ input"
           $ref: '#/components/schemas/AccountJacksonDto'
         customerEmail:
@@ -91,4 +114,14 @@ components:
         paymentToken:
           description: "paymentToken is a deserialization only: accepted on input,\
             \ never emitted"
+          type: string
+    ResumeJacksonDto:
+      description: This is a dto representing an order
+      type: object
+      properties:
+        account:
+          description: Account of the resume (write only)
+          $ref: '#/components/schemas/AccountJacksonDto'
+        description:
+          description: Description of the resume
           type: string

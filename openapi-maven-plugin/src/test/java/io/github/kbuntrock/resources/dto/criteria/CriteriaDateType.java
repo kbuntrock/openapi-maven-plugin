@@ -7,4 +7,6 @@ public interface CriteriaDateType {
 
 	int getTimestamp();
 
+	void setTimestamp(int timestamp);
+
 }

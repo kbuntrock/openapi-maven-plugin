@@ -95,6 +95,15 @@ public class Schema {
 		this(dataObject, false, exploredSignatures, null, null, tagLibrary);
 	}
 
+	public Schema(final DataObject wrappedDataObject,
+		final boolean mainReference,
+		final Set<String> exploredSignatures,
+		final DataObject parentDataObject,
+		final String parentFieldName,
+		final TagLibrary tagLibrary) {
+		this(wrappedDataObject, mainReference, exploredSignatures, parentDataObject, parentFieldName, tagLibrary, false);
+	}
+
 	/**
 	 *
 	 * @param wrappedDataObject
@@ -109,7 +118,8 @@ public class Schema {
 		final Set<String> exploredSignatures,
 		final DataObject parentDataObject,
 		final String parentFieldName,
-		final TagLibrary tagLibrary) {
+		final TagLibrary tagLibrary,
+		final boolean forNonGenericSchemaSection) {
 
 		final DataObject dataObject = tagLibrary.getOpenApiTypeResolver().unwrapDataObject(wrappedDataObject,
 			UnwrappingType.SCHEMA);
@@ -200,7 +210,8 @@ public class Schema {
 							// To be removed in v1
 							createLegacyRegularSchemaObject(dataObject, tagLibrary, classDocumentation, exploredSignatures);
 						} else {
-							createRegularSchemaObject(exploredSignatures, tagLibrary, dataObject, classDocumentation);
+							createRegularSchemaObject(exploredSignatures, tagLibrary, dataObject, classDocumentation,
+								forNonGenericSchemaSection);
 						}
 					}
 					required = properties.values().stream()
@@ -256,20 +267,38 @@ public class Schema {
 	}
 
 	private void createRegularSchemaObject(Set<String> exploredSignatures, TagLibrary tagLibrary, DataObject dataObject,
-		ClassDocumentation classDocumentation) {
+		ClassDocumentation classDocumentation, boolean forNonGenericSchemaSection) {
 
-		List<ChildObject> childProperties = tagLibrary.getPropertyObjectsToDocument(dataObject);
-		for(ChildObject child : childProperties) {
-			final DataObject propertyObject = tagLibrary.getOpenApiTypeResolver().unwrapDataObject(
-				child.getDataObject(),
-				UnwrappingType.SCHEMA);
-			final Property property = new Property(propertyObject, false, child.getName(), exploredSignatures,
-				dataObject, tagLibrary);
-			extractConstraints(child.getPropertyDefinition(), property);
-			properties.put(property.getName(), property);
-			// Javadoc and swagger annotations handling
-			setPropertyDescription(child.getPropertyDefinition(), classDocumentation, property);
+		if(forNonGenericSchemaSection) {
+			List<ChildObject> childProperties = dataObject.getChildObjects();
+			for(ChildObject child : childProperties) {
+				if(child.getBeanDefinition().compatibleWithFlow(dataObject.getFlow())) {
+					final DataObject propertyObject = tagLibrary.getOpenApiTypeResolver().unwrapDataObject(
+						child.getDataObject(),
+						UnwrappingType.SCHEMA);
+					final Property property = new Property(propertyObject, false, child.getName(), exploredSignatures,
+						dataObject, tagLibrary);
+					extractConstraints(child.getBeanDefinition(), property);
+					properties.put(property.getName(), property);
+					// Javadoc and swagger annotations handling
+					setPropertyDescription(child.getBeanDefinition(), classDocumentation, property);
+				}
+			}
+		} else {
+			List<ChildObject> childProperties = tagLibrary.getPropertyObjectsToDocument(dataObject);
+			for(ChildObject child : childProperties) {
+				final DataObject propertyObject = tagLibrary.getOpenApiTypeResolver().unwrapDataObject(
+					child.getDataObject(),
+					UnwrappingType.SCHEMA);
+				final Property property = new Property(propertyObject, false, child.getName(), exploredSignatures,
+					dataObject, tagLibrary);
+				extractConstraints(child.getBeanDefinition(), property);
+				properties.put(property.getName(), property);
+				// Javadoc and swagger annotations handling
+				setPropertyDescription(child.getBeanDefinition(), classDocumentation, property);
+			}
 		}
+
 	}
 
 	private void setPropertyDescription(BeanDefinition propertyDefinition, ClassDocumentation classDocumentation,

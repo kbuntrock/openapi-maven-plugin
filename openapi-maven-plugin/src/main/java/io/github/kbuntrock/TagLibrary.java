@@ -11,7 +11,6 @@ import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.reflection.BeanDefinition;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
-import io.github.kbuntrock.utils.TreeNode;
 import io.github.kbuntrock.yaml.model.ChildObject;
 
 import java.lang.reflect.Field;
@@ -54,9 +53,9 @@ public class TagLibrary {
 	/** All collected tags (controllers). */
 	private final List<Tag> tags = new ArrayList<>();
 	/** Set of schema objects destined for components/schemas. */
-	private final Set<DataObject> schemaObjects = new HashSet<>();
+	private final Map<DataObject, DataObject> schemaObjects = new HashMap<>();
 	/** Guard set of visited signatures to avoid re-processing and cycles. */
-	private final Map<String, TreeNode<DataObject>> exploredSignatures = new HashMap<>();
+	private final Map<String, Flow> exploredSignatures = new HashMap<>();
 	/** Convenience index to look up schema object by its Java class. */
 	final Map<Class, DataObject> classToSchemaObject = new HashMap<>();
 
@@ -85,8 +84,8 @@ public class TagLibrary {
 	 * @param clazz
 	 */
 	public void addExtraClass(final Class clazz) {
-		final DataObject dataObject = new DataObject(clazz, context, Flow.BOTH);
-		exploreDataObject(new TreeNode<>(dataObject));
+		final DataObject dataObject = new DataObject(clazz, context, Flow.INPUT_OUTPUT);
+		exploreDataObject(dataObject);
 	}
 
 	/**
@@ -99,17 +98,17 @@ public class TagLibrary {
 	private void exploreTagObjects(final Tag tag) {
 		for(final Endpoint endpoint : tag.getEndpoints()) {
 			if(endpoint.getResponseObject() != null) {
-				exploreDataObject(new TreeNode<>(endpoint.getResponseObject()));
+				exploreDataObject(endpoint.getResponseObject());
 			}
 
 			for(final ParameterObject parameterObject : endpoint.getParameters()) {
-				exploreDataObject(new TreeNode<>(parameterObject));
+				exploreDataObject(parameterObject);
 			}
 
 			for(final OperationResponse operationResponse : endpoint.getOperationAnnotationInfo().getResponses()) {
 				if(operationResponse.getDataObject() != null) {
 					// If the response has a data object, it represents a response body to document.
-					exploreDataObject(new TreeNode<>(operationResponse.getDataObject()));
+					exploreDataObject(operationResponse.getDataObject());
 				}
 			}
 		}
@@ -119,17 +118,24 @@ public class TagLibrary {
 	 * Depth-first exploration of a {@link DataObject}, with cycle prevention and handling of references,
 	 * generic containers, and Java arrays.
 	 */
-	private void exploreDataObject(final TreeNode<DataObject> node) {
-		DataObject dataObject = node.getValue();
+	private void exploreDataObject(final DataObject dataObject) {
 		// Avoid revisiting the same logical object (prevents cycles and redundant work).
-		if(exploredSignatures.putIfAbsent(dataObject.getSignature(), node) != null) {
-			return;
+		Flow alreadyExploredFlow = exploredSignatures.putIfAbsent(dataObject.getSignature(), dataObject.getFlow());
+		if(alreadyExploredFlow != null) {
+			if(alreadyExploredFlow == Flow.INPUT_OUTPUT || alreadyExploredFlow == dataObject.getFlow()) {
+				// In case the signature has already been explored for the same flow, we stop the exploration here
+				return;
+			} else {
+				exploredSignatures.put(dataObject.getSignature(), Flow.INPUT_OUTPUT);
+			}
 		}
 		// Reference objects are candidates for top-level schemas. Non-map references are then inspected for nested types.
 		if(dataObject.isReferenceObject()) {
-			if(schemaObjects.add(dataObject)) {
+			DataObject schemaObject = schemaObjects.get(dataObject);
+			if(schemaObject == null
+				|| (schemaObject.getFlow() != Flow.INPUT_OUTPUT && dataObject.getFlow() != schemaObject.getFlow())) {
 				if(!dataObject.isMap()) {
-					inspectObject(node);
+					inspectObject(dataObject, true);
 				}
 			}
 		} else if(dataObject.isGenericallyTyped()) {
@@ -138,13 +144,13 @@ public class TagLibrary {
 				for(final Map.Entry<String, Type> entry : dataObject.getGenericNameToTypeMap().entrySet()) {
 					final DataObject genericObject = new DataObject(dataObject.getContextualType(entry.getValue()),
 						context, dataObject.getFlow());
-					exploreDataObject(node.addChild(genericObject));
+					exploreDataObject(genericObject);
 				}
 			}
-			inspectObject(node);
+			inspectObject(dataObject, false);
 		} else if(dataObject.isJavaArray()) {
 			// Traverse array item type.
-			exploreDataObject(node.addChild(dataObject.getArrayItemDataObject()));
+			exploreDataObject(dataObject.getArrayItemDataObject());
 		}
 	}
 
@@ -152,27 +158,72 @@ public class TagLibrary {
 	 * Inspect fields and accessor methods of a complex object to discover nested types that should
 	 * be included in the schema section.
 	 */
-	private void inspectObject(final TreeNode<DataObject> exploredNode) {
+	private void inspectObject(final DataObject explored, boolean forSchema) {
 		// Enums or already "complete" nodes do not require further traversal.
-		DataObject explored = exploredNode.getValue();
 		if(explored.getJavaClass().isEnum() ||
 			explored.getOpenApiResolvedType().isCompleteNode()) {
+			DataObject alreadyExisting = schemaObjects.get(explored);
+			if(alreadyExisting == null) {
+				schemaObjects.put(explored, explored);
+			} else {
+				alreadyExisting.setFlow(Flow.INPUT_OUTPUT);
+			}
 			return;
 		}
 		if(apiConfiguration.getLegacySchemaMarshallingRules() == true) {
 			// To be removed in v1
-			exploreWithLegacyAlrorithm(exploredNode);
+			exploreWithLegacyAlrorithm(explored);
 		} else {
+			safeLogObjectInspection(explored);
 			List<ChildObject> childProperties = getPropertyObjectsToDocument(explored);
 			for(ChildObject child : childProperties) {
-				exploreDataObject(exploredNode.addChild(child.getDataObject()));
+				if(child.getBeanDefinition().compatibleWithFlow(explored.getFlow())) {
+					exploreDataObject(child.getDataObject());
+				}
+			}
+			if(forSchema) {
+
+				DataObject alreadyExisting = schemaObjects.get(explored);
+				if(alreadyExisting == null) {
+					schemaObjects.put(explored, explored);
+					explored.setChildObjects(childProperties);
+				} else {
+					// We are exploring it for a different flow. Merging / updating the properties.
+					Map<String, ChildObject> newChildsMap = childProperties.stream()
+						.collect(Collectors.toMap(ChildObject::getName, p -> p, (a, b) -> a, LinkedHashMap::new));
+					for(ChildObject existingChild : alreadyExisting.getChildObjects()) {
+						ChildObject correspondingChild = newChildsMap.remove(existingChild.getName());
+						if(correspondingChild != null) {
+							existingChild.mergeWithFlow(explored.getFlow(), correspondingChild.getBeanDefinition());
+						}
+					}
+					for(ChildObject orphanNewChild : newChildsMap.values()) {
+						alreadyExisting.getChildObjects().add(orphanNewChild);
+					}
+					alreadyExisting.setFlow(Flow.INPUT_OUTPUT);
+				}
 			}
 		}
 	}
 
+	private void safeLogObjectInspection(DataObject explored) {
+		try {
+			// if(context.getLogger().isDebugEnabled()) {
+			System.out.println("Inspect object " + explored.getJavaClass().getSimpleName() + " - " + explored.getFlow() + " ("
+				+ explored.getJavaClass().getCanonicalName() + ")");
+			context.getLogger()
+				.warn("Inspect object " + explored.getJavaClass().getSimpleName() + " - " + explored.getFlow() + " ("
+					+ explored.getJavaClass().getCanonicalName() + ")");
+			// }
+		} catch(Exception e) {
+			context.getLogger().error("Cannot log object inspection", e);
+		}
+
+	}
+
 	public List<ChildObject> getPropertyObjectsToDocument(DataObject explored) {
 		List<BeanDefinition> propertyDefinitions = getPropertyDefinitions(context.getSchemaObjectMapper(),
-			explored.getJavaClass());
+			explored);
 		List<ChildObject> childObjects = new ArrayList<>();
 
 		for(BeanDefinition propertyDefinition : propertyDefinitions) {
@@ -210,8 +261,8 @@ public class TagLibrary {
 	/**
 	 * All schema objects that will be emitted in the components/schemas section.
 	 */
-	public Set<DataObject> getSchemaObjects() {
-		return schemaObjects;
+	public Collection<DataObject> getSchemaObjects() {
+		return schemaObjects.values();
 	}
 
 	/**
@@ -233,7 +284,7 @@ public class TagLibrary {
 		// Collect all short names in the schema section
 		final Set<String> referenceNames = new HashSet<>();
 		// Deterministic order ensures stable naming (important for diffs and client generation).
-		final List<DataObject> orderedSchemaObjects = schemaObjects.stream()
+		final List<DataObject> orderedSchemaObjects = schemaObjects.values().stream()
 			.sorted(Comparator.comparing(o -> o.getJavaClass().getCanonicalName())).collect(Collectors.toList());
 
 		for(final DataObject object : orderedSchemaObjects) {
@@ -276,7 +327,25 @@ public class TagLibrary {
 		return javadocMap;
 	}
 
-	private List<BeanDefinition> getPropertyDefinitions(ObjectMapper mapper, Class<?> clazz) {
+	private List<BeanDefinition> getPropertyDefinitions(ObjectMapper mapper, DataObject dataObject) {
+		Class<?> clazz = dataObject.getJavaClass();
+		if(dataObject.getFlow() == Flow.INPUT) {
+			DeserializationConfig deserializationConfig = mapper.getDeserializationConfig();
+			JavaType type = deserializationConfig.constructType(clazz);
+			BeanDescription deserializationDescription = deserializationConfig.introspect(type);
+			return deserializationDescription.findProperties().stream().map(p -> new BeanDefinition(p, null))
+				.filter(BeanDefinition::couldDeserialize)
+				.collect(Collectors.toList());
+		} else if(dataObject.getFlow() == Flow.OUTPUT) {
+			SerializationConfig serializationConfig = mapper.getSerializationConfig();
+			JavaType type = serializationConfig.constructType(clazz);
+			BeanDescription serializationDescription = serializationConfig.introspect(type);
+			return serializationDescription.findProperties().stream().map(p -> new BeanDefinition(p, null))
+				.filter(BeanDefinition::couldSerialize)
+				.collect(Collectors.toList());
+		}
+
+		// Mix input and output data
 		SerializationConfig serializationConfig = mapper.getSerializationConfig();
 		JavaType type = serializationConfig.constructType(clazz);
 		BeanDescription serializationDescription = serializationConfig.introspect(type);
@@ -289,7 +358,10 @@ public class TagLibrary {
 
 		List<BeanDefinition> list = new ArrayList<>();
 		for(BeanPropertyDefinition beanDef : serializationDescription.findProperties()) {
-			list.add(new BeanDefinition(beanDef, deserialMap.get(beanDef.getName())));
+			list.add(new BeanDefinition(beanDef, deserialMap.remove(beanDef.getName())));
+		}
+		for(BeanPropertyDefinition beanDef : deserialMap.values()) {
+			list.add(new BeanDefinition(beanDef, deserialMap.remove(beanDef.getName())));
 		}
 		return list;
 	}
@@ -297,11 +369,10 @@ public class TagLibrary {
 	/**
 	 * To be removed in v1
 	 *
-	 * @param exploredNode
+	 * @param explored
 	 */
 	@Deprecated
-	private void exploreWithLegacyAlrorithm(final TreeNode<DataObject> exploredNode) {
-		DataObject explored = exploredNode.getValue();
+	private void exploreWithLegacyAlrorithm(final DataObject explored) {
 		final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), explored.getJavaClass());
 		for(final Field field : fields) {
 			if(field.isAnnotationPresent(JsonIgnore.class)) {
@@ -310,7 +381,7 @@ public class TagLibrary {
 			}
 			final DataObject dataObject = new DataObject(explored.getContextualType(field.getGenericType()), context,
 				explored.getFlow());
-			exploreDataObject(exploredNode.addChild(dataObject));
+			exploreDataObject(dataObject);
 		}
 		// When exploring interfaces, also consider bean-style getters (getX/isY) without parameters.
 		if(explored.getJavaClass().isInterface()) {
@@ -322,7 +393,7 @@ public class TagLibrary {
 						(method.getName().startsWith(METHOD_IS_PREFIX)) && method.getName().length() != METHOD_IS_PREFIX_SIZE)) {
 					final DataObject dataObject = new DataObject(explored.getContextualType(method.getGenericReturnType()),
 						context, explored.getFlow());
-					exploreDataObject(exploredNode.addChild(dataObject));
+					exploreDataObject(dataObject);
 				}
 			}
 		}

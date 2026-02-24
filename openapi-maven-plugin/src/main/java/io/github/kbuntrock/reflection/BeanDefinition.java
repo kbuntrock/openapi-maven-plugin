@@ -3,6 +3,7 @@ package io.github.kbuntrock.reflection;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import io.github.kbuntrock.model.Flow;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -19,6 +20,11 @@ public class BeanDefinition {
 	private AnnotatedMethod setter;
 	private String internalName;
 	private boolean constructorParameterIsPresent;
+	private boolean couldDeserialize;
+	private boolean couldSerialize;
+
+	private boolean forInput;
+	private boolean forOutput;
 
 	public BeanDefinition(final BeanPropertyDefinition a,
 		final BeanPropertyDefinition b) {
@@ -29,6 +35,8 @@ public class BeanDefinition {
 			setter = a.getSetter();
 			internalName = a.getInternalName();
 			constructorParameterIsPresent = a.hasConstructorParameter();
+			couldSerialize = a.couldSerialize();
+			couldDeserialize = a.couldDeserialize();
 		} else {
 			field = a.getField() != null ? a.getField() : b.getField();
 			getter = a.getGetter() != null ? a.getGetter() : b.getGetter();
@@ -36,7 +44,19 @@ public class BeanDefinition {
 			internalName = StringUtils.isNotEmpty(a.getInternalName()) ? a.getInternalName() : b.getInternalName();
 			constructorParameterIsPresent = a.hasConstructorParameter() ? a.hasConstructorParameter()
 				: b.hasConstructorParameter();
+			couldSerialize = a.couldSerialize() || b.couldDeserialize();
+			couldDeserialize = a.couldDeserialize() || b.couldDeserialize();
 		}
+	}
+
+	public void merge(final BeanDefinition b) {
+		field = field != null ? field : b.getField();
+		getter = getter != null ? getter : b.getGetter();
+		setter = setter != null ? setter : b.getSetter();
+		internalName = StringUtils.isNotEmpty(internalName) ? internalName : b.getInternalName();
+		constructorParameterIsPresent = constructorParameterIsPresent || b.hasConstructorParameter();
+		couldSerialize = couldSerialize || b.couldDeserialize();
+		couldDeserialize = couldDeserialize || b.couldDeserialize();
 	}
 
 	public String getName() {
@@ -73,5 +93,22 @@ public class BeanDefinition {
 
 	public String getInternalName() {
 		return internalName;
+	}
+
+	public boolean couldDeserialize() {
+		return couldDeserialize;
+	}
+
+	public boolean couldSerialize() {
+		return couldSerialize;
+	}
+
+	public boolean compatibleWithFlow(Flow flow) {
+		if(Flow.INPUT == flow) {
+			return couldDeserialize;
+		} else if(Flow.OUTPUT == flow) {
+			return couldSerialize;
+		}
+		return (couldDeserialize | couldSerialize);
 	}
 }
