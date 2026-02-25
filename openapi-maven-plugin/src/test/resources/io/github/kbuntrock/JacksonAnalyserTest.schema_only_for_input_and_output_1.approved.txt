@@ -77,7 +77,7 @@ components:
       type: object
       properties:
         account:
-          description: "orderId is serialization only: emitted in JSON, ignored on\
+          description: "account is serialization only: emitted in JSON, ignored on\
             \ input"
           $ref: '#/components/schemas/AccountJacksonDto'
         customerEmail:
