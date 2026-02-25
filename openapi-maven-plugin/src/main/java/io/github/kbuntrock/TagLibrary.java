@@ -1,6 +1,5 @@
 package io.github.kbuntrock;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import io.github.kbuntrock.configuration.ApiConfiguration;
@@ -9,12 +8,9 @@ import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.model.*;
 import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.reflection.BeanDefinition;
-import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.yaml.model.ChildObject;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -170,51 +166,46 @@ public class TagLibrary {
 			}
 			return;
 		}
-		if(apiConfiguration.getLegacySchemaMarshallingRules() == true) {
-			// To be removed in v1
-			exploreWithLegacyAlrorithm(explored);
-		} else {
-			safeLogObjectInspection(explored);
-			List<ChildObject> childProperties = getPropertyObjectsToDocument(explored);
-			for(ChildObject child : childProperties) {
-				if(child.getBeanDefinition().compatibleWithFlow(explored.getFlow())) {
-					exploreDataObject(child.getDataObject());
-				}
+		safeLogObjectInspection(explored);
+		List<ChildObject> childProperties = getPropertyObjectsToDocument(explored);
+		for(ChildObject child : childProperties) {
+			if(child.getBeanDefinition().compatibleWithFlow(explored.getFlow())) {
+				exploreDataObject(child.getDataObject());
 			}
-			if(forSchema) {
+		}
+		if(forSchema) {
 
-				DataObject alreadyExisting = schemaObjects.get(explored);
-				if(alreadyExisting == null) {
-					schemaObjects.put(explored, explored);
-					explored.setChildObjects(childProperties);
-				} else {
-					// We are exploring it for a different flow. Merging / updating the properties.
-					Map<String, ChildObject> newChildsMap = childProperties.stream()
-						.collect(Collectors.toMap(ChildObject::getName, p -> p, (a, b) -> a, LinkedHashMap::new));
-					for(ChildObject existingChild : alreadyExisting.getChildObjects()) {
-						ChildObject correspondingChild = newChildsMap.remove(existingChild.getName());
-						if(correspondingChild != null) {
-							existingChild.mergeWithFlow(explored.getFlow(), correspondingChild.getBeanDefinition());
-						}
+			DataObject alreadyExisting = schemaObjects.get(explored);
+			if(alreadyExisting == null) {
+				schemaObjects.put(explored, explored);
+				explored.setChildObjects(childProperties);
+			} else {
+				// We are exploring it for a different flow. Merging / updating the properties.
+				Map<String, ChildObject> newChildsMap = childProperties.stream()
+					.collect(Collectors.toMap(ChildObject::getName, p -> p, (a, b) -> a, LinkedHashMap::new));
+				for(ChildObject existingChild : alreadyExisting.getChildObjects()) {
+					ChildObject correspondingChild = newChildsMap.remove(existingChild.getName());
+					if(correspondingChild != null) {
+						existingChild.mergeWithFlow(explored.getFlow(), correspondingChild.getBeanDefinition());
 					}
-					for(ChildObject orphanNewChild : newChildsMap.values()) {
-						alreadyExisting.getChildObjects().add(orphanNewChild);
-					}
-					alreadyExisting.setFlow(Flow.INPUT_OUTPUT);
 				}
+				for(ChildObject orphanNewChild : newChildsMap.values()) {
+					alreadyExisting.getChildObjects().add(orphanNewChild);
+				}
+				alreadyExisting.setFlow(Flow.INPUT_OUTPUT);
 			}
 		}
 	}
 
 	private void safeLogObjectInspection(DataObject explored) {
 		try {
-			// if(context.getLogger().isDebugEnabled()) {
-			System.out.println("Inspect object " + explored.getJavaClass().getSimpleName() + " - " + explored.getFlow() + " ("
-				+ explored.getJavaClass().getCanonicalName() + ")");
-			context.getLogger()
-				.warn("Inspect object " + explored.getJavaClass().getSimpleName() + " - " + explored.getFlow() + " ("
-					+ explored.getJavaClass().getCanonicalName() + ")");
-			// }
+			if(context.getLogger().isDebugEnabled()) {
+				// System.out.println("Inspect object " + explored.getJavaClass().getSimpleName() + " - " + explored.getFlow() + " ("
+				// + explored.getJavaClass().getCanonicalName() + ")");
+				context.getLogger()
+					.debug("Inspect object " + explored.getJavaClass().getSimpleName() + " - " + explored.getFlow() + " ("
+						+ explored.getJavaClass().getCanonicalName() + ")");
+			}
 		} catch(Exception e) {
 			context.getLogger().error("Cannot log object inspection", e);
 		}
@@ -364,38 +355,5 @@ public class TagLibrary {
 			list.add(new BeanDefinition(beanDef, deserialMap.remove(beanDef.getName())));
 		}
 		return list;
-	}
-
-	/**
-	 * To be removed in v1
-	 *
-	 * @param explored
-	 */
-	@Deprecated
-	private void exploreWithLegacyAlrorithm(final DataObject explored) {
-		final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), explored.getJavaClass());
-		for(final Field field : fields) {
-			if(field.isAnnotationPresent(JsonIgnore.class)) {
-				// Field is explicitly ignored; skip it from schema traversal.
-				continue;
-			}
-			final DataObject dataObject = new DataObject(explored.getContextualType(field.getGenericType()), context,
-				explored.getFlow());
-			exploreDataObject(dataObject);
-		}
-		// When exploring interfaces, also consider bean-style getters (getX/isY) without parameters.
-		if(explored.getJavaClass().isInterface()) {
-			final Method[] methods = explored.getJavaClass().getMethods();
-			for(final Method method : methods) {
-
-				if(method.getParameters().length == 0
-					&& ((method.getName().startsWith(METHOD_GET_PREFIX) && method.getName().length() != METHOD_GET_PREFIX_SIZE) ||
-						(method.getName().startsWith(METHOD_IS_PREFIX)) && method.getName().length() != METHOD_IS_PREFIX_SIZE)) {
-					final DataObject dataObject = new DataObject(explored.getContextualType(method.getGenericReturnType()),
-						context, explored.getFlow());
-					exploreDataObject(dataObject);
-				}
-			}
-		}
 	}
 }

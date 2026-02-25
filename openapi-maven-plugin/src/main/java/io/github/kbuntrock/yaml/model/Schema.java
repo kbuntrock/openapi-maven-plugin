@@ -3,7 +3,6 @@ package io.github.kbuntrock.yaml.model;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.TagLibrary;
@@ -14,7 +13,6 @@ import io.github.kbuntrock.javadoc.ClassDocumentation.EnhancementType;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.reflection.BeanDefinition;
-import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
 import io.github.kbuntrock.utils.OpenApiConstants;
@@ -24,15 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.Size;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static io.github.kbuntrock.TagLibrary.*;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Schema {
@@ -206,13 +198,8 @@ public class Schema {
 					if(dataObject.isEnum()) {
 						createEnumSchemaObject(dataObject, classDocumentation);
 					} else {
-						if(apiConfiguration.getLegacySchemaMarshallingRules() == true) {
-							// To be removed in v1
-							createLegacyRegularSchemaObject(dataObject, tagLibrary, classDocumentation, exploredSignatures);
-						} else {
-							createRegularSchemaObject(exploredSignatures, tagLibrary, dataObject, classDocumentation,
-								forNonGenericSchemaSection);
-						}
+						createRegularSchemaObject(exploredSignatures, tagLibrary, dataObject, classDocumentation,
+							forNonGenericSchemaSection);
 					}
 					required = properties.values().stream()
 						.filter(Property::isRequired).map(Property::getName).collect(Collectors.toList());
@@ -379,32 +366,6 @@ public class Schema {
 		return (T) annotations.stream().filter(a -> a.annotationType().equals(annotationType)).findFirst().orElse(null);
 	}
 
-	private List<Annotation> getRelevantAnnotationsForField(Field field) {
-		Class<?> declaringClass = field.getDeclaringClass();
-		List<Method> relatedMethods = Arrays.stream(declaringClass.getMethods())
-			.filter(isMethodGetterForField(field).or(isMethodSetterForField(field)))
-			.collect(Collectors.toList());
-		return Stream.concat(relatedMethods.stream().flatMap(method -> Arrays.stream(method.getAnnotations())),
-			Arrays.stream(field.getAnnotations()))
-			.collect(Collectors.toList());
-	}
-
-	private static Predicate<Method> isMethodGetterForField(Field field) {
-		return method -> (method.getName().equalsIgnoreCase(field.getName())
-			|| method.getName().equalsIgnoreCase("get" + field.getName())
-			|| method.getName().equalsIgnoreCase("is" + field.getName()))
-			&& method.getReturnType().equals(field.getType())
-			&& method.getParameterCount() == 0;
-	}
-
-	private static Predicate<Method> isMethodSetterForField(Field field) {
-		return method -> (method.getName().equalsIgnoreCase(field.getName())
-			|| method.getName().equalsIgnoreCase("set" + field.getName()))
-			&& method.getReturnType().equals(Void.TYPE)
-			&& method.getParameterCount() == 1
-			&& method.getParameterTypes()[0].equals(field.getType());
-	}
-
 	private void extractConstraints(final BeanDefinition beanPropertyDefinition, final Property property) {
 		List<Annotation> annotations = new ArrayList<>();
 		if(beanPropertyDefinition.hasField()) {
@@ -563,139 +524,5 @@ public class Schema {
 		}
 		return map;
 	}
-
-	/**
-	 * LEGACY PART
-	 * Do not make evolutions on this part : it will be removed in v1
-	 */
-	@Deprecated
-	private void createLegacyRegularSchemaObject(final DataObject dataObject, final TagLibrary tagLibrary,
-		final ClassDocumentation classDocumentation, final Set<String> exploredSignatures) {
-
-		final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(),
-			dataObject.getJavaClass());
-		if(!fields.isEmpty() && !dataObject.isEnum()) {
-
-			for(final Field field : fields) {
-
-				List<Annotation> annotations = getRelevantAnnotationsForField(field);
-
-				if(field.isAnnotationPresent(JsonIgnore.class)) {
-					// Field is tagged ignore. No need to document it.
-					continue;
-				}
-				// Jackson @JsonProperty annotation handling
-				String propertyFieldName = field.getName();
-				final JsonProperty jsonPropertyField = findAnnotationByClass(annotations, JsonProperty.class);
-				if(jsonPropertyField != null && !jsonPropertyField.value().isEmpty()) {
-					propertyFieldName = jsonPropertyField.value();
-				}
-
-				final DataObject wrappedPropertyObject = new DataObject(
-					dataObject.getContextualType(field.getGenericType()), tagLibrary.getContext(), dataObject.getFlow());
-				final DataObject propertyObject = tagLibrary.getOpenApiTypeResolver().unwrapDataObject(
-					wrappedPropertyObject,
-					UnwrappingType.SCHEMA);
-				final Property property = new Property(propertyObject, false, propertyFieldName, exploredSignatures,
-					dataObject, tagLibrary);
-				extractConstraintsLegacy(field, annotations, property);
-				properties.put(property.getName(), property);
-
-				// Javadoc handling
-				if(classDocumentation != null) {
-					final JavadocWrapper javadocWrapper = classDocumentation.getFieldsJavadoc().get(field.getName());
-					if(javadocWrapper != null) {
-						final Optional<String> desc = javadocWrapper.getDescription();
-						property.setDescription(desc.orElse(null));
-
-						final Optional<String> summary = javadocWrapper.getSummary();
-						property.setSummary(summary.orElse(null));
-					}
-				}
-
-				// Swagger handling
-				MergedAnnotations mergedAnnotations = context.getMergeAnnotationsHelper().from(field);
-				final MergedAnnotation schemaAnnotation = mergedAnnotations
-					.get("io.swagger.v3.oas.annotations.media.Schema");
-				if(schemaAnnotation.isPresent()) {
-					String swaggerDescription = schemaAnnotation.getString("description");
-					if(!StringUtils.isEmpty(swaggerDescription)) {
-						property.setDescription(swaggerDescription);
-					}
-
-					String swaggerExample = schemaAnnotation.getString("example");
-					if(!StringUtils.isEmpty(swaggerExample)) {
-						property.setExample(swaggerExample);
-					}
-				}
-			}
-		}
-		if(dataObject.getJavaClass().isInterface()) {
-			final List<Method> methods = Arrays.stream(dataObject.getJavaClass().getMethods())
-				.collect(Collectors.toList());
-			methods.sort(Comparator.comparing(a -> a.getName()));
-			for(final Method method : methods) {
-				final boolean methodStartWithGet = method.getName().startsWith(METHOD_GET_PREFIX)
-					&& method.getName().length() != METHOD_GET_PREFIX_SIZE;
-				if(method.getParameters().length == 0 && method.getGenericReturnType() != null
-					&& (methodStartWithGet || (method.getName().startsWith(METHOD_IS_PREFIX)
-						&& method.getName().length() != METHOD_IS_PREFIX_SIZE))) {
-
-					String name;
-					if(methodStartWithGet) {
-						name = method.getName().replaceFirst("get", "");
-					} else {
-						name = method.getName().replaceFirst("is", "");
-					}
-					context.getLogger().debug(
-						dataObject.getJavaClass().getSimpleName() + " method name : " + method.getName() + " - "
-							+ name);
-					name = name.substring(0, 1).toLowerCase() + name.substring(1);
-
-					final DataObject propertyObject = new DataObject(
-						dataObject.getContextualType(method.getGenericReturnType()),
-						tagLibrary.getContext(), dataObject.getFlow());
-					final Property property = new Property(propertyObject, false, name, exploredSignatures,
-						dataObject, tagLibrary);
-					properties.put(property.getName(), property);
-
-					// Javadoc handling
-					if(classDocumentation != null) {
-						final JavadocWrapper javadocWrapper = classDocumentation.getMethodsJavadocByIdentifier()
-							.get(JavaClassAnalyser.createMethodIdentifier(method));
-						if(javadocWrapper != null) {
-							final Optional<String> desc = javadocWrapper.getDescription();
-							property.setDescription(desc.get());
-
-							final Optional<String> summary = javadocWrapper.getSummary();
-							property.setSummary(summary.orElse(null));
-						}
-					}
-				}
-			}
-		}
-	}
-
-	@Deprecated
-	private void extractConstraintsLegacy(final Field field, List<Annotation> annotations, final Property property) {
-		final Size size = findAnnotationByClass(annotations, Size.class);
-		if(size != null) {
-			property.setMinLength(size.min());
-			if(size.max() != Integer.MAX_VALUE) {
-				property.setMaxLength(size.max());
-			}
-		}
-
-		if(context.getNullableConfiguration().hasNonNullAnnotation(annotations)) {
-			property.setRequired(true);
-		} else if(context.getNullableConfiguration().hasNullableAnnotation(annotations)) {
-			property.setRequired(false);
-		} else {
-			property.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
-		}
-	}
-	/**
-	 * END OF LEGACY PART
-	 */
 
 }

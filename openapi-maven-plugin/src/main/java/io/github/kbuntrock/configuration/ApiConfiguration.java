@@ -88,7 +88,6 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.nonNullableAnnotation = copy.nonNullableAnnotation;
 		merged.nullableAnnotation = copy.nullableAnnotation;
 		merged.nonDocumentableParameterClasses = copy.nonDocumentableParameterClasses;
-		merged.legacySchemaMarshallingRules = copy.legacySchemaMarshallingRules;
 		// End copy properties
 
 		merged.setFilename(filename);
@@ -205,9 +204,6 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		}
 		if(nonDocumentableParameterClasses != null) {
 			merged.setNonDocumentableParameterClasses(nonDocumentableParameterClasses);
-		}
-		if(legacySchemaMarshallingRules != null) {
-			merged.setLegacySchemaMarshallingRules(legacySchemaMarshallingRules);
 		}
 		return merged;
 	}
