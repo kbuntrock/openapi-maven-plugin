@@ -37,7 +37,7 @@ public class AccountJacksonDto {
 
 	/**
 	 * getEmailDomain is a computed property: serialization only (no setter)
-	 * 
+	 *
 	 * @return the email domain part
 	 */
 	public String getEmailDomain() {

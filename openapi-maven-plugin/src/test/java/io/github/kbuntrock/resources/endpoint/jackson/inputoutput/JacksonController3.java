@@ -16,7 +16,7 @@ public interface JacksonController3 {
 
 	/**
 	 * Create an AccountJacksonDto
-	 * 
+	 *
 	 * @param account
 	 *            the account to be created
 	 */

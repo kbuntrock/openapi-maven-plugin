@@ -31,7 +31,7 @@ public interface JacksonController4 {
 
 	/**
 	 * Create something
-	 * 
+	 *
 	 * @param input
 	 *            the input object
 	 */

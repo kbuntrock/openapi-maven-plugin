@@ -16,7 +16,7 @@ public interface JacksonController2 {
 
 	/**
 	 * Create an order
-	 * 
+	 *
 	 * @param dto
 	 *            the order to create
 	 */

@@ -17,7 +17,7 @@ public interface JacksonController1 {
 
 	/**
 	 * Find all orders
-	 * 
+	 *
 	 * @return all the orders
 	 */
 	@RequestMapping(method = RequestMethod.GET)
