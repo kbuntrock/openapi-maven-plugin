@@ -324,14 +324,15 @@ public class TagLibrary {
 			DeserializationConfig deserializationConfig = mapper.getDeserializationConfig();
 			JavaType type = deserializationConfig.constructType(clazz);
 			BeanDescription deserializationDescription = deserializationConfig.introspect(type);
-			return deserializationDescription.findProperties().stream().map(p -> new BeanDefinition(p, null))
+			return deserializationDescription.findProperties().stream()
+				.map(p -> new BeanDefinition(p, null, dataObject.getFlow()))
 				.filter(BeanDefinition::couldDeserialize)
 				.collect(Collectors.toList());
 		} else if(dataObject.getFlow() == Flow.OUTPUT) {
 			SerializationConfig serializationConfig = mapper.getSerializationConfig();
 			JavaType type = serializationConfig.constructType(clazz);
 			BeanDescription serializationDescription = serializationConfig.introspect(type);
-			return serializationDescription.findProperties().stream().map(p -> new BeanDefinition(p, null))
+			return serializationDescription.findProperties().stream().map(p -> new BeanDefinition(p, null, dataObject.getFlow()))
 				.filter(BeanDefinition::couldSerialize)
 				.collect(Collectors.toList());
 		}
@@ -349,10 +350,10 @@ public class TagLibrary {
 
 		List<BeanDefinition> list = new ArrayList<>();
 		for(BeanPropertyDefinition beanDef : serializationDescription.findProperties()) {
-			list.add(new BeanDefinition(beanDef, deserialMap.remove(beanDef.getName())));
+			list.add(new BeanDefinition(beanDef, deserialMap.remove(beanDef.getName()), Flow.INPUT_OUTPUT));
 		}
 		for(BeanPropertyDefinition beanDef : deserialMap.values()) {
-			list.add(new BeanDefinition(beanDef, deserialMap.remove(beanDef.getName())));
+			list.add(new BeanDefinition(beanDef, null, Flow.INPUT_OUTPUT));
 		}
 		return list;
 	}

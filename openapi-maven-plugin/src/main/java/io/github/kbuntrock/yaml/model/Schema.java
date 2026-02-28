@@ -12,6 +12,7 @@ import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.ClassDocumentation.EnhancementType;
 import io.github.kbuntrock.javadoc.JavadocWrapper;
 import io.github.kbuntrock.model.DataObject;
+import io.github.kbuntrock.model.Flow;
 import io.github.kbuntrock.reflection.BeanDefinition;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
@@ -265,7 +266,7 @@ public class Schema {
 						UnwrappingType.SCHEMA);
 					final Property property = new Property(propertyObject, false, child.getName(), exploredSignatures,
 						dataObject, tagLibrary);
-					extractConstraints(child.getBeanDefinition(), property);
+					extractConstraints(dataObject, child.getBeanDefinition(), property);
 					properties.put(property.getName(), property);
 					// Javadoc and swagger annotations handling
 					setPropertyDescription(child.getBeanDefinition(), classDocumentation, property);
@@ -279,7 +280,7 @@ public class Schema {
 					UnwrappingType.SCHEMA);
 				final Property property = new Property(propertyObject, false, child.getName(), exploredSignatures,
 					dataObject, tagLibrary);
-				extractConstraints(child.getBeanDefinition(), property);
+				extractConstraints(dataObject, child.getBeanDefinition(), property);
 				properties.put(property.getName(), property);
 				// Javadoc and swagger annotations handling
 				setPropertyDescription(child.getBeanDefinition(), classDocumentation, property);
@@ -366,16 +367,16 @@ public class Schema {
 		return (T) annotations.stream().filter(a -> a.annotationType().equals(annotationType)).findFirst().orElse(null);
 	}
 
-	private void extractConstraints(final BeanDefinition beanPropertyDefinition, final Property property) {
+	private void extractConstraints(DataObject dataObject, final BeanDefinition beanDefinition, final Property property) {
 		List<Annotation> annotations = new ArrayList<>();
-		if(beanPropertyDefinition.hasField()) {
-			annotations.addAll(Arrays.asList(beanPropertyDefinition.getField().getAnnotated().getAnnotations()));
+		if(beanDefinition.hasField()) {
+			annotations.addAll(Arrays.asList(beanDefinition.getField().getAnnotated().getAnnotations()));
 		}
-		if(beanPropertyDefinition.hasGetter()) {
-			annotations.addAll(Arrays.asList(beanPropertyDefinition.getGetter().getAnnotated().getAnnotations()));
+		if(beanDefinition.hasGetter()) {
+			annotations.addAll(Arrays.asList(beanDefinition.getGetter().getAnnotated().getAnnotations()));
 		}
-		if(beanPropertyDefinition.hasSetter()) {
-			annotations.addAll(Arrays.asList(beanPropertyDefinition.getSetter().getAnnotated().getAnnotations()));
+		if(beanDefinition.hasSetter()) {
+			annotations.addAll(Arrays.asList(beanDefinition.getSetter().getAnnotated().getAnnotations()));
 		}
 
 		final Size size = findAnnotationByClass(annotations, Size.class);
@@ -392,6 +393,14 @@ public class Schema {
 			property.setRequired(false);
 		} else {
 			property.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
+		}
+
+		if(Flow.INPUT_OUTPUT == dataObject.getFlow()) {
+			if(Flow.OUTPUT == beanDefinition.getFlow()) {
+				property.setReadWriteRule(ReadWriteRule.READ_ONLY);
+			} else if(Flow.INPUT == beanDefinition.getFlow()) {
+				property.setReadWriteRule(ReadWriteRule.WRITE_ONLY);
+			}
 		}
 	}
 

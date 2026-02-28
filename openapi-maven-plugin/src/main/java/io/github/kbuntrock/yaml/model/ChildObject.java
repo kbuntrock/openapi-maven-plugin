@@ -27,11 +27,7 @@ public class ChildObject {
 	}
 
 	public void mergeWithFlow(final Flow flow, final BeanDefinition beanDefinition) {
-		if(dataObject.getFlow() == Flow.INPUT_OUTPUT || flow == dataObject.getFlow()) {
-			// The child has already been explored / merged via another branch.
-			return;
-		}
 		dataObject.setFlow(Flow.INPUT_OUTPUT);
-		beanDefinition.merge(beanDefinition);
+		this.beanDefinition.merge(beanDefinition, flow);
 	}
 }

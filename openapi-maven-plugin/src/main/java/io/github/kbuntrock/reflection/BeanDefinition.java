@@ -23,12 +23,12 @@ public class BeanDefinition {
 	private boolean couldDeserialize;
 	private boolean couldSerialize;
 
-	private boolean forInput;
-	private boolean forOutput;
+	private Flow flow;;
 
 	public BeanDefinition(final BeanPropertyDefinition a,
-		final BeanPropertyDefinition b) {
+		final BeanPropertyDefinition b, Flow flow) {
 		name = a.getName();
+		this.flow = flow;
 		if(b == null) {
 			field = a.getField();
 			getter = a.getGetter();
@@ -49,7 +49,7 @@ public class BeanDefinition {
 		}
 	}
 
-	public void merge(final BeanDefinition b) {
+	public void merge(final BeanDefinition b, Flow flow) {
 		field = field != null ? field : b.getField();
 		getter = getter != null ? getter : b.getGetter();
 		setter = setter != null ? setter : b.getSetter();
@@ -57,6 +57,9 @@ public class BeanDefinition {
 		constructorParameterIsPresent = constructorParameterIsPresent || b.hasConstructorParameter();
 		couldSerialize = couldSerialize || b.couldDeserialize();
 		couldDeserialize = couldDeserialize || b.couldDeserialize();
+		if(this.flow != null && this.flow != Flow.INPUT_OUTPUT && this.flow != flow) {
+			this.flow = Flow.INPUT_OUTPUT;
+		}
 	}
 
 	public String getName() {
@@ -110,5 +113,9 @@ public class BeanDefinition {
 			return couldSerialize;
 		}
 		return (couldDeserialize | couldSerialize);
+	}
+
+	public Flow getFlow() {
+		return flow;
 	}
 }

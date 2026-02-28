@@ -53,6 +53,7 @@ components:
           description: "id is Serialization only: returned in JSON, ignored on input"
           type: string
           format: uuid
+          readOnly: true
         email:
           description: email is a regular field (read/write)
           type: string
@@ -60,18 +61,22 @@ components:
           description: Serialization only via JsonProperty access annotation
           type: string
           format: date-time
+          readOnly: true
         emailDomain:
           description: "getEmailDomain is a computed property: serialization only\
             \ (no setter)"
           type: string
+          readOnly: true
         password:
           description: "password is deserialization only: accepted on input, never\
             \ returned"
           type: string
+          writeOnly: true
         registrationToken:
           description: "registrationToken is deserialization only via its setter (e.g.,\
             \ creation token)"
           type: string
+          writeOnly: true
     OrderJacksonDto:
       description: This is a dto representing an order
       type: object

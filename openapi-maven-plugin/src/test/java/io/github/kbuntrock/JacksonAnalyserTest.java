@@ -199,7 +199,8 @@ public class JacksonAnalyserTest extends AbstractTest {
 	}
 
 	/**
-	 * OrderJacksonDto and AccountJacksonDto both in read/write only
+	 * OrderJacksonDto and AccountJacksonDto both in read/write.
+	 * ResumeJacksonDto in input only.
 	 */
 	@Test
 	public void schema_only_for_input_and_output_2() throws MojoExecutionException, MojoFailureException, IOException {
