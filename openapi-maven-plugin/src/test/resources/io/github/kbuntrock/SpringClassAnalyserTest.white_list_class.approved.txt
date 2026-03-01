@@ -90,3 +90,6 @@ components:
         time:
           type: string
           format: time
+        offsetDateTime:
+          type: string
+          format: date-time

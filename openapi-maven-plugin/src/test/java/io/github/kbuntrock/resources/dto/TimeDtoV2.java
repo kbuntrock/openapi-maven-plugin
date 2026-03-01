@@ -1,9 +1,6 @@
 package io.github.kbuntrock.resources.dto;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 
 public class TimeDtoV2 {
 
@@ -11,6 +8,7 @@ public class TimeDtoV2 {
 	LocalDate date;
 	LocalDateTime dateTime;
 	LocalTime time;
+	OffsetDateTime offsetDateTime;
 
 	public Instant getInstant() {
 		return instant;
@@ -42,5 +40,13 @@ public class TimeDtoV2 {
 
 	public void setTime(final LocalTime time) {
 		this.time = time;
+	}
+
+	public OffsetDateTime getOffsetDateTime() {
+		return offsetDateTime;
+	}
+
+	public void setOffsetDateTime(OffsetDateTime offsetDateTime) {
+		this.offsetDateTime = offsetDateTime;
 	}
 }
