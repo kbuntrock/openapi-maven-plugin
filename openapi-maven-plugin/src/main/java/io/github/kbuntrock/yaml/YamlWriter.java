@@ -118,7 +118,8 @@ public class YamlWriter {
 
 		final Specification specification = new Specification();
 		final Info info = new Info(context.getProject().getName(), context.getProject().getVersion(),
-			context.getProject().getDescription(), freefields);
+			context.getProject().getOriginalModel() == null ? null : context.getProject().getOriginalModel().getDescription(),
+			freefields);
 		specification.setInfo(info);
 
 		populateSpecificationFreeFields(specification, freefields);
