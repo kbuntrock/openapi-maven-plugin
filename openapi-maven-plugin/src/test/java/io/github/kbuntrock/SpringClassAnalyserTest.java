@@ -25,6 +25,12 @@ import io.github.kbuntrock.resources.endpoint.issues.Issue138;
 import io.github.kbuntrock.resources.endpoint.issues.Issue246;
 import io.github.kbuntrock.resources.endpoint.issues.Issue247;
 import io.github.kbuntrock.resources.endpoint.issues.Issue262;
+import io.github.kbuntrock.resources.endpoint.issues.issue332.OneParametersOutTwoParametersInNoMerge;
+import io.github.kbuntrock.resources.endpoint.issues.issue332.TwoParametersOutTwoParametersEmptyInWithAllMerged;
+import io.github.kbuntrock.resources.endpoint.issues.issue332.TwoParametersOutTwoParametersEmptyInWithPriority;
+import io.github.kbuntrock.resources.endpoint.issues.issue332.TwoParametersOutTwoParametersInNoMerge;
+import io.github.kbuntrock.resources.endpoint.issues.issue332.TwoParametersOutTwoParametersInWithAllMerged;
+import io.github.kbuntrock.resources.endpoint.issues.issue332.TwoParametersOutTwoParametersInWithMerge;
 import io.github.kbuntrock.resources.endpoint.jackson.JacksonJsonPropertyController;
 import io.github.kbuntrock.resources.endpoint.map.MapController;
 import io.github.kbuntrock.resources.endpoint.multipartformdata.MultipartFormDataController;
@@ -1010,6 +1016,45 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	@Test
 	public void empty_value_query_parameter() throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(EmptyValueParameterController.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void OneParametersOutTwoParametersInNoMerge() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(OneParametersOutTwoParametersInNoMerge.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void TwoParametersOutTwoParametersEmptyInWithAllMerged()
+		throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(
+			TwoParametersOutTwoParametersEmptyInWithAllMerged.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void TwoParametersOutTwoParametersInNoMerge() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(TwoParametersOutTwoParametersInNoMerge.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void TwoParametersOutTwoParametersInWithAllMerged() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(TwoParametersOutTwoParametersInWithAllMerged.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void TwoParametersOutTwoParametersInWithMerge() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(TwoParametersOutTwoParametersInWithMerge.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void TwoParametersOutTwoParametersEmptyInWithPriority()
+		throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(TwoParametersOutTwoParametersEmptyInWithPriority.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 	}
 

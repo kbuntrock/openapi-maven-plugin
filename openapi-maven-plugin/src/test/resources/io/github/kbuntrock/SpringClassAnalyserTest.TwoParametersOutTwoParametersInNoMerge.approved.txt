@@ -1,0 +1,52 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: TwoParametersOutTwoParametersInNoMerge
+paths:
+  /issue332:
+    get:
+      tags:
+        - TwoParametersOutTwoParametersInNoMerge
+      operationId: getAll
+      description: Retrieving all
+      summary: Find all
+      parameters:
+        - name: first
+          description: Description.
+          example: hello
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: second
+          description: Description.
+          example: hi
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: count
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
