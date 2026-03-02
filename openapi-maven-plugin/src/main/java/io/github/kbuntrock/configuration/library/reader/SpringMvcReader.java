@@ -179,7 +179,7 @@ public class SpringMvcReader extends AbstractLibraryReader {
 				final ParameterObject paramObj = parameters.computeIfAbsent(parameter.getName(),
 					(name) -> unwrapParameterObject(
 						new ParameterObject(name, genericityResolver.resolve(clazz, parameter.getParameterizedType()),
-							openApiTypeResolver)));
+							context)));
 
 				boolean annotationFound = false;
 				// Detect if is a header variable
@@ -318,7 +318,7 @@ public class SpringMvcReader extends AbstractLibraryReader {
 						// myParam=myValue
 						String[] array = param.split("=");
 						if(array.length == 2) {
-							ParameterObject po = new ParameterObject(array[0], Object.class, openApiTypeResolver);
+							ParameterObject po = new ParameterObject(array[0], Object.class, context);
 							po.setLocation(ParameterLocation.QUERY);
 							po.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
 							parameters.put(array[0], po);
@@ -326,7 +326,7 @@ public class SpringMvcReader extends AbstractLibraryReader {
 					}
 				} else {
 					// Handles empty value params
-					ParameterObject po = new ParameterObject(param, Object.class, openApiTypeResolver);
+					ParameterObject po = new ParameterObject(param, Object.class, context);
 					po.setAllowEmptyValue(true);
 					po.setLocation(ParameterLocation.QUERY);
 					po.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
@@ -360,7 +360,7 @@ public class SpringMvcReader extends AbstractLibraryReader {
 						// myHeader=myValue
 						String[] array = param.split("=");
 						if(array.length == 2) {
-							ParameterObject po = new ParameterObject(array[0], Object.class, openApiTypeResolver);
+							ParameterObject po = new ParameterObject(array[0], Object.class, context);
 							po.setLocation(ParameterLocation.HEADER);
 							po.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
 							parameters.put(array[0], po);
@@ -368,7 +368,7 @@ public class SpringMvcReader extends AbstractLibraryReader {
 					}
 				} else {
 					// Handles empty value headers
-					ParameterObject po = new ParameterObject(param, Object.class, openApiTypeResolver);
+					ParameterObject po = new ParameterObject(param, Object.class, context);
 					po.setAllowEmptyValue(true);
 					po.setLocation(ParameterLocation.HEADER);
 					po.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
@@ -400,7 +400,7 @@ public class SpringMvcReader extends AbstractLibraryReader {
 		for(final Field field : fields) {
 			final ParameterObject fieldObj = parameters.computeIfAbsent(field.getName(),
 				(name) -> unwrapParameterObject(
-					new ParameterObject(name, paramObj.getContextualType(field.getGenericType()), openApiTypeResolver)));
+					new ParameterObject(name, paramObj.getContextualType(field.getGenericType()), context)));
 			fieldObj.setLocation(ParameterLocation.QUERY);
 			fieldObj.setJavadocFieldClassName(paramObj.getJavaClass().getCanonicalName());
 			// Class "requirement" has precedence on any annotation (we can't force an optional to be required ...)

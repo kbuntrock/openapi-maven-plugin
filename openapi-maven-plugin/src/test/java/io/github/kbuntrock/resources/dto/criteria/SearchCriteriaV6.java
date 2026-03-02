@@ -10,4 +10,8 @@ public class SearchCriteriaV6 extends BaseSearchCriteria<SearchCriteriaV6> {
 	protected SearchCriteriaV6() {
 		super(SearchCriteriaV6.class);
 	}
+
+	public boolean isSomeBoolean() {
+		return someBoolean;
+	}
 }

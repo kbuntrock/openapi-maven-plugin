@@ -2,9 +2,10 @@ package io.github.kbuntrock.configuration;
 
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
+import org.apache.maven.plugins.annotations.Parameter;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * @author Kevin Buntrock

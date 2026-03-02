@@ -1,6 +1,7 @@
 package io.github.kbuntrock.model;
 
 import com.google.common.reflect.TypeToken;
+import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.reflection.GenericArrayTypeImpl;
 import io.github.kbuntrock.reflection.ParameterizedTypeImpl;
 import io.github.kbuntrock.reflection.ReflectionsUtils;
@@ -8,7 +9,7 @@ import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
 import io.github.kbuntrock.utils.OpenApiDataType;
 import io.github.kbuntrock.utils.OpenApiResolvedType;
-import io.github.kbuntrock.utils.OpenApiTypeResolver;
+import io.github.kbuntrock.yaml.model.ChildObject;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -88,6 +89,10 @@ public class DataObject {
 	 */
 	private Boolean classRequired;
 
+	private Flow flow;
+
+	private List<ChildObject> childObjects;
+
 	/**
 	 * Shallow copy for parameter/response object creation. Copies type identity and resolution data.
 	 *
@@ -105,6 +110,7 @@ public class DataObject {
 		this.genericNameToTypeMap = dataObject.genericNameToTypeMap;
 		this.schemaReferenceName = dataObject.schemaReferenceName;
 		this.classRequired = dataObject.classRequired;
+		this.flow = dataObject.flow;
 	}
 
 	/**
@@ -113,12 +119,13 @@ public class DataObject {
 	 *
 	 * @param originalType
 	 *            input Java type (class, parameterized, generic array, wildcard, etc.)
-	 * @param openApiTypeResolver
-	 *            resolver used to compute {@link OpenApiResolvedType}
+	 * @param apiContext
+	 *            the api context (openApiTypeResolver, object mapper, ...)
 	 */
-	public DataObject(final Type originalType, final OpenApiTypeResolver openApiTypeResolver) {
-		Type type = originalType;
+	public DataObject(final Type originalType, final ApiContext apiContext, final Flow flow) {
+		this.flow = flow;
 
+		Type type = originalType;
 		try {
 			if(type instanceof WildcardType) {
 				// This block is in charge of handling the "? extends XX" syntax
@@ -135,7 +142,7 @@ public class DataObject {
 				this.genericallyTyped = true;
 				final ParameterizedType pt = (ParameterizedType) type;
 				javaClass = Class.forName(ReflectionsUtils.getClassNameFromType(pt.getRawType()),
-					true, openApiTypeResolver.getContext().getClassLoader());
+					true, apiContext.getClassLoader());
 				genericNameToTypeMap = new HashMap<>();
 				for(int i = 0; i < pt.getActualTypeArguments().length; i++) {
 					this.genericNameToTypeMap.put(javaClass.getTypeParameters()[i].getTypeName(),
@@ -143,9 +150,9 @@ public class DataObject {
 				}
 
 				if(Map.class.isAssignableFrom(javaClass)) {
-					computeMapTypes(openApiTypeResolver);
+					computeMapTypes(apiContext);
 				} else if(Collection.class.isAssignableFrom(javaClass)) {
-					computeCollectionType(openApiTypeResolver);
+					computeCollectionType(apiContext);
 				}
 
 			} else if(type instanceof GenericArrayType) {
@@ -158,38 +165,38 @@ public class DataObject {
 					genericNameToTypeMap = new HashMap<>();
 					final ParameterizedType gpt = (ParameterizedType) gat.getGenericComponentType();
 					javaClass = Class.forName("[L" + ReflectionsUtils.getClassNameFromType(gpt.getRawType()) + ";",
-						true, openApiTypeResolver.getContext().getClassLoader());
+						true, apiContext.getClassLoader());
 					final Class<?> rawJavaClass = Class.forName(ReflectionsUtils.getClassNameFromType(gpt.getRawType()),
-						true, openApiTypeResolver.getContext().getClassLoader());
+						true, apiContext.getClassLoader());
 					for(int i = 0; i < gpt.getActualTypeArguments().length; i++) {
 						this.genericNameToTypeMap.put(rawJavaClass.getTypeParameters()[i].getTypeName(),
 							gpt.getActualTypeArguments()[i]);
 					}
-					this.arrayItemDataObject = new DataObject(gpt, openApiTypeResolver);
+					this.arrayItemDataObject = new DataObject(gpt, apiContext, this.flow);
 				} else if(gat.getGenericComponentType() instanceof Class<?>) {
 					final Class<?> clazz = (Class<?>) gat.getGenericComponentType();
 					javaClass = Class.forName("[L" + ReflectionsUtils.getClassNameFromType(clazz) + ";",
-						true, openApiTypeResolver.getContext().getClassLoader());
-					this.arrayItemDataObject = new DataObject(clazz, openApiTypeResolver);
+						true, apiContext.getClassLoader());
+					this.arrayItemDataObject = new DataObject(clazz, apiContext, this.flow);
 				} else {
 					javaClass = Object.class;
 				}
 			} else if(type instanceof Class) {
 				javaClass = (Class<?>) type;
 				if(Map.class.isAssignableFrom((Class<?>) type)) {
-					computeMapTypes(openApiTypeResolver);
+					computeMapTypes(apiContext);
 				} else if(Collection.class.isAssignableFrom((Class<?>) type)) {
-					computeCollectionType(openApiTypeResolver);
+					computeCollectionType(apiContext);
 				}
 			} else {
 				javaClass = Object.class;
 			}
 
-			this.openApiResolvedType = openApiTypeResolver.resolveFromJavaClass(javaClass);
+			this.openApiResolvedType = apiContext.getOpenApiTypeResolver().resolveFromJavaClass(javaClass);
 			if(javaClass.isEnum()) {
-				computeEnum(openApiTypeResolver);
+				computeEnum(apiContext);
 			} else if(javaClass.isArray() && !genericallyTyped && javaClass != byte[].class) {
-				arrayItemDataObject = new DataObject(javaClass.getComponentType(), openApiTypeResolver);
+				arrayItemDataObject = new DataObject(javaClass.getComponentType(), apiContext, this.flow);
 			}
 
 			if(Set.class.isAssignableFrom(javaClass)) {
@@ -202,7 +209,7 @@ public class DataObject {
 
 	}
 
-	private void computeEnum(final OpenApiTypeResolver openApiTypeResolver) {
+	private void computeEnum(final ApiContext apiContext) {
 
 		this.enumItemValues = new ArrayList<>();
 		List<String> elementWithAnnotation = new ArrayList<>();
@@ -210,7 +217,7 @@ public class DataObject {
 		// Prefer an enum "as-value" representation declared via a no-arg method annotated with @JsonValue.
 		for(final Method method : javaClass.getMethods()) {
 			if(method.getParameters().length == 0) {
-				final MergedAnnotations mergedAnnotations = openApiTypeResolver.getContext().getMergeAnnotationsHelper()
+				final MergedAnnotations mergedAnnotations = apiContext.getMergeAnnotationsHelper()
 					.from(method);
 				MergedAnnotation jsonAsValue = mergedAnnotations.get(JACKSON_ANNOTATION_JSON_VALUE);
 				if(jsonAsValue.isPresent()) {
@@ -219,7 +226,7 @@ public class DataObject {
 			}
 		}
 		if(elementWithAnnotation.size() > 1) {
-			openApiTypeResolver.getContext().getLogger().warn("Problem with definition of [" + javaClass.getCanonicalName()
+			apiContext.getLogger().warn("Problem with definition of [" + javaClass.getCanonicalName()
 				+ "]: Multiple 'as-value' methods defined ["
 				+ elementWithAnnotation.stream().sorted().collect(Collectors.joining(",")) + "]");
 		} else if(elementWithAnnotation.size() == 1) {
@@ -227,7 +234,8 @@ public class DataObject {
 				this.enumItemNames = new ArrayList<>();
 				final Method method = javaClass.getMethod(elementWithAnnotation.get(0));
 				ReflectionsUtils.makeAccessible(method);
-				this.openApiResolvedType = openApiTypeResolver.resolveFromJavaClass(method.getReturnType(), false);
+				this.openApiResolvedType = apiContext.getOpenApiTypeResolver().resolveFromJavaClass(method.getReturnType(),
+					false);
 				for(final Object value : javaClass.getEnumConstants()) {
 					this.enumItemNames.add(((Enum) value).name());
 					this.enumItemValues.add(method.invoke(value).toString());
@@ -235,21 +243,21 @@ public class DataObject {
 				// Method has precedence over fields, we return here
 				return;
 			} catch(NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-				openApiTypeResolver.getContext().getLogger().error("Error while representing enumeration "
+				apiContext.getLogger().error("Error while representing enumeration "
 					+ javaClass.getCanonicalName() + "#" + elementWithAnnotation.get(0) + "()", e);
 			}
 		}
 
 		// If no method-level @JsonValue is found, check fields with @JsonValue.
 		for(final Field field : javaClass.getDeclaredFields()) {
-			final MergedAnnotations mergedAnnotations = openApiTypeResolver.getContext().getMergeAnnotationsHelper().from(field);
+			final MergedAnnotations mergedAnnotations = apiContext.getMergeAnnotationsHelper().from(field);
 			MergedAnnotation jsonAsValue = mergedAnnotations.get(JACKSON_ANNOTATION_JSON_VALUE);
 			if(jsonAsValue.isPresent()) {
 				elementWithAnnotation.add(field.getName());
 			}
 		}
 		if(elementWithAnnotation.size() > 1) {
-			openApiTypeResolver.getContext().getLogger().warn("Problem with definition of [" + javaClass.getCanonicalName()
+			apiContext.getLogger().warn("Problem with definition of [" + javaClass.getCanonicalName()
 				+ "]: Multiple 'as-value' fields defined ["
 				+ elementWithAnnotation.stream().sorted().collect(Collectors.joining(",")) + "]");
 		} else if(elementWithAnnotation.size() == 1) {
@@ -257,14 +265,14 @@ public class DataObject {
 				this.enumItemNames = new ArrayList<>();
 				final Field field = javaClass.getDeclaredField(elementWithAnnotation.get(0));
 				ReflectionsUtils.makeAccessible(field);
-				this.openApiResolvedType = openApiTypeResolver.resolveFromJavaClass(field.getType(), false);
+				this.openApiResolvedType = apiContext.getOpenApiTypeResolver().resolveFromJavaClass(field.getType(), false);
 				for(final Object value : javaClass.getEnumConstants()) {
 					this.enumItemNames.add(((Enum) value).name());
 					this.enumItemValues.add(field.get(value).toString());
 				}
 				return;
 			} catch(NoSuchFieldException | IllegalAccessException e) {
-				openApiTypeResolver.getContext().getLogger().error(
+				apiContext.getLogger().error(
 					"Error while representing enumeration " + javaClass.getCanonicalName() + "#" + elementWithAnnotation.get(0),
 					e);
 			}
@@ -277,21 +285,21 @@ public class DataObject {
 
 	}
 
-	private void computeMapTypes(final OpenApiTypeResolver openApiTypeResolver) {
+	private void computeMapTypes(final ApiContext apiContext) {
 		// Use Guava TypeToken to recover generic type arguments erased at runtime for Map.
 		TypeToken token = TypeToken.of(javaType);
 		TypeToken<Map> superType = token.getSupertype(Map.class);
 		Type[] resolvedArguments = ((ParameterizedType) superType.getType()).getActualTypeArguments();
-		mapKeyValueDataObjects[0] = new DataObject(resolvedArguments[0], openApiTypeResolver);
-		mapKeyValueDataObjects[1] = new DataObject(resolvedArguments[1], openApiTypeResolver);
+		mapKeyValueDataObjects[0] = new DataObject(resolvedArguments[0], apiContext, this.flow);
+		mapKeyValueDataObjects[1] = new DataObject(resolvedArguments[1], apiContext, this.flow);
 	}
 
-	private void computeCollectionType(final OpenApiTypeResolver openApiTypeResolver) {
+	private void computeCollectionType(final ApiContext apiContext) {
 		// Use Guava TypeToken to recover the element type erased at runtime for Collection.
 		TypeToken token = TypeToken.of(javaType);
 		TypeToken<Map> superType = token.getSupertype(Collection.class);
 		Type[] resolvedArguments = ((ParameterizedType) superType.getType()).getActualTypeArguments();
-		arrayItemDataObject = new DataObject(resolvedArguments[0], openApiTypeResolver);
+		arrayItemDataObject = new DataObject(resolvedArguments[0], apiContext, this.flow);
 	}
 
 	/**
@@ -495,12 +503,28 @@ public class DataObject {
 		this.schemaReferenceName = schemaReferenceName;
 	}
 
+	public Flow getFlow() {
+		return flow;
+	}
+
+	public void setFlow(Flow flow) {
+		this.flow = flow;
+	}
+
+	public List<ChildObject> getChildObjects() {
+		return childObjects;
+	}
+
+	public void setChildObjects(List<ChildObject> childObjects) {
+		this.childObjects = childObjects;
+	}
+
 	@Override
 	public boolean equals(final Object o) {
 		if(this == o) {
 			return true;
 		}
-		if(o == null || getClass() != o.getClass()) {
+		if(o == null || !(DataObject.class.isAssignableFrom(o.getClass()))) {
 			return false;
 		}
 		final DataObject that = (DataObject) o;

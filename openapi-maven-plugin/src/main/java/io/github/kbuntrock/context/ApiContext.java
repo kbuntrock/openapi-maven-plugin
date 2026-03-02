@@ -1,5 +1,6 @@
 package io.github.kbuntrock.context;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.NullableConfiguration;
 import io.github.kbuntrock.configuration.library.Library;
@@ -20,12 +21,20 @@ public final class ApiContext {
 	private ApiConfiguration apiConfiguration;
 	private NullableConfiguration nullableConfiguration;
 	private OpenApiTypeResolver openApiTypeResolver;
+	private final ObjectMapper schemaObjectMapper;
 
 	private MergeAnnotationsHelper mergeAnnotationsHelper;
 
 	public ApiContext(final ProjectContext projectContext, final AdditionalSchemaLibrary additionalSchemaLibrary) {
 		this.projectContext = projectContext;
 		this.additionalSchemaLibrary = additionalSchemaLibrary;
+
+		// Set the mapper in the API context so it can be configured in the future
+		// See :
+		// schemaObjectMapper.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+		// schemaObjectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+		// schemaObjectMapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.PUBLIC_ONLY);
+		this.schemaObjectMapper = new ObjectMapper();
 	}
 
 	public Log getLogger() {
@@ -80,5 +89,9 @@ public final class ApiContext {
 
 	public MergeAnnotationsHelper getMergeAnnotationsHelper() {
 		return mergeAnnotationsHelper;
+	}
+
+	public ObjectMapper getSchemaObjectMapper() {
+		return schemaObjectMapper;
 	}
 }

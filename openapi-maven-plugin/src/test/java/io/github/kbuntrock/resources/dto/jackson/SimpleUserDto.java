@@ -1,10 +1,12 @@
 package io.github.kbuntrock.resources.dto.jackson;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
  * A simple user
  */
+@JsonPropertyOrder({ "username", "isActive", "admin" })
 public class SimpleUserDto {
 
 	/**
@@ -23,4 +25,8 @@ public class SimpleUserDto {
 	 */
 	@JsonProperty
 	private boolean admin;
+
+	public String getUsername() {
+		return username;
+	}
 }

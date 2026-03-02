@@ -13,6 +13,6 @@ public interface BaseRequestDtoInterface<T extends BaseRequestItemInterface> {
 	/**
 	 * The price request items
 	 */
-	List<T> getPriceRequestItems();
+	void setPriceRequestItems(List<T> list);
 
 }

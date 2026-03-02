@@ -343,11 +343,11 @@ public class OpenApiTypeResolver {
 
 				if(dataObject.getGenericNameToTypeMap() == null) {
 					// Generic object, but no parametrized data
-					return new DataObject(Object.class, this);
+					return new DataObject(Object.class, context, dataObject.getFlow());
 				}
 
 				final DataObject unwrapped = new DataObject(
-					dataObject.getGenericNameToTypeMap().get(entry.getValue().getTypeName()), this);
+					dataObject.getGenericNameToTypeMap().get(entry.getValue().getTypeName()), context, dataObject.getFlow());
 
 				// Intrinsic class requirement (ex: Optional) is carried from multiple unwrapping
 				if(dataObject.getClassRequired() != null) {
@@ -464,9 +464,5 @@ public class OpenApiTypeResolver {
 			}
 		}
 		return true;
-	}
-
-	public ApiContext getContext() {
-		return context;
 	}
 }

@@ -1,5 +1,7 @@
 package io.github.kbuntrock.resources.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * This is a parent interface
  *
@@ -12,5 +14,6 @@ public interface ParentInterfaceDto {
 	 *
 	 * @return the parent id
 	 */
+	@JsonProperty(index = 4)
 	int getParentId();
 }

@@ -9,4 +9,8 @@ public class Single<A> {
 	 * the a attribute
 	 */
 	private A a;
+
+	public A getA() {
+		return a;
+	}
 }

@@ -1,10 +1,11 @@
 package io.github.kbuntrock.resources.dto.genericity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.io.Serializable;
-import java.util.Date;
+
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @author Kévin Buntrock
@@ -22,4 +23,15 @@ public abstract class EntityDto implements Serializable, Cloneable {
 	@Size(min = 14, max = 15)
 	private String uuid;
 
+	public Date getCreationDate() {
+		return creationDate;
+	}
+
+	public Date getChangeDate() {
+		return changeDate;
+	}
+
+	public String getUuid() {
+		return uuid;
+	}
 }

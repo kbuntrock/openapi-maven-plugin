@@ -1,5 +1,7 @@
 package io.github.kbuntrock.resources.dto.recursive;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 /**
@@ -7,9 +9,12 @@ import java.util.List;
  */
 public interface GenericInterfaceRecursiveListDto<E> {
 
-	String getName();
+	@JsonProperty(index = 2)
+	void setName(String s);
 
-	E getWrapped();
+	@JsonProperty(index = 3)
+	void setWrapped(E dto);
 
-	List<GenericInterfaceRecursiveListDto<E>> getChildList();
+	@JsonProperty(index = 1)
+	void setChildList(List<GenericInterfaceRecursiveListDto<E>> something);
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.github.kbuntrock.TagLibrary;
 import io.github.kbuntrock.model.DataObject;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -21,6 +22,8 @@ public class Property extends Schema {
 	private boolean required;
 	@JsonIgnore
 	private String example;
+	@JsonIgnore
+	private ReadWriteRule readWriteRule;
 
 	@JsonIgnore
 	private DataObject parentDataObject;
@@ -83,6 +86,12 @@ public class Property extends Schema {
 	public Map<String, Object> getJsonObject() {
 
 		final Map<String, Object> map = super.getJsonObject();
+		if(ReadWriteRule.READ_ONLY == readWriteRule) {
+			map.put("readOnly", true);
+		}
+		if(ReadWriteRule.WRITE_ONLY == readWriteRule) {
+			map.put("writeOnly", true);
+		}
 		if(minLength != null) {
 			map.put("minLength", minLength);
 		}
@@ -102,5 +111,13 @@ public class Property extends Schema {
 
 	public void setExample(String example) {
 		this.example = example;
+	}
+
+	public ReadWriteRule getReadWriteRule() {
+		return readWriteRule;
+	}
+
+	public void setReadWriteRule(ReadWriteRule readWriteRule) {
+		this.readWriteRule = readWriteRule;
 	}
 }

@@ -10,4 +10,8 @@ public class SearchCriteriaV4 extends BaseSearchCriteria<SearchCriteriaV5> {
 	protected SearchCriteriaV4(final Class<SearchCriteriaV5> searchCriteriaV5Class) {
 		super(searchCriteriaV5Class);
 	}
+
+	public String getToto() {
+		return toto;
+	}
 }
