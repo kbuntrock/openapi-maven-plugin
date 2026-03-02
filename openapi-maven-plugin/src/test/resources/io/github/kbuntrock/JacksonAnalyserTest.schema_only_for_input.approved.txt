@@ -31,10 +31,10 @@ components:
       description: This is a dto representing an order
       type: object
       properties:
-        customerEmail:
-          description: customerEmail is a regular field (read/write)
-          type: string
         paymentToken:
           description: "paymentToken is a deserialization only: accepted on input,\
             \ never emitted"
+          type: string
+        customerEmail:
+          description: customerEmail is a regular field (read/write)
           type: string

@@ -16,7 +16,8 @@ public class OrderJacksonDto {
 	/**
 	 * customerEmail is a regular field (read/write)
 	 */
-	private String customerEmail;
+	@JsonProperty("customerEmail")
+	private String customer;
 
 	/**
 	 * paymentToken is a deserialization only: accepted on input, never emitted
@@ -32,12 +33,12 @@ public class OrderJacksonDto {
 		this.account = account;
 	}
 
-	public String getCustomerEmail() {
-		return customerEmail;
+	public String getCustomer() {
+		return customer;
 	}
 
-	public void setCustomerEmail(String customerEmail) {
-		this.customerEmail = customerEmail;
+	public void setCustomer(String customer) {
+		this.customer = customer;
 	}
 
 	public String getPaymentToken() {
