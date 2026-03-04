@@ -581,6 +581,13 @@ components:
 
 Valeur à utiliser pour l’extension des descriptions d’énumération.
 
+### useProjectDescription
+
+- Type : `boolean`
+- Valeur par défaut : `false`
+
+Utilise la description du projet maven en tant que description de la doc OpenAPI. La description est héritée des parents si non définie localement.
+
 ## javadocConfiguration
 
 - Type: `balise de section`

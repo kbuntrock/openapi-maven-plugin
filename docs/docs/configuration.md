@@ -581,6 +581,13 @@ components:
 
 Value to use for the enumeration description extension.
 
+### useProjectDescription
+
+- Type : `boolean`
+- Default value: `false`
+
+Use the maven project description as the OpenAPI doc description. The description is inherited from parent pom.xml if not locally defined.
+
 ## javadocConfiguration
 
 - Type: `section`

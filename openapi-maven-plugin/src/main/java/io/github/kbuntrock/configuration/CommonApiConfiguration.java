@@ -148,6 +148,12 @@ public class CommonApiConfiguration {
 	@Parameter
 	protected List<String> nonDocumentableParameterClasses = new ArrayList<>();
 
+	/**
+	 * If true, inject the pom.xml description (potentially inherited from parents) in the openAPi documentation.
+	 */
+	@Parameter
+	protected Boolean useProjectDescription;
+
 	public CommonApiConfiguration() {
 	}
 
@@ -180,6 +186,7 @@ public class CommonApiConfiguration {
 		this.defaultNonNullableFields = commonApiConfiguration.defaultNonNullableFields;
 		this.nonNullableAnnotation = commonApiConfiguration.nonNullableAnnotation;
 		this.nullableAnnotation = commonApiConfiguration.nullableAnnotation;
+		this.useProjectDescription = commonApiConfiguration.useProjectDescription;
 		for(final String tagAnnotation : commonApiConfiguration.tagAnnotations) {
 			this.tagAnnotations.add(tagAnnotation);
 		}
@@ -202,9 +209,7 @@ public class CommonApiConfiguration {
 		if(!commonApiConfiguration.extraSchemaClasses.isEmpty()) {
 			this.extraSchemaClasses.addAll(commonApiConfiguration.extraSchemaClasses);
 		}
-		for(final String nonDocumentableParameterClass : commonApiConfiguration.nonDocumentableParameterClasses) {
-			this.nonDocumentableParameterClasses.add(nonDocumentableParameterClass);
-		}
+		this.nonDocumentableParameterClasses.addAll(commonApiConfiguration.nonDocumentableParameterClasses);
 	}
 
 	public void initDefaultValues() {
@@ -255,6 +260,9 @@ public class CommonApiConfiguration {
 		}
 		if(attachArtifact == null) {
 			attachArtifact = true;
+		}
+		if(useProjectDescription == null) {
+			useProjectDescription = false;
 		}
 	}
 
@@ -496,5 +504,13 @@ public class CommonApiConfiguration {
 
 	public void setNonDocumentableParameterClasses(final List<String> nonDocumentableParameterClasses) {
 		this.nonDocumentableParameterClasses = nonDocumentableParameterClasses;
+	}
+
+	public Boolean getUseProjectDescription() {
+		return useProjectDescription;
+	}
+
+	public void setUseProjectDescription(Boolean useProjectDescription) {
+		this.useProjectDescription = useProjectDescription;
 	}
 }
