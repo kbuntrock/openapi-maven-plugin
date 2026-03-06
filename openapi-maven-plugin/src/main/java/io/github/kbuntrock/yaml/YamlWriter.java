@@ -140,6 +140,10 @@ public class YamlWriter {
 			schemaSectionCreated = true;
 		}
 
+		if(!tagLibrary.getSecuritySchemes().isEmpty()) {
+			specification.getComponents().put("securitySchemes", tagLibrary.getSecuritySchemes());
+		}
+
 		if(freefields.isPresent() && freefields.get().get("components") != null) {
 
 			final JsonNode componentsNode = freefields.get().get("components");
@@ -266,6 +270,12 @@ public class YamlWriter {
 					if(methodJavadoc != null) {
 						operation.setSummary(methodJavadoc.getSummary().orElse(null));
 					}
+				}
+
+				if(!endpoint.getSecurityRequirements().isEmpty()) {
+					operation.setSecurity(new ArrayList<>(endpoint.getSecurityRequirements()));
+				} else if(!tag.getSecurityRequirements().isEmpty()) {
+					operation.setSecurity(new ArrayList<>(tag.getSecurityRequirements()));
 				}
 
 				// Warning on paths

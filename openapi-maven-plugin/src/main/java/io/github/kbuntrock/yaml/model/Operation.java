@@ -3,6 +3,7 @@ package io.github.kbuntrock.yaml.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,6 +36,9 @@ public class Operation {
 	private final List<ParameterElement> parameters = new ArrayList<>();
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private RequestBody requestBody;
+
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	private List<SecurityRequirement> security;
 
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private final Map<Object, Object> responses = new LinkedHashMap<>();
@@ -117,5 +121,13 @@ public class Operation {
 
 	public void setLoopbackOperationName(final String loopbackOperationName) {
 		this.loopbackOperationName = loopbackOperationName;
+	}
+
+	public List<SecurityRequirement> getSecurity() {
+		return security;
+	}
+
+	public void setSecurity(List<SecurityRequirement> security) {
+		this.security = security;
 	}
 }

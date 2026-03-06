@@ -6,10 +6,13 @@ import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.CommonApiConfiguration;
 import io.github.kbuntrock.configuration.library.reader.AbstractLibraryReader;
 import io.github.kbuntrock.context.ApiContext;
+import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
+import io.github.kbuntrock.yaml.model.SecurityRequirement;
+import io.github.kbuntrock.yaml.model.SecurityScheme;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.plugin.MojoFailureException;
@@ -17,6 +20,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
@@ -146,6 +150,9 @@ public class JavaClassAnalyser {
 			}
 		}
 
+		readSecuritySchemes(mergedAnnotations, tag.getSecuritySchemes());
+		readSecurityRequirements(mergedAnnotations, tag.getSecurityRequirements());
+
 		// Base paths come from the library reader (framework-specific resolution).
 		final List<String> basePaths = libraryReader.readBasePaths(clazz, mergedAnnotations);
 
@@ -186,6 +193,21 @@ public class JavaClassAnalyser {
 			if(validateWhiteList(clazz, method) && validateBlackList(clazz, method)) {
 				final MergedAnnotations mergedAnnotations = context.getMergeAnnotationsHelper().from(method);
 				libraryReader.computeAnnotations(clazz, basePath, method, mergedAnnotations, tag);
+
+				// Compute security requirements at endpoint level
+				if(!tag.getEndpoints().isEmpty()) {
+					// Assuming the library reader added newly created endpoints to the tag.
+					// We find the ones that match this method's identifier. Since the reader might
+					// add multiple endpoints per method (e.g. if requestMethods array has >1 method),
+					// we iterate over the tag's endpoints to find those created from this method.
+					final String methodIdentifier = JavaClassAnalyser.createMethodIdentifier(method);
+					List<Endpoint> endpointsForMethod = tag.getEndpoints().stream()
+						.filter(e -> methodIdentifier.equals(e.getIdentifier()))
+						.collect(Collectors.toList());
+					for(Endpoint endpoint : endpointsForMethod) {
+						readSecurityRequirements(mergedAnnotations, endpoint.getSecurityRequirements());
+					}
+				}
 			}
 		}
 	}
@@ -228,6 +250,83 @@ public class JavaClassAnalyser {
 			}
 		}
 		return true;
+	}
+
+	private void readSecuritySchemes(MergedAnnotations mergedAnnotations, Set<SecurityScheme> securitySchemes) {
+		MergedAnnotation schemeAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.security.SecurityScheme");
+		if(schemeAnnotation.isPresent()) {
+			securitySchemes.add(createSecurityScheme(schemeAnnotation));
+		}
+		MergedAnnotation schemesAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.security.SecuritySchemes");
+		if(schemesAnnotation.isPresent()) {
+			for(MergedAnnotation req : schemesAnnotation.getAnnotationArray("value")) {
+				securitySchemes.add(createSecurityScheme(req));
+			}
+		}
+	}
+
+	private SecurityScheme createSecurityScheme(MergedAnnotation mergedAnnotation) {
+		SecurityScheme scheme = new SecurityScheme();
+		Optional<Object> typeOpt = mergedAnnotation.getValue("type");
+		if(typeOpt.isPresent()) {
+			// type is an enum, so we use its toString() method
+			scheme.setType(typeOpt.get().toString());
+		}
+		Optional<Object> inOpt = mergedAnnotation.getValue("in");
+		if(inOpt.isPresent()) {
+			// in is an enum, so we use its toString() method
+			// only set it if it's not the DEFAULT or empty enum value
+			String inStr = inOpt.get().toString();
+			if(!StringUtils.isEmpty(inStr) && !"DEFAULT".equals(inStr)) {
+				scheme.setIn(inStr);
+			}
+		}
+
+		String name = mergedAnnotation.getString("name");
+		if(!StringUtils.isEmpty(name)) {
+			scheme.setName(name);
+		}
+		String description = mergedAnnotation.getString("description");
+		if(!StringUtils.isEmpty(description)) {
+			scheme.setDescription(description);
+		}
+		String schemeStr = mergedAnnotation.getString("scheme");
+		if(!StringUtils.isEmpty(schemeStr)) {
+			scheme.setScheme(schemeStr);
+		}
+		String bearerFormat = mergedAnnotation.getString("bearerFormat");
+		if(!StringUtils.isEmpty(bearerFormat)) {
+			scheme.setBearerFormat(bearerFormat);
+		}
+		String openIdConnectUrl = mergedAnnotation.getString("openIdConnectUrl");
+		if(!StringUtils.isEmpty(openIdConnectUrl)) {
+			scheme.setOpenIdConnectUrl(openIdConnectUrl);
+		}
+		return scheme;
+	}
+
+	private void readSecurityRequirements(MergedAnnotations mergedAnnotations, List<SecurityRequirement> securityRequirements) {
+		MergedAnnotation requirementAnnotation = mergedAnnotations
+			.get("io.swagger.v3.oas.annotations.security.SecurityRequirement");
+		if(requirementAnnotation.isPresent()) {
+			securityRequirements.add(createSecurityRequirement(requirementAnnotation));
+		}
+		MergedAnnotation requirementsAnnotation = mergedAnnotations
+			.get("io.swagger.v3.oas.annotations.security.SecurityRequirements");
+		if(requirementsAnnotation.isPresent()) {
+			for(MergedAnnotation req : requirementsAnnotation.getAnnotationArray("value")) {
+				securityRequirements.add(createSecurityRequirement(req));
+			}
+		}
+	}
+
+	private SecurityRequirement createSecurityRequirement(MergedAnnotation mergedAnnotation) {
+		SecurityRequirement requirement = new SecurityRequirement();
+		String name = mergedAnnotation.getString("name");
+		String[] scopesArr = mergedAnnotation.getStringArray("scopes");
+		List<String> scopes = scopesArr != null ? Arrays.asList(scopesArr) : new ArrayList<>();
+		requirement.addRequirement(name, scopes);
+		return requirement;
 	}
 
 }

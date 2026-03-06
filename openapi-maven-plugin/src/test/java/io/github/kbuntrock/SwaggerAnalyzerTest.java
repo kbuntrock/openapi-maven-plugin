@@ -13,6 +13,7 @@ import io.github.kbuntrock.resources.endpoint.issues.issue332.TwoParametersOutTw
 import io.github.kbuntrock.resources.endpoint.swagger.ApiResponseResource;
 import io.github.kbuntrock.resources.endpoint.swagger.EntityAnnotationResource;
 import io.github.kbuntrock.resources.endpoint.swagger.EntityAnnotationWithParametersResource;
+import io.github.kbuntrock.resources.endpoint.swagger.SecurityAnnotationResource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
@@ -42,7 +43,8 @@ public class SwaggerAnalyzerTest extends AbstractTest {
 		apiConfiguration.setOperationId("{method_name}");
 		apiConfiguration.setLoopbackOperationName(false);
 		apiConfiguration
-			.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
+				.setTagAnnotations(
+						Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
 		mojo.setTestMode(true);
 		mojo.setApis(Collections.singletonList(apiConfiguration));
 		mojo.setProject(createBasicMavenProject());
@@ -71,106 +73,134 @@ public class SwaggerAnalyzerTest extends AbstractTest {
 	}
 
 	@Test
-	public void jakartaBasicApiResponseWithReturnObjects() throws MojoFailureException, IOException, MojoExecutionException {
+	public void jakartaBasicApiResponseWithReturnObjects()
+			throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicJakartaMojo(ApiResponseResource.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
-	public void basicAnnotatedResponseWithReturnObjects() throws MojoFailureException, IOException, MojoExecutionException {
+	public void basicAnnotatedResponseWithReturnObjects()
+			throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(EntityAnnotationResource.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
 	public void jakartaBasicAnnotatedResponseWithReturnObjects()
-		throws MojoFailureException, IOException, MojoExecutionException {
+			throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicJakartaMojo(EntityAnnotationResource.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
-	public void basicAnnotatedParametersWithReturnObjects() throws MojoFailureException, IOException, MojoExecutionException {
+	public void basicAnnotatedParametersWithReturnObjects()
+			throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(EntityAnnotationWithParametersResource.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
 	public void jakartaBasicAnnotatedParametersWithReturnObjects()
-		throws MojoFailureException, IOException, MojoExecutionException {
-		final DocumentationMojo mojo = createBasicJakartaMojo(EntityAnnotationWithParametersResource.class.getCanonicalName());
+			throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicJakartaMojo(
+				EntityAnnotationWithParametersResource.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
 	public void basicAnnotatedAndJavadocResponseWithReturnObjects()
-		throws MojoFailureException, IOException, MojoExecutionException {
+			throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(EntityAnnotationResource.class.getCanonicalName());
 		JavadocConfiguration javadocConfiguration = new JavadocConfiguration();
 		javadocConfiguration
-			.setScanLocations(Collections.singletonList("src/test/java/io/github/kbuntrock/resources/endpoint/swagger"));
+				.setScanLocations(
+						Collections.singletonList("src/test/java/io/github/kbuntrock/resources/endpoint/swagger"));
 		mojo.setJavadocConfiguration(javadocConfiguration);
 		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
 	public void basicAnnotatedParametersWithReturnObjectsWithJavadoc()
-		throws MojoFailureException, IOException, MojoExecutionException {
+			throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(EntityAnnotationWithParametersResource.class.getCanonicalName());
 		JavadocConfiguration javadocConfiguration = new JavadocConfiguration();
 		javadocConfiguration
-			.setScanLocations(Collections.singletonList("src/test/java/io/github/kbuntrock/resources/endpoint/swagger"));
+				.setScanLocations(
+						Collections.singletonList("src/test/java/io/github/kbuntrock/resources/endpoint/swagger"));
 		mojo.setJavadocConfiguration(javadocConfiguration);
 		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
 	public void jakartaBasicAnnotatedParametersWithReturnObjectsWithJavadoc()
-		throws MojoFailureException, IOException, MojoExecutionException {
-		final DocumentationMojo mojo = createBasicJakartaMojo(EntityAnnotationWithParametersResource.class.getCanonicalName());
+			throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicJakartaMojo(
+				EntityAnnotationWithParametersResource.class.getCanonicalName());
 		JavadocConfiguration javadocConfiguration = new JavadocConfiguration();
 		javadocConfiguration
-			.setScanLocations(Collections.singletonList("src/test/java/io/github/kbuntrock/resources/endpoint/swagger"));
+				.setScanLocations(
+						Collections.singletonList("src/test/java/io/github/kbuntrock/resources/endpoint/swagger"));
 		mojo.setJavadocConfiguration(javadocConfiguration);
 		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
-	public void OneParametersOutTwoParametersInNoMerge() throws MojoFailureException, IOException, MojoExecutionException {
+	public void basicSecurityAnnotations() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(SecurityAnnotationResource.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void jakartaBasicSecurityAnnotations()
+			throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicJakartaMojo(SecurityAnnotationResource.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void OneParametersOutTwoParametersInNoMerge()
+			throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(OneParametersOutTwoParametersInNoMerge.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
 	public void TwoParametersOutTwoParametersEmptyInWithAllMerged()
-		throws MojoFailureException, IOException, MojoExecutionException {
+			throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(
-			TwoParametersOutTwoParametersEmptyInWithAllMerged.class.getCanonicalName());
+				TwoParametersOutTwoParametersEmptyInWithAllMerged.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
-	public void TwoParametersOutTwoParametersInNoMerge() throws MojoFailureException, IOException, MojoExecutionException {
+	public void TwoParametersOutTwoParametersInNoMerge()
+			throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(TwoParametersOutTwoParametersInNoMerge.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
-	public void TwoParametersOutTwoParametersInWithAllMerged() throws MojoFailureException, IOException, MojoExecutionException {
-		final DocumentationMojo mojo = createBasicMojo(TwoParametersOutTwoParametersInWithAllMerged.class.getCanonicalName());
+	public void TwoParametersOutTwoParametersInWithAllMerged()
+			throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(
+				TwoParametersOutTwoParametersInWithAllMerged.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
-	public void TwoParametersOutTwoParametersInWithMerge() throws MojoFailureException, IOException, MojoExecutionException {
-		final DocumentationMojo mojo = createBasicMojo(TwoParametersOutTwoParametersInWithMerge.class.getCanonicalName());
+	public void TwoParametersOutTwoParametersInWithMerge()
+			throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(
+				TwoParametersOutTwoParametersInWithMerge.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 	}
 
 	@Test
 	public void TwoParametersOutTwoParametersEmptyInWithPriority()
-		throws MojoFailureException, IOException, MojoExecutionException {
-		final DocumentationMojo mojo = createBasicMojo(TwoParametersOutTwoParametersEmptyInWithPriority.class.getCanonicalName());
+			throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(
+				TwoParametersOutTwoParametersEmptyInWithPriority.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 	}
 }
