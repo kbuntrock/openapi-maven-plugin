@@ -266,16 +266,20 @@ public class JavaClassAnalyser {
 	}
 
 	private void readSecuritySchemes(MergedAnnotations mergedAnnotations, Set<SecurityScheme> securitySchemes) {
+		Map<String, SecurityScheme> map = new LinkedHashMap<>();
 		MergedAnnotation schemeAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.security.SecurityScheme");
 		if(schemeAnnotation.isPresent()) {
-			securitySchemes.add(createSecurityScheme(schemeAnnotation));
+			SecurityScheme s = createSecurityScheme(schemeAnnotation);
+			map.put(s.getName(), s);
 		}
 		MergedAnnotation schemesAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.security.SecuritySchemes");
 		if(schemesAnnotation.isPresent()) {
 			for(MergedAnnotation req : schemesAnnotation.getAnnotationArray("value")) {
-				securitySchemes.add(createSecurityScheme(req));
+				SecurityScheme s = createSecurityScheme(req);
+				map.put(s.getName(), s);
 			}
 		}
+		securitySchemes.addAll(map.values());
 	}
 
 	private SecurityScheme createSecurityScheme(MergedAnnotation mergedAnnotation) {

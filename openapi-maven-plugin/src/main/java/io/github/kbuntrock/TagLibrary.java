@@ -80,6 +80,9 @@ public class TagLibrary {
 	}
 
 	public void addSecurityScheme(SecurityScheme scheme) {
+		if(securitySchemes.containsKey(scheme.getName())) {
+			throw new RuntimeException("Multiple SecurityScheme with the same name (" + scheme.getName() + ") are defined.");
+		}
 		securitySchemes.put(scheme.getName(), scheme);
 	}
 

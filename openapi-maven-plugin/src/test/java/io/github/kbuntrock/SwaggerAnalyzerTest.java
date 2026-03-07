@@ -11,6 +11,7 @@ import io.github.kbuntrock.resources.endpoint.issues.issue332.TwoParametersOutTw
 import io.github.kbuntrock.resources.endpoint.issues.issue332.TwoParametersOutTwoParametersInWithAllMerged;
 import io.github.kbuntrock.resources.endpoint.issues.issue332.TwoParametersOutTwoParametersInWithMerge;
 import io.github.kbuntrock.resources.endpoint.swagger.ApiResponseResource;
+import io.github.kbuntrock.resources.endpoint.swagger.DuplicateSecurityConfigResource;
 import io.github.kbuntrock.resources.endpoint.swagger.EntityAnnotationResource;
 import io.github.kbuntrock.resources.endpoint.swagger.EntityAnnotationWithParametersResource;
 import io.github.kbuntrock.resources.endpoint.swagger.SecurityAnnotationResource;
@@ -18,6 +19,7 @@ import io.github.kbuntrock.resources.endpoint.swagger.SecurityConfigResource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -211,5 +213,19 @@ public class SwaggerAnalyzerTest extends AbstractTest {
 				SecurityAnnotationResource.class.getCanonicalName(),
 				SecurityConfigResource.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void securityAnnotationsDuplicate() {
+		final DocumentationMojo mojo = createBasicMojo(
+			SecurityAnnotationResource.class.getCanonicalName(),
+			DuplicateSecurityConfigResource.class.getCanonicalName());
+
+		RuntimeException exception = Assertions.assertThrows(RuntimeException.class, () -> {
+			mojo.documentProject();
+		});
+
+		Assertions
+			.assertTrue(exception.getMessage().contains("Multiple SecurityScheme with the same name (bearerAuth) are defined."));
 	}
 }
