@@ -1,0 +1,58 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: SecurityAnnotationResource
+paths:
+  /api/summary:
+    get:
+      tags:
+        - SecurityAnnotationResource
+      operationId: getSummary
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/summary_basic:
+    get:
+      tags:
+        - SecurityAnnotationResource
+      operationId: getSummaryBasicAuth
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      name: bearerAuth
+      scheme: bearer
+      bearerFormat: JWT
+    basicAuth:
+      type: http
+      name: basicAuth
+      scheme: basic
+    configBearerAuth:
+      type: http
+      name: configBearerAuth
+      scheme: bearer
+      bearerFormat: JWT
+    configBasicAuth:
+      type: http
+      name: configBasicAuth
+      scheme: basic

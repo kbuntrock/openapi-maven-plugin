@@ -73,10 +73,14 @@ public class TagLibrary {
 		tags.add(tag);
 		if(tag.getSecuritySchemes() != null) {
 			for(final SecurityScheme scheme : tag.getSecuritySchemes()) {
-				securitySchemes.put(scheme.getName(), scheme);
+				addSecurityScheme(scheme);
 			}
 		}
 		exploreTagObjects(tag);
+	}
+
+	public void addSecurityScheme(SecurityScheme scheme) {
+		securitySchemes.put(scheme.getName(), scheme);
 	}
 
 	/**

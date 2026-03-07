@@ -14,6 +14,7 @@ import io.github.kbuntrock.resources.endpoint.swagger.ApiResponseResource;
 import io.github.kbuntrock.resources.endpoint.swagger.EntityAnnotationResource;
 import io.github.kbuntrock.resources.endpoint.swagger.EntityAnnotationWithParametersResource;
 import io.github.kbuntrock.resources.endpoint.swagger.SecurityAnnotationResource;
+import io.github.kbuntrock.resources.endpoint.swagger.SecurityConfigResource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
@@ -201,6 +202,14 @@ public class SwaggerAnalyzerTest extends AbstractTest {
 			throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(
 				TwoParametersOutTwoParametersEmptyInWithPriority.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void securityAnnotationsOnConfigClass() throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(
+				SecurityAnnotationResource.class.getCanonicalName(),
+				SecurityConfigResource.class.getCanonicalName());
 		checkGenerationResult(mojo.documentProject());
 	}
 }

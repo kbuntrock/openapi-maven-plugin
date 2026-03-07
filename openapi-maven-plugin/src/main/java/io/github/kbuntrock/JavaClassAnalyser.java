@@ -171,6 +171,19 @@ public class JavaClassAnalyser {
 	}
 
 	/**
+	 * Reads security schemes from a class that is not necessarily a tag/controller, and adds them to the TagLibrary.
+	 */
+	public void readSecuritySchemesFromClass(final Class<?> clazz, final TagLibrary library) throws MojoFailureException {
+		context.getLogger().debug("Parsing security schemes from class : " + clazz.getSimpleName());
+		final MergedAnnotations mergedAnnotations = context.getMergeAnnotationsHelper().from(clazz);
+		Set<SecurityScheme> foundSchemes = new HashSet<>();
+		readSecuritySchemes(mergedAnnotations, foundSchemes);
+		for(SecurityScheme scheme : foundSchemes) {
+			library.addSecurityScheme(scheme);
+		}
+	}
+
+	/**
 	 * Discover and process all non-private methods on the class that represent REST endpoints.
 	 * Filtering is applied via whitelist/blacklist prior to delegating to {@link AbstractLibraryReader}
 	 * for framework-specific annotation handling.
