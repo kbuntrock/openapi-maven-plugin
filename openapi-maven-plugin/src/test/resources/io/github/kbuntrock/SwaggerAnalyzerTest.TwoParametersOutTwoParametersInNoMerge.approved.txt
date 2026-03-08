@@ -6,12 +6,12 @@ info:
 servers:
   - url: ""
 tags:
-  - name: OneParametersOutTwoParametersInNoMerge
+  - name: TwoParametersOutTwoParametersInNoMerge
 paths:
   /issue332:
     get:
       tags:
-        - OneParametersOutTwoParametersInNoMerge
+        - TwoParametersOutTwoParametersInNoMerge
       operationId: getAll
       description: Retrieving all
       summary: Find all
@@ -20,17 +20,24 @@ paths:
           description: Description.
           example: hello
           in: query
-          required: false
+          required: true
+          schema:
+            type: string
+        - name: second
+          description: Description.
+          example: hi
+          in: query
+          required: true
           schema:
             type: string
         - name: sort
           in: query
-          required: false
+          required: true
           schema:
             type: string
         - name: count
           in: query
-          required: false
+          required: true
           schema:
             type: integer
             format: int32

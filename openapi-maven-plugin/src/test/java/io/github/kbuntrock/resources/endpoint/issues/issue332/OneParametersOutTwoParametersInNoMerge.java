@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -23,7 +22,7 @@ public class OneParametersOutTwoParametersInNoMerge {
 	@Parameter(name = "first", example = "hello", description = "Description.", required = true, in = ParameterIn.QUERY, schema = @Schema(type = "string"), style = ParameterStyle.FORM, explode = Explode.FALSE, array = @ArraySchema(schema = @Schema(type = "string")))
 
 	public ResponseEntity<List<String>> getAll(
-		@Nullable @Parameter(name = "sort") String sort,
+		@Parameter(name = "sort") String sort,
 		@Parameter(name = "count") int count) {
 
 		return ResponseEntity.ok().build();

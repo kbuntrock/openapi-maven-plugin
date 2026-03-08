@@ -280,7 +280,6 @@ public abstract class AbstractLibraryReader {
 			privileged.setDescription(replacement.getDescription());
 		}
 
-		/* sistemare Location e required */
 		if(privileged.getLocation() == null) {
 			privileged.setLocation(replacement.getLocation());
 		}

@@ -6,33 +6,31 @@ info:
 servers:
   - url: ""
 tags:
-  - name: TwoParametersOutTwoParametersInWithMerge
+  - name: OneParametersOutTwoParametersInNoMerge
 paths:
   /issue332:
     get:
       tags:
-        - TwoParametersOutTwoParametersInWithMerge
+        - OneParametersOutTwoParametersInNoMerge
       operationId: getAll
       description: Retrieving all
       summary: Find all
       parameters:
-        - name: sort
+        - name: first
           description: Description.
-          example: ASC
+          example: hello
           in: query
-          required: false
+          required: true
           schema:
             type: string
-        - name: second
-          description: Description.
-          example: hi
+        - name: sort
           in: query
-          required: false
+          required: true
           schema:
             type: string
         - name: count
           in: query
-          required: false
+          required: true
           schema:
             type: integer
             format: int32
