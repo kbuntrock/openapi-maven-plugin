@@ -299,11 +299,11 @@ public abstract class AbstractLibraryReader {
 		final MergedAnnotations mergedAnnotations, ParameterObject parameter) {
 		MergedAnnotation parameterAnn = mergedAnnotations.get("io.swagger.v3.oas.annotations.Parameter");
 		if(parameterAnn.isPresent()) {
-			setParameter(parameter, parameterAnn);
+			setSwaggerAnnotationPropertiesOnParameter(parameter, parameterAnn);
 		}
 	}
 
-	private void setParameter(ParameterObject parameter, MergedAnnotation parameterAnn) {
+	private void setSwaggerAnnotationPropertiesOnParameter(ParameterObject parameter, MergedAnnotation parameterAnn) {
 		final ParameterObject data = buildParameter(parameterAnn);
 		if(StringUtils.isNotBlank(data.getName())) {
 			parameter.setName(data.getName());
@@ -311,7 +311,6 @@ public abstract class AbstractLibraryReader {
 
 		parameter.setDescription(data.getDescription());
 		parameter.setExample(data.getExample());
-		parameter.setSchemaReferenceName(data.getSchemaReferenceName());
 
 		context.getLogger().debug("Found @Parameter " + data.getName()
 			+ " param '" + parameter.getName() + "' : " + parameter.getDescription());
@@ -357,9 +356,8 @@ public abstract class AbstractLibraryReader {
 			.orElse(null);
 
 		parameter.setExample(example);
-		parameter.setSchemaReferenceName(example);
 
-		final String paramIn = parameterAnnotation.getValue("in").orElse(null).toString();
+		final String paramIn = parameterAnnotation.getValue("in").orElse("").toString();
 		parameter.setLocation(ParameterLocation.fromValue("".equals(paramIn) ? "query" : paramIn));
 
 		return parameter;
