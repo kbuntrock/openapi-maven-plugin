@@ -28,19 +28,8 @@ import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -640,14 +629,14 @@ public class YamlWriter {
 		final Map<String, Object> schemas = new LinkedHashMap<>();
 		for(final DataObject dataObject : ordered) {
 			final Set<String> exploredSignatures = new HashSet<>();
-			final Schema schema = new Schema(dataObject, true, exploredSignatures, null, null, tagLibrary);
+			final Schema schema = new Schema(dataObject, true, exploredSignatures, null, null, tagLibrary, true);
 			schemas.put(dataObject.getOpenApiResolvedType().isCompleteNode() ? dataObject.getOpenApiResolvedType().getModelName()
 				: dataObject.getSchemaReferenceName(), schema);
 		}
 		// Add the additional eventual recursive entries.
 		for(final Map.Entry<String, DataObject> entry : context.getAdditionnalSchemaLibrary().getMap().entrySet()) {
 			final Set<String> exploredSignatures = new HashSet<>();
-			final Schema schema = new Schema(entry.getValue(), true, exploredSignatures, null, null, tagLibrary);
+			final Schema schema = new Schema(entry.getValue(), true, exploredSignatures, null, null, tagLibrary, false);
 			schemas.put(entry.getKey(), schema);
 		}
 		return schemas;

@@ -9,4 +9,8 @@ public class Bar extends Boo {
 	 * the bar string
 	 */
 	private String bar;
+
+	public String getBar() {
+		return bar;
+	}
 }

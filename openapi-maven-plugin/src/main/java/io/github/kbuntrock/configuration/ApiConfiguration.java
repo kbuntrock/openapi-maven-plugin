@@ -202,7 +202,6 @@ public class ApiConfiguration extends CommonApiConfiguration {
 				merged.tagAnnotations.set(i, TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName());
 			}
 		}
-
 		if(nonDocumentableParameterClasses != null) {
 			merged.setNonDocumentableParameterClasses(nonDocumentableParameterClasses);
 		}

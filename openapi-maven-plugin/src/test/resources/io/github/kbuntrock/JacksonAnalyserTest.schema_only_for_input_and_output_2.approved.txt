@@ -1,0 +1,134 @@
+---
+openapi: 3.0.3
+info:
+  title: Project using jackson
+  version: v1.0
+servers:
+  - url: ""
+tags:
+  - name: JacksonController1
+    description: A controller named JacksonController1
+  - name: JacksonController4
+    description: A controller named JacksonController4
+paths:
+  /api/1:
+    get:
+      tags:
+        - JacksonController1
+      operationId: JacksonController1.findAll
+      description: Find all orders
+      responses:
+        200:
+          description: all the orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderJacksonDto'
+      x-operation-name: findAll
+  /api/4:
+    post:
+      tags:
+        - JacksonController4
+      operationId: JacksonController4.create
+      description: Create something
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: array
+                items:
+                  type: object
+                  additionalProperties:
+                    $ref: '#/components/schemas/OrderJacksonDto'
+        description: the input object
+      responses:
+        200:
+          description: successful operation
+      x-operation-name: create
+  /api/4/resume:
+    post:
+      tags:
+        - JacksonController4
+      operationId: JacksonController4.createResume
+      description: Create a resume
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: array
+                items:
+                  type: object
+                  additionalProperties:
+                    $ref: '#/components/schemas/ResumeJacksonDto'
+        description: the input object to create a resume
+      responses:
+        200:
+          description: successful operation
+      x-operation-name: createResume
+components:
+  schemas:
+    AccountJacksonDto:
+      description: This is a dto representing an account
+      type: object
+      properties:
+        id:
+          description: "id is Serialization only: returned in JSON, ignored on input"
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          description: email is a regular field (read/write)
+          type: string
+        createdAt:
+          description: Serialization only via JsonProperty access annotation
+          type: string
+          format: date-time
+          readOnly: true
+        emailDomain:
+          description: "getEmailDomain is a computed property: serialization only\
+            \ (no setter)"
+          type: string
+          readOnly: true
+        password:
+          description: "password is deserialization only: accepted on input, never\
+            \ returned"
+          type: string
+          writeOnly: true
+        registrationToken:
+          description: "registrationToken is deserialization only via its setter (e.g.,\
+            \ creation token)"
+          type: string
+          writeOnly: true
+    OrderJacksonDto:
+      description: This is a dto representing an order
+      type: object
+      properties:
+        account:
+          description: "account is serialization only: emitted in JSON, ignored on\
+            \ input"
+          $ref: '#/components/schemas/AccountJacksonDto'
+          readOnly: true
+        customerEmail:
+          description: customerEmail is a regular field (read/write)
+          type: string
+        paymentToken:
+          description: "paymentToken is a deserialization only: accepted on input,\
+            \ never emitted"
+          type: string
+          writeOnly: true
+    ResumeJacksonDto:
+      description: This is a dto representing an order
+      type: object
+      properties:
+        account:
+          description: Account of the resume (write only)
+          $ref: '#/components/schemas/AccountJacksonDto'
+        description:
+          description: Description of the resume
+          type: string

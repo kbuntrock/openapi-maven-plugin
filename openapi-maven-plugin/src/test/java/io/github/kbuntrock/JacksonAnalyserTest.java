@@ -3,11 +3,14 @@ package io.github.kbuntrock;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
-import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.resources.endpoint.enumeration.jackson.EnumAsValueFunctionPrecedenceController;
 import io.github.kbuntrock.resources.endpoint.enumeration.jackson.EnumFieldAsValueController;
 import io.github.kbuntrock.resources.endpoint.enumeration.jackson.EnumFunctionAsValueController;
 import io.github.kbuntrock.resources.endpoint.enumeration.jackson.EnumTooMuchAsValueController;
+import io.github.kbuntrock.resources.endpoint.jackson.inputoutput.JacksonController1;
+import io.github.kbuntrock.resources.endpoint.jackson.inputoutput.JacksonController2;
+import io.github.kbuntrock.resources.endpoint.jackson.inputoutput.JacksonController3;
+import io.github.kbuntrock.resources.endpoint.jackson.inputoutput.JacksonController4;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
@@ -29,11 +32,11 @@ public class JacksonAnalyserTest extends AbstractTest {
 		return mavenProjet;
 	}
 
-	private DocumentationMojo createBasicMojo(final String apiLocation) {
+	private DocumentationMojo createBasicMojo(final String... apiLocation) {
 		final DocumentationMojo mojo = createDocumentationMojo();
 		final ApiConfiguration apiConfiguration = new ApiConfiguration();
 		apiConfiguration.setAttachArtifact(false);
-		apiConfiguration.setLocations(Collections.singletonList(apiLocation));
+		apiConfiguration.setLocations(Arrays.asList(apiLocation));
 		apiConfiguration
 			.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
 		mojo.setTestMode(true);
@@ -152,6 +155,61 @@ public class JacksonAnalyserTest extends AbstractTest {
 
 		mojo.getApis().get(0).setEnumListDescriptionEnabled(false);
 
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	/**
+	 * OrderJacksonDto and AccountJacksonDto in read only
+	 */
+	@Test
+	public void schema_only_for_output() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(JacksonController1.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/jackson",
+			"src/test/java/io/github/kbuntrock/resources/dto/jackson"));
+		mojo.setJavadocConfiguration(javadocConfig);
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	/**
+	 * OrderJacksonDto and AccountJacksonDto in write only
+	 */
+	@Test
+	public void schema_only_for_input() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(JacksonController2.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/jackson",
+			"src/test/java/io/github/kbuntrock/resources/dto/jackson"));
+		mojo.setJavadocConfiguration(javadocConfig);
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	/**
+	 * OrderJacksonDto in read only, and AccountJacksonDto in read/write
+	 */
+	@Test
+	public void schema_only_for_input_and_output_1() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(JacksonController1.class.getCanonicalName(),
+			JacksonController3.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/jackson",
+			"src/test/java/io/github/kbuntrock/resources/dto/jackson"));
+		mojo.setJavadocConfiguration(javadocConfig);
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	/**
+	 * OrderJacksonDto and AccountJacksonDto both in read/write.
+	 * ResumeJacksonDto in input only.
+	 */
+	@Test
+	public void schema_only_for_input_and_output_2() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(JacksonController1.class.getCanonicalName(),
+			JacksonController4.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/jackson",
+			"src/test/java/io/github/kbuntrock/resources/dto/jackson"));
+		mojo.setJavadocConfiguration(javadocConfig);
 		checkGenerationResult(mojo.documentProject());
 	}
 }

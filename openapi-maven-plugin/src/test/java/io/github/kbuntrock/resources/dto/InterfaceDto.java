@@ -1,5 +1,7 @@
 package io.github.kbuntrock.resources.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 /**
@@ -12,6 +14,7 @@ public interface InterfaceDto<T, D> extends ParentInterfaceDto {
 	 *
 	 * @return a nice boolean 1
 	 */
+	@JsonProperty(index = 6)
 	boolean isReturned1();
 
 	/**
@@ -26,6 +29,7 @@ public interface InterfaceDto<T, D> extends ParentInterfaceDto {
 	 *
 	 * @return a nice boolean 3
 	 */
+	@JsonProperty(index = 5)
 	boolean getReturned3();
 
 	/**
@@ -54,6 +58,7 @@ public interface InterfaceDto<T, D> extends ParentInterfaceDto {
 	 *
 	 * @return an account
 	 */
+	@JsonProperty(index = 1)
 	AccountDto getAccount();
 
 	/**
@@ -61,6 +66,7 @@ public interface InterfaceDto<T, D> extends ParentInterfaceDto {
 	 *
 	 * @return a generic object
 	 */
+	@JsonProperty(index = 2)
 	T getGeneric();
 
 	/**
@@ -68,5 +74,6 @@ public interface InterfaceDto<T, D> extends ParentInterfaceDto {
 	 *
 	 * @return a list of generic objects
 	 */
+	@JsonProperty(index = 3)
 	List<D> getGenericList();
 }

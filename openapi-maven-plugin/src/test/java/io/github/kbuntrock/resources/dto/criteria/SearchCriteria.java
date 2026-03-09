@@ -5,7 +5,7 @@ package io.github.kbuntrock.resources.dto.criteria;
  */
 public class SearchCriteria extends CriteriaWithDateType {
 
-	private String myString;
+	public String myString;
 
 	public SearchCriteria() {
 		super(MyDateType.class);

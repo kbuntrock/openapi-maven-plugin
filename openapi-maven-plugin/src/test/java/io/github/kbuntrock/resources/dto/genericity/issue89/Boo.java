@@ -9,4 +9,8 @@ public class Boo extends Foo {
 	 * the boo boolean
 	 */
 	private boolean boo;
+
+	public boolean isBoo() {
+		return boo;
+	}
 }

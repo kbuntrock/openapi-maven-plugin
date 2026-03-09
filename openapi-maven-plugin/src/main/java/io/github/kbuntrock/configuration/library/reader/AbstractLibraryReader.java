@@ -2,10 +2,7 @@ package io.github.kbuntrock.configuration.library.reader;
 
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.context.ApiContext;
-import io.github.kbuntrock.model.DataObject;
-import io.github.kbuntrock.model.Endpoint;
-import io.github.kbuntrock.model.ParameterObject;
-import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.model.*;
 import io.github.kbuntrock.model.annotation.OperationAnnotationInfo;
 import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.reflection.GenericityResolver;
@@ -105,7 +102,8 @@ public abstract class AbstractLibraryReader {
 		}
 
 		DataObject dataObject = new DataObject(
-			genericityResolver.resolve(clazz, readResponseMethodType(method, mergedAnnotations)), openApiTypeResolver);
+			genericityResolver.resolve(clazz, readResponseMethodType(method, mergedAnnotations)), context,
+			Flow.OUTPUT);
 		dataObject = computeFrameworkReturnObject(dataObject);
 		context.getLogger().debug(dataObject.toString());
 		return dataObject;
@@ -228,7 +226,7 @@ public abstract class AbstractLibraryReader {
 					if(schema.isPresent()) {
 						final Class<?> implementation = schema.getClass("implementation");
 						if(implementation != null && !Void.class.equals(implementation) && !Void.TYPE.equals(implementation)) {
-							final DataObject responseObject = new DataObject(implementation, openApiTypeResolver);
+							final DataObject responseObject = new DataObject(implementation, context, Flow.OUTPUT);
 							operationResponse.setDataObject(responseObject);
 						}
 					}
@@ -314,8 +312,6 @@ public abstract class AbstractLibraryReader {
 		parameter.setDescription(data.getDescription());
 		parameter.setExample(data.getExample());
 		parameter.setSchemaReferenceName(data.getSchemaReferenceName());
-		// parameter.setLocation(data.getLocation());
-		// parameter.setRequired(data.isRequired());
 
 		context.getLogger().debug("Found @Parameter " + data.getName()
 			+ " param '" + parameter.getName() + "' : " + parameter.getDescription());

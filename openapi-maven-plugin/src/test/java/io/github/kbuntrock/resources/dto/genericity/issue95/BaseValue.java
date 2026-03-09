@@ -1,5 +1,7 @@
 package io.github.kbuntrock.resources.dto.genericity.issue95;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Optional;
 
 /**
@@ -17,6 +19,7 @@ public interface BaseValue<T, VAL> {
 	 *
 	 * @return the returned value
 	 */
+	@JsonProperty(index = 2)
 	VAL getValue();
 
 	/**
@@ -24,5 +27,6 @@ public interface BaseValue<T, VAL> {
 	 *
 	 * @return the optional returned unit
 	 */
+	@JsonProperty(index = 1)
 	Optional<T> getUnit();
 }

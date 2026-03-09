@@ -124,4 +124,12 @@ public class ErrorEntityWithAnnotations {
 	public void setCause(ErrorEntityWithAnnotations cause) {
 		this.cause = cause;
 	}
+
+	public String getExtraInfo() {
+		return extraInfo;
+	}
+
+	public void setExtraInfo(String extraInfo) {
+		this.extraInfo = extraInfo;
+	}
 }

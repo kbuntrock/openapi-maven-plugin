@@ -10,4 +10,7 @@ public class ActionDto extends EntityDto {
 	@Size(max = 15, message = "text too long")
 	private String title;
 
+	public String getTitle() {
+		return title;
+	}
 }

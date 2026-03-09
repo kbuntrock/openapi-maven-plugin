@@ -8,4 +8,8 @@ import java.util.Optional;
 public class OptionalClassDto {
 
 	private Optional<String> myValue;
+
+	public Optional<String> getMyValue() {
+		return myValue;
+	}
 }

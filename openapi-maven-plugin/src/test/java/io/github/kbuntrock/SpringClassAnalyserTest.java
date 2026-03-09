@@ -436,7 +436,6 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		apiConfiguration
 			.setTagAnnotations(Collections.singletonList(TagAnnotation.SPRING_MVC_REQUEST_MAPPING.getAnnotationClassName()));
 
-		// TODO multi-threading : check how to create the openapi-type-resolver
 		ProjectContext projectContext = new ProjectContext();
 		projectContext.initLogger(Mockito.mock(Log.class));
 		projectContext.initClassLoader(SpringClassAnalyserTest.class.getClassLoader());
