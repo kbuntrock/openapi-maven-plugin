@@ -19,7 +19,16 @@ import org.apache.maven.plugin.MojoFailureException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Base reader that translates framework/library-specific annotations (Spring Web, JAX‑RS, Jakarta) into the plugin's common
@@ -226,59 +235,134 @@ public abstract class AbstractLibraryReader {
 			}
 		}
 
-		final MergedAnnotation parametersAnnotation = mergedAnnotations
-			.get("io.swagger.v3.oas.annotations.Parameters");
+		final MergedAnnotation parametersAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.Parameters");
 		if(parametersAnnotation.isPresent()) {
 			MergedAnnotation[] parametersArray = parametersAnnotation.getAnnotationArray("value");
 			addParameters(parameterObjects, parametersArray);
+		} else {
+			final MergedAnnotation parameterAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.Parameter");
+			if(parameterAnnotation.isPresent()) {
+				parameterObjects.add(buildParameter(parameterAnnotation));
+			}
 		}
 
 		if(!parameterObjects.isEmpty()) {
-			endpoint.setParameters(parameterObjects);
+			List<ParameterObject> mergeParameterList = mergeParameterLists(parameterObjects, endpoint.getParameters());
+			endpoint.setParameters(mergeParameterList);
 		}
+	}
+
+	protected List<ParameterObject> mergeParameterLists(List<ParameterObject> parameterObjectListAtOperationLevel,
+		List<ParameterObject> parameterObjectListIntoMethod) {
+		List<ParameterObject> l1 = (parameterObjectListAtOperationLevel == null)
+			? Collections.emptyList()
+			: parameterObjectListAtOperationLevel;
+		List<ParameterObject> l2 = (parameterObjectListIntoMethod == null)
+			? Collections.emptyList()
+			: parameterObjectListIntoMethod;
+
+		return new ArrayList<>(Stream.concat(l1.stream(), l2.stream())
+			.collect(Collectors.toMap(
+				ParameterObject::getName,
+				p -> p,
+				this::mergeParameter,
+				LinkedHashMap::new))
+			.values());
+	}
+
+	private ParameterObject mergeParameter(ParameterObject replacement, ParameterObject privileged) {
+		if(replacement == null)
+			return privileged;
+
+		if(StringUtils.isEmpty(privileged.getDescription())) {
+			privileged.setDescription(replacement.getDescription());
+		}
+
+		if(privileged.getLocation() == null) {
+			privileged.setLocation(replacement.getLocation());
+		}
+
+		if(StringUtils.isEmpty(privileged.getExample())) {
+			privileged.setExample(replacement.getExample());
+		}
+
+		if(StringUtils.isEmpty(privileged.getSchemaReferenceName())) {
+			privileged.setSchemaReferenceName(replacement.getSchemaReferenceName());
+		}
+
+		privileged.setRequired(replacement.isRequired() || privileged.isRequired());
+
+		return privileged;
 	}
 
 	protected void setSwaggerAnnotatedParameterProperties(final Parameter javaParameter,
 		final MergedAnnotations mergedAnnotations, ParameterObject parameter) {
 		MergedAnnotation parameterAnn = mergedAnnotations.get("io.swagger.v3.oas.annotations.Parameter");
 		if(parameterAnn.isPresent()) {
-			final String description = parameterAnn.getString("description");
-			if(StringUtils.isNotBlank(description)) {
-				parameter.setDescription(description);
-			}
-			final String name = parameterAnn.getString("name");
-			if(StringUtils.isNotBlank(name)) {
-				parameter.setName(name);
-			}
-			final String example = parameterAnn.getString("example");
-			if(StringUtils.isNotBlank(example)) {
-				parameter.setExample(example);
-			}
-			context.getLogger().debug("Found @Parameter " + name
-				+ " param '" + parameter.getName() + "' : " + description);
+			setParameter(parameter, parameterAnn);
 		}
+	}
+
+	private void setParameter(ParameterObject parameter, MergedAnnotation parameterAnn) {
+		final ParameterObject data = buildParameter(parameterAnn);
+		if(StringUtils.isNotBlank(data.getName())) {
+			parameter.setName(data.getName());
+		}
+
+		parameter.setDescription(data.getDescription());
+		parameter.setExample(data.getExample());
+		parameter.setSchemaReferenceName(data.getSchemaReferenceName());
+
+		context.getLogger().debug("Found @Parameter " + data.getName()
+			+ " param '" + parameter.getName() + "' : " + parameter.getDescription());
 	}
 
 	private void addParameters(ArrayList<ParameterObject> parameterObjects, MergedAnnotation[] parametersArray) {
 		for(MergedAnnotation parameterAnnotation : parametersArray) {
-			final String paramName = parameterAnnotation.getString("name");
-			final String paramIn = parameterAnnotation.getValue("in").orElse(null).toString();
-			final String paramDescription = parameterAnnotation.getString("description");
-			final Boolean paramRequired = parameterAnnotation.getBoolean("required");
-			MergedAnnotation schemaAnn = parameterAnnotation.getAnnotation("schema");
-			final String paramType = (schemaAnn != null) ? schemaAnn.getString("type") : null;
-			// Priority: @Parameter(example) > @Schema(example) per OpenAPI 3 Specs
-			final String paramExample = Optional.ofNullable(parameterAnnotation.getString("example"))
-				.filter(e -> !e.isEmpty())
-				.orElseGet(() -> schemaAnn != null ? schemaAnn.getString("example") : null);
-			ParameterObject paramObj = new ParameterObject(paramName, mapSchemaTypeToJavaType(paramType), context);
-			paramObj.setLocation(ParameterLocation.fromValue("".equals(paramIn) ? "query" : paramIn));
-			paramObj.setRequired(paramRequired);
-			paramObj.setDescription(paramDescription);
-			paramObj.setExample(paramExample);
-			parameterObjects.add(paramObj);
+			parameterObjects.add(buildParameter(parameterAnnotation));
 		}
+	}
 
+	private ParameterObject buildParameter(MergedAnnotation parameterAnnotation) {
+		final String name = parameterAnnotation.getString("name");
+
+		MergedAnnotation schema = parameterAnnotation.getAnnotation("schema").isPresent()
+			? parameterAnnotation.getAnnotation("schema")
+			: null;
+		final String paramType = (schema != null) ? schema.getString("type") : null;
+
+		ParameterObject parameter = new ParameterObject(name, mapSchemaTypeToJavaType(paramType), context);
+
+		Boolean required = Optional.of(parameterAnnotation.getBoolean("required"))
+			.map(Optional::of)
+			.orElseGet(() -> Optional.ofNullable(schema).map(s -> s.getBoolean("required")))
+			.orElse(null);
+		parameter.setRequired(Boolean.TRUE.equals(required));
+
+		// Priority: @Parameter(description = ...) > @Schema(description = ...) per OpenAPI 3 Specs
+		final String description = Optional.ofNullable(
+			Optional.ofNullable(parameterAnnotation.getString("description"))
+				.filter(StringUtils::isNotEmpty)
+				.orElseGet(() -> schema != null ? schema.getString("description") : null))
+			.filter(StringUtils::isNotEmpty)
+			.orElse(null);
+		parameter.setDescription(description);
+
+		// Priority: @Parameter(example = ...) > @Schema(example = ...) per OpenAPI 3 Specs
+		final String example = Optional.ofNullable(
+			Optional.ofNullable(parameterAnnotation.getString("example"))
+				.filter(StringUtils::isNotEmpty)
+				.orElseGet(() -> schema != null ? schema.getString("example") : null))
+			.filter(StringUtils::isNotEmpty)
+			.orElse(null);
+
+		parameter.setExample(example);
+		parameter.setSchemaReferenceName(example);
+
+		final String paramIn = parameterAnnotation.getValue("in").orElse(null).toString();
+		parameter.setLocation(ParameterLocation.fromValue("".equals(paramIn) ? "query" : paramIn));
+
+		return parameter;
 	}
 
 	private static Class<?> mapSchemaTypeToJavaType(String schemaType) {
