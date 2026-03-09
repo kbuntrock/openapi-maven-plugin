@@ -331,7 +331,7 @@ public abstract class AbstractLibraryReader {
 			: null;
 		final String paramType = (schema != null) ? schema.getString("type") : null;
 
-		ParameterObject parameter = new ParameterObject(name, mapSchemaTypeToJavaType(paramType), openApiTypeResolver);
+		ParameterObject parameter = new ParameterObject(name, mapSchemaTypeToJavaType(paramType), context);
 
 		Boolean required = Optional.of(parameterAnnotation.getBoolean("required"))
 			.map(Optional::of)
