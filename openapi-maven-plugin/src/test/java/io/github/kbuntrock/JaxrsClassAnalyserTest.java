@@ -1,22 +1,25 @@
 package io.github.kbuntrock;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.Substitution;
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.resources.endpoint.account.AccountJakartaController;
 import io.github.kbuntrock.resources.endpoint.account.AccountJaxrsController;
+import io.github.kbuntrock.resources.endpoint.ignore.JakartaIgnoreController;
+import io.github.kbuntrock.resources.endpoint.ignore.JavaxIgnoreController;
 import io.github.kbuntrock.resources.endpoint.jaxrs.ResponseJaxrsController;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProject;
-import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JaxrsClassAnalyserTest extends AbstractTest {
 
@@ -108,6 +111,21 @@ public class JaxrsClassAnalyserTest extends AbstractTest {
 		mojo.getApis().get(0).setOperationId("{method_name}");
 		mojo.getApis().get(0).setLoopbackOperationName(false);
 
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void jaxrs_jsonb_transient() throws MojoFailureException, MojoExecutionException, IOException {
+
+		final DocumentationMojo mojo = createBasicMojo(JavaxIgnoreController.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void jakarta_jsonb_transient() throws MojoFailureException, MojoExecutionException, IOException {
+
+		final DocumentationMojo mojo = createBasicMojo(JakartaIgnoreController.class.getCanonicalName());
+		mojo.getApis().get(0).setLibrary(Library.JAKARTA_RS.name());
 		checkGenerationResult(mojo.documentProject());
 	}
 
