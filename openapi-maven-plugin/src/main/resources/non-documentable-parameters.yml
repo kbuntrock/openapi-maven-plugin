@@ -23,4 +23,3 @@ spring:
 spring-annotations:
   - org.springframework.web.bind.annotation.RequestAttribute
   - org.springframework.web.bind.annotation.SessionAttribute
-  - org.springframework.web.bind.annotation.ModelAttribute

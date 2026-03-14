@@ -1,23 +1,25 @@
 package io.github.kbuntrock.configuration.library.reader;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.MojoRuntimeException;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.model.*;
-import io.github.kbuntrock.reflection.ReflectionsUtils;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.ParameterLocation;
+import io.github.kbuntrock.yaml.model.ChildObject;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.maven.plugin.MojoFailureException;
 
 import java.io.File;
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
@@ -27,7 +29,6 @@ import java.time.ZoneId;
 import java.time.temporal.Temporal;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class SpringMvcReader extends AbstractLibraryReader {
 
@@ -166,6 +167,8 @@ public class SpringMvcReader extends AbstractLibraryReader {
 
 		readRequestMappingHeaders(endpointAnnotations, parameters);
 
+		Set<String> modelAttributeBanned = new HashSet<>();
+
 		for(final Method method : overriddenMethods) {
 			for(final Parameter parameter : method.getParameters()) {
 
@@ -180,6 +183,14 @@ public class SpringMvcReader extends AbstractLibraryReader {
 					(name) -> unwrapParameterObject(
 						new ParameterObject(name, genericityResolver.resolve(clazz, parameter.getParameterizedType()),
 							context)));
+
+				final MergedAnnotation modelAttribute = mergedAnnotations
+					.get("org.springframework.web.bind.annotation.ModelAttribute");
+				if(modelAttribute.isPresent() && !modelAttribute.getBoolean("binding")) {
+					// Binding is explicitly disabled for this annotated parameter
+					modelAttributeBanned.add(parameter.getName());
+					continue;
+				}
 
 				boolean annotationFound = false;
 				// Detect if is a header variable
@@ -283,15 +294,21 @@ public class SpringMvcReader extends AbstractLibraryReader {
 			}
 		}
 
-		// Last case, some Dto fields can be bound to QueryParams : http://dolszewski.com/spring/how-to-bind-requestparam-to-object/
-		// Since this functionality is not well documented, it can be for now a subset of the complete functionality
-		final Map<String, ParameterObject> unnestedParams = new LinkedHashMap<>(parameters);
-		parameters.values().stream().filter(x -> x.getLocation() == null && parameterObjectBindableToQueryParams(x))
-			.forEach(paramObj -> {
-				bindDtoToQueryParams(unnestedParams, paramObj);
-			});
-
-		return unnestedParams.values().stream().filter(x -> x.getLocation() != null).collect(Collectors.toList());
+		// Handle in a basic way (query param binding) explicit or implicit @ModelAttribute
+		// See https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.html
+		final Map<String, ParameterObject> unnestedParams = new LinkedHashMap<>();
+		for(ParameterObject paramObj : parameters.values()) {
+			if(paramObj.getLocation() == null) {
+				List<ChildObject> bindableToQueryParams = parameterObjectBindableToQueryParams(paramObj);
+				for(ChildObject childProperty : bindableToQueryParams) {
+					ParameterObject queryParam = bindDtoToQueryParams(paramObj, childProperty);
+					unnestedParams.putIfAbsent(queryParam.getName(), queryParam);
+				}
+			} else {
+				unnestedParams.putIfAbsent(paramObj.getName(), paramObj);
+			}
+		}
+		return new ArrayList<>(unnestedParams.values());
 	}
 
 	/**
@@ -378,44 +395,28 @@ public class SpringMvcReader extends AbstractLibraryReader {
 		}
 	}
 
-	private boolean parameterObjectBindableToQueryParams(final ParameterObject paramObj) {
-		final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), paramObj.getJavaClass());
-		for(final Field field : fields) {
-			if(field.isAnnotationPresent(JsonIgnore.class)) {
-				// Field is tagged ignore. No need to document it.
-				continue;
-			}
-			if(!(isSimpleProperty(field.getType()) ||
-				Collection.class.isAssignableFrom(field.getType()) ||
-				field.getType().isArray())) {
-				return false;
+	private List<ChildObject> parameterObjectBindableToQueryParams(final ParameterObject paramObj) {
+		List<ChildObject> bindables = new ArrayList<>();
+		List<ChildObject> childProperties = BeanDefinitionUtils.getPropertyObjectsToDocument(paramObj, context);
+		for(ChildObject childProperty : childProperties) {
+			if(isSimpleProperty(childProperty.getDataObject().getJavaClass()) ||
+				Collection.class.isAssignableFrom(childProperty.getDataObject().getJavaClass()) ||
+				childProperty.getDataObject().getJavaClass().isArray()) {
+				bindables.add(childProperty);
 			}
 		}
-		return true;
+		return bindables;
 	}
 
-	private void bindDtoToQueryParams(final Map<String, ParameterObject> parameters, final ParameterObject paramObj) {
+	private ParameterObject bindDtoToQueryParams(final ParameterObject paramObj, final ChildObject childObject) {
 
-		final List<Field> fields = ReflectionsUtils.getAllNonStaticFields(new ArrayList<>(), paramObj.getJavaClass());
-		for(final Field field : fields) {
-			final ParameterObject fieldObj = parameters.computeIfAbsent(field.getName(),
-				(name) -> unwrapParameterObject(
-					new ParameterObject(name, paramObj.getContextualType(field.getGenericType()), context)));
-			fieldObj.setLocation(ParameterLocation.QUERY);
-			fieldObj.setJavadocFieldClassName(paramObj.getJavaClass().getCanonicalName());
-			// Class "requirement" has precedence on any annotation (we can't force an optional to be required ...)
-			if(fieldObj.getClassRequired() != null) {
-				fieldObj.setRequired(paramObj.getClassRequired());
-			} else {
-				if(context.getNullableConfiguration().hasNonNullAnnotation(Arrays.asList(field.getAnnotations()))) {
-					fieldObj.setRequired(true);
-				} else if(context.getNullableConfiguration().hasNullableAnnotation(Arrays.asList(field.getAnnotations()))) {
-					fieldObj.setRequired(false);
-				} else {
-					fieldObj.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
-				}
-			}
+		final ParameterObject fieldObj = new ParameterObject(childObject.getName(), childObject.getDataObject());
+		fieldObj.setLocation(ParameterLocation.QUERY);
+		fieldObj.setJavadocFieldClassName(paramObj.getJavaClass().getCanonicalName());
+		if(childObject.getDataObject().getClassRequired() != null) {
+			fieldObj.setRequired(childObject.getDataObject().getClassRequired());
 		}
+		return fieldObj;
 	}
 
 	@Override
