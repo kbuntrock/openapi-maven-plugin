@@ -1,0 +1,37 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: JakartaIgnoreController
+paths:
+  /api/ignore/get:
+    get:
+      tags:
+        - JakartaIgnoreController
+      operationId: JakartaIgnoreController.get
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JakartaJsonTransientDto'
+      x-operation-name: get
+components:
+  schemas:
+    JakartaJsonTransientDto:
+      type: object
+      properties:
+        keyAndPassword:
+          $ref: '#/components/schemas/KeyAndPasswordDto'
+    KeyAndPasswordDto:
+      type: object
+      properties:
+        key:
+          type: string
+        newPassword:
+          type: string
