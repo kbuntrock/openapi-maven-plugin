@@ -2,11 +2,7 @@ package io.github.kbuntrock;
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
-import io.github.kbuntrock.configuration.ApiConfiguration;
-import io.github.kbuntrock.configuration.CommonApiConfiguration;
-import io.github.kbuntrock.configuration.JavadocConfiguration;
-import io.github.kbuntrock.configuration.OperationIdHelper;
-import io.github.kbuntrock.configuration.Substitution;
+import io.github.kbuntrock.configuration.*;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.context.ProjectContext;
@@ -17,38 +13,11 @@ import io.github.kbuntrock.resources.endpoint.annotation.AnnotatedController;
 import io.github.kbuntrock.resources.endpoint.collection.CollectionController;
 import io.github.kbuntrock.resources.endpoint.collision.FirstEndpoint;
 import io.github.kbuntrock.resources.endpoint.collision.SecondEndpoint;
-import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration1Controller;
-import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration2Controller;
-import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration3Controller;
-import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration4Controller;
-import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration5Controller;
-import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration6Controller;
+import io.github.kbuntrock.resources.endpoint.enumeration.*;
 import io.github.kbuntrock.resources.endpoint.error.SameOperationController;
 import io.github.kbuntrock.resources.endpoint.file.FileUploadController;
 import io.github.kbuntrock.resources.endpoint.file.StreamResponseController;
-import io.github.kbuntrock.resources.endpoint.generic.ExtendsGenericObjectMap;
-import io.github.kbuntrock.resources.endpoint.generic.ExtendsList;
-import io.github.kbuntrock.resources.endpoint.generic.ExtendsListV2;
-import io.github.kbuntrock.resources.endpoint.generic.ExtendsMap;
-import io.github.kbuntrock.resources.endpoint.generic.GenericDataController;
-import io.github.kbuntrock.resources.endpoint.generic.GenericMappingObject;
-import io.github.kbuntrock.resources.endpoint.generic.GenericityTestEight;
-import io.github.kbuntrock.resources.endpoint.generic.GenericityTestEleven;
-import io.github.kbuntrock.resources.endpoint.generic.GenericityTestFive;
-import io.github.kbuntrock.resources.endpoint.generic.GenericityTestFour;
-import io.github.kbuntrock.resources.endpoint.generic.GenericityTestNine;
-import io.github.kbuntrock.resources.endpoint.generic.GenericityTestOne;
-import io.github.kbuntrock.resources.endpoint.generic.GenericityTestSeven;
-import io.github.kbuntrock.resources.endpoint.generic.GenericityTestSix;
-import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTen;
-import io.github.kbuntrock.resources.endpoint.generic.GenericityTestThree;
-import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTwelve;
-import io.github.kbuntrock.resources.endpoint.generic.GenericityTestTwo;
-import io.github.kbuntrock.resources.endpoint.generic.Issue144;
-import io.github.kbuntrock.resources.endpoint.generic.Issue144ByInterface;
-import io.github.kbuntrock.resources.endpoint.generic.Issue89;
-import io.github.kbuntrock.resources.endpoint.generic.Issue95;
-import io.github.kbuntrock.resources.endpoint.generic.MappingObject;
+import io.github.kbuntrock.resources.endpoint.generic.*;
 import io.github.kbuntrock.resources.endpoint.header.MultipartFileWithHeaderController;
 import io.github.kbuntrock.resources.endpoint.ignore.JsonIgnoreController;
 import io.github.kbuntrock.resources.endpoint.interfacedto.InterfaceController;
@@ -68,16 +37,8 @@ import io.github.kbuntrock.resources.endpoint.operation.MultipleProducedContentT
 import io.github.kbuntrock.resources.endpoint.operation.MultipleProducedContentTypesParameterIncoherence;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementOneController;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementTwoController;
-import io.github.kbuntrock.resources.endpoint.queryparam.EmptyValueParameterController;
-import io.github.kbuntrock.resources.endpoint.queryparam.QueryParamDtoBindingController;
-import io.github.kbuntrock.resources.endpoint.queryparam.QueryParamFlatMixNestedDtoBindingController;
-import io.github.kbuntrock.resources.endpoint.queryparam.QueryParamInMappingController;
-import io.github.kbuntrock.resources.endpoint.recursive.GenericRecursiveDtoController;
-import io.github.kbuntrock.resources.endpoint.recursive.GenericRecursiveInterfaceDtoController;
-import io.github.kbuntrock.resources.endpoint.recursive.GenericRecursiveInterfaceListDtoInParameterController;
-import io.github.kbuntrock.resources.endpoint.recursive.GenericRecursiveListDtoController;
-import io.github.kbuntrock.resources.endpoint.recursive.RecursiveDtoController;
-import io.github.kbuntrock.resources.endpoint.recursive.RecursiveDtoInParameterController;
+import io.github.kbuntrock.resources.endpoint.queryparam.*;
+import io.github.kbuntrock.resources.endpoint.recursive.*;
 import io.github.kbuntrock.resources.endpoint.spring.OptionalController;
 import io.github.kbuntrock.resources.endpoint.spring.ResponseEntityController;
 import io.github.kbuntrock.resources.endpoint.spring.ResponseEntityUnparametrizedController;
@@ -100,12 +61,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class SpringClassAnalyserTest extends AbstractTest {
 
@@ -825,6 +781,18 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	public void query_param_dto_binding() throws MojoFailureException, IOException, MojoExecutionException {
 
 		final DocumentationMojo mojo = createBasicMojo(QueryParamDtoBindingController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/queryparam",
+			"src/test/java/io/github/kbuntrock/resources/dto"));
+		mojo.setJavadocConfiguration(javadocConfig);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void model_attribute() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(ModelAttributeController.class.getCanonicalName());
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
 		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/queryparam",
 			"src/test/java/io/github/kbuntrock/resources/dto"));
