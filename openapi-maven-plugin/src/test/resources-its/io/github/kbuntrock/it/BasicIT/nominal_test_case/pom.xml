@@ -58,6 +58,7 @@
                         <defaultErrors>openapi/default_errors.json</defaultErrors>
                         <loopbackOperationName>false</loopbackOperationName>
                         <operationId>{method_name}</operationId>
+                        <useProjectDescription>true</useProjectDescription>
                         <tagAnnotations>
                             <annotation>RequestMapping</annotation>
                         </tagAnnotations>

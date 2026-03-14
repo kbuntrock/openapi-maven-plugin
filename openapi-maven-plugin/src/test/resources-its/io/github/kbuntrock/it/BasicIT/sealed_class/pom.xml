@@ -60,6 +60,7 @@
                             <locations>
                                 <location>io.github.kbuntrock.sample.enpoint</location>
                             </locations>
+                            <useProjectDescription>true</useProjectDescription>
                         </api>
                     </apis>
                     <javadocConfiguration>
