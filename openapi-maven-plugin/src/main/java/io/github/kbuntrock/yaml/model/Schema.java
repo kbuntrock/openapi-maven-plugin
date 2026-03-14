@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.TagLibrary;
 import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.configuration.library.reader.BeanDefinitionUtils;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.javadoc.ClassDocumentation.EnhancementType;
@@ -273,7 +274,7 @@ public class Schema {
 				}
 			}
 		} else {
-			List<ChildObject> childProperties = tagLibrary.getPropertyObjectsToDocument(dataObject);
+			List<ChildObject> childProperties = BeanDefinitionUtils.getPropertyObjectsToDocument(dataObject, context);
 			for(ChildObject child : childProperties) {
 				final DataObject propertyObject = tagLibrary.getOpenApiTypeResolver().unwrapDataObject(
 					child.getDataObject(),
