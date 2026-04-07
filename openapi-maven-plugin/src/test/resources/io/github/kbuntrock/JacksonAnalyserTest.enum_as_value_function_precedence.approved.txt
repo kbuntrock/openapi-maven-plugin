@@ -14,7 +14,7 @@ paths:
         - EnumAsValueFunctionPrecedenceController
       operationId: EnumAsValueFunctionPrecedenceController.getEnums
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             application/json:

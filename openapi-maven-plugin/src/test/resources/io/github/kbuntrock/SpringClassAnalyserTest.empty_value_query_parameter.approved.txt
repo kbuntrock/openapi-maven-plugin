@@ -31,7 +31,7 @@ paths:
           required: false
           allowEmptyValue: true
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':

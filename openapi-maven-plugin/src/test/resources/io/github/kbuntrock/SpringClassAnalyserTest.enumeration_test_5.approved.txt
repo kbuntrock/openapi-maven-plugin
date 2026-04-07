@@ -21,7 +21,7 @@ paths:
               items:
                 $ref: '#/components/schemas/Authority'
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':

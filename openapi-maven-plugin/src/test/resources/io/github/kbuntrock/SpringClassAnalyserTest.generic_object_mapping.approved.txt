@@ -23,5 +23,5 @@ paths:
               additionalProperties: {}
         description: my map
       responses:
-        200:
+        "200":
           description: successful operation

@@ -28,13 +28,12 @@ public class Response {
 		return code;
 	}
 
-	public void setCode(Object code, String defaultSuccessfulOperationDescription) {
-		this.code = code;
-		if(code instanceof Integer) {
-			if((Integer) code >= 200 && (Integer) code < 300) {
-				this.description = defaultSuccessfulOperationDescription;
-			}
+	public void setCode(Integer code, String defaultSuccessfulOperationDescription) {
+		if(code >= 200 && code < 300) {
+			this.description = defaultSuccessfulOperationDescription;
 		}
+		// OpenAPI 3.0 requires response codes to be strings.
+		this.code = String.valueOf(code);
 	}
 
 	public String getDescription() {

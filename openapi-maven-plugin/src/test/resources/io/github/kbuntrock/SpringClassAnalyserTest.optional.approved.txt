@@ -14,7 +14,7 @@ paths:
         - OptionalController
       operationId: getAccount
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -26,7 +26,7 @@ paths:
         - OptionalController
       operationId: getWrappedAccount
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':

@@ -37,7 +37,7 @@ paths:
                 wrapped:
                   $ref: '#/components/schemas/AccountDto'
       responses:
-        200:
+        "200":
           description: successful operation
 components:
   schemas:

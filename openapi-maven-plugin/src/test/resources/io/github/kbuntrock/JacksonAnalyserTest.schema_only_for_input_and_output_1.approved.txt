@@ -18,7 +18,7 @@ paths:
       operationId: JacksonController1.findAll
       description: Find all orders
       responses:
-        200:
+        "200":
           description: all the orders
           content:
             application/json:
@@ -40,7 +40,7 @@ paths:
               $ref: '#/components/schemas/AccountJacksonDto'
         description: the account to be created
       responses:
-        200:
+        "200":
           description: successful operation
       x-operation-name: create
 components:

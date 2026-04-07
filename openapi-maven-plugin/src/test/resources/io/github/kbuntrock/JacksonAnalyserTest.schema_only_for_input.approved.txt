@@ -22,7 +22,7 @@ paths:
               $ref: '#/components/schemas/OrderJacksonDto'
         description: the order to create
       responses:
-        200:
+        "200":
           description: successful operation
       x-operation-name: create
 components:

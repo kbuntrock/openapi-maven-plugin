@@ -14,7 +14,7 @@ paths:
         - SameOperationController
       operationId: getAuthorities
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -30,7 +30,7 @@ paths:
         - SameOperationController
       operationId: getAuthorityList
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
