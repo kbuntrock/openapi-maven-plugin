@@ -29,8 +29,8 @@ components:
       type: integer
       format: int32
       enum:
-        - 503
-        - 1003
+        - "503"
+        - "1003"
       x-enum-varnames:
         - FRANCE
         - GERMANY

@@ -31,8 +31,8 @@ components:
       type: integer
       format: int32
       enum:
-        - 500
-        - 1000
+        - "500"
+        - "1000"
       x-enum-varnames:
         - FRANCE
         - GERMANY

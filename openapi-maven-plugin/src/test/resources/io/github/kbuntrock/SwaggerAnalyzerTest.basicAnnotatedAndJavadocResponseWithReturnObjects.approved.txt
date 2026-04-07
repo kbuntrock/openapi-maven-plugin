@@ -106,7 +106,7 @@ components:
           description: HTTP status code of the error
           type: integer
           format: int32
-          example: 500
+          example: "500"
         error:
           description: Short description of the error
           type: string
@@ -132,7 +132,7 @@ components:
         id:
           description: Unique identifier for the response
           type: string
-          example: 12345
+          example: "12345"
         status:
           description: Status of the response
           type: string

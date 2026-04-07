@@ -92,7 +92,7 @@ components:
         id:
           description: Unique identifier for the response
           type: string
-          example: 12345
+          example: "12345"
         status:
           description: Status of the response
           type: string

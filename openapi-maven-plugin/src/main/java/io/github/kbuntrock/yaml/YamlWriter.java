@@ -71,7 +71,8 @@ public class YamlWriter {
 		this.om = FILEFORMAT_JSON.equals(apiConfiguration.getFileFormat())
 			? new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
 			: new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
-				.enable(YAMLGenerator.Feature.INDENT_ARRAYS_WITH_INDICATOR));
+				.enable(YAMLGenerator.Feature.INDENT_ARRAYS_WITH_INDICATOR)
+				.enable(YAMLGenerator.Feature.ALWAYS_QUOTE_NUMBERS_AS_STRINGS));
 	}
 
 	private void populateSpecificationFreeFields(final Specification specification, final Optional<JsonNode> freefields) {
