@@ -14,7 +14,7 @@ paths:
         - MapController
       operationId: getMapString
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -28,7 +28,7 @@ paths:
         - MapController
       operationId: getMapUsers
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -49,7 +49,7 @@ paths:
               additionalProperties:
                 $ref: '#/components/schemas/AccountDto'
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -68,7 +68,7 @@ paths:
               additionalProperties:
                 type: string
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':

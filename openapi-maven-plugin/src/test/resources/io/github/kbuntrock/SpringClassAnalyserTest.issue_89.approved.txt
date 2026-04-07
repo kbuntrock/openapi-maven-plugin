@@ -22,7 +22,7 @@ paths:
               $ref: '#/components/schemas/Bar'
         description: my awesome parameter
       responses:
-        200:
+        "200":
           description: my also awesome response
           content:
             '*/*':

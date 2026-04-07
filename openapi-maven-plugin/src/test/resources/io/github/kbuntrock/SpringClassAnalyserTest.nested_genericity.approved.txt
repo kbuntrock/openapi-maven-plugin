@@ -21,7 +21,7 @@ paths:
             type: integer
             format: int64
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             application/json:
@@ -44,7 +44,7 @@ paths:
             type: integer
             format: int64
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -82,7 +82,7 @@ paths:
                   type: integer
                   format: int64
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -94,7 +94,7 @@ paths:
         - GenericityTestTwo
       operationId: getAuthorityPage
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -126,7 +126,7 @@ paths:
             type: integer
             format: int64
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             application/json:
@@ -150,7 +150,7 @@ paths:
         - GenericityTestTwo
       operationId: getTimePage
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':

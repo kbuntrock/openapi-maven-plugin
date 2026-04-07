@@ -29,7 +29,7 @@ paths:
               $ref: '#/components/schemas/UserDto'
         description: the user and his updated data
       responses:
-        200:
+        "200":
           description: the updated user
           content:
             application/json:
@@ -43,7 +43,7 @@ paths:
       operationId: UserController.getUserDtos
       description: Get a list of all the users of the application
       responses:
-        200:
+        "200":
           description: a list of all the users of the application
           content:
             application/json:

@@ -14,7 +14,7 @@ paths:
         - SpringPathEnhancementTwoController
       operationId: getTwo
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -26,7 +26,7 @@ paths:
         - SpringPathEnhancementTwoController
       operationId: getOne
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':

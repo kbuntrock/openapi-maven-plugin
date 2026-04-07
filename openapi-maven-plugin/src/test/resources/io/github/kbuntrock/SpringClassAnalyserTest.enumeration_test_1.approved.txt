@@ -15,7 +15,7 @@ paths:
       operationId: getAuthorities
       deprecated: true
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':

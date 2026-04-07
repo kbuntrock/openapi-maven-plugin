@@ -41,7 +41,7 @@ paths:
                   format: binary
         description: the provided file
       responses:
-        200:
+        "200":
           description: "OK if upload in success, KO otherwise"
           content:
             '*/*':

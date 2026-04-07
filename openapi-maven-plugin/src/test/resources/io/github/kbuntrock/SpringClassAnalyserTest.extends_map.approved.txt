@@ -16,7 +16,7 @@ paths:
       operationId: getChildMap
       description: Get a child map
       responses:
-        200:
+        "200":
           description: a child map
           content:
             '*/*':
@@ -41,5 +41,5 @@ paths:
                 format: int64
         description: some map
       responses:
-        200:
+        "200":
           description: successful operation

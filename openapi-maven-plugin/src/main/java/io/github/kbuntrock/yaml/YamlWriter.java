@@ -454,7 +454,7 @@ public class YamlWriter {
 				for(final OperationResponse operationResponse : endpoint.getOperationAnnotationInfo().getResponses()) {
 					// Check if response code is already documented, if so, we merge the attributes
 					Response annotatedResponse = null;
-					Object additionalResponseObject = operation.getResponses().get(operationResponse.getCode());
+					Object additionalResponseObject = operation.getResponses().get(String.valueOf(operationResponse.getCode()));
 					if(additionalResponseObject != null && additionalResponseObject instanceof Response) {
 						annotatedResponse = (Response) additionalResponseObject;
 					} else {

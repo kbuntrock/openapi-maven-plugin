@@ -17,7 +17,7 @@ paths:
       operationId: ShapeController.getCircle
       description: Get a circle
       responses:
-        200:
+        "200":
           description: the circle object
           content:
             application/json:
@@ -31,7 +31,7 @@ paths:
       operationId: ShapeController.getStatus
       description: Get the api status
       responses:
-        200:
+        "200":
           description: the status of the shape api
           content:
             application/json:

@@ -14,7 +14,7 @@ paths:
         - Issue95
       operationId: error
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':

@@ -16,19 +16,19 @@ paths:
       operationId: errorResponses
       summary: Swagger summary
       responses:
-        200:
+        "200":
           description: Swagger Successful operation
           content:
             '*/*':
               schema:
                 type: string
-        404:
+        "404":
           description: Not Found
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/ErrorEntity'
-        500:
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -41,13 +41,13 @@ paths:
       operationId: errorResponsesWithNoAndErrorInResponseCode
       summary: Swagger summary
       responses:
-        200:
+        "200":
           description: Swagger Successful operation
           content:
             '*/*':
               schema:
                 type: string
-        500:
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -60,7 +60,7 @@ paths:
       operationId: swaggerSummary
       summary: Swagger summary
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':

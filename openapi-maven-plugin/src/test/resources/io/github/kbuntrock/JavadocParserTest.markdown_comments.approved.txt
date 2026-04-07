@@ -38,7 +38,7 @@ paths:
               $ref: '#/components/schemas/SimpleUserDto'
         description: a dto representing a SimpleUserDto
       responses:
-        200:
+        "200":
           description: true or false
           content:
             '*/*':

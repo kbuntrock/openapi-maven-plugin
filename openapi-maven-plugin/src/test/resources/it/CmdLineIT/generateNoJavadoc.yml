@@ -26,7 +26,7 @@ paths:
             schema:
               $ref: '#/components/schemas/UserDto'
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             application/json:
@@ -39,7 +39,7 @@ paths:
         - UserController
       operationId: UserController.getUserDtos
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             application/json:

@@ -14,7 +14,7 @@ paths:
         - StreamResponseController
       operationId: getByteArray
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             application/octet-stream:
@@ -27,7 +27,7 @@ paths:
         - StreamResponseController
       operationId: getStream
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             application/octet-stream:

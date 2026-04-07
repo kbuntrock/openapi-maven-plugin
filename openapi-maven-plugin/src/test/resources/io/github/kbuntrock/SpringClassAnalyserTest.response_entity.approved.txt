@@ -16,7 +16,7 @@ paths:
       operationId: getAccount
       description: Get an account object
       responses:
-        200:
+        "200":
           description: the return account
           content:
             '*/*':

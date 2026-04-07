@@ -14,7 +14,7 @@ paths:
         - AnnotatedController
       operationId: getCounter
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
