@@ -27,7 +27,8 @@ paths:
               properties:
                 metadata:
                   description: Some metadata about this file
-                  $ref: '#/components/schemas/MetadataDto'
+                  allOf:
+                    - $ref: '#/components/schemas/MetadataDto'
                 goal:
                   description: The upload goal
                   type: string
@@ -62,7 +63,8 @@ paths:
               properties:
                 metadata:
                   description: Some metadata about this file
-                  $ref: '#/components/schemas/MetadataDto'
+                  allOf:
+                    - $ref: '#/components/schemas/MetadataDto'
                 goal:
                   description: The upload goal
                   type: string
@@ -101,7 +103,8 @@ paths:
               properties:
                 metadata:
                   description: Some metadata about this file
-                  $ref: '#/components/schemas/MetadataDto'
+                  allOf:
+                    - $ref: '#/components/schemas/MetadataDto'
                 goal:
                   description: The upload goal
                   type: string

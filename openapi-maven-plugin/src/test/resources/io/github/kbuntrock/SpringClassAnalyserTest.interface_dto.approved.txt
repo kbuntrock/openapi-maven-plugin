@@ -25,10 +25,12 @@ paths:
                 properties:
                   account:
                     description: Comment on getAccount
-                    $ref: '#/components/schemas/AccountDto'
+                    allOf:
+                      - $ref: '#/components/schemas/AccountDto'
                   generic:
                     description: Comment on getGeneric
-                    $ref: '#/components/schemas/TimeDto'
+                    allOf:
+                      - $ref: '#/components/schemas/TimeDto'
                   genericList:
                     description: Comment on getGenericList
                     type: array

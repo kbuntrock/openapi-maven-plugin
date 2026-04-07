@@ -53,7 +53,8 @@ components:
         account:
           description: "account is serialization only: emitted in JSON, ignored on\
             \ input"
-          $ref: '#/components/schemas/AccountJacksonDto'
+          allOf:
+            - $ref: '#/components/schemas/AccountJacksonDto'
         customerEmail:
           description: customerEmail is a regular field (read/write)
           type: string

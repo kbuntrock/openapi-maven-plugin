@@ -59,7 +59,8 @@ paths:
             '*/*':
               schema:
                 description: The success entity
-                $ref: '#/components/schemas/SuccessEntity'
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEntity'
         "404":
           description: Not Found
           content:
@@ -124,7 +125,8 @@ components:
           example: Additional information about the error
         cause:
           description: "The cause of the error, if any"
-          $ref: '#/components/schemas/ErrorEntityWithAnnotations'
+          allOf:
+            - $ref: '#/components/schemas/ErrorEntityWithAnnotations'
     ResponseEntityWithAnnotations:
       type: object
       properties:
