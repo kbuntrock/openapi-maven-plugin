@@ -22,7 +22,7 @@ paths:
             type: number
             format: double
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -34,7 +34,7 @@ paths:
         - TimeController
       operationId: getTimeDto
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':

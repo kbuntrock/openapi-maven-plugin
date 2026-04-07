@@ -29,11 +29,15 @@ public class Response {
 	}
 
 	public void setCode(Object code, String defaultSuccessfulOperationDescription) {
-		this.code = code;
 		if(code instanceof Integer) {
 			if((Integer) code >= 200 && (Integer) code < 300) {
 				this.description = defaultSuccessfulOperationDescription;
 			}
+			// OpenAPI 3.0 requires response codes to be strings.
+			// Convert to String so YAML serialization produces "200": instead of 200:
+			this.code = String.valueOf(code);
+		} else {
+			this.code = code;
 		}
 	}
 

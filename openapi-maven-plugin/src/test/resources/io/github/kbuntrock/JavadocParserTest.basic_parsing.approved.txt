@@ -29,7 +29,7 @@ paths:
               $ref: '#/components/schemas/SimpleUserDto'
         description: a dto still representing a SimpleUserDto
       responses:
-        200:
+        "200":
           description: still true or false
           content:
             '*/*':
@@ -55,7 +55,7 @@ paths:
               $ref: '#/components/schemas/Authority'
         description: a dto representing an Authority
       responses:
-        200:
+        "200":
           description: "0 if false, 1 if true"
           content:
             '*/*':
@@ -83,7 +83,7 @@ paths:
               $ref: '#/components/schemas/SimpleUserDto'
         description: a dto representing a SimpleUserDto
       responses:
-        200:
+        "200":
           description: true or false
           content:
             '*/*':

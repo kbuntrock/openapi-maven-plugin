@@ -22,7 +22,7 @@ paths:
             type: integer
             format: int32
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -35,7 +35,7 @@ paths:
       operationId: getPageFunctionalities
       description: "Supported functionalities, as a page"
       responses:
-        200:
+        "200":
           description: the supported functionalities
           content:
             '*/*':

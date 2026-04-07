@@ -14,7 +14,7 @@ paths:
         - MyController
       operationId: getInfo
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -25,7 +25,7 @@ paths:
         - MyController
       operationId: setInfo
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -36,7 +36,7 @@ paths:
         - MyController
       operationId: putInfo
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -47,7 +47,7 @@ paths:
         - MyController
       operationId: patchInfo
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -58,7 +58,7 @@ paths:
         - MyController
       operationId: deleteInfo
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -70,7 +70,7 @@ paths:
         - MyController
       operationId: getInfo2
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -81,7 +81,7 @@ paths:
         - MyController
       operationId: setInfo2
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -92,7 +92,7 @@ paths:
         - MyController
       operationId: putInfo2
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -103,7 +103,7 @@ paths:
         - MyController
       operationId: patchInfo2
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':
@@ -114,7 +114,7 @@ paths:
         - MyController
       operationId: deleteInfo2
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':

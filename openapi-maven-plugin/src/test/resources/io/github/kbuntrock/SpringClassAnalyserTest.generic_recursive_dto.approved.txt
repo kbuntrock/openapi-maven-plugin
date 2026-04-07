@@ -16,7 +16,7 @@ paths:
       operationId: getRecursive
       description: Return the recursive generic object
       responses:
-        200:
+        "200":
           description: something
           content:
             '*/*':

@@ -42,9 +42,9 @@ paths:
                 contentType: application/octet-stream
         description: a time in the "execute" case
       responses:
-        204:
+        "204":
           description: successful operation
-        200:
+        "200":
           description: a PageDto of string in the "checkFile" case
           content:
             '*/*':

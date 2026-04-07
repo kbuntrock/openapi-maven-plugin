@@ -14,7 +14,7 @@ paths:
         - ExtendsListV2
       operationId: getList
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':

@@ -36,7 +36,7 @@ paths:
             type: string
             format: date-time
       responses:
-        200:
+        "200":
           description: successful operation
           content:
             '*/*':

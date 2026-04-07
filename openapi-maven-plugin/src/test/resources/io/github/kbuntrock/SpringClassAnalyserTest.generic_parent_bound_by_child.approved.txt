@@ -22,7 +22,7 @@ paths:
               $ref: '#/components/schemas/ChildRequestDto'
         description: some price request
       responses:
-        200:
+        "200":
           description: the requested item
           content:
             '*/*':

@@ -19,7 +19,7 @@ paths:
       operationId: canEncapsulate
       description: Indicate if this class has the ability to encapsulate
       responses:
-        200:
+        "200":
           description: true if it can encapsulate
           content:
             '*/*':
@@ -32,7 +32,7 @@ paths:
       operationId: canPrettyPrint
       description: Indicate if this class has the ability to pretty print
       responses:
-        200:
+        "200":
           description: true if it can pretty print
           content:
             '*/*':
@@ -45,7 +45,7 @@ paths:
       operationId: getPageFunctionalities
       description: "Supported functionalities, as a page"
       responses:
-        200:
+        "200":
           description: the supported functionalities
           content:
             '*/*':
@@ -76,7 +76,7 @@ paths:
       description: Return the name of this controller
       summary: name getter
       responses:
-        200:
+        "200":
           description: the name
           content:
             '*/*':
@@ -96,7 +96,7 @@ paths:
             type: integer
             format: int64
       responses:
-        200:
+        "200":
           description: a pretty printed string
           content:
             '*/*':

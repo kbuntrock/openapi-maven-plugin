@@ -16,7 +16,7 @@ paths:
       operationId: getInterfaceDto
       description: This endpoint returns an interface
       responses:
-        200:
+        "200":
           description: the returned interface
           content:
             '*/*':

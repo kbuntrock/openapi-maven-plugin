@@ -21,5 +21,5 @@ paths:
             type: integer
             format: int32
       responses:
-        200:
+        "200":
           description: successful operation

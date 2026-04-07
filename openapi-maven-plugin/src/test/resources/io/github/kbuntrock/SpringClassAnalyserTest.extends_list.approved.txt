@@ -16,7 +16,7 @@ paths:
       operationId: getListUUID
       description: Get a list of uuids
       responses:
-        200:
+        "200":
           description: uuid list
           content:
             '*/*':
