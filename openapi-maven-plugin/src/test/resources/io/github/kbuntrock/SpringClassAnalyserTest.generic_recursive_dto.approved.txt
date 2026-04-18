@@ -28,7 +28,8 @@ paths:
                     type: string
                   wrapped:
                     description: The generic wrapped object
-                    $ref: '#/components/schemas/AccountDto'
+                    allOf:
+                      - $ref: '#/components/schemas/AccountDto'
                   child:
                     description: The recursive property
                     type: object
@@ -38,10 +39,12 @@ paths:
                         type: string
                       wrapped:
                         description: The generic wrapped object
-                        $ref: '#/components/schemas/AccountDto'
+                        allOf:
+                          - $ref: '#/components/schemas/AccountDto'
                       child:
                         description: The recursive property
-                        $ref: '#/components/schemas/GenericRecursiveDto_AccountDto'
+                        allOf:
+                          - $ref: '#/components/schemas/GenericRecursiveDto_AccountDto'
 components:
   schemas:
     AccountDto:
@@ -115,7 +118,8 @@ components:
           type: string
         wrapped:
           description: The generic wrapped object
-          $ref: '#/components/schemas/AccountDto'
+          allOf:
+            - $ref: '#/components/schemas/AccountDto'
         child:
           description: The recursive property
           type: object
@@ -125,7 +129,9 @@ components:
               type: string
             wrapped:
               description: The generic wrapped object
-              $ref: '#/components/schemas/AccountDto'
+              allOf:
+                - $ref: '#/components/schemas/AccountDto'
             child:
               description: The recursive property
-              $ref: '#/components/schemas/GenericRecursiveDto_AccountDto'
+              allOf:
+                - $ref: '#/components/schemas/GenericRecursiveDto_AccountDto'

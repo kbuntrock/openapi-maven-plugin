@@ -112,7 +112,8 @@ components:
         account:
           description: "account is serialization only: emitted in JSON, ignored on\
             \ input"
-          $ref: '#/components/schemas/AccountJacksonDto'
+          allOf:
+            - $ref: '#/components/schemas/AccountJacksonDto'
           readOnly: true
         customerEmail:
           description: customerEmail is a regular field (read/write)
@@ -128,7 +129,8 @@ components:
       properties:
         account:
           description: Account of the resume (write only)
-          $ref: '#/components/schemas/AccountJacksonDto'
+          allOf:
+            - $ref: '#/components/schemas/AccountJacksonDto'
         description:
           description: Description of the resume
           type: string

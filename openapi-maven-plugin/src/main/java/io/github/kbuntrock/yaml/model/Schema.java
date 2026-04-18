@@ -496,6 +496,18 @@ public class Schema {
 
 		final Map<String, Object> map = new LinkedHashMap<>();
 
+		// In OpenAPI 3.0, a $ref must not have sibling properties. When a reference
+		// coexists with a description (or other fields), wrap the $ref inside an allOf
+		// so that the description stays at the current level while the reference is
+		// isolated inside the allOf entry.
+		if(StringUtils.isNotBlank(reference) && description != null) {
+			map.put("description", description);
+			final Map<String, Object> refMap = new LinkedHashMap<>();
+			refMap.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, reference);
+			map.put("allOf", Collections.singletonList(refMap));
+			return map;
+		}
+
 		// Elsewhere, resolved type only describe vaguely the type (object or array), and we write all the infos
 		if(description != null) {
 			map.put("description", description);

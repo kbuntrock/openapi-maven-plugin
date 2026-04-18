@@ -38,10 +38,12 @@ components:
       properties:
         a:
           description: the a attribute
-          $ref: '#/components/schemas/Foo'
+          allOf:
+            - $ref: '#/components/schemas/Foo'
         b:
           description: the b attribute
-          $ref: '#/components/schemas/Boo'
+          allOf:
+            - $ref: '#/components/schemas/Boo'
         foo:
           description: the foo integer
           type: integer
@@ -58,10 +60,12 @@ components:
       properties:
         a:
           description: the a attribute
-          $ref: '#/components/schemas/Foo'
+          allOf:
+            - $ref: '#/components/schemas/Foo'
         b:
           description: the b attribute
-          $ref: '#/components/schemas/Boo'
+          allOf:
+            - $ref: '#/components/schemas/Boo'
         foo:
           description: the foo integer
           type: integer
@@ -75,10 +79,12 @@ components:
       properties:
         a:
           description: the a attribute
-          $ref: '#/components/schemas/Foo'
+          allOf:
+            - $ref: '#/components/schemas/Foo'
         b:
           description: the b attribute
-          $ref: '#/components/schemas/Boo'
+          allOf:
+            - $ref: '#/components/schemas/Boo'
         foo:
           description: the foo integer
           type: integer
@@ -89,10 +95,12 @@ components:
       properties:
         a:
           description: get the A attribute
-          $ref: '#/components/schemas/IFoo'
+          allOf:
+            - $ref: '#/components/schemas/IFoo'
         b:
           description: Get the B attribute
-          $ref: '#/components/schemas/IBoo'
+          allOf:
+            - $ref: '#/components/schemas/IBoo'
         bar:
           description: The bar string
           type: string
