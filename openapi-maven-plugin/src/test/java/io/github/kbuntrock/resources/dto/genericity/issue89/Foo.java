@@ -13,4 +13,8 @@ public class Foo extends Pair<Foo, Boo> {
 	public Integer getFoo() {
 		return foo;
 	}
+
+	public void setFoo(Integer foo) {
+		this.foo = foo;
+	}
 }

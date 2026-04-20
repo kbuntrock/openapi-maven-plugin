@@ -13,4 +13,8 @@ public class ActionDto extends EntityDto {
 	public String getTitle() {
 		return title;
 	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
 }
