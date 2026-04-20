@@ -1,8 +1,8 @@
-import {themes as prismThemes} from 'prism-react-renderer';
-import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
-import type {PluginsParams} from 'svgo/plugins/plugins-types';
-import * as path from "node:path";
+import type { Config } from '@docusaurus/types';
+import type { PluginsParams } from 'svgo/plugins/plugins-types';
+import { darkTheme, lightTheme } from './src/css/theme';
+
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -190,8 +190,8 @@ const config: Config = {
       copyright: `Copyright © ${new Date().getFullYear()} Openapi Maven Plugin`,
     },
     prism: {
-      theme: prismThemes.github,
-      darkTheme: prismThemes.dracula,
+      theme: lightTheme,
+      darkTheme: darkTheme,
       additionalLanguages: ['java'],
     },
     announcementBar: {
