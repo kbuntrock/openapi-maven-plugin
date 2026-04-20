@@ -41,9 +41,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/UserDto"
         "401":
-          $ref: '#/components/responses/Unauthorized'
+          $ref: "#/components/responses/Unauthorized"
         "404":
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
   /my-prefix/api/user/user-dtos:
     get:
       tags:
@@ -60,9 +60,9 @@ paths:
                 items:
                   $ref: "#/components/schemas/UserDto"
         "401":
-          $ref: '#/components/responses/Unauthorized'
+          $ref: "#/components/responses/Unauthorized"
         "404":
-          $ref: '#/components/responses/NotFound'
+          $ref: "#/components/responses/NotFound"
 components:
   schemas:
     Authority:
