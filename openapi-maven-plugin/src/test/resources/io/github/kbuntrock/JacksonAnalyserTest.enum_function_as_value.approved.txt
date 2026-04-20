@@ -21,7 +21,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/EnumFunctionValue'
+                  $ref: "#/components/schemas/EnumFunctionValue"
       x-operation-name: getEnums
 components:
   schemas:

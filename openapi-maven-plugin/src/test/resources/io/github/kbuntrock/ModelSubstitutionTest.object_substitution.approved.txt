@@ -19,7 +19,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomAccountDto'
+                $ref: "#/components/schemas/CustomAccountDto"
       x-operation-name: getAccount
 components:
   schemas:

@@ -24,14 +24,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserDto'
+              $ref: "#/components/schemas/UserDto"
       responses:
         "200":
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDto'
+                $ref: "#/components/schemas/UserDto"
       x-operation-name: updateUser
   /api/user/user-dtos:
     get:
@@ -46,7 +46,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/UserDto'
+                  $ref: "#/components/schemas/UserDto"
       x-operation-name: getUserDtos
 components:
   schemas:
@@ -103,5 +103,5 @@ components:
         authorities:
           type: array
           items:
-            $ref: '#/components/schemas/Authority'
+            $ref: "#/components/schemas/Authority"
           uniqueItems: true

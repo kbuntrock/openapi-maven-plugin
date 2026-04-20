@@ -22,7 +22,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AccountDto'
+                  $ref: "#/components/schemas/AccountDto"
   /api/first-ws/authority:
     post:
       tags:
@@ -32,7 +32,7 @@ paths:
         content:
           '*/*':
             schema:
-              $ref: '#/components/schemas/Authority_2'
+              $ref: "#/components/schemas/Authority_2"
       responses:
         "200":
           description: successful operation
@@ -41,7 +41,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AccountDto'
+                  $ref: "#/components/schemas/AccountDto"
   /api/second-ws/light:
     get:
       tags:
@@ -55,7 +55,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AccountDto_1'
+                  $ref: "#/components/schemas/AccountDto_1"
 components:
   schemas:
     AccountDto:
@@ -98,7 +98,7 @@ components:
         authorities:
           type: array
           items:
-            $ref: '#/components/schemas/Authority'
+            $ref: "#/components/schemas/Authority"
           uniqueItems: true
     AccountDto_1:
       type: object
@@ -108,7 +108,7 @@ components:
         authorityList:
           type: array
           items:
-            $ref: '#/components/schemas/Authority_1'
+            $ref: "#/components/schemas/Authority_1"
     Authority:
       type: string
       enum:

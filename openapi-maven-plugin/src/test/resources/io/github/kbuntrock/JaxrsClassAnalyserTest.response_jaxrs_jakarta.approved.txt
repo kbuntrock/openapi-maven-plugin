@@ -19,7 +19,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountDto'
+                $ref: "#/components/schemas/AccountDto"
       x-operation-name: directlyPresent
   /api/response/update-indirectly:
     get:
@@ -32,7 +32,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountDto'
+                $ref: "#/components/schemas/AccountDto"
       x-operation-name: indirectlyPresent
 components:
   schemas:
@@ -76,7 +76,7 @@ components:
         authorities:
           type: array
           items:
-            $ref: '#/components/schemas/Authority'
+            $ref: "#/components/schemas/Authority"
           uniqueItems: true
     Authority:
       type: string

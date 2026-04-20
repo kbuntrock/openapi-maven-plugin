@@ -19,7 +19,7 @@ paths:
         content:
           '*/*':
             schema:
-              $ref: '#/components/schemas/Bar'
+              $ref: "#/components/schemas/Bar"
         description: my awesome parameter
       responses:
         "200":
@@ -29,7 +29,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/IBar'
+                  $ref: "#/components/schemas/IBar"
 components:
   schemas:
     Bar:
@@ -39,11 +39,11 @@ components:
         a:
           description: the a attribute
           allOf:
-            - $ref: '#/components/schemas/Foo'
+            - $ref: "#/components/schemas/Foo"
         b:
           description: the b attribute
           allOf:
-            - $ref: '#/components/schemas/Boo'
+            - $ref: "#/components/schemas/Boo"
         foo:
           description: the foo integer
           type: integer
@@ -61,11 +61,11 @@ components:
         a:
           description: the a attribute
           allOf:
-            - $ref: '#/components/schemas/Foo'
+            - $ref: "#/components/schemas/Foo"
         b:
           description: the b attribute
           allOf:
-            - $ref: '#/components/schemas/Boo'
+            - $ref: "#/components/schemas/Boo"
         foo:
           description: the foo integer
           type: integer
@@ -80,11 +80,11 @@ components:
         a:
           description: the a attribute
           allOf:
-            - $ref: '#/components/schemas/Foo'
+            - $ref: "#/components/schemas/Foo"
         b:
           description: the b attribute
           allOf:
-            - $ref: '#/components/schemas/Boo'
+            - $ref: "#/components/schemas/Boo"
         foo:
           description: the foo integer
           type: integer
@@ -96,11 +96,11 @@ components:
         a:
           description: get the A attribute
           allOf:
-            - $ref: '#/components/schemas/IFoo'
+            - $ref: "#/components/schemas/IFoo"
         b:
           description: Get the B attribute
           allOf:
-            - $ref: '#/components/schemas/IBoo'
+            - $ref: "#/components/schemas/IBoo"
         bar:
           description: The bar string
           type: string

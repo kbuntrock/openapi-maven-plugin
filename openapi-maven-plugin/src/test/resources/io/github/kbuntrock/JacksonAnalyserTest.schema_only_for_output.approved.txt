@@ -23,7 +23,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/OrderJacksonDto'
+                  $ref: "#/components/schemas/OrderJacksonDto"
       x-operation-name: findAll
 components:
   schemas:
@@ -54,7 +54,7 @@ components:
           description: "account is serialization only: emitted in JSON, ignored on\
             \ input"
           allOf:
-            - $ref: '#/components/schemas/AccountJacksonDto'
+            - $ref: "#/components/schemas/AccountJacksonDto"
         customerEmail:
           description: customerEmail is a regular field (read/write)
           type: string

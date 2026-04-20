@@ -22,7 +22,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CircleDto'
+                $ref: "#/components/schemas/CircleDto"
       x-operation-name: getCircle
   /api/shape/status:
     get:
@@ -36,7 +36,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RecordStatusDto'
+                $ref: "#/components/schemas/RecordStatusDto"
       x-operation-name: getStatus
 components:
   schemas:

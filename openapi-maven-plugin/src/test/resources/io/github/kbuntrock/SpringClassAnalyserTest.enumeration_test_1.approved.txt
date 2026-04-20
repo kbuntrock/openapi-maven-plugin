@@ -20,7 +20,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/EnumTest1Dto'
+                $ref: "#/components/schemas/EnumTest1Dto"
 components:
   schemas:
     Authority:
@@ -35,4 +35,4 @@ components:
         authorityList:
           type: array
           items:
-            $ref: '#/components/schemas/Authority'
+            $ref: "#/components/schemas/Authority"

@@ -33,14 +33,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AccountDto'
+              $ref: "#/components/schemas/AccountDto"
       responses:
         "200":
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountDto'
+                $ref: "#/components/schemas/AccountDto"
       x-operation-name: updateAccount
   /api/account/user-dtos:
     post:
@@ -61,7 +61,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AccountDto'
+                  $ref: "#/components/schemas/AccountDto"
       x-operation-name: getAccountDtosByQueryParam
   /api/account/user-dtos/{id}:
     get:
@@ -83,7 +83,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AccountDto'
+                  $ref: "#/components/schemas/AccountDto"
       x-operation-name: getAccountDtos
 components:
   schemas:
@@ -127,7 +127,7 @@ components:
         authorities:
           type: array
           items:
-            $ref: '#/components/schemas/Authority'
+            $ref: "#/components/schemas/Authority"
           uniqueItems: true
     Authority:
       type: string

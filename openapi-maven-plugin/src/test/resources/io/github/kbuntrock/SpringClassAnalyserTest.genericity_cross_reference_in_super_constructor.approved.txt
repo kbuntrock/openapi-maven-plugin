@@ -17,7 +17,7 @@ paths:
         content:
           '*/*':
             schema:
-              $ref: '#/components/schemas/SearchCriteriaV42'
+              $ref: "#/components/schemas/SearchCriteriaV42"
       responses:
         "200":
           description: successful operation
@@ -37,21 +37,21 @@ components:
       type: object
       properties:
         dateCriteria:
-          $ref: '#/components/schemas/CriteriaDateType'
+          $ref: "#/components/schemas/CriteriaDateType"
         myString:
           type: string
         self:
-          $ref: '#/components/schemas/SearchCriteriaV52'
+          $ref: "#/components/schemas/SearchCriteriaV52"
         toto:
           type: string
     SearchCriteriaV52:
       type: object
       properties:
         dateCriteria:
-          $ref: '#/components/schemas/CriteriaDateType'
+          $ref: "#/components/schemas/CriteriaDateType"
         myString:
           type: string
         self:
-          $ref: '#/components/schemas/SearchCriteriaV42'
+          $ref: "#/components/schemas/SearchCriteriaV42"
         tata:
           type: boolean

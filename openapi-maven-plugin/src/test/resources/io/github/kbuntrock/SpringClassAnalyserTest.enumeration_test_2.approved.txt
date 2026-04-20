@@ -21,7 +21,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Authority'
+                  $ref: "#/components/schemas/Authority"
 components:
   schemas:
     Authority:

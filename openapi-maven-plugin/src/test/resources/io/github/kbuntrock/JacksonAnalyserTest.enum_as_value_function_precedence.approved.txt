@@ -21,7 +21,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/EnumAsValueFunctionPrecedence'
+                  $ref: "#/components/schemas/EnumAsValueFunctionPrecedence"
       x-operation-name: getEnums
 components:
   schemas:

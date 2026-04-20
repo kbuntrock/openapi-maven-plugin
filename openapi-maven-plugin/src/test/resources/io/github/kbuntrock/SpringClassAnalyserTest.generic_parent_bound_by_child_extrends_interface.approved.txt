@@ -19,7 +19,7 @@ paths:
         content:
           '*/*':
             schema:
-              $ref: '#/components/schemas/ChildRequestDtoInterface'
+              $ref: "#/components/schemas/ChildRequestDtoInterface"
         description: some price request
       responses:
         "200":
@@ -38,7 +38,7 @@ components:
           description: The price request items
           type: array
           items:
-            $ref: '#/components/schemas/ChildRequestItemInterface'
+            $ref: "#/components/schemas/ChildRequestItemInterface"
     ChildRequestItemInterface:
       description: The child request item interface
       type: object

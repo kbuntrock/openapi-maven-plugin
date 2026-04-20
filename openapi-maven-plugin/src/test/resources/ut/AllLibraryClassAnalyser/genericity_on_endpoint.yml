@@ -28,7 +28,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ActionDto'
+                  $ref: "#/components/schemas/ActionDto"
       x-operation-name: getAll
   /actions/push:
     post:
@@ -41,14 +41,14 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/ActionDto'
+                $ref: "#/components/schemas/ActionDto"
       responses:
         "200":
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
       x-operation-name: postEntityDtos
   /actions/push-one:
     post:
@@ -59,14 +59,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ActionDto'
+              $ref: "#/components/schemas/ActionDto"
       responses:
         "200":
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Response'
+                $ref: "#/components/schemas/Response"
       x-operation-name: postOnlyOne
   /actions/status:
     get:
@@ -79,7 +79,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StatusImplDto'
+                $ref: "#/components/schemas/StatusImplDto"
       x-operation-name: getStatus
 components:
   schemas:

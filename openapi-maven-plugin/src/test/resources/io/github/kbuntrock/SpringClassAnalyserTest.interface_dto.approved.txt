@@ -26,18 +26,18 @@ paths:
                   account:
                     description: Comment on getAccount
                     allOf:
-                      - $ref: '#/components/schemas/AccountDto'
+                      - $ref: "#/components/schemas/AccountDto"
                   generic:
                     description: Comment on getGeneric
                     allOf:
-                      - $ref: '#/components/schemas/TimeDto'
+                      - $ref: "#/components/schemas/TimeDto"
                   genericList:
                     description: Comment on getGenericList
                     type: array
                     items:
                       type: array
                       items:
-                        $ref: '#/components/schemas/Authority'
+                        $ref: "#/components/schemas/Authority"
                   parentId:
                     description: Get the parent id
                     type: integer
@@ -95,7 +95,7 @@ components:
         authorities:
           type: array
           items:
-            $ref: '#/components/schemas/Authority'
+            $ref: "#/components/schemas/Authority"
           uniqueItems: true
     Authority:
       description: |

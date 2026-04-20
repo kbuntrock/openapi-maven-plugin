@@ -35,7 +35,7 @@ paths:
         content:
           '*/*':
             schema:
-              $ref: '#/components/schemas/SimpleUserDto'
+              $ref: "#/components/schemas/SimpleUserDto"
         description: a dto representing a SimpleUserDto
       responses:
         "200":

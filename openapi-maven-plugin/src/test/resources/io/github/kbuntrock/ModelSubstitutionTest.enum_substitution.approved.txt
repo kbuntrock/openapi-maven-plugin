@@ -19,7 +19,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountDto'
+                $ref: "#/components/schemas/AccountDto"
       x-operation-name: getAccount
 components:
   schemas:
@@ -63,7 +63,7 @@ components:
         authorities:
           type: array
           items:
-            $ref: '#/components/schemas/CustomAuthority'
+            $ref: "#/components/schemas/CustomAuthority"
           uniqueItems: true
     CustomAuthority:
       description: Permissions enumeration

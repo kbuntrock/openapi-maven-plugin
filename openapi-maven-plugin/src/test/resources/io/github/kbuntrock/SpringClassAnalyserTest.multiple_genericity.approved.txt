@@ -27,7 +27,7 @@ paths:
                       content:
                         type: array
                         items:
-                          $ref: '#/components/schemas/TimeDto'
+                          $ref: "#/components/schemas/TimeDto"
                       hasNext:
                         type: boolean
                       totalPages:
@@ -42,7 +42,7 @@ paths:
                       content:
                         type: array
                         items:
-                          $ref: '#/components/schemas/AccountDto'
+                          $ref: "#/components/schemas/AccountDto"
                       hasNext:
                         type: boolean
                   array:
@@ -70,7 +70,7 @@ paths:
                     content:
                       type: array
                       items:
-                        $ref: '#/components/schemas/TimeDto'
+                        $ref: "#/components/schemas/TimeDto"
                     hasNext:
                       type: boolean
                     totalPages:
@@ -85,7 +85,7 @@ paths:
                     content:
                       type: array
                       items:
-                        $ref: '#/components/schemas/AccountDto'
+                        $ref: "#/components/schemas/AccountDto"
                     hasNext:
                       type: boolean
                 array:
@@ -144,7 +144,7 @@ paths:
                       content:
                         type: array
                         items:
-                          $ref: '#/components/schemas/AccountDto'
+                          $ref: "#/components/schemas/AccountDto"
                       hasNext:
                         type: boolean
     post:
@@ -188,7 +188,7 @@ paths:
                     content:
                       type: array
                       items:
-                        $ref: '#/components/schemas/AccountDto'
+                        $ref: "#/components/schemas/AccountDto"
                     hasNext:
                       type: boolean
       responses:
@@ -236,7 +236,7 @@ components:
         authorities:
           type: array
           items:
-            $ref: '#/components/schemas/Authority'
+            $ref: "#/components/schemas/Authority"
           uniqueItems: true
     Authority:
       type: string

@@ -19,7 +19,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JakartaJsonTransientDto'
+                $ref: "#/components/schemas/JakartaJsonTransientDto"
       x-operation-name: get
 components:
   schemas:
@@ -27,7 +27,7 @@ components:
       type: object
       properties:
         keyAndPassword:
-          $ref: '#/components/schemas/KeyAndPasswordDto'
+          $ref: "#/components/schemas/KeyAndPasswordDto"
     KeyAndPasswordDto:
       type: object
       properties:

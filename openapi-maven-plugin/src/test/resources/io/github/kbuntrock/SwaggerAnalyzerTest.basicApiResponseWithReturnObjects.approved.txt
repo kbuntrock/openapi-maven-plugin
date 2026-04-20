@@ -27,13 +27,13 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ErrorEntity'
+                $ref: "#/components/schemas/ErrorEntity"
         "500":
           description: Internal server error
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ErrorEntity'
+                $ref: "#/components/schemas/ErrorEntity"
   /api/responsecodeErrors:
     get:
       tags:
@@ -52,7 +52,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ErrorEntity'
+                $ref: "#/components/schemas/ErrorEntity"
   /api/summary:
     get:
       tags:
@@ -95,4 +95,4 @@ components:
           type: string
         sourceInfo: {}
         cause:
-          $ref: '#/components/schemas/ErrorEntity'
+          $ref: "#/components/schemas/ErrorEntity"
