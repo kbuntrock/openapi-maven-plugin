@@ -13,4 +13,8 @@ public class Bar extends Boo {
 	public String getBar() {
 		return bar;
 	}
+
+	public void setBar(String bar) {
+		this.bar = bar;
+	}
 }

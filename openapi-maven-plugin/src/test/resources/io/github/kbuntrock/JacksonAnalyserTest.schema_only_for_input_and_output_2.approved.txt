@@ -25,7 +25,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/OrderJacksonDto'
+                  $ref: "#/components/schemas/OrderJacksonDto"
       x-operation-name: findAll
   /api/4:
     post:
@@ -43,7 +43,7 @@ paths:
                 items:
                   type: object
                   additionalProperties:
-                    $ref: '#/components/schemas/OrderJacksonDto'
+                    $ref: "#/components/schemas/OrderJacksonDto"
         description: the input object
       responses:
         "200":
@@ -65,7 +65,7 @@ paths:
                 items:
                   type: object
                   additionalProperties:
-                    $ref: '#/components/schemas/ResumeJacksonDto'
+                    $ref: "#/components/schemas/ResumeJacksonDto"
         description: the input object to create a resume
       responses:
         "200":
@@ -113,7 +113,7 @@ components:
           description: "account is serialization only: emitted in JSON, ignored on\
             \ input"
           allOf:
-            - $ref: '#/components/schemas/AccountJacksonDto'
+            - $ref: "#/components/schemas/AccountJacksonDto"
           readOnly: true
         customerEmail:
           description: customerEmail is a regular field (read/write)
@@ -130,7 +130,7 @@ components:
         account:
           description: Account of the resume (write only)
           allOf:
-            - $ref: '#/components/schemas/AccountJacksonDto'
+            - $ref: "#/components/schemas/AccountJacksonDto"
         description:
           description: Description of the resume
           type: string

@@ -22,8 +22,8 @@ paths:
                 anyOf:
                   - type: array
                     items:
-                      $ref: '#/components/schemas/Authority'
-                  - $ref: '#/components/schemas/TimeDto'
+                      $ref: "#/components/schemas/Authority"
+                  - $ref: "#/components/schemas/TimeDto"
   /api/same-operation/v2:
     get:
       tags:
@@ -38,11 +38,11 @@ paths:
                 anyOf:
                   - type: array
                     items:
-                      $ref: '#/components/schemas/Authority'
+                      $ref: "#/components/schemas/Authority"
                   - type: string
                   - type: array
                     items:
-                      $ref: '#/components/schemas/TimeDto'
+                      $ref: "#/components/schemas/TimeDto"
 components:
   schemas:
     Authority:

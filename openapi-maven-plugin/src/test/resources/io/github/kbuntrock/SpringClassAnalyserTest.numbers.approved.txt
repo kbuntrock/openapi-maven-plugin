@@ -26,7 +26,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/NumberDto'
+                $ref: "#/components/schemas/NumberDto"
 components:
   schemas:
     NumberDto:

@@ -19,7 +19,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/AccountDto'
+                $ref: "#/components/schemas/AccountDto"
   /api/wrapped-account:
     get:
       tags:
@@ -34,7 +34,7 @@ paths:
                 type: object
                 properties:
                   wrapped:
-                    $ref: '#/components/schemas/AccountDto'
+                    $ref: "#/components/schemas/AccountDto"
 components:
   schemas:
     AccountDto:
@@ -77,7 +77,7 @@ components:
         authorities:
           type: array
           items:
-            $ref: '#/components/schemas/Authority'
+            $ref: "#/components/schemas/Authority"
           uniqueItems: true
     Authority:
       type: string

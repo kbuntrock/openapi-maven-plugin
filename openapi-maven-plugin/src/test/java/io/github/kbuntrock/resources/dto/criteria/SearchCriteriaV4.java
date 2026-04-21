@@ -14,4 +14,8 @@ public class SearchCriteriaV4 extends BaseSearchCriteria<SearchCriteriaV5> {
 	public String getToto() {
 		return toto;
 	}
+
+	public void setToto(String toto) {
+		this.toto = toto;
+	}
 }

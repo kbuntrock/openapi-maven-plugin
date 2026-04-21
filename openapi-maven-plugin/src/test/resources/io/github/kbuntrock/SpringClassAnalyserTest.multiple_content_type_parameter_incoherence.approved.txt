@@ -49,10 +49,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountDto'
+                $ref: "#/components/schemas/AccountDto"
             application/xml:
               schema:
-                $ref: '#/components/schemas/AccountDto'
+                $ref: "#/components/schemas/AccountDto"
 components:
   schemas:
     AccountDto:
@@ -95,7 +95,7 @@ components:
         authorities:
           type: array
           items:
-            $ref: '#/components/schemas/Authority'
+            $ref: "#/components/schemas/Authority"
           uniqueItems: true
     Authority:
       type: string

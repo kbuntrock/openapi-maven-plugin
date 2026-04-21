@@ -23,12 +23,12 @@ paths:
           in: query
           required: false
           schema:
-            $ref: '#/components/schemas/Authority'
+            $ref: "#/components/schemas/Authority"
       requestBody:
         content:
           '*/*':
             schema:
-              $ref: '#/components/schemas/TimeDto'
+              $ref: "#/components/schemas/TimeDto"
           multipart/form-data:
             schema:
               type: object

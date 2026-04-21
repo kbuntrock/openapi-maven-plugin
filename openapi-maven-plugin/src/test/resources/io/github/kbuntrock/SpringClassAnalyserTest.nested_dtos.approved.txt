@@ -17,7 +17,7 @@ paths:
         content:
           '*/*':
             schema:
-              $ref: '#/components/schemas/UserGroupDto'
+              $ref: "#/components/schemas/UserGroupDto"
       responses:
         "200":
           description: successful operation
@@ -43,7 +43,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/UserGroupDto'
+                $ref: "#/components/schemas/UserGroupDto"
   /api/nesting/{id}:
     get:
       tags:
@@ -62,7 +62,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/AccountDto'
+                $ref: "#/components/schemas/AccountDto"
 components:
   schemas:
     AccountDto:
@@ -105,7 +105,7 @@ components:
         authorities:
           type: array
           items:
-            $ref: '#/components/schemas/Authority'
+            $ref: "#/components/schemas/Authority"
           uniqueItems: true
     Authority:
       type: string
@@ -117,18 +117,18 @@ components:
       type: object
       properties:
         leader:
-          $ref: '#/components/schemas/AccountDto'
+          $ref: "#/components/schemas/AccountDto"
         members:
           type: array
           items:
-            $ref: '#/components/schemas/AccountDto'
+            $ref: "#/components/schemas/AccountDto"
         mainSubgroup:
-          $ref: '#/components/schemas/UserGroupDto'
+          $ref: "#/components/schemas/UserGroupDto"
         subgroups:
           type: array
           items:
-            $ref: '#/components/schemas/UserGroupDto'
+            $ref: "#/components/schemas/UserGroupDto"
         affiliatedGroups:
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/UserGroupDto'
+            $ref: "#/components/schemas/UserGroupDto"

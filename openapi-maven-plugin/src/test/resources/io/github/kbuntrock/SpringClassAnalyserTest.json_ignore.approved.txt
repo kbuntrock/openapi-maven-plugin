@@ -19,7 +19,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/JsonIgnoreDto'
+                $ref: "#/components/schemas/JsonIgnoreDto"
 components:
   schemas:
     Authority:
@@ -32,9 +32,9 @@ components:
       type: object
       properties:
         keyAndPassword:
-          $ref: '#/components/schemas/KeyAndPasswordDto'
+          $ref: "#/components/schemas/KeyAndPasswordDto"
         secondJsonIgnore:
-          $ref: '#/components/schemas/SecondJsonIgnoreDto'
+          $ref: "#/components/schemas/SecondJsonIgnoreDto"
     KeyAndPasswordDto:
       type: object
       properties:
@@ -46,14 +46,14 @@ components:
       type: object
       properties:
         timeDto:
-          $ref: '#/components/schemas/TimeDto'
+          $ref: "#/components/schemas/TimeDto"
         page:
           type: object
           properties:
             content:
               type: array
               items:
-                $ref: '#/components/schemas/Authority'
+                $ref: "#/components/schemas/Authority"
             hasNext:
               type: boolean
             totalPages:

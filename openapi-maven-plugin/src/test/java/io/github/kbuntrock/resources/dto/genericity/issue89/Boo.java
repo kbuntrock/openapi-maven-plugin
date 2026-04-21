@@ -13,4 +13,8 @@ public class Boo extends Foo {
 	public boolean isBoo() {
 		return boo;
 	}
+
+	public void setBoo(boolean boo) {
+		this.boo = boo;
+	}
 }

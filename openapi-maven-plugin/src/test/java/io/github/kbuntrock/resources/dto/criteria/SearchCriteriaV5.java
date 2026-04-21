@@ -14,4 +14,8 @@ public class SearchCriteriaV5 extends BaseSearchCriteria<SearchCriteriaV4> {
 	public boolean isTata() {
 		return tata;
 	}
+
+	public void setTata(boolean tata) {
+		this.tata = tata;
+	}
 }

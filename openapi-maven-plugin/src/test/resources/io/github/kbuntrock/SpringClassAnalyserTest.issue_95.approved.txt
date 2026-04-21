@@ -19,7 +19,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ErrorDto'
+                $ref: "#/components/schemas/ErrorDto"
 components:
   schemas:
     ErrorDto:

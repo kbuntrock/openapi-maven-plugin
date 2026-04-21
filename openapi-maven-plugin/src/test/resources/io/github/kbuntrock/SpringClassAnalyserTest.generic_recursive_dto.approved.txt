@@ -29,7 +29,7 @@ paths:
                   wrapped:
                     description: The generic wrapped object
                     allOf:
-                      - $ref: '#/components/schemas/AccountDto'
+                      - $ref: "#/components/schemas/AccountDto"
                   child:
                     description: The recursive property
                     type: object
@@ -40,11 +40,11 @@ paths:
                       wrapped:
                         description: The generic wrapped object
                         allOf:
-                          - $ref: '#/components/schemas/AccountDto'
+                          - $ref: "#/components/schemas/AccountDto"
                       child:
                         description: The recursive property
                         allOf:
-                          - $ref: '#/components/schemas/GenericRecursiveDto_AccountDto'
+                          - $ref: "#/components/schemas/GenericRecursiveDto_AccountDto"
 components:
   schemas:
     AccountDto:
@@ -92,7 +92,7 @@ components:
         authorities:
           type: array
           items:
-            $ref: '#/components/schemas/Authority'
+            $ref: "#/components/schemas/Authority"
           uniqueItems: true
     Authority:
       description: |
@@ -119,7 +119,7 @@ components:
         wrapped:
           description: The generic wrapped object
           allOf:
-            - $ref: '#/components/schemas/AccountDto'
+            - $ref: "#/components/schemas/AccountDto"
         child:
           description: The recursive property
           type: object
@@ -130,8 +130,8 @@ components:
             wrapped:
               description: The generic wrapped object
               allOf:
-                - $ref: '#/components/schemas/AccountDto'
+                - $ref: "#/components/schemas/AccountDto"
             child:
               description: The recursive property
               allOf:
-                - $ref: '#/components/schemas/GenericRecursiveDto_AccountDto'
+                - $ref: "#/components/schemas/GenericRecursiveDto_AccountDto"

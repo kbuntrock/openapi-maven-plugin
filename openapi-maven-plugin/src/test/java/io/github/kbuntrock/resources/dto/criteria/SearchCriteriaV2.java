@@ -14,4 +14,8 @@ public class SearchCriteriaV2 extends CriteriaWithDateType {
 	public String getMyString() {
 		return myString;
 	}
+
+	public void setMyString(String myString) {
+		this.myString = myString;
+	}
 }

@@ -32,9 +32,9 @@ paths:
                     type: object
                     properties:
                       wrapped:
-                        $ref: '#/components/schemas/TimeDto'
+                        $ref: "#/components/schemas/TimeDto"
                   account:
-                    $ref: '#/components/schemas/AccountDto'
+                    $ref: "#/components/schemas/AccountDto"
 components:
   schemas:
     AccountDto:
@@ -77,7 +77,7 @@ components:
         authorities:
           type: array
           items:
-            $ref: '#/components/schemas/Authority'
+            $ref: "#/components/schemas/Authority"
           uniqueItems: true
     Authority:
       type: string

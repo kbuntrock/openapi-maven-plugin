@@ -5,7 +5,7 @@ package io.github.kbuntrock.resources.dto.criteria;
  */
 public class BaseSearchCriteria<SELF extends BaseSearchCriteria<?>> extends SearchCriteria {
 
-	protected final SELF self;
+	public final SELF self;
 
 	protected BaseSearchCriteria(final Class<SELF> selfClass) {
 		self = selfClass.cast(this);

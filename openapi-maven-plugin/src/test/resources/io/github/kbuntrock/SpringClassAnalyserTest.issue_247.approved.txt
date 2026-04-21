@@ -19,7 +19,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/PagedModel'
+                $ref: "#/components/schemas/PagedModel"
   /issue247/list:
     get:
       tags:
@@ -59,4 +59,4 @@ components:
           type: array
           items: {}
         page:
-          $ref: '#/components/schemas/PageMetadata'
+          $ref: "#/components/schemas/PageMetadata"

@@ -42,7 +42,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ResponseEntityWithAnnotations'
+                $ref: "#/components/schemas/ResponseEntityWithAnnotations"
   /api/search/alarm/pv/{pv}:
     get:
       tags:
@@ -62,7 +62,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ResponseEntityWithAnnotations'
+                $ref: "#/components/schemas/ResponseEntityWithAnnotations"
   /api/search/alarm/trigger/{trigger}:
     get:
       tags:
@@ -83,7 +83,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ResponseEntityWithAnnotations'
+                $ref: "#/components/schemas/ResponseEntityWithAnnotations"
 components:
   schemas:
     ResponseEntityWithAnnotations:

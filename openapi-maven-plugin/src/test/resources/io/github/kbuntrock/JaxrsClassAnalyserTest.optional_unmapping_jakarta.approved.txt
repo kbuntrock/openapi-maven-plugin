@@ -19,7 +19,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/OptionalClassDto'
+                $ref: "#/components/schemas/OptionalClassDto"
   /api/optional-controller/default-parameter:
     get:
       tags:
@@ -49,7 +49,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/OptionalInterfaceDto'
+                $ref: "#/components/schemas/OptionalInterfaceDto"
   /api/optional-controller/optional-parameter:
     get:
       tags:

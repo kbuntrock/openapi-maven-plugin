@@ -17,7 +17,7 @@ paths:
         content:
           '*/*':
             schema:
-              $ref: '#/components/schemas/RecursiveDto'
+              $ref: "#/components/schemas/RecursiveDto"
       responses:
         "200":
           description: successful operation
@@ -29,4 +29,4 @@ components:
         name:
           type: string
         child:
-          $ref: '#/components/schemas/RecursiveDto'
+          $ref: "#/components/schemas/RecursiveDto"

@@ -13,4 +13,8 @@ public class Pair<A, B> extends Single<A> {
 	public B getB() {
 		return b;
 	}
+
+	public void setB(B b) {
+		this.b = b;
+	}
 }

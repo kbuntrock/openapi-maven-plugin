@@ -19,7 +19,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/TimeDtoV2'
+                $ref: "#/components/schemas/TimeDtoV2"
 components:
   schemas:
     TimeDtoV2:

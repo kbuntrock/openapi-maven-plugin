@@ -19,7 +19,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/RecursiveDto'
+                $ref: "#/components/schemas/RecursiveDto"
 components:
   schemas:
     RecursiveDto:
@@ -28,4 +28,4 @@ components:
         name:
           type: string
         child:
-          $ref: '#/components/schemas/RecursiveDto'
+          $ref: "#/components/schemas/RecursiveDto"

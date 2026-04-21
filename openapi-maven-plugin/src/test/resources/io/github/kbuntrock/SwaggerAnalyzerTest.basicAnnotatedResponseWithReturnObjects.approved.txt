@@ -20,19 +20,19 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ResponseEntityWithAnnotations'
+                $ref: "#/components/schemas/ResponseEntityWithAnnotations"
         "404":
           description: Not Found
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ErrorEntityWithAnnotations'
+                $ref: "#/components/schemas/ErrorEntityWithAnnotations"
         "500":
           description: Internal server error
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ErrorEntityWithAnnotations'
+                $ref: "#/components/schemas/ErrorEntityWithAnnotations"
   /api/summary:
     get:
       tags:
@@ -45,7 +45,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ResponseEntityWithAnnotations'
+                $ref: "#/components/schemas/ResponseEntityWithAnnotations"
   /api/unparametrized:
     get:
       tags:
@@ -60,19 +60,19 @@ paths:
               schema:
                 description: The success entity
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEntity'
+                  - $ref: "#/components/schemas/SuccessEntity"
         "404":
           description: Not Found
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ErrorEntityWithAnnotations'
+                $ref: "#/components/schemas/ErrorEntityWithAnnotations"
         "500":
           description: Internal server error
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/ErrorEntityWithAnnotations'
+                $ref: "#/components/schemas/ErrorEntityWithAnnotations"
 components:
   schemas:
     ErrorEntityWithAnnotations:
@@ -126,7 +126,7 @@ components:
         cause:
           description: "The cause of the error, if any"
           allOf:
-            - $ref: '#/components/schemas/ErrorEntityWithAnnotations'
+            - $ref: "#/components/schemas/ErrorEntityWithAnnotations"
     ResponseEntityWithAnnotations:
       type: object
       properties:

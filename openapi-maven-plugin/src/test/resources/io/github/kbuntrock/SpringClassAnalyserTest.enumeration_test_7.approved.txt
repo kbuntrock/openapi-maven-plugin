@@ -19,7 +19,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/TerritoryEnum'
+                $ref: "#/components/schemas/TerritoryEnum"
 components:
   schemas:
     TerritoryEnum:

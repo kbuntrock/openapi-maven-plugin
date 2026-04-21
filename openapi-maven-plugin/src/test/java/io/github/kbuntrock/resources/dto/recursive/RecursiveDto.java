@@ -15,4 +15,12 @@ public class RecursiveDto {
 	public RecursiveDto getChild() {
 		return child;
 	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setChild(RecursiveDto child) {
+		this.child = child;
+	}
 }

@@ -34,4 +34,16 @@ public abstract class EntityDto implements Serializable, Cloneable {
 	public String getUuid() {
 		return uuid;
 	}
+
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
+
+	public void setChangeDate(Date changeDate) {
+		this.changeDate = changeDate;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
 }

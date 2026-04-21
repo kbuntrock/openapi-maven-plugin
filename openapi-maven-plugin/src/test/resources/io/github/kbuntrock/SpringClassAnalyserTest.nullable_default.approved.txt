@@ -26,7 +26,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/NullableDto'
+                $ref: "#/components/schemas/NullableDto"
 components:
   schemas:
     NullableDto:

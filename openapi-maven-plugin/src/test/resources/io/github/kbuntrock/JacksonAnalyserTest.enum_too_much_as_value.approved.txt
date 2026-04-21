@@ -21,7 +21,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/EnumTooMuchAsValue'
+                  $ref: "#/components/schemas/EnumTooMuchAsValue"
       x-operation-name: getEnums
 components:
   schemas:

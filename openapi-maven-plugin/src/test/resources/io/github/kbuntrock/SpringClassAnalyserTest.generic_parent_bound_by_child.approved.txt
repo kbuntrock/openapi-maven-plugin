@@ -19,7 +19,7 @@ paths:
         content:
           '*/*':
             schema:
-              $ref: '#/components/schemas/ChildRequestDto'
+              $ref: "#/components/schemas/ChildRequestDto"
         description: some price request
       responses:
         "200":
@@ -38,7 +38,7 @@ components:
           description: The price request items
           type: array
           items:
-            $ref: '#/components/schemas/ChildRequestItem'
+            $ref: "#/components/schemas/ChildRequestItem"
     ChildRequestItem:
       description: The child request item
       type: object

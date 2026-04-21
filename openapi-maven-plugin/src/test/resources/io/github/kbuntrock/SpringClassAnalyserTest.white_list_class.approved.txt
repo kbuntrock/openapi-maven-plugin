@@ -27,7 +27,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/NumberDto'
+                $ref: "#/components/schemas/NumberDto"
   /api/time/get-timedto:
     get:
       tags:
@@ -39,7 +39,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/TimeDtoV2'
+                $ref: "#/components/schemas/TimeDtoV2"
 components:
   schemas:
     NumberDto:
