@@ -10,4 +10,8 @@ public class SearchCriteriaChildV6 extends SearchCriteriaV6 {
 	public boolean isAnotherThing() {
 		return anotherThing;
 	}
+
+	public void setAnotherThing(boolean anotherThing) {
+		this.anotherThing = anotherThing;
+	}
 }

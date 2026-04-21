@@ -14,4 +14,8 @@ public class SearchCriteriaV3 extends BaseSearchCriteria<SearchCriteriaV3> {
 	public boolean isSomeBoolean() {
 		return someBoolean;
 	}
+
+	public void setSomeBoolean(boolean someBoolean) {
+		this.someBoolean = someBoolean;
+	}
 }

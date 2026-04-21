@@ -14,4 +14,8 @@ public class SearchCriteriaV6 extends BaseSearchCriteria<SearchCriteriaV6> {
 	public boolean isSomeBoolean() {
 		return someBoolean;
 	}
+
+	public void setSomeBoolean(boolean someBoolean) {
+		this.someBoolean = someBoolean;
+	}
 }
