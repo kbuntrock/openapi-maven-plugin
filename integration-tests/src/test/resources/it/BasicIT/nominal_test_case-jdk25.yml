@@ -42,7 +42,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/RecordDto'
+                  $ref: "#/components/schemas/RecordDto"
   /api/user/update:
     put:
       tags:
@@ -53,7 +53,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserDto'
+              $ref: "#/components/schemas/UserDto"
         description: The user to update
       responses:
         "200":
@@ -61,7 +61,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDto'
+                $ref: "#/components/schemas/UserDto"
   /api/user/user-dtos:
     get:
       tags:
@@ -76,7 +76,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/UserDto'
+                  $ref: "#/components/schemas/UserDto"
 components:
   schemas:
     Authority:
@@ -111,7 +111,7 @@ components:
           description: a list of plenty of sub records
           type: array
           items:
-            $ref: '#/components/schemas/SubRecordDto'
+            $ref: "#/components/schemas/SubRecordDto"
     SubRecordDto:
       description: This is a record in a record
       type: object
@@ -171,5 +171,5 @@ components:
         authorities:
           type: array
           items:
-            $ref: '#/components/schemas/Authority'
+            $ref: "#/components/schemas/Authority"
           uniqueItems: true
