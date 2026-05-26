@@ -32,7 +32,7 @@ public class BeanDefinition {
 		if(b == null) {
 			field = a.getField();
 			getter = a.getGetter();
-			setter = a.getSetter();
+			setter = safelyGetSetter(a);
 			internalName = a.getInternalName();
 			constructorParameterIsPresent = a.hasConstructorParameter();
 			couldSerialize = a.couldSerialize();
@@ -40,13 +40,22 @@ public class BeanDefinition {
 		} else {
 			field = a.getField() != null ? a.getField() : b.getField();
 			getter = a.getGetter() != null ? a.getGetter() : b.getGetter();
-			setter = a.getSetter() != null ? a.getSetter() : b.getSetter();
+			setter = safelyGetSetter(a) != null ? safelyGetSetter(a) : safelyGetSetter(b);
 			internalName = StringUtils.isNotEmpty(a.getInternalName()) ? a.getInternalName() : b.getInternalName();
 			constructorParameterIsPresent = a.hasConstructorParameter() ? a.hasConstructorParameter()
 				: b.hasConstructorParameter();
 			couldSerialize = a.couldSerialize() || b.couldDeserialize();
 			couldDeserialize = a.couldDeserialize() || b.couldDeserialize();
 		}
+	}
+
+	private AnnotatedMethod safelyGetSetter(BeanPropertyDefinition bpd) {
+		try {
+			return bpd.getSetter();
+		} catch(IllegalArgumentException ex) {
+			// Do nothing. No setter can be safely retrieved for this bean (probably a name conflict)
+		}
+		return null;
 	}
 
 	public void merge(final BeanDefinition b, Flow flow) {

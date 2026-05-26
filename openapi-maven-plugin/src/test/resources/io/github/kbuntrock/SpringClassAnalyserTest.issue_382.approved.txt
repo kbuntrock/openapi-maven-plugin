@@ -1,0 +1,42 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: Issue382
+paths:
+  /api:
+    get:
+      tags:
+        - Issue382
+      operationId: getErrorMessages
+      description: Get the wrapped error messages
+      responses:
+        "200":
+          description: the wrapping object
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ExtendedErrorMessageResource"
+components:
+  schemas:
+    ExtendedErrorMessageResource:
+      description: The error message resource object
+      type: object
+      properties:
+        messages:
+          description: The list of messages
+          type: array
+          items:
+            $ref: "#/components/schemas/MessageForm"
+    MessageForm:
+      description: The message form object
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
