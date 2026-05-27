@@ -221,11 +221,8 @@ public class SwaggerAnalyzerTest extends AbstractTest {
 			SecurityAnnotationResource.class.getCanonicalName(),
 			DuplicateSecurityConfigResource.class.getCanonicalName());
 
-		RuntimeException exception = Assertions.assertThrows(RuntimeException.class, () -> {
+		Assertions.assertDoesNotThrow(() -> {
 			mojo.documentProject();
 		});
-
-		Assertions
-			.assertTrue(exception.getMessage().contains("Multiple SecurityScheme with the same name (bearerAuth) are defined."));
 	}
 }

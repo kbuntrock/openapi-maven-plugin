@@ -1,4 +1,4 @@
-docs: ---
+---
 sidebar_position: 1
 sidebar_label: Swagger annotations
 ---

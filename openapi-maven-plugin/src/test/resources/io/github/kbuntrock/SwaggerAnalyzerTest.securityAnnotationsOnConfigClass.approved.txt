@@ -40,19 +40,15 @@ components:
   securitySchemes:
     bearerAuth:
       type: http
-      name: bearerAuth
       scheme: bearer
       bearerFormat: JWT
     basicAuth:
       type: http
-      name: basicAuth
+      scheme: basic
+    configBasicAuth:
+      type: http
       scheme: basic
     configBearerAuth:
       type: http
-      name: configBearerAuth
       scheme: bearer
       bearerFormat: JWT
-    configBasicAuth:
-      type: http
-      name: configBasicAuth
-      scheme: basic

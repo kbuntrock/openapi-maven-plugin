@@ -40,10 +40,8 @@ components:
   securitySchemes:
     bearerAuth:
       type: http
-      name: bearerAuth
       scheme: bearer
       bearerFormat: JWT
     basicAuth:
       type: http
-      name: basicAuth
       scheme: basic
