@@ -1,0 +1,49 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: SchemaDescriptionDtoController
+paths:
+  /api/schema-description/query:
+    get:
+      tags:
+        - SchemaDescriptionDtoController
+      operationId: query
+      parameters:
+        - name: fieldFromSchemaOnly
+          description: Description coming from Schema annotation
+          example: schemaValue
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: fieldFromJavadocOnly
+          description: Description coming from Javadoc
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: fieldFromBothJavadocWins
+          description: Description coming from Javadoc (wins)
+          example: javadocFieldExample
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: fieldWithExampleFromSchemaOnly
+          example: exampleOnly
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: boolean
