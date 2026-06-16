@@ -337,11 +337,18 @@ public class YamlWriter {
 							final JavadocWrapper javadocParamWrapper = queryParamBindingClassDoc.getFieldsJavadoc()
 								.get(parameterElement.getName());
 							if(javadocParamWrapper != null) {
+								// Only override the description/summary when the Javadoc actually provides a value.
+								// Otherwise a missing Javadoc would erase any description already set from
+								// the @Schema annotation on the DTO field.
 								final Optional<String> desc = javadocParamWrapper.getDescription();
-								parameterElement.setDescription(desc.orElse(null));
+								if(desc.isPresent() && !desc.get().isEmpty()) {
+									parameterElement.setDescription(desc.get());
+								}
 
 								final Optional<String> summary = javadocParamWrapper.getSummary();
-								parameterElement.setSummary(summary.orElse(null));
+								if(summary.isPresent() && !summary.get().isEmpty()) {
+									parameterElement.setSummary(summary.get());
+								}
 							}
 						}
 					}

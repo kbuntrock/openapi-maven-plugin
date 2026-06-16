@@ -803,6 +803,18 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	}
 
 	@Test
+	public void schema_description_on_dto_query_param() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(SchemaDescriptionDtoController.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/queryparam",
+			"src/test/java/io/github/kbuntrock/resources/dto"));
+		mojo.setJavadocConfiguration(javadocConfig);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
 	public void query_param_flat_mix_nested_dto_binding() throws MojoFailureException, IOException, MojoExecutionException {
 
 		final DocumentationMojo mojo = createBasicMojo(QueryParamFlatMixNestedDtoBindingController.class.getCanonicalName());

@@ -5,6 +5,7 @@ import io.github.kbuntrock.MojoRuntimeException;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.model.*;
+import io.github.kbuntrock.reflection.BeanDefinition;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.maven.plugin.MojoFailureException;
 
 import java.io.File;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -416,7 +418,38 @@ public class SpringMvcReader extends AbstractLibraryReader {
 		if(childObject.getDataObject().getClassRequired() != null) {
 			fieldObj.setRequired(childObject.getDataObject().getClassRequired());
 		}
+
+		// Inherit description and example from @Schema annotation on the field.
+		// Mirrors yaml.model.Schema#setPropertyDescriptionFromSwaggerAnnotation to give DTO-bound
+		// query parameters the same documentation power as schema properties.
+		setParameterDescriptionFromSwaggerAnnotation(childObject.getBeanDefinition(), fieldObj);
+
 		return fieldObj;
+	}
+
+	private void setParameterDescriptionFromSwaggerAnnotation(final BeanDefinition beanDefinition,
+		final ParameterObject fieldObj) {
+		if(beanDefinition.hasField()) {
+			readSchemaAnnotationOnto(beanDefinition.getField().getAnnotated(), fieldObj);
+		}
+		if(beanDefinition.hasGetter()) {
+			readSchemaAnnotationOnto(beanDefinition.getGetter().getAnnotated(), fieldObj);
+		}
+	}
+
+	private void readSchemaAnnotationOnto(final AnnotatedElement element, final ParameterObject fieldObj) {
+		final MergedAnnotation schemaAnnotation = context.getMergeAnnotationsHelper().from(element)
+			.get("io.swagger.v3.oas.annotations.media.Schema");
+		if(schemaAnnotation.isPresent()) {
+			final String swaggerDescription = schemaAnnotation.getString("description");
+			if(!StringUtils.isEmpty(swaggerDescription)) {
+				fieldObj.setDescription(swaggerDescription);
+			}
+			final String swaggerExample = schemaAnnotation.getString("example");
+			if(!StringUtils.isEmpty(swaggerExample)) {
+				fieldObj.setExample(swaggerExample);
+			}
+		}
 	}
 
 	@Override
