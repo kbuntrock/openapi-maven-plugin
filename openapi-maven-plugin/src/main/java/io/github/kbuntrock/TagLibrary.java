@@ -8,6 +8,7 @@ import io.github.kbuntrock.model.*;
 import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.yaml.model.ChildObject;
+import io.github.kbuntrock.yaml.model.SecurityScheme;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -52,6 +53,8 @@ public class TagLibrary {
 	private final Map<String, Flow> exploredSignatures = new HashMap<>();
 	/** Convenience index to look up schema object by its Java class. */
 	final Map<Class, DataObject> classToSchemaObject = new HashMap<>();
+	/** Map of security schemes by name */
+	private final Map<String, SecurityScheme> securitySchemes = new LinkedHashMap<>();
 
 	public TagLibrary(final ApiContext context, Map<String, ClassDocumentation> javadocMap) {
 		this.openApiTypeResolver = context.getOpenApiTypeResolver();
@@ -68,7 +71,21 @@ public class TagLibrary {
 	 */
 	public void addTag(final Tag tag) {
 		tags.add(tag);
+		if(tag.getSecuritySchemes() != null) {
+			for(final SecurityScheme scheme : tag.getSecuritySchemes()) {
+				addSecurityScheme(scheme);
+			}
+		}
 		exploreTagObjects(tag);
+	}
+
+	public void addSecurityScheme(SecurityScheme scheme) {
+		if(securitySchemes.containsKey(scheme.getRawName())) {
+			context.getLogger().warn(
+				"Multiple SecurityScheme with the same name (" + scheme.getRawName() + ") are defined. Keeping the first one.");
+			return;
+		}
+		securitySchemes.put(scheme.getRawName(), scheme);
 	}
 
 	/**
@@ -229,6 +246,13 @@ public class TagLibrary {
 	 */
 	public Collection<DataObject> getSchemaObjects() {
 		return schemaObjects.values();
+	}
+
+	/**
+	 * Map of all security schemes defined in the tags.
+	 */
+	public Map<String, SecurityScheme> getSecuritySchemes() {
+		return securitySchemes;
 	}
 
 	/**

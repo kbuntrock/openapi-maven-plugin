@@ -30,6 +30,15 @@ Supported annotations and fields currently are:
 |  | `required` | `boolean` | Whether the parameter is required |
 |  | `schema` | `Schema` | Parameter schema |
 |  | `example` | `String` | Example value |
+| `SecurityScheme` | `name` | `String` | Security Scheme name |
+|  | `type` | `SecuritySchemeType` | Type of the security scheme (http, apiKey, oauth2, openIdConnect) |
+|  | `description` | `String` | Description of the scheme |
+|  | `in` | `SecuritySchemeIn` | Location of the API key (query, header, cookie) |
+|  | `scheme` | `String` | HTTP Authorization scheme (e.g., bearer, basic) |
+|  | `bearerFormat` | `String` | A hint to the client to identify how the bearer token is formatted |
+|  | `openIdConnectUrl` | `String` | OpenId Connect URL to discover OAuth2 configuration values |
+| `SecurityRequirement`| `name` | `String` | Security Requirement name |
+|  | `scopes` | `String[]` | Array of scopes required for the security requirement |
 
 ## Examples
 
@@ -46,6 +55,30 @@ public ResponseEntity<String> myFunction() {
     return ResponseEntity.ok("returnValue");
 }
 ```
+---
+```java
+@SecurityScheme(name = "bearerAuth", type = SecuritySchemeType.HTTP, bearerFormat = "JWT", scheme = "bearer")
+@SecurityRequirement(name = "bearerAuth")
+@RestController
+@RequestMapping("/api/v1/recipes")
+public class SecurityAnnotationResource {
+
+	@GetMapping
+	public String getRecipes() {
+		return "Recipes";
+	}
+
+	@SecurityRequirement(name = "basicAuth")
+	@GetMapping("/basic")
+	public String getRecipesBasicAuth() {
+		return "Recipes";
+	}
+}
+```
+
+> [!NOTE] 
+> The `@SecurityScheme` annotation can also be placed on standalone configuration classes (such as Spring's `@Configuration` or custom security configuration classes), even if they do not contain any REST endpoints. The plugin will scan the classpath and automatically pick them up!
+
 ---
 ```java
 public class ErrorDto {

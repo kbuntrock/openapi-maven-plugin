@@ -10,31 +10,44 @@ import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
+import io.github.kbuntrock.yaml.model.SecurityRequirement;
+import io.github.kbuntrock.yaml.model.SecurityScheme;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.plugin.MojoFailureException;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
 
 /**
- * Analyse a Java class in light of an API configuration to discover REST endpoints
+ * Analyse a Java class in light of an API configuration to discover REST
+ * endpoints
  * and translate them into OpenAPI domain objects (e.g., {@link Tag}).
  * <p>
  * Responsibilities:
- * - Resolve framework/library-specific annotations via {@link AbstractLibraryReader}.
+ * - Resolve framework/library-specific annotations via
+ * {@link AbstractLibraryReader}.
  * - Apply whitelist/blacklist filters (regex) on classes and methods.
  * - Use ClassGraph {@link ScanResult} to access non-private methods.
- * - Aggregate merged annotations (class and method levels) to build OpenAPI data.
+ * - Aggregate merged annotations (class and method levels) to build OpenAPI
+ * data.
  * <p>
  * Notes on filtering:
  * - Whitelist and blacklist entries are provided as "classRegex|methodRegex".
  * - The class part can be empty to match any class for a given method pattern.
- * - Whitelist is an allow-list: if non-empty, only matching pairs are processed.
+ * - Whitelist is an allow-list: if non-empty, only matching pairs are
+ * processed.
  * - Blacklist is a deny-list: any match is excluded.
  */
 public class JavaClassAnalyser {
@@ -53,7 +66,10 @@ public class JavaClassAnalyser {
 	 */
 	private final List<Pair<Pattern, Pattern>> blackListPatterns = new ArrayList<>();
 
-	/** Strategy to read framework/library-specific annotations (Spring, JAX-RS, etc.). */
+	/**
+	 * Strategy to read framework/library-specific annotations (Spring, JAX-RS,
+	 * etc.).
+	 */
 	private final AbstractLibraryReader libraryReader;
 
 	/** ClassGraph scan result used to list and load class methods. */
@@ -69,9 +85,11 @@ public class JavaClassAnalyser {
 	 * @param classScanResult
 	 *            ClassGraph scan result for class/method discovery
 	 * @param openApiTypeResolver
-	 *            type resolution helper for OpenAPI schema generation
+	 *            type resolution helper for OpenAPI schema
+	 *            generation
 	 */
-	public JavaClassAnalyser(final ApiContext context, final ApiConfiguration apiConfiguration, ScanResult classScanResult,
+	public JavaClassAnalyser(final ApiContext context, final ApiConfiguration apiConfiguration,
+		ScanResult classScanResult,
 		final OpenApiTypeResolver openApiTypeResolver) {
 		this.context = context;
 		this.libraryReader = apiConfiguration.getLibrary().createReader(context, apiConfiguration, openApiTypeResolver);
@@ -107,7 +125,8 @@ public class JavaClassAnalyser {
 	}
 
 	/**
-	 * Create a human-readable signature identifier using the method name and the simple names of its parameter types.
+	 * Create a human-readable signature identifier using the method name and the
+	 * simple names of its parameter types.
 	 * Example: myMethod(String, Integer)
 	 */
 	public static String createMethodIdentifier(final Method method) {
@@ -118,12 +137,14 @@ public class JavaClassAnalyser {
 
 	/**
 	 * Create a {@link Tag} from a Java class containing REST mapping functions.
-	 * The tag can be enriched by Swagger's @Tag annotation (name/description) if present.
+	 * The tag can be enriched by Swagger's @Tag annotation (name/description) if
+	 * present.
 	 * Endpoints discovered under the class' base path(s) are attached to the tag.
 	 *
 	 * @param clazz
 	 *            a REST controller class
-	 * @return an optional tag (present only if at least one endpoint has been discovered)
+	 * @return an optional tag (present only if at least one endpoint has been
+	 *         discovered)
 	 * @throws MojoFailureException
 	 *             if an error occurs while reading annotations
 	 */
@@ -146,6 +167,9 @@ public class JavaClassAnalyser {
 			}
 		}
 
+		readSecuritySchemes(mergedAnnotations, tag.getSecuritySchemes());
+		libraryReader.readSecurityRequirements(mergedAnnotations, tag.getSecurityRequirements());
+
 		// Base paths come from the library reader (framework-specific resolution).
 		final List<String> basePaths = libraryReader.readBasePaths(clazz, mergedAnnotations);
 
@@ -155,7 +179,8 @@ public class JavaClassAnalyser {
 		}
 
 		if(tag.getEndpoints().isEmpty()) {
-			// There was no valid endpoint to attach to this tag. Therefore, we don't keep track of it.
+			// There was no valid endpoint to attach to this tag. Therefore, we don't keep
+			// track of it.
 			return Optional.empty();
 		} else {
 			return Optional.of(tag);
@@ -164,11 +189,29 @@ public class JavaClassAnalyser {
 	}
 
 	/**
-	 * Discover and process all non-private methods on the class that represent REST endpoints.
-	 * Filtering is applied via whitelist/blacklist prior to delegating to {@link AbstractLibraryReader}
+	 * Reads security schemes from a class that is not necessarily a tag/controller,
+	 * and adds them to the TagLibrary.
+	 */
+	public void readSecuritySchemesFromClass(final Class<?> clazz, final TagLibrary library)
+		throws MojoFailureException {
+		context.getLogger().debug("Parsing security schemes from class : " + clazz.getSimpleName());
+		final MergedAnnotations mergedAnnotations = context.getMergeAnnotationsHelper().from(clazz);
+		Set<SecurityScheme> foundSchemes = new HashSet<>();
+		readSecuritySchemes(mergedAnnotations, foundSchemes);
+		for(SecurityScheme scheme : foundSchemes) {
+			library.addSecurityScheme(scheme);
+		}
+	}
+
+	/**
+	 * Discover and process all non-private methods on the class that represent REST
+	 * endpoints.
+	 * Filtering is applied via whitelist/blacklist prior to delegating to
+	 * {@link AbstractLibraryReader}
 	 * for framework-specific annotation handling.
 	 */
-	private void parseEndpoints(final Tag tag, final String basePath, final Class<?> clazz) throws MojoFailureException {
+	private void parseEndpoints(final Tag tag, final String basePath, final Class<?> clazz)
+		throws MojoFailureException {
 
 		context.getLogger().debug("Parsing endpoint " + clazz.getSimpleName());
 
@@ -191,7 +234,8 @@ public class JavaClassAnalyser {
 	}
 
 	/**
-	 * Check whether a method is allowed by the whitelist. If the whitelist is empty,
+	 * Check whether a method is allowed by the whitelist. If the whitelist is
+	 * empty,
 	 * everything is implicitly allowed.
 	 */
 	private boolean validateWhiteList(final Class<?> clazz, final Method method) {
@@ -212,7 +256,8 @@ public class JavaClassAnalyser {
 	}
 
 	/**
-	 * Check whether a method is excluded by the blacklist. If the blacklist is empty,
+	 * Check whether a method is excluded by the blacklist. If the blacklist is
+	 * empty,
 	 * nothing is explicitly excluded.
 	 */
 	private boolean validateBlackList(final Class<?> clazz, final Method method) {
@@ -228,6 +273,65 @@ public class JavaClassAnalyser {
 			}
 		}
 		return true;
+	}
+
+	private void readSecuritySchemes(MergedAnnotations mergedAnnotations, Set<SecurityScheme> securitySchemes) {
+		Map<String, SecurityScheme> map = new LinkedHashMap<>();
+		MergedAnnotation schemeAnnotation = mergedAnnotations
+			.get("io.swagger.v3.oas.annotations.security.SecurityScheme");
+		if(schemeAnnotation.isPresent()) {
+			SecurityScheme s = createSecurityScheme(schemeAnnotation);
+			map.put(s.getRawName(), s);
+		}
+		MergedAnnotation schemesAnnotation = mergedAnnotations
+			.get("io.swagger.v3.oas.annotations.security.SecuritySchemes");
+		if(schemesAnnotation.isPresent()) {
+			for(MergedAnnotation req : schemesAnnotation.getAnnotationArray("value")) {
+				SecurityScheme s = createSecurityScheme(req);
+				map.put(s.getRawName(), s);
+			}
+		}
+		securitySchemes.addAll(map.values());
+	}
+
+	private SecurityScheme createSecurityScheme(MergedAnnotation mergedAnnotation) {
+		SecurityScheme scheme = new SecurityScheme();
+		Optional<Object> typeOpt = mergedAnnotation.getValue("type");
+		if(typeOpt.isPresent()) {
+			// type is an enum, so we use its toString() method
+			scheme.setType(typeOpt.get().toString());
+		}
+		Optional<Object> inOpt = mergedAnnotation.getValue("in");
+		if(inOpt.isPresent()) {
+			// in is an enum, so we use its toString() method
+			// only set it if it's not the DEFAULT or empty enum value
+			String inStr = inOpt.get().toString();
+			if(!StringUtils.isEmpty(inStr)) {
+				scheme.setIn(inStr);
+			}
+		}
+
+		String name = mergedAnnotation.getString("name");
+		if(!StringUtils.isEmpty(name)) {
+			scheme.setName(name);
+		}
+		String description = mergedAnnotation.getString("description");
+		if(!StringUtils.isEmpty(description)) {
+			scheme.setDescription(description);
+		}
+		String schemeStr = mergedAnnotation.getString("scheme");
+		if(!StringUtils.isEmpty(schemeStr)) {
+			scheme.setScheme(schemeStr);
+		}
+		String bearerFormat = mergedAnnotation.getString("bearerFormat");
+		if(!StringUtils.isEmpty(bearerFormat)) {
+			scheme.setBearerFormat(bearerFormat);
+		}
+		String openIdConnectUrl = mergedAnnotation.getString("openIdConnectUrl");
+		if(!StringUtils.isEmpty(openIdConnectUrl)) {
+			scheme.setOpenIdConnectUrl(openIdConnectUrl);
+		}
+		return scheme;
 	}
 
 }
