@@ -76,8 +76,9 @@ public class SecurityAnnotationResource {
 }
 ```
 
-> [!NOTE] 
-> L'annotation `@SecurityScheme` peut également être placée sur des classes de configuration standalone (comme `@Configuration` de Spring ou des classes de configuration de sécurité personnalisées), même si elles ne contiennent aucun point de terminaison REST. Le plugin va scanner le classpath et les récupérer automatiquement !
+:::info
+L'annotation `@SecurityScheme` peut également être placée sur des classes de configuration standalone (comme `@Configuration` de Spring ou des classes de configuration de sécurité personnalisées), même si elles ne contiennent aucun point de terminaison REST. Le plugin va scanner le classpath et les récupérer automatiquement !
+:::
 
 ---
 ```java
