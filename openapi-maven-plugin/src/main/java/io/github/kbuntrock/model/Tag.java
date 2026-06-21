@@ -4,10 +4,15 @@ import static java.util.Comparator.nullsLast;
 
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.Substitution;
+import io.github.kbuntrock.yaml.model.SecurityRequirement;
+import io.github.kbuntrock.yaml.model.SecurityScheme;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -20,6 +25,8 @@ public class Tag implements Comparable<Tag> {
 	private final Class<?> clazz;
 	private String computedName;
 	private String description;
+	private final List<SecurityRequirement> securityRequirements = new ArrayList<>();
+	private final Set<SecurityScheme> securitySchemes = new LinkedHashSet<>();
 
 	public Tag(final Class<?> clazz) {
 		this.name = clazz.getSimpleName();
@@ -70,6 +77,14 @@ public class Tag implements Comparable<Tag> {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public List<SecurityRequirement> getSecurityRequirements() {
+		return securityRequirements;
+	}
+
+	public Set<SecurityScheme> getSecuritySchemes() {
+		return securitySchemes;
 	}
 
 	@Override

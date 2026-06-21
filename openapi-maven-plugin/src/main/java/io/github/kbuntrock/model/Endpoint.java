@@ -3,6 +3,9 @@ package io.github.kbuntrock.model;
 import static java.util.Comparator.nullsLast;
 
 import io.github.kbuntrock.model.annotation.OperationAnnotationInfo;
+import io.github.kbuntrock.yaml.model.SecurityRequirement;
+
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -28,6 +31,8 @@ public class Endpoint implements Comparable<Endpoint> {
 	private String identifier;
 
 	private OperationAnnotationInfo operationAnnotationInfo = new OperationAnnotationInfo();
+
+	private final List<SecurityRequirement> securityRequirements = new ArrayList<>();
 
 	public String getPath() {
 		return path;
@@ -107,6 +112,10 @@ public class Endpoint implements Comparable<Endpoint> {
 
 	public void setOperationAnnotationInfo(OperationAnnotationInfo operationAnnotationInfo) {
 		this.operationAnnotationInfo = operationAnnotationInfo;
+	}
+
+	public List<SecurityRequirement> getSecurityRequirements() {
+		return securityRequirements;
 	}
 
 	@Override

@@ -133,6 +133,23 @@ public class ApiResourceScanner {
 					}
 				}
 
+				// Look for extra configuration classes that might define security schemes
+				Set<Class<?>> securityClasses = classScanResult
+					.getClassesWithAnyAnnotation("io.swagger.v3.oas.annotations.security.SecurityScheme",
+						"io.swagger.v3.oas.annotations.security.SecuritySchemes")
+					.stream()
+					.filter(onLocation(apiLocation, context.getClassLoaderHelper()))
+					.map(ClassInfo::loadClass)
+					.collect(Collectors.toSet());
+
+				for(final Class<?> securityClass : securityClasses) {
+					// We only process if it hasn't already been processed as a rest controller and if it passes white/black list
+					if(!restControllerClasses.contains(securityClass) && validateWhiteList(securityClass)
+						&& validateBlackList(securityClass)) {
+						javaClassAnalyser.readSecuritySchemesFromClass(securityClass, library);
+					}
+				}
+
 				// Add extra data objects to the schema section (objects not explicitly referenced by endpoints).
 				for(final String className : apiConfiguration.getExtraSchemaClasses()) {
 					try {

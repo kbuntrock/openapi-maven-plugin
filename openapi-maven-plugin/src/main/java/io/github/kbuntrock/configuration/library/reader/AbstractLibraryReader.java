@@ -11,6 +11,7 @@ import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.utils.ParameterLocation;
 import io.github.kbuntrock.utils.UnwrappingType;
+import io.github.kbuntrock.yaml.model.SecurityRequirement;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
@@ -168,6 +169,7 @@ public abstract class AbstractLibraryReader {
 	}
 
 	protected void setSwaggerAnnotatedEndpointProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations) {
+		readSecurityRequirements(mergedAnnotations, endpoint.getSecurityRequirements());
 		ArrayList<ParameterObject> parameterObjects = new ArrayList<ParameterObject>();
 
 		final MergedAnnotation operationAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.Operation");
@@ -383,6 +385,31 @@ public abstract class AbstractLibraryReader {
 			default:
 				return Object.class;
 		}
+	}
+
+	public void readSecurityRequirements(final MergedAnnotations mergedAnnotations,
+		final List<SecurityRequirement> securityRequirements) {
+		MergedAnnotation requirementAnnotation = mergedAnnotations
+			.get("io.swagger.v3.oas.annotations.security.SecurityRequirement");
+		if(requirementAnnotation.isPresent()) {
+			securityRequirements.add(createSecurityRequirement(requirementAnnotation));
+		}
+		MergedAnnotation requirementsAnnotation = mergedAnnotations
+			.get("io.swagger.v3.oas.annotations.security.SecurityRequirements");
+		if(requirementsAnnotation.isPresent()) {
+			for(MergedAnnotation req : requirementsAnnotation.getAnnotationArray("value")) {
+				securityRequirements.add(createSecurityRequirement(req));
+			}
+		}
+	}
+
+	private SecurityRequirement createSecurityRequirement(final MergedAnnotation mergedAnnotation) {
+		SecurityRequirement requirement = new SecurityRequirement();
+		String name = mergedAnnotation.getString("name");
+		String[] scopesArr = mergedAnnotation.getStringArray("scopes");
+		List<String> scopes = scopesArr != null ? Arrays.asList(scopesArr) : new ArrayList<>();
+		requirement.addRequirement(name, scopes);
+		return requirement;
 	}
 
 }

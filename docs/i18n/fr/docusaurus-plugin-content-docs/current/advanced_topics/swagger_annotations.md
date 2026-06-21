@@ -30,6 +30,15 @@ Les annotations et champs actuellement pris en charge sont :
 |  | `required` | `boolean` | Indique si ce paramètre est requis                    |
 |  | `schema` | `Schema` | Schéma du paramètre                                   |
 |  | `example` | `String` | Valeur d'exemple                                      |
+| `SecurityScheme` | `name` | `String` | Nom du schéma de sécurité                            |
+|  | `type` | `SecuritySchemeType` | Type du schéma de sécurité (http, apiKey, oauth2, openIdConnect) |
+|  | `description` | `String` | Description du schéma                                |
+|  | `in` | `SecuritySchemeIn` | Localisation de la clé API (query, header, cookie)   |
+|  | `scheme` | `String` | Schéma d'authentification HTTP (ex: bearer, basic)   |
+|  | `bearerFormat` | `String` | Indication sur le format des tokens bearer            |
+|  | `openIdConnectUrl` | `String` | URL OpenId Connect pour découvrir la configuration OAuth2 |
+| `SecurityRequirement`| `name` | `String` | Nom de l'exigence de sécurité                        |
+|  | `scopes` | `String[]` | Liste des scopes requis pour l'exigence de sécurité   |
 
 ## Exemples
 
@@ -48,11 +57,35 @@ public ResponseEntity<String> myFunction() {
 ```
 ---
 ```java
-public class ErrorDto {
+@SecurityScheme(name = "bearerAuth", type = SecuritySchemeType.HTTP, bearerFormat = "JWT", scheme = "bearer")
+@SecurityRequirement(name = "bearerAuth")
+@RestController
+@RequestMapping("/api/v1/recipes")
+public class SecurityAnnotationResource {
 
-  @Schema(description = "Timestamp of the error", example = "2023-10-01T12:00:00")
-  private LocalDateTime timestamp;
-  @Schema(description = "Session ID associated with the error", example = "session-12345")
-  private String sessionId;
+	@GetMapping
+	public String getRecipes() {
+		return "Recipes";
+	}
+
+	@SecurityRequirement(name = "basicAuth")
+	@GetMapping("/basic")
+	public String getRecipesBasicAuth() {
+		return "Recipes";
+	}
+}
+```
+
+> [!NOTE] 
+> L'annotation `@SecurityScheme` peut également être placée sur des classes de configuration standalone (comme `@Configuration` de Spring ou des classes de configuration de sécurité personnalisées), même si elles ne contiennent aucun point de terminaison REST. Le plugin va scanner le classpath et les récupérer automatiquement !
+
+---
+```java
+public class ErrorDto {
+    
+	@Schema(description = "Timestamp of the error", example = "2023-10-01T12:00:00")
+	private LocalDateTime timestamp;
+	@Schema(description = "Session ID associated with the error", example = "session-12345")
+	private String sessionId;
 }
 ```
