@@ -46,7 +46,9 @@ import java.util.stream.Collectors;
  */
 public class YamlWriter {
 
+	private static final String JSON_SCHEMA_DIALECT = "jsonSchemaDialect ";
 	private static final String SERVERS_FIELD = "servers";
+	private static final String WEBHOOKS = "webhooks";
 	private static final String SECURITY_FIELD = "security";
 	private static final String EXTERNAL_DOC_FIELD = "externalDocs";
 	private static final String FILEFORMAT_JSON = "json";
@@ -91,6 +93,12 @@ public class YamlWriter {
 			if(freefields.get().get(EXTERNAL_DOC_FIELD) != null) {
 				specification.setExternalDocs(freefields.get().get(EXTERNAL_DOC_FIELD));
 			}
+			if(freefields.get().get(JSON_SCHEMA_DIALECT) != null) {
+				specification.setJsonSchemaDialect(freefields.get().get(JSON_SCHEMA_DIALECT));
+			}
+			if(freefields.get().get(WEBHOOKS) != null) {
+				specification.setJsonSchemaDialect(freefields.get().get(WEBHOOKS));
+			}
 		}
 	}
 
@@ -117,6 +125,7 @@ public class YamlWriter {
 		}
 
 		final Specification specification = new Specification();
+		specification.setOpenapi(apiConfiguration.getOpenapiVersion());
 		final Info info = new Info(context.getProject().getName(), context.getProject().getVersion(),
 			apiConfiguration.getUseProjectDescription() ? context.getProject().getDescription() : null,
 			freefields);
