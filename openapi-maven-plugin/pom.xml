@@ -5,7 +5,7 @@
 
     <groupId>io.github.kbuntrock</groupId>
     <artifactId>openapi-maven-plugin</artifactId>
-    <version>0.0.34</version>
+    <version>0.0.35-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
     <name>openapi-maven-plugin Maven Plugin</name>
@@ -54,7 +54,7 @@
 
         <!-- Reproducible builds, this value is set via the release process -->
         <!-- See: https://maven.apache.org/guides/mini/guide-reproducible-builds.html -->
-        <project.build.outputTimestamp>2026-07-15T21:22:50Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2026-07-15T21:26:01Z</project.build.outputTimestamp>
 
         <!-- Used if you want to skip surefire tests but not failsafe -->
         <skipSurefire>false</skipSurefire>
