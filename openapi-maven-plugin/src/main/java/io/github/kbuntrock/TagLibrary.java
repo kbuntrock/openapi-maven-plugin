@@ -9,6 +9,7 @@ import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.yaml.model.ChildObject;
 import io.github.kbuntrock.yaml.model.SecurityScheme;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -80,6 +81,10 @@ public class TagLibrary {
 	}
 
 	public void addSecurityScheme(SecurityScheme scheme) {
+		if(StringUtils.isEmpty(scheme.getRawName())) {
+			context.getLogger().warn("A SecurityScheme without a name has been discarded.");
+			return;
+		}
 		if(securitySchemes.containsKey(scheme.getRawName())) {
 			context.getLogger().warn(
 				"Multiple SecurityScheme with the same name (" + scheme.getRawName() + ") are defined. Keeping the first one.");

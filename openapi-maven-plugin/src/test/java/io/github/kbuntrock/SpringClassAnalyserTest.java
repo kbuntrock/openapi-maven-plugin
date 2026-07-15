@@ -27,6 +27,7 @@ import io.github.kbuntrock.resources.endpoint.issues.Issue247;
 import io.github.kbuntrock.resources.endpoint.issues.Issue262;
 import io.github.kbuntrock.resources.endpoint.issues.issue382.Issue382;
 import io.github.kbuntrock.resources.endpoint.issues.issue412.Issue412Controller;
+import io.github.kbuntrock.resources.endpoint.issues.issue413.Issue413Controller;
 import io.github.kbuntrock.resources.endpoint.jackson.JacksonJsonPropertyController;
 import io.github.kbuntrock.resources.endpoint.map.MapController;
 import io.github.kbuntrock.resources.endpoint.multipartformdata.MultipartFormDataController;
@@ -1055,6 +1056,19 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		mojo.setJavadocConfiguration(javadocConfig);
 
 		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void issue_413() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(Issue413Controller.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/issues/issue413"));
+		mojo.setJavadocConfiguration(javadocConfig);
+
+		checkGenerationResult(mojo.documentProject());
+
+		Mockito.verify(mojo.getContext().getLogger()).warn("A SecurityScheme without a name has been discarded.");
 	}
 
 	private ScanResult scanResult(Class<?> clazz) {
