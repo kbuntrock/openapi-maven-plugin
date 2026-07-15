@@ -17,11 +17,7 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.maven.plugin.MojoFailureException;
 
 import java.io.File;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
@@ -194,12 +190,10 @@ public class SpringMvcReader extends AbstractLibraryReader {
 					continue;
 				}
 
-				boolean annotationFound = false;
 				// Detect if is a header variable
 				final MergedAnnotation headerVariableMA = mergedAnnotations
 					.get("org.springframework.web.bind.annotation.RequestHeader");
 				if(headerVariableMA.isPresent()) {
-					annotationFound = true;
 					paramObj.setLocation(ParameterLocation.HEADER);
 					paramObj.setRequired(headerVariableMA.getBoolean("required") &&
 						VALUE_CONSTANT_DEFAULT.equals(headerVariableMA.getString("defaultValue")));
@@ -215,7 +209,6 @@ public class SpringMvcReader extends AbstractLibraryReader {
 				final MergedAnnotation pathVariableMA = mergedAnnotations
 					.get("org.springframework.web.bind.annotation.PathVariable");
 				if(pathVariableMA.isPresent()) {
-					annotationFound = true;
 					paramObj.setLocation(ParameterLocation.PATH);
 					paramObj.setRequired(pathVariableMA.getBoolean("required"));
 					// The value is equivalent to the name (alias for and user of MergedAnnotation)
@@ -230,7 +223,6 @@ public class SpringMvcReader extends AbstractLibraryReader {
 				final MergedAnnotation requestParamMA = mergedAnnotations
 					.get("org.springframework.web.bind.annotation.RequestParam");
 				if(requestParamMA.isPresent()) {
-					annotationFound = true;
 					if(paramObj.isMultipartFile()) {
 						// MultipartFile parameters are considered as a requestBody)
 						paramObj.setLocation(ParameterLocation.BODY);
@@ -254,7 +246,6 @@ public class SpringMvcReader extends AbstractLibraryReader {
 				final MergedAnnotation requestBodyMA = mergedAnnotations
 					.get("org.springframework.web.bind.annotation.RequestBody");
 				if(requestBodyMA.isPresent()) {
-					annotationFound = true;
 					paramObj.setLocation(ParameterLocation.BODY);
 					paramObj.setRequired(requestBodyMA.getBoolean("required"));
 					context.getLogger()
@@ -265,7 +256,6 @@ public class SpringMvcReader extends AbstractLibraryReader {
 				final MergedAnnotation requestPartMA = mergedAnnotations
 					.get("org.springframework.web.bind.annotation.RequestPart");
 				if(requestPartMA.isPresent()) {
-					annotationFound = true;
 					paramObj.setLocation(ParameterLocation.BODY_PART);
 					paramObj.setRequired(requestPartMA.getBoolean("required"));
 					final String value = requestPartMA.getString("value");
@@ -276,14 +266,13 @@ public class SpringMvcReader extends AbstractLibraryReader {
 						.debug("RequestPart annotation detected, location is " + paramObj.getLocation().toString());
 				}
 
-				if(!annotationFound) {
+				// A parameter can be found multiple times in the inheritance tree.
+				// We set a default value only if the location has not been previously defined.
+				if(paramObj.getLocation() == null && isSpringSimpleProperty(parameter.getType())) {
 					// By default, some class are automatically resolved as @RequestParam for Spring
 					// https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/requestparam.html
-
-					if(isSpringSimpleProperty(parameter.getType())) {
-						paramObj.setLocation(ParameterLocation.QUERY);
-						paramObj.setRequired(true);
-					}
+					paramObj.setLocation(ParameterLocation.QUERY);
+					paramObj.setRequired(true);
 				}
 
 				// Class "requirement" has precedence on any annotation (we can't force an optional to be required ...)

@@ -26,6 +26,7 @@ import io.github.kbuntrock.resources.endpoint.issues.Issue246;
 import io.github.kbuntrock.resources.endpoint.issues.Issue247;
 import io.github.kbuntrock.resources.endpoint.issues.Issue262;
 import io.github.kbuntrock.resources.endpoint.issues.issue382.Issue382;
+import io.github.kbuntrock.resources.endpoint.issues.issue412.Issue412Controller;
 import io.github.kbuntrock.resources.endpoint.jackson.JacksonJsonPropertyController;
 import io.github.kbuntrock.resources.endpoint.map.MapController;
 import io.github.kbuntrock.resources.endpoint.multipartformdata.MultipartFormDataController;
@@ -1040,6 +1041,17 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		final DocumentationMojo mojo = createBasicMojo(Issue382.class.getCanonicalName());
 		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
 		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/issues/issue382"));
+		mojo.setJavadocConfiguration(javadocConfig);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void issue_412() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo(Issue412Controller.class.getCanonicalName());
+		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
+		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/issues/issue412"));
 		mojo.setJavadocConfiguration(javadocConfig);
 
 		checkGenerationResult(mojo.documentProject());
