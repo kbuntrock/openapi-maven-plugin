@@ -9,7 +9,7 @@ public class ErrorEntityWithAnnotations {
 	/**
 	 * TimeStamp from javadoc, swagger should win as it is run last
 	 */
-	@Schema(description = "Timestamp of the error", example = "2023-10-01T12:00:00")
+	@Schema(description = "Timestamp of the error", example = "2023-10-01T12:00:00Z")
 	private LocalDateTime timestamp;
 	@Schema(description = "Session ID associated with the error", example = "session-12345")
 	private String sessionId;

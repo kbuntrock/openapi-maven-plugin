@@ -82,7 +82,7 @@ components:
           description: Timestamp of the error
           type: string
           format: date-time
-          example: 2023-10-01T12:00:00
+          example: 2023-10-01T12:00:00Z
         sessionId:
           description: Session ID associated with the error
           type: string
@@ -146,7 +146,7 @@ components:
           description: Timestamp of the collected data
           type: string
           format: date-time
-          example: 2023-10-01T12:00:00
+          example: 2023-10-01T12:00:00Z
     SuccessEntity:
       description: The success entity
       type: object

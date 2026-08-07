@@ -270,8 +270,12 @@ public class CommonApiConfiguration {
 		}
 	}
 
-	public String getOpenapiVersion() {
+	public String getOpenapiVersionString() {
 		return openapiVersion;
+	}
+
+	public OpenapiVersion getOpenapiVersion() {
+		return OpenapiVersion.fromString(openapiVersion);
 	}
 
 	public void setOpenapiVersion(String openapiVersion) {

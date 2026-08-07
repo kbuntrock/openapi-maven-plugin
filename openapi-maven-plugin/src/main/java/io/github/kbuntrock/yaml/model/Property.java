@@ -4,8 +4,12 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.github.kbuntrock.TagLibrary;
+import io.github.kbuntrock.configuration.OpenapiVersion;
 import io.github.kbuntrock.model.DataObject;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,6 +26,8 @@ public class Property extends Schema {
 	private boolean required;
 	@JsonIgnore
 	private String example;
+	@JsonIgnore
+	private String[] examples;
 	@JsonIgnore
 	private ReadWriteRule readWriteRule;
 
@@ -98,8 +104,23 @@ public class Property extends Schema {
 		if(maxLength != null) {
 			map.put("maxLength", maxLength);
 		}
-		if(example != null) {
+		if(example != null && apiConfiguration.getOpenapiVersion() == OpenapiVersion.V3_0) {
+			// Only for Openapi v3.0
 			map.put("example", example);
+		} else if(example != null || (examples != null && examples.length > 0)) {
+			// Openapi v3.1 and above, preferred way
+			final Set<String> distinctExamples = new LinkedHashSet<>();
+			if(example != null) {
+				distinctExamples.add(example);
+			}
+			if(examples != null) {
+				for(final String value : examples) {
+					if(value != null) {
+						distinctExamples.add(value);
+					}
+				}
+			}
+			map.put("examples", new ArrayList<>(distinctExamples));
 		}
 
 		return map;
@@ -111,6 +132,14 @@ public class Property extends Schema {
 
 	public void setExample(String example) {
 		this.example = example;
+	}
+
+	public String[] getExamples() {
+		return examples;
+	}
+
+	public void setExamples(String[] examples) {
+		this.examples = examples;
 	}
 
 	public ReadWriteRule getReadWriteRule() {

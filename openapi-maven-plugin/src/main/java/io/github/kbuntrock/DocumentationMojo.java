@@ -210,12 +210,10 @@ public class DocumentationMojo extends AbstractMojo {
 				"At least two openapi documentations have a colliding filename. Please set different ones if you wish to generate multiple documentations.");
 		}
 
-		String nonValidVersions = apis.stream().map(ApiConfiguration::getOpenapiVersion)
-			.filter(version -> !version.startsWith("3.0") && !version.startsWith("3.1")).distinct()
-			.collect(Collectors.joining(", "));
-		if(StringUtils.isNotEmpty(nonValidVersions)) {
-			throw new MojoFailureException(
-				"At least one openapi specification version is not supported by this plugin : " + nonValidVersions);
+		// Validate openapi versions
+		for(ApiConfiguration api : apis) {
+			// Throw an exception if not valid
+			api.getOpenapiVersion();
 		}
 	}
 

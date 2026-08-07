@@ -5,9 +5,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "The success entity", example = "A John Doe user")
 public class SuccessEntity {
 
-	@Schema(description = "The first name", example = "John")
+	@Schema(description = "The first name", example = "John", examples = { "John", "Bob", "Francois" })
 	private String firstName;
-	@Schema(description = "The last name", example = "Doe")
+	@Schema(description = "The last name", example = "Doe", examples = { "Scott", "Civil" })
 	private String lastName;
 
 	public String getFirstName() {

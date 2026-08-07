@@ -5,7 +5,11 @@ import io.github.kbuntrock.DocumentationMojo;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
+import io.github.kbuntrock.resources.endpoint.enumeration.TestEnumeration1Controller;
 import io.github.kbuntrock.resources.endpoint.javadoc.basic.BasicController;
+import io.github.kbuntrock.resources.endpoint.swagger.EntityAnnotationResource;
+import io.github.kbuntrock.resources.endpoint.swagger.EntityAnnotationWithParametersResource;
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
@@ -13,6 +17,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -41,15 +47,28 @@ public class OpenApi3_1 extends AbstractTest {
 	}
 
 	@Test
-	public void nominal_3_1_generation() throws MojoFailureException, MojoExecutionException, IOException {
+	public void basicAnnotatedAndJavadocResponseWithReturnObjects()
+		throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(EntityAnnotationResource.class.getCanonicalName());
+		JavadocConfiguration javadocConfiguration = new JavadocConfiguration();
+		javadocConfiguration
+			.setScanLocations(
+				Collections.singletonList("src/test/java/io/github/kbuntrock/resources/endpoint/swagger"));
+		mojo.setJavadocConfiguration(javadocConfiguration);
+		checkGenerationResult(mojo.documentProject());
+	}
 
-		final DocumentationMojo mojo = createBasicMojo(BasicController.class.getCanonicalName());
+	@Test
+	public void new_free_fields() throws MojoFailureException, MojoExecutionException, IOException {
 
-		final JavadocConfiguration javadocConfig = new JavadocConfiguration();
-		javadocConfig.setScanLocations(Arrays.asList("src/test/java/io/github/kbuntrock/resources/endpoint/javadoc/basic",
-			"src/test/java/io/github/kbuntrock/resources/dto"));
-		mojo.setJavadocConfiguration(javadocConfig);
+		final DocumentationMojo mojo = createBasicMojo(EntityAnnotationResource.class.getCanonicalName());
+		final ApiConfiguration apiConfiguration = mojo.getApis().get(0);
+
+		final InputStream freeFieldsFileStream = this.getClass().getClassLoader()
+			.getResourceAsStream("ut/OpenAPI3_1/3_1_free_fields.txt");
+		apiConfiguration.setFreeFields(IOUtils.toString(freeFieldsFileStream, StandardCharsets.UTF_8));
 
 		checkGenerationResult(mojo.documentProject());
+
 	}
 }

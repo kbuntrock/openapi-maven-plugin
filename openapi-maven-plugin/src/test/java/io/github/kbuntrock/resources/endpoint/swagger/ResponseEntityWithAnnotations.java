@@ -12,7 +12,7 @@ public class ResponseEntityWithAnnotations {
 	private String status;
 	@Schema(description = "Data returned in the response", example = "{\"key\":\"value\"}")
 	private String data;
-	@Schema(description = "Timestamp of the collected data", example = "2023-10-01T12:00:00")
+	@Schema(description = "Timestamp of the collected data", example = "2023-10-01T12:00:00Z")
 	private LocalDateTime timestamp;
 
 	public String getId() {
