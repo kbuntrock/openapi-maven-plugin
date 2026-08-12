@@ -100,6 +100,9 @@ public class DocumentationMojo extends AbstractMojo {
 	@Parameter(property = "openapi.filename")
 	private String filename;
 
+	@Parameter(property = "openapi.openapiVersion")
+	private String openapiVersion;
+
 	@Parameter(property = "openapi.tagAnnotations")
 	private List<String> tagAnnotations;
 
@@ -206,6 +209,12 @@ public class DocumentationMojo extends AbstractMojo {
 			throw new MojoFailureException(
 				"At least two openapi documentations have a colliding filename. Please set different ones if you wish to generate multiple documentations.");
 		}
+
+		// Validate openapi versions
+		for(ApiConfiguration api : apis) {
+			// Throw an exception if not valid
+			api.getOpenapiVersion();
+		}
 	}
 
 	/**
@@ -224,6 +233,9 @@ public class DocumentationMojo extends AbstractMojo {
 			}
 			ApiConfiguration apiConf = new ApiConfiguration();
 			apiConf.setLocations(locations);
+			if(StringUtils.isNotEmpty(openapiVersion)) {
+				apiConf.setOpenapiVersion(openapiVersion);
+			}
 			if(StringUtils.isNotEmpty(library)) {
 				apiConf.setLibrary(library);
 			}

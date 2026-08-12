@@ -58,6 +58,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		final CommonApiConfiguration copy = new CommonApiConfiguration(commonApiConfiguration);
 		final ApiConfiguration merged = new ApiConfiguration();
 		// Copy properties
+		merged.openapiVersion = copy.openapiVersion;
 		merged.locations = copy.locations;
 		merged.tag = copy.tag;
 		merged.operation = copy.operation;
@@ -94,6 +95,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.setFilename(filename);
 		merged.setMergeFreeFields(mergeFreeFields);
 
+		if(openapiVersion != null) {
+			merged.setOpenapiVersion(openapiVersion);
+		}
 		if(locations != null && !locations.isEmpty()) {
 			merged.setLocations(locations);
 		}

@@ -1,8 +1,9 @@
 ---
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: My Project
   version: 10.5.36
+jsonSchemaDialect: http://localhost/json-schema
 servers:
   - url: ""
 tags:
@@ -18,61 +19,77 @@ paths:
         "200":
           description: Swagger Successful operation
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/ResponseEntityWithAnnotations"
         "404":
           description: Not Found
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/ErrorEntityWithAnnotations"
         "500":
           description: Internal server error
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/ErrorEntityWithAnnotations"
+      x-operation-name: errorResponses
   /api/summary:
     get:
       tags:
         - EntityAnnotationResource
-      operationId: swaggerSummary
+      operationId: EntityAnnotationResource.swaggerSummary
       summary: Swagger summary
       responses:
         "200":
           description: successful operation
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/ResponseEntityWithAnnotations"
+      x-operation-name: swaggerSummary
   /api/unparametrized:
     get:
       tags:
         - EntityAnnotationResource
-      operationId: unparametrized
+      operationId: EntityAnnotationResource.unparametrized
       summary: Swagger summary of unparametrized operation
       responses:
         "200":
           description: The success response
           content:
-            '*/*':
+            application/json:
               schema:
                 description: The success entity
-                allOf:
-                  - $ref: "#/components/schemas/SuccessEntity"
+                $ref: "#/components/schemas/SuccessEntity"
         "404":
           description: Not Found
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/ErrorEntityWithAnnotations"
         "500":
           description: Internal server error
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/ErrorEntityWithAnnotations"
+      x-operation-name: unparametrized
+webhooks:
+  newPet:
+    post:
+      description: "A new pet is born, let's come and discover it in Petstore."
+      requestBody:
+        description: Information about a new pet in the system
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Pet"
+      responses:
+        "200":
+          description: Return a 200 status to indicate that the data was received
+            successfully
 components:
   schemas:
     ErrorEntityWithAnnotations:
@@ -82,72 +99,85 @@ components:
           description: Timestamp of the error
           type: string
           format: date-time
-          example: 2023-10-01T12:00:00Z
+          examples:
+            - 2023-10-01T12:00:00Z
         sessionId:
           description: Session ID associated with the error
           type: string
-          example: session-12345
+          examples:
+            - session-12345
         correlationId:
           description: Correlation ID for tracking the request
           type: string
-          example: correlation-67890
+          examples:
+            - correlation-67890
         requestId:
           description: Request ID for the operation
           type: string
-          example: request-54321
+          examples:
+            - request-54321
         errorId:
           description: Unique identifier for the error
           type: string
-          example: error-98765
+          examples:
+            - error-98765
         errorCode:
           description: Error code representing the type of error
           type: string
-          example: ERR-001
+          examples:
+            - ERR-001
         status:
           description: HTTP status code of the error
           type: integer
           format: int32
-          example: 500
+          examples:
+            - 500
         error:
           description: Short description of the error
           type: string
-          example: Internal Server Error
+          examples:
+            - Internal Server Error
         message:
           description: Detailed message about the error
           type: string
-          example: An unexpected error occurred while processing the request.
+          examples:
+            - An unexpected error occurred while processing the request.
         path:
           description: Path of the request that caused the error
           type: string
-          example: /api/resource
+          examples:
+            - /api/resource
         extraInfo:
-          description: Status of the response
           type: string
-          example: Additional information about the error
+          examples:
+            - Additional information about the error
         cause:
           description: "The cause of the error, if any"
-          allOf:
-            - $ref: "#/components/schemas/ErrorEntityWithAnnotations"
+          $ref: "#/components/schemas/ErrorEntityWithAnnotations"
     ResponseEntityWithAnnotations:
       type: object
       properties:
         id:
           description: Unique identifier for the response
           type: string
-          example: 12345
+          examples:
+            - 12345
         status:
           description: Status of the response
           type: string
-          example: success
+          examples:
+            - success
         data:
           description: Data returned in the response
           type: string
-          example: "{\"key\":\"value\"}"
+          examples:
+            - "{\"key\":\"value\"}"
         timestamp:
           description: Timestamp of the collected data
           type: string
           format: date-time
-          example: 2023-10-01T12:00:00Z
+          examples:
+            - 2023-10-01T12:00:00Z
     SuccessEntity:
       description: The success entity
       type: object
@@ -155,8 +185,24 @@ components:
         firstName:
           description: The first name
           type: string
-          example: John
+          examples:
+            - John
+            - Bob
+            - Francois
         lastName:
           description: The last name
           type: string
-          example: Doe
+          examples:
+            - Doe
+            - Scott
+            - Civil
+    Pet:
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
