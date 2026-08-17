@@ -70,7 +70,7 @@
         <jakarta-ws-rs-api.version>3.1.0</jakarta-ws-rs-api.version>
         <itf.version>0.13.1</itf.version>
         <javaparser.version>3.28.2</javaparser.version>
-        <classgraph.version>4.8.186</classgraph.version>
+        <classgraph.version>4.8.192</classgraph.version>
         <approvaltests.version>31.0.0</approvaltests.version>
         <mockito.version>5.23.0</mockito.version>
     </properties>
