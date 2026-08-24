@@ -180,7 +180,7 @@
         <dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs-annotations</artifactId>
-            <version>4.10.3</version>
+            <version>4.10.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
