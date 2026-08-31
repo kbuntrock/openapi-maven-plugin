@@ -643,7 +643,16 @@ public class YamlWriter {
 					: p.getSchemaReferenceName()))
 			.collect(Collectors.toList());
 
-		// LinkedHashMap to keep alphabetical order
+		final List<DataObject> polymorphicBases = new ArrayList<>(ordered);
+		for(final DataObject polymorphicBase : polymorphicBases) {
+			if(polymorphicBase.hasPolymorphicSubtypes()) {
+				ordered.removeAll(polymorphicBase.getPolymorphicSubtypes());
+				final int insertionIndex = ordered.indexOf(polymorphicBase) + 1;
+				ordered.addAll(insertionIndex, polymorphicBase.getPolymorphicSubtypes());
+			}
+		}
+
+		// LinkedHashMap to keep schema order
 		final Map<String, Object> schemas = new LinkedHashMap<>();
 		for(final DataObject dataObject : ordered) {
 			final Set<String> exploredSignatures = new HashSet<>();

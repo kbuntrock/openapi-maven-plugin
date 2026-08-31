@@ -17,7 +17,16 @@ paths:
         content:
           '*/*':
             schema:
-              $ref: "#/components/schemas/SearchCriteria"
+              anyOf:
+                - $ref: "#/components/schemas/SearchCriteria"
+                - $ref: "#/components/schemas/BaseSearchCriteria"
+                - $ref: "#/components/schemas/SearchCriteriaV3"
+                - $ref: "#/components/schemas/SearchCriteriaV4"
+                - $ref: "#/components/schemas/SearchCriteriaV42"
+                - $ref: "#/components/schemas/SearchCriteriaV5"
+                - $ref: "#/components/schemas/SearchCriteriaV52"
+                - $ref: "#/components/schemas/SearchCriteriaV6"
+                - $ref: "#/components/schemas/SearchCriteriaChildV6"
       responses:
         "200":
           description: successful operation
@@ -33,10 +42,125 @@ components:
         timestamp:
           type: integer
           format: int32
+    MyDateType:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          format: int32
     SearchCriteria:
       type: object
       properties:
         dateCriteria:
-          $ref: "#/components/schemas/CriteriaDateType"
+          anyOf:
+            - $ref: "#/components/schemas/CriteriaDateType"
+            - $ref: "#/components/schemas/MyDateType"
         myString:
           type: string
+    BaseSearchCriteria:
+      type: object
+      properties:
+        dateCriteria:
+          anyOf:
+            - $ref: "#/components/schemas/CriteriaDateType"
+            - $ref: "#/components/schemas/MyDateType"
+        myString:
+          type: string
+        self: {}
+    SearchCriteriaV3:
+      type: object
+      properties:
+        dateCriteria:
+          anyOf:
+            - $ref: "#/components/schemas/CriteriaDateType"
+            - $ref: "#/components/schemas/MyDateType"
+        myString:
+          type: string
+        self:
+          $ref: "#/components/schemas/SearchCriteriaV3"
+        someBoolean:
+          type: boolean
+    SearchCriteriaV4:
+      type: object
+      properties:
+        dateCriteria:
+          anyOf:
+            - $ref: "#/components/schemas/CriteriaDateType"
+            - $ref: "#/components/schemas/MyDateType"
+        myString:
+          type: string
+        self:
+          $ref: "#/components/schemas/SearchCriteriaV5"
+        toto:
+          type: string
+    SearchCriteriaV42:
+      type: object
+      properties:
+        dateCriteria:
+          anyOf:
+            - $ref: "#/components/schemas/CriteriaDateType"
+            - $ref: "#/components/schemas/MyDateType"
+        myString:
+          type: string
+        self:
+          $ref: "#/components/schemas/SearchCriteriaV52"
+        toto:
+          type: string
+    SearchCriteriaV5:
+      type: object
+      properties:
+        dateCriteria:
+          anyOf:
+            - $ref: "#/components/schemas/CriteriaDateType"
+            - $ref: "#/components/schemas/MyDateType"
+        myString:
+          type: string
+        self:
+          $ref: "#/components/schemas/SearchCriteriaV4"
+        tata:
+          type: boolean
+    SearchCriteriaV52:
+      type: object
+      properties:
+        dateCriteria:
+          anyOf:
+            - $ref: "#/components/schemas/CriteriaDateType"
+            - $ref: "#/components/schemas/MyDateType"
+        myString:
+          type: string
+        self:
+          $ref: "#/components/schemas/SearchCriteriaV42"
+        tata:
+          type: boolean
+    SearchCriteriaV6:
+      type: object
+      properties:
+        dateCriteria:
+          anyOf:
+            - $ref: "#/components/schemas/CriteriaDateType"
+            - $ref: "#/components/schemas/MyDateType"
+        myString:
+          type: string
+        self:
+          anyOf:
+            - $ref: "#/components/schemas/SearchCriteriaV6"
+            - $ref: "#/components/schemas/SearchCriteriaChildV6"
+        someBoolean:
+          type: boolean
+    SearchCriteriaChildV6:
+      type: object
+      properties:
+        dateCriteria:
+          anyOf:
+            - $ref: "#/components/schemas/CriteriaDateType"
+            - $ref: "#/components/schemas/MyDateType"
+        myString:
+          type: string
+        self:
+          anyOf:
+            - $ref: "#/components/schemas/SearchCriteriaV6"
+            - $ref: "#/components/schemas/SearchCriteriaChildV6"
+        someBoolean:
+          type: boolean
+        anotherThing:
+          type: boolean
