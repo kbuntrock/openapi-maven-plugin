@@ -33,11 +33,19 @@ components:
         timestamp:
           type: integer
           format: int32
+    MyDateType:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          format: int32
     SearchCriteriaV3:
       type: object
       properties:
         dateCriteria:
-          $ref: "#/components/schemas/CriteriaDateType"
+          anyOf:
+            - $ref: "#/components/schemas/CriteriaDateType"
+            - $ref: "#/components/schemas/MyDateType"
         myString:
           type: string
         self:

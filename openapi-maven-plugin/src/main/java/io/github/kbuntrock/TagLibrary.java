@@ -1,11 +1,13 @@
 package io.github.kbuntrock;
 
+import io.github.classgraph.ScanResult;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.library.reader.BeanDefinitionUtils;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.model.*;
 import io.github.kbuntrock.model.annotation.OperationResponse;
+import io.github.kbuntrock.reflection.SubtypeResolver;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.yaml.model.ChildObject;
 import io.github.kbuntrock.yaml.model.SecurityScheme;
@@ -56,6 +58,8 @@ public class TagLibrary {
 	final Map<Class, DataObject> classToSchemaObject = new HashMap<>();
 	/** Map of security schemes by name */
 	private final Map<String, SecurityScheme> securitySchemes = new LinkedHashMap<>();
+	/** Classpath scan used for subtype discovery during controller analysis. */
+	private ScanResult currentScanResult;
 
 	public TagLibrary(final ApiContext context, Map<String, ClassDocumentation> javadocMap) {
 		this.openApiTypeResolver = context.getOpenApiTypeResolver();
@@ -78,6 +82,10 @@ public class TagLibrary {
 			}
 		}
 		exploreTagObjects(tag);
+	}
+
+	public void setCurrentScanResult(final ScanResult currentScanResult) {
+		this.currentScanResult = currentScanResult;
 	}
 
 	public void addSecurityScheme(SecurityScheme scheme) {
@@ -199,6 +207,7 @@ public class TagLibrary {
 			if(alreadyExisting == null) {
 				schemaObjects.put(explored, explored);
 				explored.setChildObjects(childProperties);
+				registerPolymorphicSubtypes(explored);
 			} else {
 				// We are exploring it for a different flow. Merging / updating the properties.
 				Map<String, ChildObject> newChildsMap = childProperties.stream()
@@ -214,6 +223,28 @@ public class TagLibrary {
 				}
 				alreadyExisting.setFlow(Flow.INPUT_OUTPUT);
 			}
+		}
+	}
+
+	/** Register concrete subtypes discovered by the active scan. */
+	private void registerPolymorphicSubtypes(final DataObject explored) {
+		final List<Class<?>> subtypeClasses = SubtypeResolver.findKnownSubtypes(explored.getJavaClass(), currentScanResult);
+		if(subtypeClasses.isEmpty()) {
+			return;
+		}
+		final List<DataObject> subtypes = new ArrayList<>();
+		for(final Class<?> subtypeClass : subtypeClasses) {
+			final DataObject subtypeDataObject = new DataObject(subtypeClass, context, explored.getFlow());
+			// Exploring a subtype also discovers its descendants.
+			exploreDataObject(subtypeDataObject);
+			// Equality by Java class retrieves the canonical registered instance.
+			final DataObject registeredSubtype = schemaObjects.get(subtypeDataObject);
+			if(registeredSubtype != null) {
+				subtypes.add(registeredSubtype);
+			}
+		}
+		if(!subtypes.isEmpty()) {
+			explored.setPolymorphicSubtypes(subtypes);
 		}
 	}
 
