@@ -1,0 +1,58 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: AnimalController
+paths:
+  /api/animal:
+    get:
+      tags:
+        - AnimalController
+      operationId: getAnimal
+      responses:
+        "200":
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                anyOf:
+                  - $ref: "#/components/schemas/AnimalDto"
+                  - $ref: "#/components/schemas/MammalDto"
+                  - $ref: "#/components/schemas/CatDto"
+                  - $ref: "#/components/schemas/DogDto"
+components:
+  schemas:
+    AnimalDto:
+      type: object
+      properties:
+        name:
+          type: string
+    MammalDto:
+      type: object
+      properties:
+        name:
+          type: string
+        adult:
+          type: boolean
+    CatDto:
+      type: object
+      properties:
+        name:
+          type: string
+        adult:
+          type: boolean
+        indoor:
+          type: boolean
+    DogDto:
+      type: object
+      properties:
+        name:
+          type: string
+        adult:
+          type: boolean
+        breed:
+          type: string

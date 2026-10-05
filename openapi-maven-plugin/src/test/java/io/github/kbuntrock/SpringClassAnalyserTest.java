@@ -383,6 +383,19 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		checkGenerationResult(mojo.documentProject());
 	}
 
+	/**
+	 * A return type extended by several other classes should be documented as an "anyOf" of the base type
+	 * and all of its known subtypes, so that consumers of the API are aware that any of these subtypes may
+	 * actually be returned.
+	 */
+	@Test
+	public void polymorphic_return_type() throws MojoFailureException, IOException, MojoExecutionException {
+
+		final DocumentationMojo mojo = createBasicMojo("io.github.kbuntrock.resources.endpoint.polymorphism");
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
 	@Test
 	public void pathEnhancementTwo() throws MojoFailureException, IOException, MojoExecutionException {
 

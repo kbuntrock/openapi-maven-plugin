@@ -30,7 +30,10 @@ paths:
                 additionalProperties:
                   type: array
                   items:
-                    $ref: "#/components/schemas/AccountDto"
+                    anyOf:
+                      - $ref: "#/components/schemas/AccountDto"
+                      - $ref: "#/components/schemas/ChildAccountDto"
+                      - $ref: "#/components/schemas/SpeAccountDto"
   /api/generic/account-page:
     get:
       tags:
@@ -56,7 +59,10 @@ paths:
                     content:
                       type: array
                       items:
-                        $ref: "#/components/schemas/AccountDto"
+                        anyOf:
+                          - $ref: "#/components/schemas/AccountDto"
+                          - $ref: "#/components/schemas/ChildAccountDto"
+                          - $ref: "#/components/schemas/SpeAccountDto"
                     hasNext:
                       type: boolean
     post:
@@ -72,7 +78,10 @@ paths:
                 content:
                   type: array
                   items:
-                    $ref: "#/components/schemas/AccountDto"
+                    anyOf:
+                      - $ref: "#/components/schemas/AccountDto"
+                      - $ref: "#/components/schemas/ChildAccountDto"
+                      - $ref: "#/components/schemas/SpeAccountDto"
                 hasNext:
                   type: boolean
                 totalPages:
@@ -143,7 +152,10 @@ paths:
                         items:
                           type: array
                           items:
-                            $ref: "#/components/schemas/AccountDto"
+                            anyOf:
+                              - $ref: "#/components/schemas/AccountDto"
+                              - $ref: "#/components/schemas/ChildAccountDto"
+                              - $ref: "#/components/schemas/SpeAccountDto"
   /api/generic/time-page:
     get:
       tags:
@@ -207,6 +219,112 @@ components:
           items:
             $ref: "#/components/schemas/Authority"
           uniqueItems: true
+    ChildAccountDto:
+      required:
+        - login
+        - firstName
+        - lastName
+        - email
+        - activated
+        - langKey
+        - authorities
+      type: object
+      properties:
+        login:
+          type: string
+          minLength: 1
+          maxLength: 50
+        firstName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        lastName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        email:
+          type: string
+          minLength: 5
+          maxLength: 254
+        imageUrl:
+          type: string
+          minLength: 0
+          maxLength: 256
+        activated:
+          type: boolean
+        langKey:
+          type: string
+          minLength: 2
+          maxLength: 10
+        authorities:
+          type: array
+          items:
+            $ref: "#/components/schemas/Authority"
+          uniqueItems: true
+        childId:
+          type: integer
+          format: int64
+    SpeAccountDto:
+      required:
+        - login
+        - firstName
+        - lastName
+        - email
+        - activated
+        - langKey
+        - authorities
+      type: object
+      properties:
+        login:
+          type: string
+          minLength: 1
+          maxLength: 50
+        firstName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        lastName:
+          type: string
+          minLength: 0
+          maxLength: 50
+        email:
+          type: string
+          minLength: 5
+          maxLength: 254
+        imageUrl:
+          type: string
+          minLength: 0
+          maxLength: 256
+        activated:
+          type: boolean
+        langKey:
+          type: string
+          minLength: 2
+          maxLength: 10
+        authorities:
+          type: array
+          items:
+            $ref: "#/components/schemas/Authority"
+          uniqueItems: true
+        page:
+          type: array
+          items:
+            type: object
+            properties:
+              content:
+                type: array
+                items:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/TimeDto"
+              hasNext:
+                type: boolean
+              totalPages:
+                type: integer
+                format: int32
+              totalElements:
+                type: integer
+                format: int64
     Authority:
       type: string
       enum:

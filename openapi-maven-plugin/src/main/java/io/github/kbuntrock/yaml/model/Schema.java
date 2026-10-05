@@ -27,6 +27,7 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Schema {
@@ -53,6 +54,9 @@ public class Schema {
 	protected Schema additionalProperties;
 	@JsonIgnore
 	protected String reference;
+	// References to a polymorphic base type and its known subtypes.
+	@JsonIgnore
+	protected List<Schema> anyOf;
 	// Used in case of an array object
 	@JsonIgnore
 	protected Schema items;
@@ -168,6 +172,8 @@ public class Schema {
 			}
 			if(dataObject.getOpenApiResolvedType().isCompleteNode()) {
 				reference = OpenApiConstants.OBJECT_REFERENCE_PREFIX + dataObject.getOpenApiResolvedType().getModelName();
+			} else if(referenceDataObject.hasPolymorphicSubtypes()) {
+				anyOf = buildPolymorphicAnyOf(referenceDataObject, tagLibrary);
 			} else {
 				reference = OpenApiConstants.OBJECT_REFERENCE_PREFIX + referenceDataObject.getSchemaReferenceName();
 			}
@@ -214,6 +220,15 @@ public class Schema {
 		} else {
 			type = dataObject.getOpenApiResolvedType();
 		}
+	}
+
+	private static List<Schema> buildPolymorphicAnyOf(final DataObject referenceDataObject, final TagLibrary tagLibrary) {
+		return Stream.concat(Stream.of(referenceDataObject), referenceDataObject.getPolymorphicSubtypes().stream())
+			.map(variant -> {
+				final Schema referenceSchema = new Schema(tagLibrary.getContext(), tagLibrary.getApiConfiguration());
+				referenceSchema.reference = OpenApiConstants.OBJECT_REFERENCE_PREFIX + variant.getSchemaReferenceName();
+				return referenceSchema;
+			}).collect(Collectors.toList());
 	}
 
 	private void createEnumSchemaObject(DataObject dataObject, ClassDocumentation classDocumentation) {
@@ -537,6 +552,9 @@ public class Schema {
 		}
 		if(StringUtils.isNotBlank(reference)) {
 			map.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, reference);
+		}
+		if(anyOf != null && !anyOf.isEmpty()) {
+			map.put("anyOf", anyOf);
 		}
 		if(items != null) {
 			map.put("items", items);

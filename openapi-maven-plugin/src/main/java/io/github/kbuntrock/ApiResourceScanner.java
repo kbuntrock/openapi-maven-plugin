@@ -77,8 +77,7 @@ public class ApiResourceScanner {
 	 * Scan configured locations for REST controllers and build the {@link TagLibrary}.
 	 * <p>
 	 * Steps:
-	 * - For each location, configure ClassGraph with the plugin class loader, enable class/method/annotation info,
-	 * and scope the scan to a package or a single class depending on the location.
+	 * - Scan the plugin classpath for class, method, and annotation information.
 	 * - From the scan, collect classes annotated with any configured tag annotations.
 	 * - Apply class-level white/black lists, then analyse each class with {@link JavaClassAnalyser}.
 	 * - Register additional schema classes listed explicitly in the configuration.
@@ -92,26 +91,19 @@ public class ApiResourceScanner {
 
 		final TagLibrary library = new TagLibrary(context, javadocMap);
 
-		for(final String apiLocation : apiConfiguration.getLocations()) {
-			context.getLogger().info("Scanning : " + apiLocation);
+		final ClassGraph classGraph = new ClassGraph()
+			.enableMethodInfo()
+			.enableClassInfo()
+			.enableAnnotationInfo()
+			.ignoreClassVisibility()
+			.ignoreMethodVisibility()
+			.ignoreParentClassLoaders()
+			.addClassLoader(context.getClassLoader());
 
-			// Configure ClassGraph for the plugin's scanning needs.
-			ClassGraph classGraph = new ClassGraph()
-				.enableMethodInfo()
-				.enableClassInfo()
-				.enableAnnotationInfo()
-				.ignoreClassVisibility()
-				.ignoreMethodVisibility()
-				.ignoreParentClassLoaders()
-				.addClassLoader(context.getClassLoader());
-			// Support both single-class and package locations.
-			if(context.getClassLoaderHelper().isClass(apiLocation)) {
-				classGraph.acceptClasses(apiLocation);
-			} else {
-				classGraph.acceptPackages(apiLocation);
-			}
-
-			try(ScanResult classScanResult = classGraph.scan()) {
+		try(ScanResult classScanResult = classGraph.scan()) {
+			library.setCurrentScanResult(classScanResult);
+			for(final String apiLocation : apiConfiguration.getLocations()) {
+				context.getLogger().info("Scanning : " + apiLocation);
 				// Collect classes that bear any of the configured tag annotations (e.g., Spring controllers).
 				String[] annotationNames = apiConfiguration.getTagAnnotations().toArray(new String[0]);
 				Set<Class<?>> restControllerClasses = classScanResult
@@ -159,6 +151,8 @@ public class ApiResourceScanner {
 					}
 				}
 			}
+		} finally {
+			library.setCurrentScanResult(null);
 		}
 
 		// Assign short, stable names to schema references after all scans are completed.
@@ -175,7 +169,8 @@ public class ApiResourceScanner {
 		if(classLoaderHelper.isClass(apiLocation)) {
 			return classInfo -> classInfo.getName().equals(apiLocation);
 		}
-		return classInfo -> classInfo.getPackageName().startsWith(apiLocation);
+		return classInfo -> classInfo.getPackageName().equals(apiLocation)
+			|| classInfo.getPackageName().startsWith(apiLocation + ".");
 	}
 
 	/**

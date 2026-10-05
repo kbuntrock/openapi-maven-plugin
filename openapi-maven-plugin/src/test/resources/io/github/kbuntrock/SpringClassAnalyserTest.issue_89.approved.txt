@@ -38,8 +38,9 @@ components:
       properties:
         a:
           description: the a attribute
-          allOf:
+          anyOf:
             - $ref: "#/components/schemas/Foo"
+            - $ref: "#/components/schemas/Boo"
         b:
           description: the b attribute
           allOf:
@@ -54,14 +55,32 @@ components:
         bar:
           description: the bar string
           type: string
+    Foo:
+      description: This is the Foo object
+      type: object
+      properties:
+        a:
+          description: the a attribute
+          anyOf:
+            - $ref: "#/components/schemas/Foo"
+            - $ref: "#/components/schemas/Boo"
+        b:
+          description: the b attribute
+          allOf:
+            - $ref: "#/components/schemas/Boo"
+        foo:
+          description: the foo integer
+          type: integer
+          format: int32
     Boo:
       description: This is the Boo object
       type: object
       properties:
         a:
           description: the a attribute
-          allOf:
+          anyOf:
             - $ref: "#/components/schemas/Foo"
+            - $ref: "#/components/schemas/Boo"
         b:
           description: the b attribute
           allOf:
@@ -73,22 +92,6 @@ components:
         boo:
           description: the boo boolean
           type: boolean
-    Foo:
-      description: This is the Foo object
-      type: object
-      properties:
-        a:
-          description: the a attribute
-          allOf:
-            - $ref: "#/components/schemas/Foo"
-        b:
-          description: the b attribute
-          allOf:
-            - $ref: "#/components/schemas/Boo"
-        foo:
-          description: the foo integer
-          type: integer
-          format: int32
     IBar:
       description: This is the IBar object
       type: object
