@@ -72,7 +72,7 @@ public class JavaxRsReader extends AbstractLibraryReader {
 		final MergedAnnotations mergedAnnotations, final Tag tag) throws MojoFailureException {
 
 		final MergedAnnotation requestMappingMergedAnnotation = mergedAnnotations.get("javax.ws.rs.Path");
-		if(requestMappingMergedAnnotation.isPresent()) {
+		if(requestMappingMergedAnnotation.isPresent() && isOperationIncludedByAnnotationFilter(method)) {
 
 			for(final JavaxRsHttpVerb verb : JavaxRsHttpVerb.values()) {
 				final MergedAnnotation m = mergedAnnotations.get(verb.getAnnotationClass());
@@ -92,7 +92,8 @@ public class JavaxRsReader extends AbstractLibraryReader {
 					setConsumeProduceProperties(endpoint, mergedAnnotations);
 					endpoint.setIdentifier(methodIdentifier);
 					endpoint.setDeprecated(isDeprecated(method));
-					setSwaggerAnnotatedEndpointProperties(endpoint, mergedAnnotations);
+					endpoint.setPublicApi(isPublicApiOperation(method));
+					setSwaggerAnnotatedEndpointProperties(endpoint, mergedAnnotations, method);
 					tag.addEndpoint(endpoint);
 					context.getLogger()
 						.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());

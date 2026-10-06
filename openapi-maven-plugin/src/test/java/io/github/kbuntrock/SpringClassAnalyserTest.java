@@ -39,6 +39,7 @@ import io.github.kbuntrock.resources.endpoint.number.NumberController;
 import io.github.kbuntrock.resources.endpoint.operation.MultipleHeadersOnSameOperation;
 import io.github.kbuntrock.resources.endpoint.operation.MultipleProducedContentTypes;
 import io.github.kbuntrock.resources.endpoint.operation.MultipleProducedContentTypesParameterIncoherence;
+import io.github.kbuntrock.resources.endpoint.operationfilter.OperationFilterController;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementOneController;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementTwoController;
 import io.github.kbuntrock.resources.endpoint.queryparam.*;
@@ -1096,6 +1097,55 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	public void standalone_api_response_annotation() throws MojoExecutionException, MojoFailureException, IOException {
 		final DocumentationMojo mojo = createBasicMojo(StandaloneApiResponseController.class.getCanonicalName());
 		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		mojo.setApiConfiguration(commonApiConfiguration);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void operation_include_annotation_filter() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(OperationFilterController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		commonApiConfiguration.setOperationIncludeAnnotations(
+			Collections.singletonList("io.github.kbuntrock.resources.endpoint.operationfilter.MyPublicApi"));
+		mojo.setApiConfiguration(commonApiConfiguration);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void operation_include_annotation_filter_unset() throws MojoExecutionException, MojoFailureException, IOException {
+		// No operationIncludeAnnotations configured at all: both endpoints must still be documented,
+		// proving the filter is fully opt-in and doesn't affect existing configurations.
+		final DocumentationMojo mojo = createBasicMojo(OperationFilterController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		mojo.setApiConfiguration(commonApiConfiguration);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void operation_marker_annotation() throws MojoExecutionException, MojoFailureException, IOException {
+		// Unlike operation_include_annotation_filter, nothing is excluded here: both endpoints must be
+		// documented, but only the one carrying @MyPublicApi gets the x-public-api marker.
+		final DocumentationMojo mojo = createBasicMojo(OperationFilterController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		commonApiConfiguration.setOperationMarkerAnnotations(
+			Collections.singletonList("io.github.kbuntrock.resources.endpoint.operationfilter.MyPublicApi"));
+		mojo.setApiConfiguration(commonApiConfiguration);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void default_errors_public_api_only() throws MojoExecutionException, MojoFailureException, IOException {
+		// defaultErrors must only land on operations recognized as public API: /public gets it,
+		// /internal (no marker annotation) must not, even though defaultErrors is configured globally.
+		final DocumentationMojo mojo = createBasicMojo(OperationFilterController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		commonApiConfiguration.setOperationMarkerAnnotations(
+			Collections.singletonList("io.github.kbuntrock.resources.endpoint.operationfilter.MyPublicApi"));
+		commonApiConfiguration.setDefaultErrors("{\"500\": {\"description\": \"Unexpected error\"}}");
 		mojo.setApiConfiguration(commonApiConfiguration);
 
 		checkGenerationResult(mojo.documentProject());

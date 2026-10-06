@@ -168,7 +168,56 @@ public abstract class AbstractLibraryReader {
 		return new ParameterObject(parameterObject.getName(), dataObject);
 	}
 
-	protected void setSwaggerAnnotatedEndpointProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations) {
+	/**
+	 * Gate for {@code operationIncludeAnnotations}: when that list is configured and non-empty, only
+	 * methods carrying at least one of the listed annotation classes are documented as operations.
+	 * Lets a codebase mark its intentionally-public surface (e.g. a custom {@code @PublicApi}) and have
+	 * kbuntrock generate a spec scoped to exactly that surface, instead of everything reachable.
+	 * Returns true (no filtering) when the list is unset or empty, so existing configurations are
+	 * unaffected.
+	 */
+	protected boolean isOperationIncludedByAnnotationFilter(final Method method) {
+		final List<String> includeAnnotations = apiConfiguration.getOperationIncludeAnnotations();
+		if(includeAnnotations == null || includeAnnotations.isEmpty()) {
+			return true;
+		}
+		return Arrays.stream(method.getAnnotations())
+			.map(annotation -> annotation.annotationType().getName())
+			.anyMatch(includeAnnotations::contains);
+	}
+
+	/**
+	 * Companion to {@link #isOperationIncludedByAnnotationFilter(Method)}: never excludes anything,
+	 * only decides whether the operation should carry the {@code x-public-api} marker (see
+	 * {@code CommonApiConfiguration#operationMarkerAnnotations}). Unset or empty list means "mark
+	 * nothing" (opposite default from the include filter, since there's nothing to opt out of here).
+	 */
+	protected boolean isOperationMarkedByAnnotation(final Method method) {
+		final List<String> markerAnnotations = apiConfiguration.getOperationMarkerAnnotations();
+		if(markerAnnotations == null || markerAnnotations.isEmpty()) {
+			return false;
+		}
+		return Arrays.stream(method.getAnnotations())
+			.map(annotation -> annotation.annotationType().getName())
+			.anyMatch(markerAnnotations::contains);
+	}
+
+	/**
+	 * True when the method is recognized as public API by either of the two annotation-driven
+	 * mechanisms ({@code operationIncludeAnnotations} or {@code operationMarkerAnnotations}),
+	 * whichever is configured. Shared gate for any behavior that should only apply to the public
+	 * surface regardless of which of the two the caller happens to be using.
+	 */
+	protected boolean isPublicApiOperation(final Method method) {
+		final List<String> includeAnnotations = apiConfiguration.getOperationIncludeAnnotations();
+		if(includeAnnotations != null && !includeAnnotations.isEmpty()) {
+			return isOperationIncludedByAnnotationFilter(method);
+		}
+		return isOperationMarkedByAnnotation(method);
+	}
+
+	protected void setSwaggerAnnotatedEndpointProperties(final Endpoint endpoint, final MergedAnnotations mergedAnnotations,
+		final Method method) {
 		readSecurityRequirements(mergedAnnotations, endpoint.getSecurityRequirements());
 		ArrayList<ParameterObject> parameterObjects = new ArrayList<ParameterObject>();
 
@@ -188,6 +237,13 @@ public abstract class AbstractLibraryReader {
 			final String description = operationAnnotation.getString("description");
 			if(!StringUtils.isEmpty(description)) {
 				operationInfo.setDescription(description);
+			}
+
+			// Only override the default class-based tag for operations recognized as public API: an
+			// internal operation's @Operation(tags=...), if any, is left for the existing behavior.
+			final String[] operationTags = operationAnnotation.getStringArray("tags");
+			if(operationTags != null && operationTags.length > 0 && isPublicApiOperation(method)) {
+				operationInfo.setTags(Arrays.asList(operationTags));
 			}
 
 			MergedAnnotation[] parametersArray = operationAnnotation.getAnnotationArray("parameters");
