@@ -588,6 +588,19 @@ Value to use for the enumeration description extension.
 
 Use the maven project description as the OpenAPI doc description. The description is inherited from parent pom.xml if not locally defined.
 
+### hiddenAnnotations
+
+- Type : `string list`
+- Required: `false`
+
+You can configure which annotations trigger the exclusion of API elements/endpoints from the generated documentation.
+The configuration accepts an array of annotation fully-qualified names.
+If present, override the following default values:
+
+- io.swagger.v3.oas.annotations.Hidden
+- springfox.documentation.annotations.ApiIgnore
+- org.eclipse.microprofile.openapi.annotations.Hidden
+
 ## javadocConfiguration
 
 - Type: `section`
