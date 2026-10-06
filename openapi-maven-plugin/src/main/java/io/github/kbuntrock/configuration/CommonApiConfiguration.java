@@ -124,6 +124,29 @@ public class CommonApiConfiguration {
 	@Parameter
 	protected List<String> tagAnnotations = new ArrayList<>();
 
+	/**
+	 * When non-empty, an operation (a single HTTP method on a controller) is only documented if the
+	 * underlying Java method carries at least one of these annotation classes (fully qualified name).
+	 * Lets a codebase that marks its intentionally-public surface with its own annotations (e.g. a
+	 * custom {@code @PublicApi}) generate a spec scoped to exactly that surface, the same way
+	 * annotation-driven runtime generators (springdoc, etc.) already do. When empty or unset
+	 * (the default), every operation kbuntrock would otherwise document is included, unchanged.
+	 */
+	@Parameter
+	protected List<String> operationIncludeAnnotations;
+
+	/**
+	 * When non-empty, every documented operation whose underlying Java method carries at least one of
+	 * these annotation classes (fully qualified name) gets a {@code x-public-api: true}
+	 * extension written onto it. Operations that don't match get no such field at all (never
+	 * {@code false}), so the marker is only ever present where it's true. Unlike
+	 * {@code operationIncludeAnnotations}, this never excludes anything — it only tags a single,
+	 * complete spec so a human or a tool (e.g. a Spectral rule) can tell public operations apart from
+	 * internal ones without cross-referencing the source code.
+	 */
+	@Parameter
+	protected List<String> operationMarkerAnnotations;
+
 	@Parameter(required = true)
 	protected List<String> whiteList;
 
@@ -190,6 +213,8 @@ public class CommonApiConfiguration {
 		this.nullableAnnotation = commonApiConfiguration.nullableAnnotation;
 		this.useProjectDescription = commonApiConfiguration.useProjectDescription;
 		this.hiddenAnnotations = commonApiConfiguration.hiddenAnnotations;
+		this.operationIncludeAnnotations = commonApiConfiguration.operationIncludeAnnotations;
+		this.operationMarkerAnnotations = commonApiConfiguration.operationMarkerAnnotations;
 
 		for(final String tagAnnotation : commonApiConfiguration.tagAnnotations) {
 			this.tagAnnotations.add(tagAnnotation);
@@ -432,6 +457,22 @@ public class CommonApiConfiguration {
 
 	public void setTagAnnotations(final List<String> tagAnnotations) {
 		this.tagAnnotations = tagAnnotations;
+	}
+
+	public List<String> getOperationIncludeAnnotations() {
+		return operationIncludeAnnotations;
+	}
+
+	public void setOperationIncludeAnnotations(final List<String> operationIncludeAnnotations) {
+		this.operationIncludeAnnotations = operationIncludeAnnotations;
+	}
+
+	public List<String> getOperationMarkerAnnotations() {
+		return operationMarkerAnnotations;
+	}
+
+	public void setOperationMarkerAnnotations(final List<String> operationMarkerAnnotations) {
+		this.operationMarkerAnnotations = operationMarkerAnnotations;
 	}
 
 	public List<String> getWhiteList() {

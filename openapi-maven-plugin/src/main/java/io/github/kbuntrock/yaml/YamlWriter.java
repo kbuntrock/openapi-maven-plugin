@@ -236,13 +236,21 @@ public class YamlWriter {
 				operation.setName(endpoint.getType().name());
 				operation.setPath(enhancedPath);
 				final String computedTagName = tag.computeConfiguredName(apiConfiguration);
-				operation.getTags().add(computedTagName);
+				final List<String> operationTagOverride = endpoint.getOperationAnnotationInfo().getTags();
+				if(operationTagOverride != null && !operationTagOverride.isEmpty()) {
+					operation.getTags().addAll(operationTagOverride);
+				} else {
+					operation.getTags().add(computedTagName);
+				}
 				operation.setOperationId(ObjectsUtils.nonNullElse(endpoint.getOperationAnnotationInfo().getOperationId(),
 					apiConfiguration.getOperationIdHelper().toOperationId(tag.getName(), computedTagName, endpoint.getName())));
 				if(apiConfiguration.isLoopbackOperationName()) {
 					operation.setLoopbackOperationName(endpoint.getName());
 				}
 				operation.setDeprecated(endpoint.isDeprecated());
+				if(endpoint.isPublicApi()) {
+					operation.setPublicApi(Boolean.TRUE);
+				}
 
 				// Javadoc to description
 				JavadocWrapper methodJavadoc = null;
@@ -485,8 +493,17 @@ public class YamlWriter {
 					operation.getResponses().put(response.getCode(), response);
 				}
 
-				// Adding default responses
-				if(defaultErrors != null) {
+				// Adding default responses. If the project uses either of the public-API annotation
+				// mechanisms at all, these typically document platform-wide concerns (gateway auth,
+				// rate limiting) that only apply to the public-facing surface, so they're restricted
+				// to operations recognized as public API. Projects that use neither mechanism keep the
+				// original, unrestricted behavior (applies to every operation) for full backward
+				// compatibility.
+				final boolean publicApiMechanismInUse = (apiConfiguration.getOperationIncludeAnnotations() != null
+					&& !apiConfiguration.getOperationIncludeAnnotations().isEmpty())
+					|| (apiConfiguration.getOperationMarkerAnnotations() != null
+						&& !apiConfiguration.getOperationMarkerAnnotations().isEmpty());
+				if(defaultErrors != null && (!publicApiMechanismInUse || endpoint.isPublicApi())) {
 					defaultErrors.entrySet().forEach(entry -> {
 						operation.getResponses().put(entry.getKey(), entry.getValue());
 					});
@@ -563,6 +580,11 @@ public class YamlWriter {
 		mergeCommonOperationsParameters(existingOperation, operation);
 		// And merging request bodies
 		mergeCommonOperationsRequestBodies(existingOperation, operation);
+		// The discarded operation may be the one carrying the public-api marker even when the
+		// surviving one isn't (methods colliding on one path aren't required to share annotations).
+		if(Boolean.TRUE.equals(operation.getPublicApi())) {
+			existingOperation.setPublicApi(Boolean.TRUE);
+		}
 
 		// Please note that there is currently no verification on parameters being equivalent between similar response content types.
 		// The first encountered operation's parameters are the one written in the documentation.
