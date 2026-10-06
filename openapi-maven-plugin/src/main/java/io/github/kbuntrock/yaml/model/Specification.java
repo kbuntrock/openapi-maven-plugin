@@ -2,17 +2,22 @@ package io.github.kbuntrock.yaml.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "openapi", "info", "servers", "tags", "paths", "components" })
+@JsonPropertyOrder({ "openapi", "info", "jsonSchemaDialect", "servers", "tags", "paths", "webhooks", "components", "security",
+		"externalDocs" })
 public class Specification {
 
-	private String openapi = "3.0.3";
+	private String openapi;
 
 	private Info info;
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private Object jsonSchemaDialect;
 
 	/**
 	 * An array of server. If handled by default, it will be a list of one element. Either way, it will be a JsonNode
@@ -32,6 +37,9 @@ public class Specification {
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Object security;
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private Object webhooks;
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Object externalDocs;
@@ -98,5 +106,21 @@ public class Specification {
 
 	public void setExternalDocs(Object externalDocs) {
 		this.externalDocs = externalDocs;
+	}
+
+	public Object getJsonSchemaDialect() {
+		return jsonSchemaDialect;
+	}
+
+	public void setJsonSchemaDialect(Object jsonSchemaDialect) {
+		this.jsonSchemaDialect = jsonSchemaDialect;
+	}
+
+	public Object getWebhooks() {
+		return webhooks;
+	}
+
+	public void setWebhooks(Object webhooks) {
+		this.webhooks = webhooks;
 	}
 }

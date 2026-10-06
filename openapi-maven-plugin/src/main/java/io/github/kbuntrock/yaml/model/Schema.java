@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.TagLibrary;
 import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.configuration.OpenapiVersion;
 import io.github.kbuntrock.configuration.library.reader.BeanDefinitionUtils;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
@@ -347,6 +348,8 @@ public class Schema {
 			if(!StringUtils.isEmpty(swaggerExample)) {
 				property.setExample(swaggerExample);
 			}
+			String[] swaggerExamples = schemaAnnotation.getStringArray("examples");
+			property.setExamples(swaggerExamples);
 		}
 	}
 
@@ -500,7 +503,8 @@ public class Schema {
 		// coexists with a description (or other fields), wrap the $ref inside an allOf
 		// so that the description stays at the current level while the reference is
 		// isolated inside the allOf entry.
-		if(StringUtils.isNotBlank(reference) && description != null) {
+		if(apiConfiguration.getOpenapiVersion() == OpenapiVersion.V3_0 && StringUtils.isNotBlank(reference)
+			&& description != null) {
 			map.put("description", description);
 			final Map<String, Object> refMap = new LinkedHashMap<>();
 			refMap.put(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, reference);

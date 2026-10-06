@@ -14,8 +14,7 @@ public class OpenApiConstants {
 	 * https://swagger.io/docs/specification/components/)
 	 */
 	public static final String[] COMPONENTS_STRUCTURE = { "parameters", "securitySchemes", "requestBodies", "responses",
-			"headers",
-			"examples", "links", "callbacks" };
+			"headers", "examples", "links", "callbacks", "pathItems" };
 
 	/**
 	 * Schemas sub-section in "components" section

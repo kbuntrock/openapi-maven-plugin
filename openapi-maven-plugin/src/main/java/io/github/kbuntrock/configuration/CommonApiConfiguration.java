@@ -22,6 +22,9 @@ public class CommonApiConfiguration {
 		DEFAULT_TAG_ANNOTATIONS.add(TagAnnotation.SPRING_REST_CONTROLLER.getAnnotationClassName());
 	}
 
+	@Parameter
+	protected String openapiVersion = "3.0.3";
+
 	/**
 	 * A list of location to find api endpoints. A location could be a class or a package
 	 */
@@ -162,6 +165,7 @@ public class CommonApiConfiguration {
 			this.locations = new ArrayList<>();
 			this.locations.addAll(commonApiConfiguration.locations);
 		}
+		this.openapiVersion = commonApiConfiguration.openapiVersion;
 		this.tag = new Tag(commonApiConfiguration.tag);
 		this.operation = new Operation(commonApiConfiguration.operation);
 		this.attachArtifact = commonApiConfiguration.attachArtifact;
@@ -264,6 +268,18 @@ public class CommonApiConfiguration {
 		if(useProjectDescription == null) {
 			useProjectDescription = false;
 		}
+	}
+
+	public String getOpenapiVersionString() {
+		return openapiVersion;
+	}
+
+	public OpenapiVersion getOpenapiVersion() {
+		return OpenapiVersion.fromString(openapiVersion);
+	}
+
+	public void setOpenapiVersion(String openapiVersion) {
+		this.openapiVersion = openapiVersion;
 	}
 
 	public List<String> getLocations() {
