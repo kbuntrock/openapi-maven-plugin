@@ -87,6 +87,8 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.defaultNonNullableFields = copy.defaultNonNullableFields;
 		merged.nonNullableAnnotation = copy.nonNullableAnnotation;
 		merged.nullableAnnotation = copy.nullableAnnotation;
+		merged.hiddenAnnotations = copy.hiddenAnnotations;
+
 		merged.nonDocumentableParameterClasses = copy.nonDocumentableParameterClasses;
 		merged.useProjectDescription = copy.useProjectDescription;
 		// End copy properties
@@ -193,7 +195,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		if(nullableAnnotation != null) {
 			merged.setNullableAnnotation(nullableAnnotation);
 		}
-
+		if(hiddenAnnotations != null) {
+			merged.setHiddenAnnotations(hiddenAnnotations);
+		}
 		merged.operationIdHelper = new OperationIdHelper(merged.operationId);
 
 		for(int i = 0; i < merged.tagAnnotations.size(); i++) {

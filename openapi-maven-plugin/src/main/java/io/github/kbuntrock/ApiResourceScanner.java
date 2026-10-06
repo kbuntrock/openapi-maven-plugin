@@ -11,10 +11,7 @@ import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import org.apache.maven.plugin.MojoFailureException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -42,7 +39,9 @@ public class ApiResourceScanner {
 	private final OpenApiTypeResolver openApiTypeResolver;
 	private final Map<String, ClassDocumentation> javadocMap;
 
-	/** Class-level allow/deny lists. Method-level rules are enforced later in JavaClassAnalyser. */
+	/**
+	 * Class-level allow/deny lists. Method-level rules are enforced later in JavaClassAnalyser.
+	 */
 	private final List<Pattern> whiteListPatterns = new ArrayList<>();
 	private final List<Pattern> blackListPatterns = new ArrayList<>();
 
@@ -119,6 +118,7 @@ public class ApiResourceScanner {
 					.stream()
 					.filter(onLocation(apiLocation, context.getClassLoaderHelper()))
 					.map(ClassInfo::loadClass)
+					.filter(this::isNotHidden)
 					.collect(Collectors.toSet());
 
 				context.getLogger().info("Found " + restControllerClasses.size() + " annotated classes with [ " +
@@ -198,5 +198,11 @@ public class ApiResourceScanner {
 		}
 		return blackListPatterns.stream()
 			.noneMatch(blackPattern -> blackPattern.matcher(restControllerClass.getCanonicalName()).matches());
+	}
+
+	private boolean isNotHidden(Class<?> classInfo) {
+		return Optional.ofNullable(context.getHiddeConfiguration())
+			.map(config -> !config.hasHiddenAnnotations(Arrays.asList(classInfo.getAnnotations())))
+			.orElse(true);
 	}
 }

@@ -147,6 +147,8 @@ public class CommonApiConfiguration {
 
 	@Parameter
 	protected List<String> nonDocumentableParameterClasses = new ArrayList<>();
+	@Parameter
+	protected List<String> hiddenAnnotations;
 
 	/**
 	 * If true, inject the pom.xml description (potentially inherited from parents) in the openAPi documentation.
@@ -187,6 +189,8 @@ public class CommonApiConfiguration {
 		this.nonNullableAnnotation = commonApiConfiguration.nonNullableAnnotation;
 		this.nullableAnnotation = commonApiConfiguration.nullableAnnotation;
 		this.useProjectDescription = commonApiConfiguration.useProjectDescription;
+		this.hiddenAnnotations = commonApiConfiguration.hiddenAnnotations;
+
 		for(final String tagAnnotation : commonApiConfiguration.tagAnnotations) {
 			this.tagAnnotations.add(tagAnnotation);
 		}
@@ -210,6 +214,10 @@ public class CommonApiConfiguration {
 			this.extraSchemaClasses.addAll(commonApiConfiguration.extraSchemaClasses);
 		}
 		this.nonDocumentableParameterClasses.addAll(commonApiConfiguration.nonDocumentableParameterClasses);
+		if(commonApiConfiguration.hiddenAnnotations != null) {
+			this.hiddenAnnotations = new ArrayList<>();
+			this.hiddenAnnotations.addAll(commonApiConfiguration.hiddenAnnotations);
+		}
 	}
 
 	public void initDefaultValues() {
@@ -264,6 +272,14 @@ public class CommonApiConfiguration {
 		if(useProjectDescription == null) {
 			useProjectDescription = false;
 		}
+	}
+
+	public List<String> getHiddenAnnotations() {
+		return hiddenAnnotations;
+	}
+
+	public void setHiddenAnnotations(final List<String> hiddenAnnotations) {
+		this.hiddenAnnotations = hiddenAnnotations;
 	}
 
 	public List<String> getLocations() {

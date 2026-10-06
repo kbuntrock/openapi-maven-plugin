@@ -4,18 +4,10 @@ import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.JavadocConfiguration;
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.configuration.library.TagAnnotation;
-import io.github.kbuntrock.resources.endpoint.issues.issue332.OneParametersOutTwoParametersInNoMerge;
-import io.github.kbuntrock.resources.endpoint.issues.issue332.TwoParametersOutTwoParametersEmptyInWithAllMerged;
-import io.github.kbuntrock.resources.endpoint.issues.issue332.TwoParametersOutTwoParametersEmptyInWithPriority;
-import io.github.kbuntrock.resources.endpoint.issues.issue332.TwoParametersOutTwoParametersInNoMerge;
-import io.github.kbuntrock.resources.endpoint.issues.issue332.TwoParametersOutTwoParametersInWithAllMerged;
-import io.github.kbuntrock.resources.endpoint.issues.issue332.TwoParametersOutTwoParametersInWithMerge;
-import io.github.kbuntrock.resources.endpoint.swagger.ApiResponseResource;
-import io.github.kbuntrock.resources.endpoint.swagger.DuplicateSecurityConfigResource;
-import io.github.kbuntrock.resources.endpoint.swagger.EntityAnnotationResource;
-import io.github.kbuntrock.resources.endpoint.swagger.EntityAnnotationWithParametersResource;
-import io.github.kbuntrock.resources.endpoint.swagger.SecurityAnnotationResource;
-import io.github.kbuntrock.resources.endpoint.swagger.SecurityConfigResource;
+import io.github.kbuntrock.resources.endpoint.issues.issue332.*;
+import io.github.kbuntrock.resources.endpoint.issues.issue460.HiddenController;
+import io.github.kbuntrock.resources.endpoint.issues.issue460.HiddenMethod;
+import io.github.kbuntrock.resources.endpoint.swagger.*;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
@@ -26,6 +18,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SwaggerAnalyzerTest extends AbstractTest {
 
@@ -224,5 +218,29 @@ public class SwaggerAnalyzerTest extends AbstractTest {
 		Assertions.assertDoesNotThrow(() -> {
 			mojo.documentProject();
 		});
+	}
+
+	@Test
+	public void controllerAnnotatedWithHidden() {
+		final DocumentationMojo mojo = createBasicMojo(HiddenController.class.getCanonicalName());
+		assertThatThrownBy(mojo::documentProject)
+			.isInstanceOf(MojoFailureException.class)
+			.hasMessageStartingWith("There is nothing to document.");
+
+	}
+
+	@Test
+	public void controllerWithMethodAnnotatedWithHidden()
+		throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(HiddenMethod.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void controllerWithMethodAnnotatedWithHiddenAndConfigurationOverride()
+		throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(HiddenMethod.class.getCanonicalName());
+		mojo.getApiConfiguration().setHiddenAnnotations(Collections.emptyList());
+		checkGenerationResult(mojo.documentProject());
 	}
 }
