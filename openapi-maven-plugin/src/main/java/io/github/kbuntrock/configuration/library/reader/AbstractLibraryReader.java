@@ -313,6 +313,7 @@ public abstract class AbstractLibraryReader {
 
 		parameter.setDescription(data.getDescription());
 		parameter.setExample(data.getExample());
+		parameter.setFormat(data.getFormat());
 
 		context.getLogger().debug("Found @Parameter " + data.getName()
 			+ " param '" + parameter.getName() + "' : " + parameter.getDescription());
@@ -358,6 +359,12 @@ public abstract class AbstractLibraryReader {
 			.orElse(null);
 
 		parameter.setExample(example);
+
+		// @Schema(format = ...) has no @Parameter-level equivalent to take priority over.
+		final String format = schema != null ? schema.getString("format") : null;
+		if(StringUtils.isNotEmpty(format)) {
+			parameter.setFormat(format);
+		}
 
 		final String paramIn = parameterAnnotation.getValue("in").orElse("").toString();
 		parameter.setLocation(ParameterLocation.fromValue("".equals(paramIn) ? "query" : paramIn));

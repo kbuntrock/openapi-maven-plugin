@@ -42,6 +42,7 @@ import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementOneContr
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementTwoController;
 import io.github.kbuntrock.resources.endpoint.queryparam.*;
 import io.github.kbuntrock.resources.endpoint.recursive.*;
+import io.github.kbuntrock.resources.endpoint.schemarequiredmode.SchemaRequiredModeController;
 import io.github.kbuntrock.resources.endpoint.spring.OptionalController;
 import io.github.kbuntrock.resources.endpoint.spring.ResponseEntityController;
 import io.github.kbuntrock.resources.endpoint.spring.ResponseEntityUnparametrizedController;
@@ -1069,6 +1070,15 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		checkGenerationResult(mojo.documentProject());
 
 		Mockito.verify(mojo.getContext().getLogger()).warn("A SecurityScheme without a name has been discarded.");
+	}
+
+	@Test
+	public void schema_required_mode() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(SchemaRequiredModeController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		mojo.setApiConfiguration(commonApiConfiguration);
+
+		checkGenerationResult(mojo.documentProject());
 	}
 
 	private ScanResult scanResult(Class<?> clazz) {

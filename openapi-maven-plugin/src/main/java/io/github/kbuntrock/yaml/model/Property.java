@@ -23,6 +23,8 @@ public class Property extends Schema {
 	@JsonIgnore
 	private String example;
 	@JsonIgnore
+	private String format;
+	@JsonIgnore
 	private ReadWriteRule readWriteRule;
 
 	@JsonIgnore
@@ -101,6 +103,12 @@ public class Property extends Schema {
 		if(example != null) {
 			map.put("example", example);
 		}
+		if(format != null) {
+			// Explicit @Schema(format = ...) always overrides whatever (if anything) the resolved
+			// Java type would have produced — same precedence rule as requiredMode in Schema#
+			// applyRequiredModeIfExplicit: the author's annotation is unambiguous intent.
+			map.put("format", format);
+		}
 
 		return map;
 	}
@@ -111,6 +119,14 @@ public class Property extends Schema {
 
 	public void setExample(String example) {
 		this.example = example;
+	}
+
+	public String getFormat() {
+		return format;
+	}
+
+	public void setFormat(String format) {
+		this.format = format;
 	}
 
 	public ReadWriteRule getReadWriteRule() {

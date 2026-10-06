@@ -1,0 +1,76 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: SchemaRequiredModeController
+paths:
+  /schema-required-mode/by-email:
+    get:
+      tags:
+        - SchemaRequiredModeController
+      operationId: getByEmail
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        "200":
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SchemaRequiredModeDto"
+  /schema-required-mode/{id}:
+    get:
+      tags:
+        - SchemaRequiredModeController
+      operationId: getById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SchemaRequiredModeDto"
+components:
+  schemas:
+    SchemaRequiredModeDto:
+      required:
+        - beanValidationOnly
+        - explicitlyRequired
+        - bothSignalsAgree
+      type: object
+      properties:
+        defaultValue:
+          type: string
+        beanValidationOnly:
+          type: string
+        explicitlyRequired:
+          type: string
+        explicitlyNotRequired:
+          type: string
+        explicitlyAuto:
+          type: string
+        requiredModeOverridesBeanValidation:
+          type: string
+        bothSignalsAgree:
+          description: Both signals agree
+          type: string
+        explicitFormat:
+          description: An explicit format the Java type alone can't express
+          type: string
+          format: email
