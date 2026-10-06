@@ -117,6 +117,8 @@ public class SpringMvcReader extends AbstractLibraryReader {
 				final List<ParameterObject> parameterObjects = readParameters(clazz, method, mergedAnnotations);
 				final DataObject responseObject = readResponseObject(clazz, method, mergedAnnotations);
 				final int responseCode = readResponseCode(mergedAnnotations);
+				final boolean explicitResponseStatus = mergedAnnotations
+					.get("org.springframework.web.bind.annotation.ResponseStatus").isPresent();
 				final List<String> paths = readEndpointPaths(basePath, requestMappingMergedAnnotation);
 				for(final String requestMethod : requestMethods) {
 					for(final String path : paths) {
@@ -127,6 +129,7 @@ public class SpringMvcReader extends AbstractLibraryReader {
 						endpoint.setParameters(parameterObjects);
 						endpoint.setResponseObject(responseObject);
 						endpoint.setResponseCode(responseCode);
+						endpoint.setExplicitResponseStatus(explicitResponseStatus);
 						setConsumeProduceProperties(endpoint, mergedAnnotations);
 						endpoint.setIdentifier(methodIdentifier);
 						endpoint.setDeprecated(isDeprecated(method));

@@ -1,0 +1,64 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: ExplicitStatusController
+paths:
+  /explicit-status/conflicting-stale-explicit-code:
+    post:
+      tags:
+        - ExplicitStatusController
+      operationId: conflictingStaleExplicitCode
+      responses:
+        "201":
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: uuid
+        "200":
+          description: "Stale, inconsistent with @ResponseStatus"
+  /explicit-status/matching-explicit-code:
+    post:
+      tags:
+        - ExplicitStatusController
+      operationId: matchingExplicitCode
+      responses:
+        "200":
+          description: Found
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: uuid
+  /explicit-status/matching-response-status:
+    post:
+      tags:
+        - ExplicitStatusController
+      operationId: matchingResponseStatus
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: uuid
+  /explicit-status/no-response-status-annotation:
+    post:
+      tags:
+        - ExplicitStatusController
+      operationId: createWithoutResponseStatusAnnotation
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: uuid
