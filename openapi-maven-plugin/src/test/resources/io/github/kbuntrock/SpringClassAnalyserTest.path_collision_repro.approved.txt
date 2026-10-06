@@ -1,0 +1,34 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: PathCollisionController
+paths:
+  /path-collision:
+    get:
+      tags:
+        - PathCollisionController
+      operationId: getAll
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string

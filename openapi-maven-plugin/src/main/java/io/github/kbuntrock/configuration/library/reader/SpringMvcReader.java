@@ -164,10 +164,6 @@ public class SpringMvcReader extends AbstractLibraryReader {
 
 		final Map<String, ParameterObject> parameters = new LinkedHashMap<>();
 
-		readRequestMappingParams(endpointAnnotations, parameters);
-
-		readRequestMappingHeaders(endpointAnnotations, parameters);
-
 		Set<String> modelAttributeBanned = new HashSet<>();
 
 		for(final Method method : overriddenMethods) {
@@ -288,6 +284,21 @@ public class SpringMvcReader extends AbstractLibraryReader {
 			}
 		}
 
+		// Run after the real @RequestParam/@PathVariable/... scan above, and only fill in names not
+		// already present: a `params`/`headers` entry on @RequestMapping frequently names the same
+		// parameter as a real, typed method argument (e.g. `@GetMapping(params = "name")` alongside
+		// `@RequestParam String name`, used together to let Spring dispatch to one of several
+		// overloaded handlers for the same path). Running these first and unconditionally put()-ing,
+		// as before, planted an untyped (Object.class) placeholder ahead of the real scan; since the
+		// real scan only computeIfAbsent()-s, that placeholder permanently shadowed the properly-typed
+		// parameter. The placeholder's schema never gets resolved, which surfaces later as either a
+		// parameter silently missing its `schema` in the generated spec, or (when several such
+		// placeholders from sibling operations on the same path get merged together in
+		// YamlWriter#mergeCommonOperationsParameters) a NullPointerException.
+		readRequestMappingParams(endpointAnnotations, parameters);
+
+		readRequestMappingHeaders(endpointAnnotations, parameters);
+
 		// Handle in a basic way (query param binding) explicit or implicit @ModelAttribute
 		// See https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.html
 		final Map<String, ParameterObject> unnestedParams = new LinkedHashMap<>();
@@ -332,7 +343,7 @@ public class SpringMvcReader extends AbstractLibraryReader {
 							ParameterObject po = new ParameterObject(array[0], Object.class, context);
 							po.setLocation(ParameterLocation.QUERY);
 							po.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
-							parameters.put(array[0], po);
+							parameters.putIfAbsent(array[0], po);
 						}
 					}
 				} else {
@@ -341,7 +352,7 @@ public class SpringMvcReader extends AbstractLibraryReader {
 					po.setAllowEmptyValue(true);
 					po.setLocation(ParameterLocation.QUERY);
 					po.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
-					parameters.put(param, po);
+					parameters.putIfAbsent(param, po);
 				}
 			}
 		}
@@ -374,7 +385,7 @@ public class SpringMvcReader extends AbstractLibraryReader {
 							ParameterObject po = new ParameterObject(array[0], Object.class, context);
 							po.setLocation(ParameterLocation.HEADER);
 							po.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
-							parameters.put(array[0], po);
+							parameters.putIfAbsent(array[0], po);
 						}
 					}
 				} else {
@@ -383,7 +394,7 @@ public class SpringMvcReader extends AbstractLibraryReader {
 					po.setAllowEmptyValue(true);
 					po.setLocation(ParameterLocation.HEADER);
 					po.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
-					parameters.put(param, po);
+					parameters.putIfAbsent(param, po);
 				}
 			}
 		}

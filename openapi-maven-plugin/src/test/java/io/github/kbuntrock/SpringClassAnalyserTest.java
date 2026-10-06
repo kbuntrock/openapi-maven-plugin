@@ -39,6 +39,7 @@ import io.github.kbuntrock.resources.endpoint.number.NumberController;
 import io.github.kbuntrock.resources.endpoint.operation.MultipleHeadersOnSameOperation;
 import io.github.kbuntrock.resources.endpoint.operation.MultipleProducedContentTypes;
 import io.github.kbuntrock.resources.endpoint.operation.MultipleProducedContentTypesParameterIncoherence;
+import io.github.kbuntrock.resources.endpoint.pathcollision.PathCollisionController;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementOneController;
 import io.github.kbuntrock.resources.endpoint.path.SpringPathEnhancementTwoController;
 import io.github.kbuntrock.resources.endpoint.queryparam.*;
@@ -1095,6 +1096,15 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	@Test
 	public void standalone_api_response_annotation() throws MojoExecutionException, MojoFailureException, IOException {
 		final DocumentationMojo mojo = createBasicMojo(StandaloneApiResponseController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		mojo.setApiConfiguration(commonApiConfiguration);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void path_collision_repro() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(PathCollisionController.class.getCanonicalName());
 		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
 		mojo.setApiConfiguration(commonApiConfiguration);
 
