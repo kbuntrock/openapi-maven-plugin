@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.configuration.HiddenConfiguration;
 import io.github.kbuntrock.configuration.NullableConfiguration;
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.configuration.library.reader.ClassLoaderHelper;
@@ -27,6 +28,7 @@ public final class ApiContext {
 	private NullableConfiguration nullableConfiguration;
 	private OpenApiTypeResolver openApiTypeResolver;
 	private ObjectMapper schemaObjectMapper;
+	private HiddenConfiguration hiddenConfiguration;
 
 	private MergeAnnotationsHelper mergeAnnotationsHelper;
 
@@ -75,6 +77,14 @@ public final class ApiContext {
 			this.schemaObjectMapper.setAnnotationIntrospector(new SpecializedAnnotationIntrospector(this));
 		}
 
+	}
+
+	public HiddenConfiguration getHiddenConfiguration() {
+		return hiddenConfiguration;
+	}
+
+	public void setHiddenConfiguration(HiddenConfiguration hiddenConfiguration) {
+		this.hiddenConfiguration = hiddenConfiguration;
 	}
 
 	public NullableConfiguration getNullableConfiguration() {

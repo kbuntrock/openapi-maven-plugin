@@ -20,6 +20,14 @@ public class Endpoint implements Comparable<Endpoint> {
 	private List<ParameterObject> parameters;
 
 	private Integer responseCode;
+
+	/**
+	 * True when {@link #responseCode} was derived from an explicit runtime-status annotation (e.g.
+	 * Spring's {@code @ResponseStatus}), as opposed to the plain 200 fallback used when no such
+	 * annotation is present. Lets response-merging logic trust this code as ground truth even when an
+	 * {@code @ApiResponse} elsewhere documents a different, possibly stale, 2xx code.
+	 */
+	private boolean explicitResponseStatus = false;
 	private DataObject responseObject;
 	private List<String> responseFormats;
 
@@ -72,6 +80,14 @@ public class Endpoint implements Comparable<Endpoint> {
 
 	public void setResponseCode(final Integer responseCode) {
 		this.responseCode = responseCode;
+	}
+
+	public boolean isExplicitResponseStatus() {
+		return explicitResponseStatus;
+	}
+
+	public void setExplicitResponseStatus(final boolean explicitResponseStatus) {
+		this.explicitResponseStatus = explicitResponseStatus;
 	}
 
 	public DataObject getResponseObject() {

@@ -432,36 +432,58 @@ public class YamlWriter {
 				// ----- RESPONSE part----
 				// -------------------------
 
-				final Response response = new Response();
-				response.setCode(endpoint.getResponseCode(), apiConfiguration.getDefaultSuccessfulOperationDescription());
-				if(endpoint.getResponseObject() != null) {
-					final Content responseContent = Content.fromDataObject(endpoint.getResponseObject(), tagLibrary);
-					if(endpoint.getResponseFormats() != null) {
-						for(final String format : endpoint.getResponseFormats()) {
-							response.getContent().put(format, responseContent);
-						}
-					} else if(apiConfiguration.isDefaultProduceConsumeGuessing()) {
-						response.getContent().put(ProduceConsumeUtils.getDefaultValue(endpoint.getResponseObject()),
-							responseContent);
-					} else {
-						response.getContent().put("*/*", responseContent);
-					}
-				}
+				// If the method has no explicit @ResponseStatus (so defaultResponseCode is only the
+				// plain 200 fallback, not ground truth) and an @ApiResponse already documents a
+				// different 2xx code (e.g. a controller returns ResponseEntity and sets the real status
+				// at runtime, documenting it only via @ApiResponse(responseCode="201")), adding our own
+				// default response here would create a spurious extra entry (e.g. 200 alongside 201)
+				// since the two never share a map key. Skip it in that case; the "Add swagger documented
+				// responses" block below fully describes the real response from the annotation.
+				// But when @ResponseStatus IS present, defaultResponseCode is ground truth (the actual
+				// runtime status) and must always be kept, even if some other @ApiResponse documents a
+				// conflicting/stale code: that's a pre-existing inconsistency in the controller's own
+				// annotations, not something to silently drop.
+				final int defaultResponseCode = endpoint.getResponseCode();
+				final boolean hasConflictingExplicitSuccessResponse = !endpoint.isExplicitResponseStatus()
+					&& endpoint.getOperationAnnotationInfo().getResponses()
+						.stream()
+						.anyMatch(
+							r -> r.getCode() != null && r.getCode() >= 200 && r.getCode() < 300
+								&& r.getCode() != defaultResponseCode);
 
-				// Javadoc handling
-				if(methodJavadoc != null) {
-					final Optional<JavadocBlockTag> returnDoc = methodJavadoc.getReturnBlockTag();
-					if(returnDoc.isPresent()) {
-						final String description = returnDoc.get().getContent().toText();
-						if(!description.isEmpty()) {
-							response.setDescription(returnDoc.get().getContent().toText());
+				Response response = null;
+				if(!hasConflictingExplicitSuccessResponse) {
+					response = new Response();
+					response.setCode(defaultResponseCode, apiConfiguration.getDefaultSuccessfulOperationDescription());
+					if(endpoint.getResponseObject() != null) {
+						final Content responseContent = Content.fromDataObject(endpoint.getResponseObject(), tagLibrary);
+						if(endpoint.getResponseFormats() != null) {
+							for(final String format : endpoint.getResponseFormats()) {
+								response.getContent().put(format, responseContent);
+							}
+						} else if(apiConfiguration.isDefaultProduceConsumeGuessing()) {
+							response.getContent().put(ProduceConsumeUtils.getDefaultValue(endpoint.getResponseObject()),
+								responseContent);
+						} else {
+							response.getContent().put("*/*", responseContent);
 						}
 					}
-					context.getLogger().debug(
-						"Return documentation found ? " + returnDoc.isPresent());
-				}
 
-				operation.getResponses().put(response.getCode(), response);
+					// Javadoc handling
+					if(methodJavadoc != null) {
+						final Optional<JavadocBlockTag> returnDoc = methodJavadoc.getReturnBlockTag();
+						if(returnDoc.isPresent()) {
+							final String description = returnDoc.get().getContent().toText();
+							if(!description.isEmpty()) {
+								response.setDescription(returnDoc.get().getContent().toText());
+							}
+						}
+						context.getLogger().debug(
+							"Return documentation found ? " + returnDoc.isPresent());
+					}
+
+					operation.getResponses().put(response.getCode(), response);
+				}
 
 				// Adding default responses
 				if(defaultErrors != null) {
@@ -562,6 +584,12 @@ public class YamlWriter {
 
 			// TODO: This part should be improved in the futur
 			// Check if there is a collision in response content type.
+			// response is null when the implicit default response was skipped (an explicit
+			// @ApiResponse already documents the real success code under a different key); there is
+			// then nothing to check for a content-type collision against.
+			if(response == null) {
+				continue;
+			}
 			for(Entry<String, Content> responseContent : response.getContent().entrySet()) {
 				if(existingContent instanceof Response) {
 					Response existingResponse = (Response) existingContent;

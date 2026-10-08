@@ -17,6 +17,7 @@ import io.github.kbuntrock.resources.endpoint.enumeration.*;
 import io.github.kbuntrock.resources.endpoint.error.SameOperationController;
 import io.github.kbuntrock.resources.endpoint.file.FileUploadController;
 import io.github.kbuntrock.resources.endpoint.file.StreamResponseController;
+import io.github.kbuntrock.resources.endpoint.explicitstatus.ExplicitStatusController;
 import io.github.kbuntrock.resources.endpoint.generic.*;
 import io.github.kbuntrock.resources.endpoint.header.MultipartFileWithHeaderController;
 import io.github.kbuntrock.resources.endpoint.ignore.JsonIgnoreController;
@@ -46,6 +47,7 @@ import io.github.kbuntrock.resources.endpoint.schemarequiredmode.SchemaRequiredM
 import io.github.kbuntrock.resources.endpoint.spring.OptionalController;
 import io.github.kbuntrock.resources.endpoint.spring.ResponseEntityController;
 import io.github.kbuntrock.resources.endpoint.spring.ResponseEntityUnparametrizedController;
+import io.github.kbuntrock.resources.endpoint.standaloneapiresponse.StandaloneApiResponseController;
 import io.github.kbuntrock.resources.endpoint.time.TimeController;
 import io.github.kbuntrock.resources.endpoint.uuid.UuidController;
 import io.github.kbuntrock.resources.implementation.account.AccountControllerImpl;
@@ -1075,6 +1077,24 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	@Test
 	public void schema_required_mode() throws MojoExecutionException, MojoFailureException, IOException {
 		final DocumentationMojo mojo = createBasicMojo(SchemaRequiredModeController.class.getCanonicalName());
+  	final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		mojo.setApiConfiguration(commonApiConfiguration);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+  
+  @Test
+	public void explicit_status_response_no_duplicate() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(ExplicitStatusController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		mojo.setApiConfiguration(commonApiConfiguration);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void standalone_api_response_annotation() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(StandaloneApiResponseController.class.getCanonicalName());
 		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
 		mojo.setApiConfiguration(commonApiConfiguration);
 

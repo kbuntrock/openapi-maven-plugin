@@ -1,0 +1,50 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: StandaloneApiResponseController
+paths:
+  /standalone-api-response:
+    get:
+      tags:
+        - StandaloneApiResponseController
+      operationId: list
+      summary: List
+      responses:
+        "200":
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: uuid
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+  /standalone-api-response/{id}:
+    get:
+      tags:
+        - StandaloneApiResponseController
+      operationId: getById
+      summary: Get by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: uuid
+        "404":
+          description: Not Found

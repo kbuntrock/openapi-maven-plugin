@@ -1,0 +1,34 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: HiddenMethod
+paths:
+  /dummy/hidden/resource:
+    get:
+      tags:
+        - HiddenMethod
+      operationId: getHiddenResource
+      responses:
+        "200":
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+  /dummy/resource:
+    get:
+      tags:
+        - HiddenMethod
+      operationId: getResource
+      responses:
+        "200":
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string

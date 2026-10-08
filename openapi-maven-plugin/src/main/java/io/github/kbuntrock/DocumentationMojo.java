@@ -1,9 +1,6 @@
 package io.github.kbuntrock;
 
-import io.github.kbuntrock.configuration.ApiConfiguration;
-import io.github.kbuntrock.configuration.CommonApiConfiguration;
-import io.github.kbuntrock.configuration.JavadocConfiguration;
-import io.github.kbuntrock.configuration.NullableConfiguration;
+import io.github.kbuntrock.configuration.*;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.context.ProjectContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
@@ -259,6 +256,7 @@ public class DocumentationMojo extends AbstractMojo {
 			apiContext.setApiConfiguration(apiConfig);
 			apiContext.setOpenApiTypeResolver(new OpenApiTypeResolver(apiContext));
 			apiContext.setNullableConfiguration(new NullableConfiguration(apiConfig));
+			apiContext.setHiddenConfiguration(new HiddenConfiguration(apiConfig));
 
 			if(i == 0) {
 				// Send analytics once: only for the first API configuration

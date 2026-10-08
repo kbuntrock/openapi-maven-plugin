@@ -10,21 +10,13 @@ import io.github.kbuntrock.model.Tag;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
-import io.github.kbuntrock.yaml.model.SecurityRequirement;
 import io.github.kbuntrock.yaml.model.SecurityScheme;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.plugin.MojoFailureException;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.joining;
@@ -52,7 +44,9 @@ import static java.util.stream.Collectors.toSet;
  */
 public class JavaClassAnalyser {
 
-	/** Plugin execution context (logger, helpers, global state). */
+	/**
+	 * Plugin execution context (logger, helpers, global state).
+	 */
 	private final ApiContext context;
 
 	/**
@@ -72,7 +66,9 @@ public class JavaClassAnalyser {
 	 */
 	private final AbstractLibraryReader libraryReader;
 
-	/** ClassGraph scan result used to list and load class methods. */
+	/**
+	 * ClassGraph scan result used to list and load class methods.
+	 */
 	private final ScanResult classScanResult;
 
 	/**
@@ -221,6 +217,7 @@ public class JavaClassAnalyser {
 			.filter(methodInfo -> !methodInfo.isPrivate())
 			.stream()
 			.map(MethodInfo::loadClassAndGetMethod)
+			.filter(this::isNotHidden)
 			.collect(toSet());
 
 		for(final Method method : methods) {
@@ -334,4 +331,9 @@ public class JavaClassAnalyser {
 		return scheme;
 	}
 
+	private boolean isNotHidden(Method method) {
+		return Optional.ofNullable(context.getHiddenConfiguration())
+			.map(config -> !config.hasHiddenAnnotations(Arrays.asList(method.getAnnotations())))
+			.orElse(true);
+	}
 }

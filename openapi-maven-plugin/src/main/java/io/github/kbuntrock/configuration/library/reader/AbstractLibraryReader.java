@@ -196,44 +196,26 @@ public abstract class AbstractLibraryReader {
 			MergedAnnotation[] responseArray = operationAnnotation.getAnnotationArray("responses");
 
 			for(MergedAnnotation responseAnnotation : responseArray) {
-				final OperationResponse operationResponse = new OperationResponse();
-				final String responseCode = responseAnnotation.getString("responseCode");
+				addOperationResponse(responseAnnotation, operationInfo);
+			}
+		}
 
-				if("default".equals(responseCode)) {
-					operationResponse.setCode(200);
-				} else {
-					try {
-						operationResponse.setCode(Integer.parseInt(responseCode));
-					} catch(NumberFormatException e) {
-						context.getLogger().warn("Invalid response code '" + responseCode + "' for operation "
-							+ operationInfo.getOperationId() + ". Skipping response.");
-						continue;
-					}
-				}
-
-				final String responseDescription = responseAnnotation.getString("description");
-				if(!StringUtils.isEmpty(responseDescription)) {
-					operationResponse.setDescription(responseDescription);
-				}
-
-				final MergedAnnotation[] contentArray = responseAnnotation.getAnnotationArray("content");
-				if(contentArray.length > 1) {
-					context.getLogger().warn("Multiple content annotations found for response code " + responseCode
-						+ " and operation " + operationInfo.getOperationId() + ". Only the first one will be used.");
-				}
-				Optional<MergedAnnotation> optionalContent = Arrays.stream(contentArray).findFirst();
-				if(optionalContent.isPresent()) {
-					final MergedAnnotation content = optionalContent.get();
-					final MergedAnnotation schema = content.getAnnotation("schema");
-					if(schema.isPresent()) {
-						final Class<?> implementation = schema.getClass("implementation");
-						if(implementation != null && !Void.class.equals(implementation) && !Void.TYPE.equals(implementation)) {
-							final DataObject responseObject = new DataObject(implementation, context, Flow.OUTPUT);
-							operationResponse.setDataObject(responseObject);
-						}
-					}
-				}
-				operationInfo.addResponse(operationResponse);
+		// @ApiResponse is @Repeatable(ApiResponses.class): a method can carry it standalone (one or
+		// more occurrences, merged by the JVM into a synthetic @ApiResponses), independently of (and
+		// in addition to) the @Operation(responses = {...}) array handled above.
+		final OperationAnnotationInfo operationInfo = endpoint.getOperationAnnotationInfo();
+		final MergedAnnotation apiResponsesAnnotation = mergedAnnotations
+			.get("io.swagger.v3.oas.annotations.responses.ApiResponses");
+		if(apiResponsesAnnotation.isPresent()) {
+			final MergedAnnotation[] apiResponseArray = apiResponsesAnnotation.getAnnotationArray("value");
+			for(final MergedAnnotation responseAnnotation : apiResponseArray) {
+				addOperationResponse(responseAnnotation, operationInfo);
+			}
+		} else {
+			final MergedAnnotation apiResponseAnnotation = mergedAnnotations
+				.get("io.swagger.v3.oas.annotations.responses.ApiResponse");
+			if(apiResponseAnnotation.isPresent()) {
+				addOperationResponse(apiResponseAnnotation, operationInfo);
 			}
 		}
 
@@ -252,6 +234,47 @@ public abstract class AbstractLibraryReader {
 			List<ParameterObject> mergeParameterList = mergeParameterLists(parameterObjects, endpoint.getParameters());
 			endpoint.setParameters(mergeParameterList);
 		}
+	}
+
+	private void addOperationResponse(final MergedAnnotation responseAnnotation, final OperationAnnotationInfo operationInfo) {
+		final OperationResponse operationResponse = new OperationResponse();
+		final String responseCode = responseAnnotation.getString("responseCode");
+
+		if("default".equals(responseCode)) {
+			operationResponse.setCode(200);
+		} else {
+			try {
+				operationResponse.setCode(Integer.parseInt(responseCode));
+			} catch(NumberFormatException e) {
+				context.getLogger().warn("Invalid response code '" + responseCode + "' for operation "
+					+ operationInfo.getOperationId() + ". Skipping response.");
+				return;
+			}
+		}
+
+		final String responseDescription = responseAnnotation.getString("description");
+		if(!StringUtils.isEmpty(responseDescription)) {
+			operationResponse.setDescription(responseDescription);
+		}
+
+		final MergedAnnotation[] contentArray = responseAnnotation.getAnnotationArray("content");
+		if(contentArray.length > 1) {
+			context.getLogger().warn("Multiple content annotations found for response code " + responseCode
+				+ " and operation " + operationInfo.getOperationId() + ". Only the first one will be used.");
+		}
+		Optional<MergedAnnotation> optionalContent = Arrays.stream(contentArray).findFirst();
+		if(optionalContent.isPresent()) {
+			final MergedAnnotation content = optionalContent.get();
+			final MergedAnnotation schema = content.getAnnotation("schema");
+			if(schema.isPresent()) {
+				final Class<?> implementation = schema.getClass("implementation");
+				if(implementation != null && !Void.class.equals(implementation) && !Void.TYPE.equals(implementation)) {
+					final DataObject responseObject = new DataObject(implementation, context, Flow.OUTPUT);
+					operationResponse.setDataObject(responseObject);
+				}
+			}
+		}
+		operationInfo.addResponse(operationResponse);
 	}
 
 	protected List<ParameterObject> mergeParameterLists(List<ParameterObject> parameterObjectListAtOperationLevel,
