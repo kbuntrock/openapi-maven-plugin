@@ -79,11 +79,11 @@ public final class ApiContext {
 
 	}
 
-	public HiddenConfiguration getHiddeConfiguration() {
+	public HiddenConfiguration getHiddenConfiguration() {
 		return hiddenConfiguration;
 	}
 
-	public void setHiddeConfiguration(HiddenConfiguration hiddenConfiguration) {
+	public void setHiddenConfiguration(HiddenConfiguration hiddenConfiguration) {
 		this.hiddenConfiguration = hiddenConfiguration;
 	}
 

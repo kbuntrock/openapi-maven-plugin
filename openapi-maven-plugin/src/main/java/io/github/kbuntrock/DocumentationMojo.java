@@ -256,7 +256,7 @@ public class DocumentationMojo extends AbstractMojo {
 			apiContext.setApiConfiguration(apiConfig);
 			apiContext.setOpenApiTypeResolver(new OpenApiTypeResolver(apiContext));
 			apiContext.setNullableConfiguration(new NullableConfiguration(apiConfig));
-			apiContext.setHiddeConfiguration(new HiddenConfiguration(apiConfig));
+			apiContext.setHiddenConfiguration(new HiddenConfiguration(apiConfig));
 
 			if(i == 0) {
 				// Send analytics once: only for the first API configuration

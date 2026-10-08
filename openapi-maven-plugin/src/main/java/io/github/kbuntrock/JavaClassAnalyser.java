@@ -332,7 +332,7 @@ public class JavaClassAnalyser {
 	}
 
 	private boolean isNotHidden(Method method) {
-		return Optional.ofNullable(context.getHiddeConfiguration())
+		return Optional.ofNullable(context.getHiddenConfiguration())
 			.map(config -> !config.hasHiddenAnnotations(Arrays.asList(method.getAnnotations())))
 			.orElse(true);
 	}
