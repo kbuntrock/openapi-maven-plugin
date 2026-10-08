@@ -1077,13 +1077,13 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	@Test
 	public void schema_required_mode() throws MojoExecutionException, MojoFailureException, IOException {
 		final DocumentationMojo mojo = createBasicMojo(SchemaRequiredModeController.class.getCanonicalName());
-  	final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
 		mojo.setApiConfiguration(commonApiConfiguration);
 
 		checkGenerationResult(mojo.documentProject());
 	}
-  
-  @Test
+
+	@Test
 	public void explicit_status_response_no_duplicate() throws MojoExecutionException, MojoFailureException, IOException {
 		final DocumentationMojo mojo = createBasicMojo(ExplicitStatusController.class.getCanonicalName());
 		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
