@@ -347,7 +347,30 @@ public class Schema {
 			if(!StringUtils.isEmpty(swaggerExample)) {
 				property.setExample(swaggerExample);
 			}
+			String swaggerFormat = schemaAnnotation.getString("format");
+			if(!StringUtils.isEmpty(swaggerFormat)) {
+				property.setFormat(swaggerFormat);
+			}
+			applyRequiredModeIfExplicit(schemaAnnotation, property);
 		}
+	}
+
+	/**
+	 * An explicit {@code @Schema(requiredMode = REQUIRED/NOT_REQUIRED)} always overrides whatever the
+	 * {@link io.github.kbuntrock.configuration.NullableConfiguration} bean-validation heuristic already decided:
+	 * it is the author's unambiguous intent, and Swagger/springdoc-openapi treats it the same way. {@code AUTO}
+	 * (the annotation's default) or a class that has no {@code requiredMode} attribute at all (older Swagger Core
+	 * versions) intentionally falls through to that existing heuristic instead of forcing "not required".
+	 */
+	private static void applyRequiredModeIfExplicit(MergedAnnotation schemaAnnotation, Property property) {
+		schemaAnnotation.getValue("requiredMode").ifPresent(requiredMode -> {
+			final String modeName = requiredMode.toString();
+			if("REQUIRED".equals(modeName)) {
+				property.setRequired(true);
+			} else if("NOT_REQUIRED".equals(modeName)) {
+				property.setRequired(false);
+			}
+		});
 	}
 
 	private static void setPropertyDescriptionFromJavadocIfEmpty(JavadocWrapper javadocWrapper, Property property) {

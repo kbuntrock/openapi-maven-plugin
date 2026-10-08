@@ -17,6 +17,9 @@ public class ParameterObject extends DataObject {
 	private ParameterLocation location;
 	private String description;
 	private String example;
+	// An explicit @Schema(format = ...) on a @Parameter, as opposed to what the resolved Java
+	// type would infer on its own (e.g. distinguishing an "email"-formatted string from a plain one).
+	private String format;
 	// Set only if it is a "body" parameter : json, xml, plain text, ...
 	private List<String> formats;
 
@@ -90,6 +93,14 @@ public class ParameterObject extends DataObject {
 
 	public void setExample(final String example) {
 		this.example = example;
+	}
+
+	public String getFormat() {
+		return format;
+	}
+
+	public void setFormat(final String format) {
+		this.format = format;
 	}
 
 	public List<String> getFormats() {

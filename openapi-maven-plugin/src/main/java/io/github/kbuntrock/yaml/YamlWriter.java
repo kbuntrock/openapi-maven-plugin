@@ -307,6 +307,9 @@ public class YamlWriter {
 					parameterElement.setExample(parameter.getExample());
 
 					final Property schema = new Property(Content.fromDataObject(parameter, tagLibrary).getSingleSchema());
+					if(parameter.getFormat() != null) {
+						schema.setFormat(parameter.getFormat());
+					}
 
 					// array in path parameters are not supported
 					if(OpenApiDataType.ARRAY == parameter.getOpenApiResolvedType().getType()
