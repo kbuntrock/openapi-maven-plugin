@@ -201,7 +201,7 @@ public class ApiResourceScanner {
 	}
 
 	private boolean isNotHidden(Class<?> classInfo) {
-		return Optional.ofNullable(context.getHiddeConfiguration())
+		return Optional.ofNullable(context.getHiddenConfiguration())
 			.map(config -> !config.hasHiddenAnnotations(Arrays.asList(classInfo.getAnnotations())))
 			.orElse(true);
 	}
