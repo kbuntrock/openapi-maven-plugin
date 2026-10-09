@@ -77,6 +77,8 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.freeFields = copy.freeFields;
 		merged.library = copy.library;
 		merged.tagAnnotations = copy.tagAnnotations;
+		merged.operationIncludeAnnotations = copy.operationIncludeAnnotations;
+		merged.operationMarkerAnnotations = copy.operationMarkerAnnotations;
 		merged.whiteList = copy.whiteList;
 		merged.blackList = copy.blackList;
 		merged.extraSchemaClasses = copy.extraSchemaClasses;
@@ -158,6 +160,12 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		} else if(Library.JAKARTA_RS.name().equals(merged.getLibrary().toString().toUpperCase())) {
 			merged.setTagAnnotations(new ArrayList<>());
 			merged.getTagAnnotations().add(TagAnnotation.JAKARTA_RS_PATH.getAnnotationClassName());
+		}
+		if(operationIncludeAnnotations != null && !operationIncludeAnnotations.isEmpty()) {
+			merged.setOperationIncludeAnnotations(operationIncludeAnnotations);
+		}
+		if(operationMarkerAnnotations != null && !operationMarkerAnnotations.isEmpty()) {
+			merged.setOperationMarkerAnnotations(operationMarkerAnnotations);
 		}
 		if(freeFields != null) {
 			merged.setFreeFields(freeFields);

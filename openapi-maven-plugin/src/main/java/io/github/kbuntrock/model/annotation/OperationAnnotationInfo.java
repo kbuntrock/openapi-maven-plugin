@@ -16,6 +16,14 @@ public class OperationAnnotationInfo {
 
 	private List<OperationResponse> responses = new ArrayList<>();
 
+	/**
+	 * {@code @Operation(tags = ...)}, only ever populated for operations recognized as public API (see
+	 * {@code AbstractLibraryReader#isPublicApiOperation(Method)}) — kept out of the model entirely for
+	 * internal operations, so the default class-based tag naming in {@code YamlWriter} is untouched for
+	 * them.
+	 */
+	private List<String> tags;
+
 	public String getOperationId() {
 		return operationId;
 	}
@@ -50,5 +58,13 @@ public class OperationAnnotationInfo {
 
 	public void addResponse(OperationResponse response) {
 		this.responses.add(response);
+	}
+
+	public List<String> getTags() {
+		return tags;
+	}
+
+	public void setTags(List<String> tags) {
+		this.tags = tags;
 	}
 }
