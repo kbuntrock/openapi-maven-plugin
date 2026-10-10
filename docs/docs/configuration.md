@@ -601,6 +601,22 @@ If present, override the following default values:
 - springfox.documentation.annotations.ApiIgnore
 - org.eclipse.microprofile.openapi.annotations.Hidden
 
+### jacksonPolymorphism
+
+- Type: `string`
+- Default value: `NONE`
+
+How a class hierarchy annotated with `@JsonTypeInfo(use = NAME, include = PROPERTY)` and `@JsonSubTypes` is documented. Interfaces and other `@JsonTypeInfo` configurations are always documented as regular classes.
+
+Values can be:
+* `NONE`: the hierarchy is documented as regular classes
+* `ALL_OF`: the parent holds the `discriminator` and each sub-type extends it with `allOf`, see [Models with Polymorphism Support](https://spec.openapis.org/oas/v3.0.3#models-with-polymorphism-support). A `mapping` entry is written only for a type id which is not the name of its schema.
+* `ONE_OF`: the parent is the `oneOf` of its sub-types, which are standalone schemas, see [Discriminator Object](https://spec.openapis.org/oas/v3.0.3#discriminator-object). A parent which can be instantiated is documented as a regular class.
+
+```xml
+<jacksonPolymorphism>ONE_OF</jacksonPolymorphism>
+```
+
 ## javadocConfiguration
 
 - Type: `section`

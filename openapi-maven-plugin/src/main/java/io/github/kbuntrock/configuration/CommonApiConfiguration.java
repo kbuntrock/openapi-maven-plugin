@@ -156,6 +156,9 @@ public class CommonApiConfiguration {
 	@Parameter
 	protected Boolean useProjectDescription;
 
+	@Parameter
+	protected JacksonPolymorphism jacksonPolymorphism;
+
 	public CommonApiConfiguration() {
 	}
 
@@ -190,6 +193,7 @@ public class CommonApiConfiguration {
 		this.nullableAnnotation = commonApiConfiguration.nullableAnnotation;
 		this.useProjectDescription = commonApiConfiguration.useProjectDescription;
 		this.hiddenAnnotations = commonApiConfiguration.hiddenAnnotations;
+		this.jacksonPolymorphism = commonApiConfiguration.jacksonPolymorphism;
 
 		for(final String tagAnnotation : commonApiConfiguration.tagAnnotations) {
 			this.tagAnnotations.add(tagAnnotation);
@@ -271,6 +275,9 @@ public class CommonApiConfiguration {
 		}
 		if(useProjectDescription == null) {
 			useProjectDescription = false;
+		}
+		if(jacksonPolymorphism == null) {
+			jacksonPolymorphism = JacksonPolymorphism.NONE;
 		}
 	}
 
@@ -528,5 +535,13 @@ public class CommonApiConfiguration {
 
 	public void setUseProjectDescription(Boolean useProjectDescription) {
 		this.useProjectDescription = useProjectDescription;
+	}
+
+	public JacksonPolymorphism getJacksonPolymorphism() {
+		return jacksonPolymorphism;
+	}
+
+	public void setJacksonPolymorphism(JacksonPolymorphism jacksonPolymorphism) {
+		this.jacksonPolymorphism = jacksonPolymorphism;
 	}
 }
