@@ -370,6 +370,14 @@ Add an error section to every operation generated in the documentation. Can refe
 </defaultErrors>
 ```
 
+:::info
+When either `operationIncludeAnnotations` or `operationMarkerAnnotations` is configured, `defaultErrors`
+is only added to operations recognized as public API by that mechanism - these errors typically
+document platform-wide concerns (gateway auth, rate limiting) that only apply to the public-facing
+surface. When neither is configured, the original, unrestricted behavior (applies to every operation)
+is unchanged.
+:::
+
 ### tag
 
 - Type: `section`
@@ -600,6 +608,51 @@ If present, override the following default values:
 - io.swagger.v3.oas.annotations.Hidden
 - springfox.documentation.annotations.ApiIgnore
 - org.eclipse.microprofile.openapi.annotations.Hidden
+
+### operationIncludeAnnotations
+
+- Type : `string list`
+- Required: `false`
+
+When set to a non-empty list of annotation fully-qualified names, an operation (a single HTTP
+method on a controller) is only documented if the underlying Java method carries at least one of
+these annotations. This lets a codebase that marks its intentionally-public surface with its own
+annotation (for example a custom `@PublicApi`) generate a spec scoped to exactly that surface, the
+same way annotation-driven runtime generators (springdoc, etc.) already do.
+
+When left unset or empty (the default), every operation the plugin would otherwise document is
+included, unchanged - this configuration is entirely opt-in and has no effect on existing setups.
+
+```xml
+<operationIncludeAnnotations>
+	<annotation>com.mycompany.annotations.PublicApi</annotation>
+</operationIncludeAnnotations>
+```
+
+### operationMarkerAnnotations
+
+- Type : `string list`
+- Required: `false`
+
+When set to a non-empty list of annotation fully-qualified names, every documented operation whose
+underlying Java method carries at least one of these annotations gets an `x-public-api: true`
+extension written onto it in the generated spec. Operations that don't match get no such field at
+all (never `false`), so the marker is only ever present where it's true.
+
+Unlike `operationIncludeAnnotations`, this never excludes anything from the documentation - it only
+tags a single, complete spec so a human or a tool (for example a Spectral rule) can tell public
+operations apart from internal ones without cross-referencing the source code.
+
+When either `operationIncludeAnnotations` or `operationMarkerAnnotations` is configured (whichever
+one applies), an operation's own `@Operation(tags = {...})` override is also only honored for
+operations recognized as public API this way; otherwise the existing class-based tag is used, same
+as if neither parameter were configured.
+
+```xml
+<operationMarkerAnnotations>
+	<annotation>com.mycompany.annotations.PublicApi</annotation>
+</operationMarkerAnnotations>
+```
 
 ## javadocConfiguration
 
