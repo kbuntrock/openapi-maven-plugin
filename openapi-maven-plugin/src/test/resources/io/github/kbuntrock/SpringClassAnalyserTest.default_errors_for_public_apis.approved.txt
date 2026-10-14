@@ -20,6 +20,8 @@ paths:
             '*/*':
               schema:
                 type: string
+        "500":
+          description: Unexpected error
   /operation-filter/public:
     get:
       tags:
@@ -34,4 +36,6 @@ paths:
                 type: string
         "500":
           description: Unexpected error
+        "429":
+          description: Too Many Requests
       x-public-api: true

@@ -59,6 +59,7 @@ public class YamlWriter {
 
 	private Optional<JsonNode> freefields = Optional.empty();
 	private Map<String, JsonNode> defaultErrors;
+	private Map<String, JsonNode> defaultErrorsForPublicApis;
 
 	// Due to the merging capabilities for functions with the same path/verb, it is possible that some listed tags will not appear in the
 	// generated documentation. This map reference only the used ones, in order of appearance
@@ -106,15 +107,22 @@ public class YamlWriter {
 		return CommonParserUtils.getContentFromFileOrText(mavenProject, apiConfiguration.getFreeFields());
 	}
 
+	private Map<String, JsonNode> parseErrorsMap(final String errorsConfiguration) {
+		final Optional<JsonNode> errorsNode = JsonParserUtils.parse(
+			CommonParserUtils.getContentFromFileOrText(context.getProject(), errorsConfiguration));
+		if(!errorsNode.isPresent()) {
+			return null;
+		}
+		final Map<String, JsonNode> errors = new LinkedHashMap<>();
+		final Iterator<Map.Entry<String, JsonNode>> iterator = errorsNode.get().fields();
+		iterator.forEachRemaining(entry -> errors.put(entry.getKey(), entry.getValue()));
+		return errors;
+	}
+
 	public void write(final File file, final TagLibrary tagLibrary) throws IOException {
 		freefields = JsonParserUtils.parse(computeFreeFields(context.getProject(), apiConfiguration));
-		final Optional<JsonNode> defaultErrorsNode = JsonParserUtils.parse(
-			CommonParserUtils.getContentFromFileOrText(context.getProject(), apiConfiguration.getDefaultErrors()));
-		if(defaultErrorsNode.isPresent()) {
-			defaultErrors = new LinkedHashMap<>();
-			final Iterator<Map.Entry<String, JsonNode>> iterator = defaultErrorsNode.get().fields();
-			iterator.forEachRemaining(entry -> defaultErrors.put(entry.getKey(), entry.getValue()));
-		}
+		defaultErrors = parseErrorsMap(apiConfiguration.getDefaultErrors());
+		defaultErrorsForPublicApis = parseErrorsMap(apiConfiguration.getDefaultErrorsForPublicApis());
 
 		final Specification specification = new Specification();
 		final Info info = new Info(context.getProject().getName(), context.getProject().getVersion(),
@@ -493,18 +501,19 @@ public class YamlWriter {
 					operation.getResponses().put(response.getCode(), response);
 				}
 
-				// Adding default responses. If the project uses either of the public-API annotation
-				// mechanisms at all, these typically document platform-wide concerns (gateway auth,
-				// rate limiting) that only apply to the public-facing surface, so they're restricted
-				// to operations recognized as public API. Projects that use neither mechanism keep the
-				// original, unrestricted behavior (applies to every operation) for full backward
-				// compatibility.
-				final boolean publicApiMechanismInUse = (apiConfiguration.getOperationIncludeAnnotations() != null
-					&& !apiConfiguration.getOperationIncludeAnnotations().isEmpty())
-					|| (apiConfiguration.getOperationMarkerAnnotations() != null
-						&& !apiConfiguration.getOperationMarkerAnnotations().isEmpty());
-				if(defaultErrors != null && (!publicApiMechanismInUse || endpoint.isPublicApi())) {
+				// Adding default responses: unconditional, applies to every operation regardless of
+				// the public-API annotation mechanisms, exactly as if they didn't exist.
+				if(defaultErrors != null) {
 					defaultErrors.entrySet().forEach(entry -> {
+						operation.getResponses().put(entry.getKey(), entry.getValue());
+					});
+				}
+
+				// Adding default responses reserved for the public-facing surface (e.g. gateway
+				// auth, rate limiting) on top of the above - applied after defaultErrors, so an
+				// entry here can add to or override a status code defaultErrors already set.
+				if(defaultErrorsForPublicApis != null && endpoint.isPublicApi()) {
+					defaultErrorsForPublicApis.entrySet().forEach(entry -> {
 						operation.getResponses().put(entry.getKey(), entry.getValue());
 					});
 				}

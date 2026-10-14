@@ -169,7 +169,7 @@ public abstract class AbstractLibraryReader {
 	}
 
 	/**
-	 * Gate for {@code operationIncludeAnnotations}: when that list is configured and non-empty, only
+	 * Gate for {@code whiteListOnAnnotations}: when that list is configured and non-empty, only
 	 * methods carrying at least one of the listed annotation classes are documented as operations.
 	 * Lets a codebase mark its intentionally-public surface (e.g. a custom {@code @PublicApi}) and have
 	 * kbuntrock generate a spec scoped to exactly that surface, instead of everything reachable.
@@ -177,7 +177,7 @@ public abstract class AbstractLibraryReader {
 	 * unaffected.
 	 */
 	protected boolean isOperationIncludedByAnnotationFilter(final Method method) {
-		final List<String> includeAnnotations = apiConfiguration.getOperationIncludeAnnotations();
+		final List<String> includeAnnotations = apiConfiguration.getWhiteListOnAnnotations();
 		if(includeAnnotations == null || includeAnnotations.isEmpty()) {
 			return true;
 		}
@@ -204,12 +204,12 @@ public abstract class AbstractLibraryReader {
 
 	/**
 	 * True when the method is recognized as public API by either of the two annotation-driven
-	 * mechanisms ({@code operationIncludeAnnotations} or {@code operationMarkerAnnotations}),
+	 * mechanisms ({@code whiteListOnAnnotations} or {@code operationMarkerAnnotations}),
 	 * whichever is configured. Shared gate for any behavior that should only apply to the public
 	 * surface regardless of which of the two the caller happens to be using.
 	 */
 	protected boolean isPublicApiOperation(final Method method) {
-		final List<String> includeAnnotations = apiConfiguration.getOperationIncludeAnnotations();
+		final List<String> includeAnnotations = apiConfiguration.getWhiteListOnAnnotations();
 		if(includeAnnotations != null && !includeAnnotations.isEmpty()) {
 			return isOperationIncludedByAnnotationFilter(method);
 		}

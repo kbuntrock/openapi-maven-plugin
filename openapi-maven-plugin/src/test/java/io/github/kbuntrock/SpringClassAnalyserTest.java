@@ -1116,7 +1116,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	public void operation_include_annotation_filter() throws MojoExecutionException, MojoFailureException, IOException {
 		final DocumentationMojo mojo = createBasicMojo(OperationFilterController.class.getCanonicalName());
 		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
-		commonApiConfiguration.setOperationIncludeAnnotations(
+		commonApiConfiguration.setWhiteListOnAnnotations(
 			Collections.singletonList("io.github.kbuntrock.resources.endpoint.operationfilter.MyPublicApi"));
 		mojo.setApiConfiguration(commonApiConfiguration);
 
@@ -1125,7 +1125,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 
 	@Test
 	public void operation_include_annotation_filter_unset() throws MojoExecutionException, MojoFailureException, IOException {
-		// No operationIncludeAnnotations configured at all: both endpoints must still be documented,
+		// No whiteListOnAnnotations configured at all: both endpoints must still be documented,
 		// proving the filter is fully opt-in and doesn't affect existing configurations.
 		final DocumentationMojo mojo = createBasicMojo(OperationFilterController.class.getCanonicalName());
 		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
@@ -1148,14 +1148,17 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	}
 
 	@Test
-	public void default_errors_public_api_only() throws MojoExecutionException, MojoFailureException, IOException {
-		// defaultErrors must only land on operations recognized as public API: /public gets it,
-		// /internal (no marker annotation) must not, even though defaultErrors is configured globally.
+	public void default_errors_for_public_apis() throws MojoExecutionException, MojoFailureException, IOException {
+		// defaultErrors must land on every operation regardless of the public-API marker, exactly as
+		// if defaultErrorsForPublicApis didn't exist: both /public and /internal get 500.
+		// defaultErrorsForPublicApis is layered on top, only for operations recognized as public API:
+		// only /public also gets 429.
 		final DocumentationMojo mojo = createBasicMojo(OperationFilterController.class.getCanonicalName());
 		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
 		commonApiConfiguration.setOperationMarkerAnnotations(
 			Collections.singletonList("io.github.kbuntrock.resources.endpoint.operationfilter.MyPublicApi"));
 		commonApiConfiguration.setDefaultErrors("{\"500\": {\"description\": \"Unexpected error\"}}");
+		commonApiConfiguration.setDefaultErrorsForPublicApis("{\"429\": {\"description\": \"Too Many Requests\"}}");
 		mojo.setApiConfiguration(commonApiConfiguration);
 
 		checkGenerationResult(mojo.documentProject());
