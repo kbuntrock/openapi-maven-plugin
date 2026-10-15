@@ -5,10 +5,12 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.configuration.HiddenConfiguration;
+import io.github.kbuntrock.configuration.JacksonPolymorphism;
 import io.github.kbuntrock.configuration.NullableConfiguration;
 import io.github.kbuntrock.configuration.library.Library;
 import io.github.kbuntrock.configuration.library.reader.ClassLoaderHelper;
 import io.github.kbuntrock.reflection.AdditionalSchemaLibrary;
+import io.github.kbuntrock.reflection.PolymorphicHierarchy;
 import io.github.kbuntrock.reflection.annotation.MergeAnnotationsHelper;
 import io.github.kbuntrock.reflection.annotation.regular.RegularMergedAnnotationsHelper;
 import io.github.kbuntrock.reflection.annotation.spring.SpringMergeAnnotationsHelper;
@@ -109,6 +111,15 @@ public final class ApiContext {
 
 	public ObjectMapper getSchemaObjectMapper() {
 		return schemaObjectMapper;
+	}
+
+	/**
+	 * @return the Jackson polymorphic hierarchy to document for the class, null if there is none
+	 */
+	public PolymorphicHierarchy getPolymorphicHierarchy(final Class<?> clazz) {
+		final JacksonPolymorphism polymorphism = apiConfiguration.getJacksonPolymorphism();
+		return polymorphism == JacksonPolymorphism.NONE ? null
+			: PolymorphicHierarchy.find(clazz, schemaObjectMapper, polymorphism == JacksonPolymorphism.ONE_OF);
 	}
 
 	public class SpecializedAnnotationIntrospector extends JacksonAnnotationIntrospector {

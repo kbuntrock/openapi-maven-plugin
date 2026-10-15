@@ -1,0 +1,65 @@
+---
+openapi: 3.0.3
+info:
+  title: Project using jackson
+  version: v1.0
+servers:
+  - url: ""
+tags:
+  - name: JacksonPolymorphismController
+paths:
+  /api/pets:
+    get:
+      tags:
+        - JacksonPolymorphismController
+      operationId: JacksonPolymorphismController.getPet
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+      x-operation-name: getPet
+components:
+  schemas:
+    Cat:
+      allOf:
+        - $ref: "#/components/schemas/Pet"
+        - required:
+            - huntingSkill
+          type: object
+          properties:
+            huntingSkill:
+              $ref: "#/components/schemas/HuntingSkill"
+    Dog:
+      allOf:
+        - $ref: "#/components/schemas/Pet"
+        - required:
+            - packSize
+          type: object
+          properties:
+            packSize:
+              type: integer
+              format: int32
+    HuntingSkill:
+      type: string
+      enum:
+        - clueless
+        - lazy
+        - adventurous
+        - aggressive
+    Pet:
+      required:
+        - name
+        - petType
+      type: object
+      properties:
+        name:
+          type: string
+        petType:
+          type: string
+      discriminator:
+        propertyName: petType
+        mapping:
+          dog: "#/components/schemas/Dog"
