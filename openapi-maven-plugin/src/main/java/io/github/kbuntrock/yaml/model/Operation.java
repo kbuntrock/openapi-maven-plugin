@@ -32,6 +32,13 @@ public class Operation {
 	private String summary;
 	@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 	private boolean deprecated;
+	/**
+	 * Only ever written as {@code true}; never explicitly set to {@code false}, so non-public
+	 * operations omit the field entirely instead of carrying a negative marker.
+	 */
+	@JsonProperty("x-public-api")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private Boolean publicApi;
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private final List<ParameterElement> parameters = new ArrayList<>();
 	@JsonInclude(JsonInclude.Include.NON_NULL)
@@ -113,6 +120,14 @@ public class Operation {
 
 	public void setDeprecated(final boolean deprecated) {
 		this.deprecated = deprecated;
+	}
+
+	public Boolean getPublicApi() {
+		return publicApi;
+	}
+
+	public void setPublicApi(final Boolean publicApi) {
+		this.publicApi = publicApi;
 	}
 
 	public String getLoopbackOperationName() {

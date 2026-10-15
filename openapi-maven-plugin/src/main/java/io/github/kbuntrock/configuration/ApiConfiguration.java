@@ -77,11 +77,14 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.freeFields = copy.freeFields;
 		merged.library = copy.library;
 		merged.tagAnnotations = copy.tagAnnotations;
+		merged.operationMarkerAnnotations = copy.operationMarkerAnnotations;
 		merged.whiteList = copy.whiteList;
+		merged.whiteListOnAnnotations = copy.whiteListOnAnnotations;
 		merged.blackList = copy.blackList;
 		merged.extraSchemaClasses = copy.extraSchemaClasses;
 		merged.customResponseTypeAnnotation = copy.customResponseTypeAnnotation;
 		merged.defaultErrors = copy.defaultErrors;
+		merged.defaultErrorsForPublicApis = copy.defaultErrorsForPublicApis;
 		merged.openapiModels = copy.openapiModels;
 		merged.modelsAssociations = copy.modelsAssociations;
 		merged.defaultNonNullableFields = copy.defaultNonNullableFields;
@@ -159,6 +162,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 			merged.setTagAnnotations(new ArrayList<>());
 			merged.getTagAnnotations().add(TagAnnotation.JAKARTA_RS_PATH.getAnnotationClassName());
 		}
+		if(operationMarkerAnnotations != null && !operationMarkerAnnotations.isEmpty()) {
+			merged.setOperationMarkerAnnotations(operationMarkerAnnotations);
+		}
 		if(freeFields != null) {
 			merged.setFreeFields(freeFields);
 			if(mergeFreeFields && commonApiConfiguration.freeFields != null) {
@@ -167,6 +173,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		}
 		if(whiteList != null) {
 			merged.setWhiteList(whiteList);
+		}
+		if(whiteListOnAnnotations != null && !whiteListOnAnnotations.isEmpty()) {
+			merged.setWhiteListOnAnnotations(whiteListOnAnnotations);
 		}
 		if(blackList != null) {
 			merged.setBlackList(blackList);
@@ -179,6 +188,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		}
 		if(defaultErrors != null) {
 			merged.setDefaultErrors(defaultErrors);
+		}
+		if(defaultErrorsForPublicApis != null) {
+			merged.setDefaultErrorsForPublicApis(defaultErrorsForPublicApis);
 		}
 		if(openapiModels != null) {
 			merged.setOpenapiModels(openapiModels);
