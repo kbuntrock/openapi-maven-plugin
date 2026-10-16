@@ -93,6 +93,9 @@ public class DataObject {
 
 	private List<ChildObject> childObjects;
 
+	/** Known concrete subtypes used to build polymorphic anyOf schemas. */
+	private List<DataObject> polymorphicSubtypes;
+
 	/**
 	 * Shallow copy for parameter/response object creation. Copies type identity and resolution data.
 	 *
@@ -517,6 +520,18 @@ public class DataObject {
 
 	public void setChildObjects(List<ChildObject> childObjects) {
 		this.childObjects = childObjects;
+	}
+
+	public List<DataObject> getPolymorphicSubtypes() {
+		return polymorphicSubtypes;
+	}
+
+	public void setPolymorphicSubtypes(List<DataObject> polymorphicSubtypes) {
+		this.polymorphicSubtypes = polymorphicSubtypes;
+	}
+
+	public boolean hasPolymorphicSubtypes() {
+		return polymorphicSubtypes != null && !polymorphicSubtypes.isEmpty();
 	}
 
 	@Override
