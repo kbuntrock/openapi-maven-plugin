@@ -398,7 +398,7 @@ Add an error section to every operation generated in the documentation. Can refe
 
 Same format and merging behavior as [`defaultErrors`](#defaulterrors), but layered on top of it and
 only for operations recognized as public API (see
-[`operationMarkerAnnotations`](#operationmarkerannotations) /
+[`publicApiAnnotations`](#publicapiannotations) /
 [`whiteListOnAnnotations`](#whitelistonannotations)) - useful for platform-wide concerns (gateway
 auth, rate limiting) that only apply to the public-facing surface. `defaultErrors` itself still
 applies to every operation unconditionally, regardless of this configuration; an entry here can add
@@ -645,7 +645,7 @@ If present, override the following default values:
 - springfox.documentation.annotations.ApiIgnore
 - org.eclipse.microprofile.openapi.annotations.Hidden
 
-### operationMarkerAnnotations
+### publicApiAnnotations
 
 - Type : `string list`
 - Required: `false`
@@ -659,15 +659,15 @@ Unlike [`whiteListOnAnnotations`](#whitelistonannotations), this never excludes 
 documentation - it only tags a single, complete spec so a human or a tool (for example a Spectral
 rule) can tell public operations apart from internal ones without cross-referencing the source code.
 
-When either `whiteListOnAnnotations` or `operationMarkerAnnotations` is configured (whichever one
+When either `whiteListOnAnnotations` or `publicApiAnnotations` is configured (whichever one
 applies), an operation's own `@Operation(tags = {...})` override is also only honored for operations
 recognized as public API this way; otherwise the existing class-based tag is used, same as if
 neither parameter were configured.
 
 ```xml
-<operationMarkerAnnotations>
+<publicApiAnnotations>
 	<annotation>com.mycompany.annotations.PublicApi</annotation>
-</operationMarkerAnnotations>
+</publicApiAnnotations>
 ```
 
 ## javadocConfiguration

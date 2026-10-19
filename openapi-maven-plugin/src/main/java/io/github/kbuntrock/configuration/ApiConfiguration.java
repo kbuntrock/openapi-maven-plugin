@@ -77,7 +77,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.freeFields = copy.freeFields;
 		merged.library = copy.library;
 		merged.tagAnnotations = copy.tagAnnotations;
-		merged.operationMarkerAnnotations = copy.operationMarkerAnnotations;
+		merged.publicApiAnnotations = copy.publicApiAnnotations;
 		merged.whiteList = copy.whiteList;
 		merged.whiteListOnAnnotations = copy.whiteListOnAnnotations;
 		merged.blackList = copy.blackList;
@@ -162,8 +162,8 @@ public class ApiConfiguration extends CommonApiConfiguration {
 			merged.setTagAnnotations(new ArrayList<>());
 			merged.getTagAnnotations().add(TagAnnotation.JAKARTA_RS_PATH.getAnnotationClassName());
 		}
-		if(operationMarkerAnnotations != null && !operationMarkerAnnotations.isEmpty()) {
-			merged.setOperationMarkerAnnotations(operationMarkerAnnotations);
+		if(publicApiAnnotations != null && !publicApiAnnotations.isEmpty()) {
+			merged.setPublicApiAnnotations(publicApiAnnotations);
 		}
 		if(freeFields != null) {
 			merged.setFreeFields(freeFields);

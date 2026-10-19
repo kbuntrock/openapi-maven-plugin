@@ -134,7 +134,7 @@ public class CommonApiConfiguration {
 	 * internal ones without cross-referencing the source code.
 	 */
 	@Parameter
-	protected List<String> operationMarkerAnnotations;
+	protected List<String> publicApiAnnotations;
 
 	@Parameter(required = true)
 	protected List<String> whiteList;
@@ -165,7 +165,7 @@ public class CommonApiConfiguration {
 
 	/**
 	 * Errors merged onto an operation's responses the same way as {@link #defaultErrors}, but only
-	 * for operations recognized as public API (see {@link #operationMarkerAnnotations}/
+	 * for operations recognized as public API (see {@link #publicApiAnnotations}/
 	 * {@link #whiteListOnAnnotations}) - applied after {@link #defaultErrors}, so an entry here can
 	 * add to or override a status code {@link #defaultErrors} already set for that operation.
 	 * {@link #defaultErrors} itself is unconditional and applies to every operation regardless of
@@ -227,7 +227,7 @@ public class CommonApiConfiguration {
 		this.useProjectDescription = commonApiConfiguration.useProjectDescription;
 		this.hiddenAnnotations = commonApiConfiguration.hiddenAnnotations;
 		this.whiteListOnAnnotations = commonApiConfiguration.whiteListOnAnnotations;
-		this.operationMarkerAnnotations = commonApiConfiguration.operationMarkerAnnotations;
+		this.publicApiAnnotations = commonApiConfiguration.publicApiAnnotations;
 
 		for(final String tagAnnotation : commonApiConfiguration.tagAnnotations) {
 			this.tagAnnotations.add(tagAnnotation);
@@ -472,12 +472,12 @@ public class CommonApiConfiguration {
 		this.tagAnnotations = tagAnnotations;
 	}
 
-	public List<String> getOperationMarkerAnnotations() {
-		return operationMarkerAnnotations;
+	public List<String> getPublicApiAnnotations() {
+		return publicApiAnnotations;
 	}
 
-	public void setOperationMarkerAnnotations(final List<String> operationMarkerAnnotations) {
-		this.operationMarkerAnnotations = operationMarkerAnnotations;
+	public void setPublicApiAnnotations(final List<String> publicApiAnnotations) {
+		this.publicApiAnnotations = publicApiAnnotations;
 	}
 
 	public List<String> getWhiteList() {

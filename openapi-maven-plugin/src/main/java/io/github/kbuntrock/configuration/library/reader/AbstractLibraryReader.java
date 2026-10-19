@@ -189,11 +189,11 @@ public abstract class AbstractLibraryReader {
 	/**
 	 * Companion to {@link #isOperationIncludedByAnnotationFilter(Method)}: never excludes anything,
 	 * only decides whether the operation should carry the {@code x-public-api} marker (see
-	 * {@code CommonApiConfiguration#operationMarkerAnnotations}). Unset or empty list means "mark
+	 * {@code CommonApiConfiguration#publicApiAnnotations}). Unset or empty list means "mark
 	 * nothing" (opposite default from the include filter, since there's nothing to opt out of here).
 	 */
 	protected boolean isOperationMarkedByAnnotation(final Method method) {
-		final List<String> markerAnnotations = apiConfiguration.getOperationMarkerAnnotations();
+		final List<String> markerAnnotations = apiConfiguration.getPublicApiAnnotations();
 		if(markerAnnotations == null || markerAnnotations.isEmpty()) {
 			return false;
 		}
@@ -204,7 +204,7 @@ public abstract class AbstractLibraryReader {
 
 	/**
 	 * True when the method is recognized as public API by either of the two annotation-driven
-	 * mechanisms ({@code whiteListOnAnnotations} or {@code operationMarkerAnnotations}),
+	 * mechanisms ({@code whiteListOnAnnotations} or {@code publicApiAnnotations}),
 	 * whichever is configured. Shared gate for any behavior that should only apply to the public
 	 * surface regardless of which of the two the caller happens to be using.
 	 */

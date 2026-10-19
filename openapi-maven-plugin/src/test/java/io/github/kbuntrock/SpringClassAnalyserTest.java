@@ -1140,7 +1140,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		// documented, but only the one carrying @MyPublicApi gets the x-public-api marker.
 		final DocumentationMojo mojo = createBasicMojo(OperationFilterController.class.getCanonicalName());
 		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
-		commonApiConfiguration.setOperationMarkerAnnotations(
+		commonApiConfiguration.setPublicApiAnnotations(
 			Collections.singletonList("io.github.kbuntrock.resources.endpoint.operationfilter.MyPublicApi"));
 		mojo.setApiConfiguration(commonApiConfiguration);
 
@@ -1155,7 +1155,7 @@ public class SpringClassAnalyserTest extends AbstractTest {
 		// only /public also gets 429.
 		final DocumentationMojo mojo = createBasicMojo(OperationFilterController.class.getCanonicalName());
 		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
-		commonApiConfiguration.setOperationMarkerAnnotations(
+		commonApiConfiguration.setPublicApiAnnotations(
 			Collections.singletonList("io.github.kbuntrock.resources.endpoint.operationfilter.MyPublicApi"));
 		commonApiConfiguration.setDefaultErrors("{\"500\": {\"description\": \"Unexpected error\"}}");
 		commonApiConfiguration.setDefaultErrorsForPublicApis("{\"429\": {\"description\": \"Too Many Requests\"}}");
