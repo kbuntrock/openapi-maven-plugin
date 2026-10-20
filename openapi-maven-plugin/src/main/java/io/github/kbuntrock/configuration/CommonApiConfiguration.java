@@ -124,8 +124,32 @@ public class CommonApiConfiguration {
 	@Parameter
 	protected List<String> tagAnnotations = new ArrayList<>();
 
+	/**
+	 * When non-empty, every documented operation whose underlying Java method carries at least one of
+	 * these annotation classes (fully qualified name) gets a {@code x-public-api: true}
+	 * extension written onto it. Operations that don't match get no such field at all (never
+	 * {@code false}), so the marker is only ever present where it's true. Unlike
+	 * {@code whiteListOnAnnotations}, this never excludes anything — it only tags a single,
+	 * complete spec so a human or a tool (e.g. a Spectral rule) can tell public operations apart from
+	 * internal ones without cross-referencing the source code.
+	 */
+	@Parameter
+	protected List<String> publicApiAnnotations;
+
 	@Parameter(required = true)
 	protected List<String> whiteList;
+
+	/**
+	 * Annotation-driven counterpart to {@link #whiteList}: when non-empty, an operation (a single
+	 * HTTP method on a controller) is only documented if the underlying Java method carries at least
+	 * one of these annotation classes (fully qualified name). Lets a codebase that marks its
+	 * intentionally-public surface with its own annotation (e.g. a custom {@code @PublicApi})
+	 * generate a spec scoped to exactly that surface, the same way annotation-driven runtime
+	 * generators (springdoc, etc.) already do. When empty or unset (the default), every operation
+	 * kbuntrock would otherwise document is included, unchanged - same as an empty {@link #whiteList}.
+	 */
+	@Parameter
+	protected List<String> whiteListOnAnnotations;
 
 	@Parameter(required = true)
 	protected List<String> blackList;
@@ -138,6 +162,17 @@ public class CommonApiConfiguration {
 
 	@Parameter
 	protected String defaultErrors;
+
+	/**
+	 * Errors merged onto an operation's responses the same way as {@link #defaultErrors}, but only
+	 * for operations recognized as public API (see {@link #publicApiAnnotations}/
+	 * {@link #whiteListOnAnnotations}) - applied after {@link #defaultErrors}, so an entry here can
+	 * add to or override a status code {@link #defaultErrors} already set for that operation.
+	 * {@link #defaultErrors} itself is unconditional and applies to every operation regardless of
+	 * this configuration, exactly as if neither public-API mechanism existed.
+	 */
+	@Parameter
+	protected String defaultErrorsForPublicApis;
 
 	@Parameter
 	protected String openapiModels;
@@ -183,6 +218,7 @@ public class CommonApiConfiguration {
 		this.library = commonApiConfiguration.library;
 		this.customResponseTypeAnnotation = commonApiConfiguration.customResponseTypeAnnotation;
 		this.defaultErrors = commonApiConfiguration.defaultErrors;
+		this.defaultErrorsForPublicApis = commonApiConfiguration.defaultErrorsForPublicApis;
 		this.openapiModels = commonApiConfiguration.openapiModels;
 		this.modelsAssociations = commonApiConfiguration.modelsAssociations;
 		this.defaultNonNullableFields = commonApiConfiguration.defaultNonNullableFields;
@@ -190,6 +226,8 @@ public class CommonApiConfiguration {
 		this.nullableAnnotation = commonApiConfiguration.nullableAnnotation;
 		this.useProjectDescription = commonApiConfiguration.useProjectDescription;
 		this.hiddenAnnotations = commonApiConfiguration.hiddenAnnotations;
+		this.whiteListOnAnnotations = commonApiConfiguration.whiteListOnAnnotations;
+		this.publicApiAnnotations = commonApiConfiguration.publicApiAnnotations;
 
 		for(final String tagAnnotation : commonApiConfiguration.tagAnnotations) {
 			this.tagAnnotations.add(tagAnnotation);
@@ -434,12 +472,28 @@ public class CommonApiConfiguration {
 		this.tagAnnotations = tagAnnotations;
 	}
 
+	public List<String> getPublicApiAnnotations() {
+		return publicApiAnnotations;
+	}
+
+	public void setPublicApiAnnotations(final List<String> publicApiAnnotations) {
+		this.publicApiAnnotations = publicApiAnnotations;
+	}
+
 	public List<String> getWhiteList() {
 		return whiteList;
 	}
 
 	public void setWhiteList(final List<String> whiteList) {
 		this.whiteList = whiteList;
+	}
+
+	public List<String> getWhiteListOnAnnotations() {
+		return whiteListOnAnnotations;
+	}
+
+	public void setWhiteListOnAnnotations(final List<String> whiteListOnAnnotations) {
+		this.whiteListOnAnnotations = whiteListOnAnnotations;
 	}
 
 	public List<String> getBlackList() {
@@ -472,6 +526,14 @@ public class CommonApiConfiguration {
 
 	public void setDefaultErrors(final String defaultErrors) {
 		this.defaultErrors = defaultErrors;
+	}
+
+	public String getDefaultErrorsForPublicApis() {
+		return defaultErrorsForPublicApis;
+	}
+
+	public void setDefaultErrorsForPublicApis(final String defaultErrorsForPublicApis) {
+		this.defaultErrorsForPublicApis = defaultErrorsForPublicApis;
 	}
 
 	public String getOpenapiModels() {

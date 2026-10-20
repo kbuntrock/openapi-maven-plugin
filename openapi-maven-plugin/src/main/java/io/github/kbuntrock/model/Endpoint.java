@@ -33,6 +33,8 @@ public class Endpoint implements Comparable<Endpoint> {
 
 	private boolean deprecated = false;
 
+	private boolean publicApi = false;
+
 	/**
 	 * Used to identify uniquely a endpoint. Aggregation of the returned type, the name and the parameters types.
 	 */
@@ -120,6 +122,14 @@ public class Endpoint implements Comparable<Endpoint> {
 
 	public void setDeprecated(final boolean deprecated) {
 		this.deprecated = deprecated;
+	}
+
+	public boolean isPublicApi() {
+		return publicApi;
+	}
+
+	public void setPublicApi(final boolean publicApi) {
+		this.publicApi = publicApi;
 	}
 
 	public OperationAnnotationInfo getOperationAnnotationInfo() {

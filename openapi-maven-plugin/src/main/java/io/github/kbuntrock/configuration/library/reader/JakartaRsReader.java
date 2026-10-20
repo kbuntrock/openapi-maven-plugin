@@ -80,7 +80,7 @@ public class JakartaRsReader extends AbstractLibraryReader {
 		final MergedAnnotations mergedAnnotations, final Tag tag) throws MojoFailureException {
 
 		final MergedAnnotation requestMappingMergedAnnotation = mergedAnnotations.get(PATH_CNAME);
-		if(requestMappingMergedAnnotation.isPresent()) {
+		if(requestMappingMergedAnnotation.isPresent() && isOperationIncludedByAnnotationFilter(method)) {
 
 			for(final JakartaRsHttpVerb verb : JakartaRsHttpVerb.values()) {
 				final MergedAnnotation m = mergedAnnotations.get(verb.getAnnotationClassName());
@@ -101,7 +101,8 @@ public class JakartaRsReader extends AbstractLibraryReader {
 					setConsumeProduceProperties(endpoint, mergedAnnotations);
 					endpoint.setIdentifier(methodIdentifier);
 					endpoint.setDeprecated(isDeprecated(method));
-					setSwaggerAnnotatedEndpointProperties(endpoint, mergedAnnotations);
+					endpoint.setPublicApi(isPublicApiOperation(method));
+					setSwaggerAnnotatedEndpointProperties(endpoint, mergedAnnotations, method);
 					tag.addEndpoint(endpoint);
 					context.getLogger()
 						.debug("Finished parsing endpoint : " + endpoint.getName() + " - " + endpoint.getType().name());
