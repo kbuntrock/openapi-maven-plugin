@@ -1,0 +1,52 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: StandaloneRequestBodyController
+paths:
+  /standalone-request-body/real-body-wins:
+    post:
+      tags:
+        - StandaloneRequestBodyController
+      operationId: realBodyWins
+      summary: Should be ignored
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: "#/components/schemas/RealBodyRequest"
+      responses:
+        "200":
+          description: successful operation
+  /standalone-request-body/token:
+    post:
+      tags:
+        - StandaloneRequestBodyController
+      operationId: token
+      summary: Generate token
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/TokenRequest"
+      responses:
+        "200":
+          description: successful operation
+components:
+  schemas:
+    RealBodyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+    TokenRequest:
+      type: object
+      properties:
+        clientId:
+          type: string
+        clientSecret:
+          type: string

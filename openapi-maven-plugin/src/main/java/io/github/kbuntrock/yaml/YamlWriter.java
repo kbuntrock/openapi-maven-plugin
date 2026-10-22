@@ -20,6 +20,7 @@ import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Endpoint;
 import io.github.kbuntrock.model.ParameterObject;
 import io.github.kbuntrock.model.Tag;
+import io.github.kbuntrock.model.annotation.OperationRequestBody;
 import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.utils.*;
 import io.github.kbuntrock.yaml.model.*;
@@ -442,6 +443,24 @@ public class YamlWriter {
 						requestBody.getContent().put("multipart/form-data", requestBodyContent);
 					}
 
+				}
+
+				// No real method parameter documented a body (above): fall back to the standalone
+				// @Operation(requestBody = @RequestBody(...)) attribute, if any - e.g. a
+				// documentation-only stub method whose actual body handling lives outside normal
+				// method dispatch entirely (a Spring Security filter-based endpoint, for instance).
+				final OperationRequestBody operationRequestBody = endpoint.getOperationAnnotationInfo().getRequestBody();
+				if(operation.getRequestBody() == null && operationRequestBody != null) {
+					final RequestBody requestBody = new RequestBody();
+					operation.setRequestBody(requestBody);
+					if(operationRequestBody.getDescription() != null) {
+						requestBody.setDescription(operationRequestBody.getDescription());
+					}
+					if(operationRequestBody.getDataObject() != null) {
+						final Content requestBodyContent = Content.fromDataObject(operationRequestBody.getDataObject(),
+							tagLibrary);
+						requestBody.getContent().put(operationRequestBody.getMediaType(), requestBodyContent);
+					}
 				}
 
 				// -------------------------

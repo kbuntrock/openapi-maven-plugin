@@ -5,6 +5,7 @@ import io.github.kbuntrock.configuration.library.reader.BeanDefinitionUtils;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.model.*;
+import io.github.kbuntrock.model.annotation.OperationRequestBody;
 import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.yaml.model.ChildObject;
@@ -126,6 +127,11 @@ public class TagLibrary {
 					// If the response has a data object, it represents a response body to document.
 					exploreDataObject(operationResponse.getDataObject());
 				}
+			}
+
+			final OperationRequestBody operationRequestBody = endpoint.getOperationAnnotationInfo().getRequestBody();
+			if(operationRequestBody != null && operationRequestBody.getDataObject() != null) {
+				exploreDataObject(operationRequestBody.getDataObject());
 			}
 		}
 	}
