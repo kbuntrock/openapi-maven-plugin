@@ -174,6 +174,18 @@ public class CommonApiConfiguration {
 	@Parameter
 	protected String defaultErrorsForPublicApis;
 
+	/**
+	 * Raw JSON object merged wholesale into {@code components.securitySchemes}, e.g.
+	 * {@code {"OAUTH2": {"type": "oauth2", "flows": {...}}}}. Scheme definitions are commonly built
+	 * at runtime from application configuration (token URLs, enabled flows) rather than declared on
+	 * an annotated class - kbuntrock only discovers {@code @SecurityScheme}/{@code @SecuritySchemes}
+	 * annotations, so there is nothing to scan in that case. This configuration fills that gap: the
+	 * consuming project supplies the scheme definitions it already knows at build/config time.
+	 * Merged on top of (and can override) any scheme discovered via annotation scanning.
+	 */
+	@Parameter
+	protected String securitySchemes;
+
 	@Parameter
 	protected String openapiModels;
 
@@ -219,6 +231,7 @@ public class CommonApiConfiguration {
 		this.customResponseTypeAnnotation = commonApiConfiguration.customResponseTypeAnnotation;
 		this.defaultErrors = commonApiConfiguration.defaultErrors;
 		this.defaultErrorsForPublicApis = commonApiConfiguration.defaultErrorsForPublicApis;
+		this.securitySchemes = commonApiConfiguration.securitySchemes;
 		this.openapiModels = commonApiConfiguration.openapiModels;
 		this.modelsAssociations = commonApiConfiguration.modelsAssociations;
 		this.defaultNonNullableFields = commonApiConfiguration.defaultNonNullableFields;
@@ -534,6 +547,14 @@ public class CommonApiConfiguration {
 
 	public void setDefaultErrorsForPublicApis(final String defaultErrorsForPublicApis) {
 		this.defaultErrorsForPublicApis = defaultErrorsForPublicApis;
+	}
+
+	public String getSecuritySchemes() {
+		return securitySchemes;
+	}
+
+	public void setSecuritySchemes(final String securitySchemes) {
+		this.securitySchemes = securitySchemes;
 	}
 
 	public String getOpenapiModels() {

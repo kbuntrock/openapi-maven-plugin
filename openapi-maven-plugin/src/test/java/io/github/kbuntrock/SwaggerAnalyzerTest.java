@@ -163,6 +163,19 @@ public class SwaggerAnalyzerTest extends AbstractTest {
 	}
 
 	@Test
+	public void configuredSecuritySchemes() throws MojoFailureException, IOException, MojoExecutionException {
+		// bearerAuth/basicAuth come from @SecurityScheme annotation scanning on
+		// SecurityAnnotationResource; oauth2 has no annotation anywhere and only exists because of
+		// this configuration, and basicAuth's definition is overridden by it.
+		final DocumentationMojo mojo = createBasicMojo(SecurityAnnotationResource.class.getCanonicalName());
+		mojo.getApis().get(0).setSecuritySchemes(
+			"{\"oauth2\": {\"type\": \"oauth2\", \"flows\": {\"clientCredentials\": "
+				+ "{\"tokenUrl\": \"https://example.com/token\"}}}, "
+				+ "\"basicAuth\": {\"type\": \"http\", \"scheme\": \"basic\", \"description\": \"Overridden\"}}");
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
 	public void OneParametersOutTwoParametersInNoMerge()
 		throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(OneParametersOutTwoParametersInNoMerge.class.getCanonicalName());
