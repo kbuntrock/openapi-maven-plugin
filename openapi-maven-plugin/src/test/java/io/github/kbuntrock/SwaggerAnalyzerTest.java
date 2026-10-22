@@ -156,6 +156,13 @@ public class SwaggerAnalyzerTest extends AbstractTest {
 	}
 
 	@Test
+	public void operationNestedSecurityAnnotation()
+		throws MojoFailureException, IOException, MojoExecutionException {
+		final DocumentationMojo mojo = createBasicMojo(OperationSecurityResource.class.getCanonicalName());
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
 	public void OneParametersOutTwoParametersInNoMerge()
 		throws MojoFailureException, IOException, MojoExecutionException {
 		final DocumentationMojo mojo = createBasicMojo(OneParametersOutTwoParametersInNoMerge.class.getCanonicalName());

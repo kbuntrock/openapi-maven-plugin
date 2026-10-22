@@ -589,6 +589,8 @@ public class YamlWriter {
 		mergeCommonOperationsParameters(existingOperation, operation);
 		// And merging request bodies
 		mergeCommonOperationsRequestBodies(existingOperation, operation);
+		// And merging security requirements
+		mergeCommonOperationsSecurity(existingOperation, operation);
 		// The discarded operation may be the one carrying the public-api marker even when the
 		// surviving one isn't (methods colliding on one path aren't required to share annotations).
 		if(Boolean.TRUE.equals(operation.getPublicApi())) {
@@ -694,6 +696,26 @@ public class YamlWriter {
 							existingOperation.getPath() + " / " + existingOperation.getName() + ")");
 					}
 				}
+			}
+		}
+	}
+
+	/**
+	 * Unlike {@link #mergeCommonOperationsRequestBodies}, a discarded operation's security
+	 * requirements are additive rather than conflicting - there's no reason two colliding methods
+	 * can't each contribute their own scheme/scopes, so every distinct requirement is kept rather
+	 * than only the first one found or the last one written.
+	 */
+	private void mergeCommonOperationsSecurity(final Operation existingOperation, final Operation operation) {
+		if(operation.getSecurity() == null || operation.getSecurity().isEmpty()) {
+			return;
+		}
+		if(existingOperation.getSecurity() == null) {
+			existingOperation.setSecurity(new ArrayList<>());
+		}
+		for(final SecurityRequirement requirement : operation.getSecurity()) {
+			if(!existingOperation.getSecurity().contains(requirement)) {
+				existingOperation.getSecurity().add(requirement);
 			}
 		}
 	}
