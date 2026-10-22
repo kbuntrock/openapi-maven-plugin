@@ -1,0 +1,50 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: OperationSecurityResource
+paths:
+  /operation-security:
+    get:
+      tags:
+        - OperationSecurityResource
+      operationId: byId
+      parameters:
+        - name: byId
+          in: query
+          required: false
+          allowEmptyValue: true
+        - name: byName
+          in: query
+          required: false
+          allowEmptyValue: true
+      security:
+        - oauth2:
+            - read
+        - apiKey: []
+      responses:
+        "200":
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
+  /operation-security/nested:
+    get:
+      tags:
+        - OperationSecurityResource
+      operationId: nested
+      security:
+        - oauth2:
+            - read
+      responses:
+        "200":
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: string
