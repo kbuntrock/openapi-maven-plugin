@@ -60,6 +60,7 @@ public class YamlWriter {
 	private Optional<JsonNode> freefields = Optional.empty();
 	private Map<String, JsonNode> defaultErrors;
 	private Map<String, JsonNode> defaultErrorsForPublicApis;
+	private Map<String, JsonNode> configuredSecuritySchemes;
 
 	// Due to the merging capabilities for functions with the same path/verb, it is possible that some listed tags will not appear in the
 	// generated documentation. This map reference only the used ones, in order of appearance
@@ -107,22 +108,28 @@ public class YamlWriter {
 		return CommonParserUtils.getContentFromFileOrText(mavenProject, apiConfiguration.getFreeFields());
 	}
 
-	private Map<String, JsonNode> parseErrorsMap(final String errorsConfiguration) {
-		final Optional<JsonNode> errorsNode = JsonParserUtils.parse(
-			CommonParserUtils.getContentFromFileOrText(context.getProject(), errorsConfiguration));
-		if(!errorsNode.isPresent()) {
+	/**
+	 * Parses a raw JSON object configuration value (file reference or inline text) into a flat
+	 * key -&gt; node map. Shared by every "raw JSON object merged into the spec" configuration
+	 * ({@code defaultErrors}, {@code defaultErrorsForPublicApis}, {@code securitySchemes}).
+	 */
+	private Map<String, JsonNode> parseJsonObjectConfiguration(final String configuration) {
+		final Optional<JsonNode> node = JsonParserUtils.parse(
+			CommonParserUtils.getContentFromFileOrText(context.getProject(), configuration));
+		if(!node.isPresent()) {
 			return null;
 		}
-		final Map<String, JsonNode> errors = new LinkedHashMap<>();
-		final Iterator<Map.Entry<String, JsonNode>> iterator = errorsNode.get().fields();
-		iterator.forEachRemaining(entry -> errors.put(entry.getKey(), entry.getValue()));
-		return errors;
+		final Map<String, JsonNode> result = new LinkedHashMap<>();
+		final Iterator<Map.Entry<String, JsonNode>> iterator = node.get().fields();
+		iterator.forEachRemaining(entry -> result.put(entry.getKey(), entry.getValue()));
+		return result;
 	}
 
 	public void write(final File file, final TagLibrary tagLibrary) throws IOException {
 		freefields = JsonParserUtils.parse(computeFreeFields(context.getProject(), apiConfiguration));
-		defaultErrors = parseErrorsMap(apiConfiguration.getDefaultErrors());
-		defaultErrorsForPublicApis = parseErrorsMap(apiConfiguration.getDefaultErrorsForPublicApis());
+		defaultErrors = parseJsonObjectConfiguration(apiConfiguration.getDefaultErrors());
+		defaultErrorsForPublicApis = parseJsonObjectConfiguration(apiConfiguration.getDefaultErrorsForPublicApis());
+		configuredSecuritySchemes = parseJsonObjectConfiguration(apiConfiguration.getSecuritySchemes());
 
 		final Specification specification = new Specification();
 		final Info info = new Info(context.getProject().getName(), context.getProject().getVersion(),
@@ -148,8 +155,17 @@ public class YamlWriter {
 			schemaSectionCreated = true;
 		}
 
-		if(!tagLibrary.getSecuritySchemes().isEmpty()) {
-			specification.getComponents().put("securitySchemes", tagLibrary.getSecuritySchemes());
+		if(!tagLibrary.getSecuritySchemes().isEmpty() || configuredSecuritySchemes != null) {
+			// Scheme definitions are commonly built at runtime from application configuration
+			// (token URLs, enabled flows) rather than declared on an annotated class, so there is
+			// nothing for annotation scanning to find in that case - configuredSecuritySchemes
+			// lets the consuming project supply those directly; it's merged on top of (and can
+			// override) anything discovered via @SecurityScheme/@SecuritySchemes scanning.
+			final Map<String, Object> securitySchemesSection = new LinkedHashMap<>(tagLibrary.getSecuritySchemes());
+			if(configuredSecuritySchemes != null) {
+				securitySchemesSection.putAll(configuredSecuritySchemes);
+			}
+			specification.getComponents().put("securitySchemes", securitySchemesSection);
 		}
 
 		if(freefields.isPresent() && freefields.get().get("components") != null) {
@@ -589,6 +605,8 @@ public class YamlWriter {
 		mergeCommonOperationsParameters(existingOperation, operation);
 		// And merging request bodies
 		mergeCommonOperationsRequestBodies(existingOperation, operation);
+		// And merging security requirements
+		mergeCommonOperationsSecurity(existingOperation, operation);
 		// The discarded operation may be the one carrying the public-api marker even when the
 		// surviving one isn't (methods colliding on one path aren't required to share annotations).
 		if(Boolean.TRUE.equals(operation.getPublicApi())) {
@@ -694,6 +712,26 @@ public class YamlWriter {
 							existingOperation.getPath() + " / " + existingOperation.getName() + ")");
 					}
 				}
+			}
+		}
+	}
+
+	/**
+	 * Unlike {@link #mergeCommonOperationsRequestBodies}, a discarded operation's security
+	 * requirements are additive rather than conflicting - there's no reason two colliding methods
+	 * can't each contribute their own scheme/scopes, so every distinct requirement is kept rather
+	 * than only the first one found or the last one written.
+	 */
+	private void mergeCommonOperationsSecurity(final Operation existingOperation, final Operation operation) {
+		if(operation.getSecurity() == null || operation.getSecurity().isEmpty()) {
+			return;
+		}
+		if(existingOperation.getSecurity() == null) {
+			existingOperation.setSecurity(new ArrayList<>());
+		}
+		for(final SecurityRequirement requirement : operation.getSecurity()) {
+			if(!existingOperation.getSecurity().contains(requirement)) {
+				existingOperation.getSecurity().add(requirement);
 			}
 		}
 	}

@@ -85,6 +85,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		merged.customResponseTypeAnnotation = copy.customResponseTypeAnnotation;
 		merged.defaultErrors = copy.defaultErrors;
 		merged.defaultErrorsForPublicApis = copy.defaultErrorsForPublicApis;
+		merged.securitySchemes = copy.securitySchemes;
 		merged.openapiModels = copy.openapiModels;
 		merged.modelsAssociations = copy.modelsAssociations;
 		merged.defaultNonNullableFields = copy.defaultNonNullableFields;
@@ -192,6 +193,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		}
 		if(defaultErrorsForPublicApis != null) {
 			merged.setDefaultErrorsForPublicApis(defaultErrorsForPublicApis);
+		}
+		if(securitySchemes != null) {
+			merged.setSecuritySchemes(securitySchemes);
 		}
 		if(openapiModels != null) {
 			merged.setOpenapiModels(openapiModels);
