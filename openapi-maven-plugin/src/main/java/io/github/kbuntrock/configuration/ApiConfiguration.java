@@ -94,6 +94,7 @@ public class ApiConfiguration extends CommonApiConfiguration {
 
 		merged.nonDocumentableParameterClasses = copy.nonDocumentableParameterClasses;
 		merged.useProjectDescription = copy.useProjectDescription;
+		merged.jacksonPolymorphism = copy.jacksonPolymorphism;
 		// End copy properties
 
 		merged.setFilename(filename);
@@ -224,6 +225,9 @@ public class ApiConfiguration extends CommonApiConfiguration {
 		}
 		if(useProjectDescription != null) {
 			merged.setUseProjectDescription(useProjectDescription);
+		}
+		if(jacksonPolymorphism != null) {
+			merged.setJacksonPolymorphism(jacksonPolymorphism);
 		}
 		return merged;
 	}

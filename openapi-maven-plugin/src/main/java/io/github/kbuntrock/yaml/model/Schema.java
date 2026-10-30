@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.github.kbuntrock.JavaClassAnalyser;
 import io.github.kbuntrock.TagLibrary;
 import io.github.kbuntrock.configuration.ApiConfiguration;
+import io.github.kbuntrock.configuration.JacksonPolymorphism;
 import io.github.kbuntrock.configuration.library.reader.BeanDefinitionUtils;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
@@ -15,6 +16,7 @@ import io.github.kbuntrock.javadoc.JavadocWrapper;
 import io.github.kbuntrock.model.DataObject;
 import io.github.kbuntrock.model.Flow;
 import io.github.kbuntrock.reflection.BeanDefinition;
+import io.github.kbuntrock.reflection.PolymorphicHierarchy;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotations;
 import io.github.kbuntrock.utils.OpenApiConstants;
@@ -59,6 +61,13 @@ public class Schema {
 	// Used in case of an array object
 	@JsonIgnore
 	private Boolean uniqueItems;
+
+	@JsonIgnore
+	private String parentReference;
+	@JsonIgnore
+	private Map<String, Object> discriminator;
+	@JsonIgnore
+	private List<Map<String, String>> oneOf;
 
 	/**
 	 * If true, we cannot reference the main object (we are using this object is the "schemas" section).
@@ -273,6 +282,10 @@ public class Schema {
 					setPropertyDescription(child.getBeanDefinition(), classDocumentation, property);
 				}
 			}
+			final PolymorphicHierarchy hierarchy = context.getPolymorphicHierarchy(dataObject.getJavaClass());
+			if(hierarchy != null) {
+				describePolymorphism(hierarchy, dataObject.getJavaClass(), tagLibrary);
+			}
 		} else {
 			List<ChildObject> childProperties = BeanDefinitionUtils.getPropertyObjectsToDocument(dataObject, context);
 			for(ChildObject child : childProperties) {
@@ -288,6 +301,48 @@ public class Schema {
 			}
 		}
 
+	}
+
+	/**
+	 * With "allOf", the root holds the discriminator and its sub-types extend it. With "oneOf", the root is the "oneOf" of its
+	 * sub-types, which are standalone schemas holding the discriminator.
+	 */
+	private void describePolymorphism(final PolymorphicHierarchy hierarchy, final Class<?> clazz, final TagLibrary tagLibrary) {
+		final boolean oneOfForm = apiConfiguration.getJacksonPolymorphism() == JacksonPolymorphism.ONE_OF;
+		final Map<Class, DataObject> schemaObjects = tagLibrary.getClassToSchemaObject();
+		if(clazz == hierarchy.getRoot()) {
+			final Map<String, String> mapping = new LinkedHashMap<>();
+			for(final Entry<String, Class<?>> subType : hierarchy.getSubTypes().entrySet()) {
+				final String schemaName = schemaObjects.get(subType.getValue()).getSchemaReferenceName();
+				if(oneOfForm || !subType.getKey().equals(schemaName)) {
+					mapping.put(subType.getKey(), OpenApiConstants.OBJECT_REFERENCE_PREFIX + schemaName);
+				}
+			}
+			discriminator = new LinkedHashMap<>();
+			discriminator.put("propertyName", hierarchy.getDiscriminatorProperty());
+			if(!mapping.isEmpty()) {
+				discriminator.put("mapping", mapping);
+			}
+			if(oneOfForm) {
+				oneOf = mapping.values().stream()
+					.map(reference -> Collections.singletonMap(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, reference))
+					.collect(Collectors.toList());
+				return;
+			}
+		} else if(!oneOfForm) {
+			final DataObject root = schemaObjects.get(hierarchy.getRoot());
+			parentReference = OpenApiConstants.OBJECT_REFERENCE_PREFIX + root.getSchemaReferenceName();
+			for(final ChildObject child : root.getChildObjects()) {
+				properties.remove(child.getName());
+			}
+			return;
+		}
+		final Schema stringSchema = new Schema(context, apiConfiguration);
+		stringSchema.setType(context.getOpenApiTypeResolver().resolveFromJavaClass(String.class));
+		final Property discriminatorProperty = new Property(stringSchema);
+		discriminatorProperty.setName(hierarchy.getDiscriminatorProperty());
+		discriminatorProperty.setRequired(true);
+		properties.put(discriminatorProperty.getName(), discriminatorProperty);
 	}
 
 	private void setPropertyDescription(BeanDefinition propertyDefinition, ClassDocumentation classDocumentation,
@@ -531,6 +586,15 @@ public class Schema {
 			return map;
 		}
 
+		if(oneOf != null) {
+			if(description != null) {
+				map.put("description", description);
+			}
+			map.put("oneOf", oneOf);
+			map.put("discriminator", discriminator);
+			return map;
+		}
+
 		// Elsewhere, resolved type only describe vaguely the type (object or array), and we write all the infos
 		if(description != null) {
 			map.put("description", description);
@@ -545,6 +609,9 @@ public class Schema {
 		}
 		if(properties != null && !properties.isEmpty()) {
 			map.put("properties", properties);
+		}
+		if(discriminator != null) {
+			map.put("discriminator", discriminator);
 		}
 		if(enumValues != null && !enumValues.isEmpty()) {
 			map.put("enum", enumValues);
@@ -566,6 +633,15 @@ public class Schema {
 		}
 		if(uniqueItems != null) {
 			map.put("uniqueItems", uniqueItems);
+		}
+		if(parentReference != null) {
+			final Map<String, Object> extension = new LinkedHashMap<>();
+			if(description != null) {
+				extension.put("description", map.remove("description"));
+			}
+			extension.put("allOf", Arrays.asList(
+				Collections.singletonMap(OpenApiConstants.OBJECT_REFERENCE_DECLARATION, parentReference), map));
+			return extension;
 		}
 		return map;
 	}

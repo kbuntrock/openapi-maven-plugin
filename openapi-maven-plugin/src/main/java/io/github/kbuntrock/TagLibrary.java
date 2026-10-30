@@ -6,6 +6,7 @@ import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.javadoc.ClassDocumentation;
 import io.github.kbuntrock.model.*;
 import io.github.kbuntrock.model.annotation.OperationResponse;
+import io.github.kbuntrock.reflection.PolymorphicHierarchy;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.yaml.model.ChildObject;
 import io.github.kbuntrock.yaml.model.SecurityScheme;
@@ -154,6 +155,7 @@ public class TagLibrary {
 					inspectObject(dataObject, true);
 				}
 			}
+			explorePolymorphicHierarchy(dataObject);
 		} else if(dataObject.isGenericallyTyped()) {
 			// For generic containers, traverse their type arguments in context (e.g., List<Foo<T>>).
 			if(dataObject.getGenericNameToTypeMap() != null) {
@@ -167,6 +169,17 @@ public class TagLibrary {
 		} else if(dataObject.isJavaArray()) {
 			// Traverse array item type.
 			exploreDataObject(dataObject.getArrayItemDataObject());
+		}
+	}
+
+	// The schemas of a hierarchy reference each other: all of them must be in the schema section
+	private void explorePolymorphicHierarchy(final DataObject dataObject) {
+		final PolymorphicHierarchy hierarchy = context.getPolymorphicHierarchy(dataObject.getJavaClass());
+		if(hierarchy != null) {
+			exploreDataObject(new DataObject(hierarchy.getRoot(), context, dataObject.getFlow()));
+			for(final Class<?> subType : hierarchy.getSubTypes().values()) {
+				exploreDataObject(new DataObject(subType, context, dataObject.getFlow()));
+			}
 		}
 	}
 
