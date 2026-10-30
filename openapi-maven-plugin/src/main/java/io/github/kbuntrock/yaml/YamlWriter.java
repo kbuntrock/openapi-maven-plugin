@@ -59,6 +59,7 @@ public class YamlWriter {
 
 	private Optional<JsonNode> freefields = Optional.empty();
 	private Map<String, JsonNode> defaultErrors;
+	private Map<String, JsonNode> defaultErrorsForPublicApis;
 
 	// Due to the merging capabilities for functions with the same path/verb, it is possible that some listed tags will not appear in the
 	// generated documentation. This map reference only the used ones, in order of appearance
@@ -106,15 +107,22 @@ public class YamlWriter {
 		return CommonParserUtils.getContentFromFileOrText(mavenProject, apiConfiguration.getFreeFields());
 	}
 
+	private Map<String, JsonNode> parseErrorsMap(final String errorsConfiguration) {
+		final Optional<JsonNode> errorsNode = JsonParserUtils.parse(
+			CommonParserUtils.getContentFromFileOrText(context.getProject(), errorsConfiguration));
+		if(!errorsNode.isPresent()) {
+			return null;
+		}
+		final Map<String, JsonNode> errors = new LinkedHashMap<>();
+		final Iterator<Map.Entry<String, JsonNode>> iterator = errorsNode.get().fields();
+		iterator.forEachRemaining(entry -> errors.put(entry.getKey(), entry.getValue()));
+		return errors;
+	}
+
 	public void write(final File file, final TagLibrary tagLibrary) throws IOException {
 		freefields = JsonParserUtils.parse(computeFreeFields(context.getProject(), apiConfiguration));
-		final Optional<JsonNode> defaultErrorsNode = JsonParserUtils.parse(
-			CommonParserUtils.getContentFromFileOrText(context.getProject(), apiConfiguration.getDefaultErrors()));
-		if(defaultErrorsNode.isPresent()) {
-			defaultErrors = new LinkedHashMap<>();
-			final Iterator<Map.Entry<String, JsonNode>> iterator = defaultErrorsNode.get().fields();
-			iterator.forEachRemaining(entry -> defaultErrors.put(entry.getKey(), entry.getValue()));
-		}
+		defaultErrors = parseErrorsMap(apiConfiguration.getDefaultErrors());
+		defaultErrorsForPublicApis = parseErrorsMap(apiConfiguration.getDefaultErrorsForPublicApis());
 
 		final Specification specification = new Specification();
 		final Info info = new Info(context.getProject().getName(), context.getProject().getVersion(),
@@ -236,13 +244,21 @@ public class YamlWriter {
 				operation.setName(endpoint.getType().name());
 				operation.setPath(enhancedPath);
 				final String computedTagName = tag.computeConfiguredName(apiConfiguration);
-				operation.getTags().add(computedTagName);
+				final List<String> operationTagOverride = endpoint.getOperationAnnotationInfo().getTags();
+				if(operationTagOverride != null && !operationTagOverride.isEmpty()) {
+					operation.getTags().addAll(operationTagOverride);
+				} else {
+					operation.getTags().add(computedTagName);
+				}
 				operation.setOperationId(ObjectsUtils.nonNullElse(endpoint.getOperationAnnotationInfo().getOperationId(),
 					apiConfiguration.getOperationIdHelper().toOperationId(tag.getName(), computedTagName, endpoint.getName())));
 				if(apiConfiguration.isLoopbackOperationName()) {
 					operation.setLoopbackOperationName(endpoint.getName());
 				}
 				operation.setDeprecated(endpoint.isDeprecated());
+				if(endpoint.isPublicApi()) {
+					operation.setPublicApi(Boolean.TRUE);
+				}
 
 				// Javadoc to description
 				JavadocWrapper methodJavadoc = null;
@@ -485,9 +501,19 @@ public class YamlWriter {
 					operation.getResponses().put(response.getCode(), response);
 				}
 
-				// Adding default responses
+				// Adding default responses: unconditional, applies to every operation regardless of
+				// the public-API annotation mechanisms, exactly as if they didn't exist.
 				if(defaultErrors != null) {
 					defaultErrors.entrySet().forEach(entry -> {
+						operation.getResponses().put(entry.getKey(), entry.getValue());
+					});
+				}
+
+				// Adding default responses reserved for the public-facing surface (e.g. gateway
+				// auth, rate limiting) on top of the above - applied after defaultErrors, so an
+				// entry here can add to or override a status code defaultErrors already set.
+				if(defaultErrorsForPublicApis != null && endpoint.isPublicApi()) {
+					defaultErrorsForPublicApis.entrySet().forEach(entry -> {
 						operation.getResponses().put(entry.getKey(), entry.getValue());
 					});
 				}
@@ -563,6 +589,11 @@ public class YamlWriter {
 		mergeCommonOperationsParameters(existingOperation, operation);
 		// And merging request bodies
 		mergeCommonOperationsRequestBodies(existingOperation, operation);
+		// The discarded operation may be the one carrying the public-api marker even when the
+		// surviving one isn't (methods colliding on one path aren't required to share annotations).
+		if(Boolean.TRUE.equals(operation.getPublicApi())) {
+			existingOperation.setPublicApi(Boolean.TRUE);
+		}
 
 		// Please note that there is currently no verification on parameters being equivalent between similar response content types.
 		// The first encountered operation's parameters are the one written in the documentation.
