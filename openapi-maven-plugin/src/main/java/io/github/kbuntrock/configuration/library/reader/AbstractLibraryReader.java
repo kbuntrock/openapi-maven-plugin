@@ -487,6 +487,20 @@ public abstract class AbstractLibraryReader {
 				securityRequirements.add(createSecurityRequirement(req));
 			}
 		}
+
+		// @Operation's own nested `security` attribute - the common way to declare security,
+		// as opposed to a standalone @SecurityRequirement/@SecurityRequirements directly on the
+		// method (handled above). Previously never read at all: a method documenting its
+		// security purely via @Operation(security = {...}) silently produced no security block.
+		final MergedAnnotation operationAnnotation = mergedAnnotations.get("io.swagger.v3.oas.annotations.Operation");
+		if(operationAnnotation.isPresent()) {
+			for(final MergedAnnotation req : operationAnnotation.getAnnotationArray("security")) {
+				final SecurityRequirement requirement = createSecurityRequirement(req);
+				if(!securityRequirements.contains(requirement)) {
+					securityRequirements.add(requirement);
+				}
+			}
+		}
 	}
 
 	private SecurityRequirement createSecurityRequirement(final MergedAnnotation mergedAnnotation) {

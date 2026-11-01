@@ -414,6 +414,32 @@ a new status code or override one `defaultErrors` already set, for public operat
 </defaultErrorsForPublicApis>
 ```
 
+### securitySchemes
+
+- Type : `json string`
+
+Raw JSON object merged wholesale into `components.securitySchemes`. Scheme definitions are often
+built at runtime from application configuration (token URLs, which OAuth flows are enabled) rather
+than declared on an annotated class, so there's nothing for `@SecurityScheme`/`@SecuritySchemes`
+scanning to find in that case - this configuration lets the project supply the scheme definitions
+it already knows at build time instead. Merged on top of (and can override) anything discovered via
+annotation scanning.
+
+```xml
+<securitySchemes>
+{
+  "OAUTH2": {
+    "type": "oauth2",
+    "flows": {
+      "clientCredentials": {
+        "tokenUrl": "https://example.com/oauth/token"
+      }
+    }
+  }
+}
+</securitySchemes>
+```
+
 ### tag
 
 - Type: `section`
