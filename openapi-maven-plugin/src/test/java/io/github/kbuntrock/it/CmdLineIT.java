@@ -35,7 +35,7 @@ public class CmdLineIT {
 		}
 
 		/**
-		 *
+		 * test
 		 */
 		@MavenTest
 		@SystemProperty(value = "openapi.locations", content = "io.github.kbuntrock.sample.enpoint")
