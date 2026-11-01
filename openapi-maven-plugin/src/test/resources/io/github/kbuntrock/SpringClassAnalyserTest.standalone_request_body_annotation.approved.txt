@@ -8,6 +8,19 @@ servers:
 tags:
   - name: StandaloneRequestBodyController
 paths:
+  /standalone-request-body/no-schema:
+    post:
+      tags:
+        - StandaloneRequestBodyController
+      operationId: noSchema
+      summary: Upload without schema
+      requestBody:
+        content:
+          application/octet-stream: {}
+        description: Raw upload
+      responses:
+        "200":
+          description: successful operation
   /standalone-request-body/real-body-wins:
     post:
       tags:

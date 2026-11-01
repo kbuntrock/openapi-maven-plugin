@@ -472,11 +472,12 @@ public class YamlWriter {
 					if(operationRequestBody.getDescription() != null) {
 						requestBody.setDescription(operationRequestBody.getDescription());
 					}
-					if(operationRequestBody.getDataObject() != null) {
-						final Content requestBodyContent = Content.fromDataObject(operationRequestBody.getDataObject(),
-							tagLibrary);
-						requestBody.getContent().put(operationRequestBody.getMediaType(), requestBodyContent);
-					}
+					// "content" is mandatory in an OpenAPI request body: without a schema, still declare the
+					// media type with an empty media type object (as springdoc does).
+					final Content requestBodyContent = operationRequestBody.getDataObject() != null
+						? Content.fromDataObject(operationRequestBody.getDataObject(), tagLibrary)
+						: new Content();
+					requestBody.getContent().put(operationRequestBody.getMediaType(), requestBodyContent);
 				}
 
 				// -------------------------
