@@ -21,6 +21,14 @@ public class StandaloneRequestBodyController {
 		// Real handling is outside Spring MVC method dispatch.
 	}
 
+	// Documentation-only stub declaring a media type but no schema: the media type must still be
+	// documented (with an empty media type object), since "content" is mandatory in a request body.
+	@Operation(summary = "Upload without schema", requestBody = @RequestBody(description = "Raw upload", content = @Content(mediaType = "application/octet-stream")))
+	@PostMapping("/no-schema")
+	public void noSchema() {
+		// Real handling is outside Spring MVC method dispatch.
+	}
+
 	// A real @RequestBody parameter is present: it must win over the (deliberately conflicting)
 	// standalone annotation, which must be ignored entirely in this case.
 	@Operation(summary = "Should be ignored", requestBody = @RequestBody(content = @Content(mediaType = "multipart/form-data", schema = @Schema(implementation = TokenRequest.class))))
