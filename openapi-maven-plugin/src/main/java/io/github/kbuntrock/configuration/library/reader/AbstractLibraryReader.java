@@ -4,6 +4,7 @@ import io.github.kbuntrock.configuration.ApiConfiguration;
 import io.github.kbuntrock.context.ApiContext;
 import io.github.kbuntrock.model.*;
 import io.github.kbuntrock.model.annotation.OperationAnnotationInfo;
+import io.github.kbuntrock.model.annotation.OperationRequestBody;
 import io.github.kbuntrock.model.annotation.OperationResponse;
 import io.github.kbuntrock.reflection.GenericityResolver;
 import io.github.kbuntrock.reflection.annotation.MergedAnnotation;
@@ -254,6 +255,14 @@ public abstract class AbstractLibraryReader {
 			for(MergedAnnotation responseAnnotation : responseArray) {
 				addOperationResponse(responseAnnotation, operationInfo);
 			}
+
+			final MergedAnnotation requestBodyAnnotation = operationAnnotation.getAnnotation("requestBody");
+			if(requestBodyAnnotation.isPresent()) {
+				final OperationRequestBody operationRequestBody = buildOperationRequestBody(requestBodyAnnotation, operationInfo);
+				if(operationRequestBody != null) {
+					operationInfo.setRequestBody(operationRequestBody);
+				}
+			}
 		}
 
 		// @ApiResponse is @Repeatable(ApiResponses.class): a method can carry it standalone (one or
@@ -331,6 +340,52 @@ public abstract class AbstractLibraryReader {
 			}
 		}
 		operationInfo.addResponse(operationResponse);
+	}
+
+	/**
+	 * Mirrors {@link #addOperationResponse}'s content-reading for the standalone
+	 * {@code @Operation(requestBody = @RequestBody(...))} attribute — the only path to a documented
+	 * request body for a method with no real parameter annotated {@code @RequestBody}/
+	 * {@code @RequestPart} (e.g. a documentation-only stub whose actual body handling lives outside
+	 * Spring MVC/JAX-RS method dispatch entirely, such as a Spring Security filter-based endpoint).
+	 *
+	 * <p>
+	 * Unlike {@code responses} (an array, naturally empty when unset), a nested annotation
+	 * attribute like {@code requestBody} always has a value - an all-defaults {@code @RequestBody}
+	 * when the author never set it - so {@code requestBodyAnnotation.isPresent()} alone can't tell
+	 * "explicitly declared" from "just the default". Returns {@code null} (meaning: nothing to
+	 * document) whenever there's no {@code content}, which is the actual signal of intent here.
+	 */
+	private OperationRequestBody buildOperationRequestBody(final MergedAnnotation requestBodyAnnotation,
+		final OperationAnnotationInfo operationInfo) {
+		final MergedAnnotation[] contentArray = requestBodyAnnotation.getAnnotationArray("content");
+		if(contentArray.length == 0) {
+			return null;
+		}
+		if(contentArray.length > 1) {
+			context.getLogger().warn("Multiple content annotations found for the requestBody of operation "
+				+ operationInfo.getOperationId() + ". Only the first one will be used.");
+		}
+
+		final OperationRequestBody operationRequestBody = new OperationRequestBody();
+
+		final String description = requestBodyAnnotation.getString("description");
+		if(!StringUtils.isEmpty(description)) {
+			operationRequestBody.setDescription(description);
+		}
+
+		final MergedAnnotation content = contentArray[0];
+		final String mediaType = content.getString("mediaType");
+		operationRequestBody.setMediaType(StringUtils.isEmpty(mediaType) ? "application/json" : mediaType);
+
+		final MergedAnnotation schema = content.getAnnotation("schema");
+		if(schema.isPresent()) {
+			final Class<?> implementation = schema.getClass("implementation");
+			if(implementation != null && !Void.class.equals(implementation) && !Void.TYPE.equals(implementation)) {
+				operationRequestBody.setDataObject(new DataObject(implementation, context, Flow.INPUT));
+			}
+		}
+		return operationRequestBody;
 	}
 
 	protected List<ParameterObject> mergeParameterLists(List<ParameterObject> parameterObjectListAtOperationLevel,

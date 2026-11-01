@@ -50,6 +50,7 @@ import io.github.kbuntrock.resources.endpoint.spring.OptionalController;
 import io.github.kbuntrock.resources.endpoint.spring.ResponseEntityController;
 import io.github.kbuntrock.resources.endpoint.spring.ResponseEntityUnparametrizedController;
 import io.github.kbuntrock.resources.endpoint.standaloneapiresponse.StandaloneApiResponseController;
+import io.github.kbuntrock.resources.endpoint.standalonerequestbody.StandaloneRequestBodyController;
 import io.github.kbuntrock.resources.endpoint.time.TimeController;
 import io.github.kbuntrock.resources.endpoint.uuid.UuidController;
 import io.github.kbuntrock.resources.implementation.account.AccountControllerImpl;
@@ -1097,6 +1098,15 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	@Test
 	public void standalone_api_response_annotation() throws MojoExecutionException, MojoFailureException, IOException {
 		final DocumentationMojo mojo = createBasicMojo(StandaloneApiResponseController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		mojo.setApiConfiguration(commonApiConfiguration);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void standalone_request_body_annotation() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(StandaloneRequestBodyController.class.getCanonicalName());
 		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
 		mojo.setApiConfiguration(commonApiConfiguration);
 

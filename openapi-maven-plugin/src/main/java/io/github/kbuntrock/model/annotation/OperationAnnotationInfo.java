@@ -17,6 +17,13 @@ public class OperationAnnotationInfo {
 	private List<OperationResponse> responses = new ArrayList<>();
 
 	/**
+	 * {@code @Operation(requestBody = @RequestBody(...))} — only ever consulted when the method has
+	 * no real parameter annotated {@code @RequestBody}/{@code @RequestPart} to document (see
+	 * {@code YamlWriter}), e.g. a documentation-only stub method with no real body parameter at all.
+	 */
+	private OperationRequestBody requestBody;
+
+	/**
 	 * {@code @Operation(tags = ...)}, only ever populated for operations recognized as public API (see
 	 * {@code AbstractLibraryReader#isPublicApiOperation(Method)}) — kept out of the model entirely for
 	 * internal operations, so the default class-based tag naming in {@code YamlWriter} is untouched for
@@ -58,6 +65,14 @@ public class OperationAnnotationInfo {
 
 	public void addResponse(OperationResponse response) {
 		this.responses.add(response);
+	}
+
+	public OperationRequestBody getRequestBody() {
+		return requestBody;
+	}
+
+	public void setRequestBody(OperationRequestBody requestBody) {
+		this.requestBody = requestBody;
 	}
 
 	public List<String> getTags() {
