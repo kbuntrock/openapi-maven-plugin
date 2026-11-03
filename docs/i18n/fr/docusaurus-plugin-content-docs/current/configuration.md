@@ -253,6 +253,28 @@ Il n'est pas obligatoire de renseigner les deux parties en même temps. Voir les
 </blackList>
 ```
 
+### whiteListOnAnnotations
+
+- Type : `string list`
+- Présence : `optionnelle`
+
+Équivalent de [`whiteList`](#whitelist) basé sur les annotations : lorsque cette configuration contient une
+liste non vide de noms qualifiés d'annotations, une opération (une méthode HTTP d'un contrôleur) n'est
+documentée que si la méthode Java correspondante porte au moins l'une de ces annotations. Cela permet à
+une base de code qui marque sa surface volontairement publique avec sa propre annotation (par exemple une
+annotation `@PublicApi` personnalisée) de générer une spécification limitée exactement à cette surface, de
+la même manière que le font déjà les générateurs à l'exécution basés sur les annotations (springdoc, etc.).
+
+Lorsqu'elle n'est pas renseignée ou vide (comportement par défaut), toutes les opérations que le plugin
+documenterait normalement sont incluses, sans changement. Comme pour une `whiteList` vide, cette
+configuration est entièrement optionnelle et n'a aucun effet sur les configurations existantes.
+
+```xml
+<whiteListOnAnnotations>
+	<annotation>com.mycompany.annotations.PublicApi</annotation>
+</whiteListOnAnnotations>
+```
+
 ### freeFields
 
 - Type : `string`
@@ -368,6 +390,55 @@ Ajoute une section erreurs à chaque opération générée dans la documentation
   }
 }
 </defaultErrors>
+```
+
+### defaultErrorsForPublicApis
+
+- Type : `json string`
+
+Même format et même comportement de fusion que [`defaultErrors`](#defaulterrors), mais appliqué par-dessus
+et uniquement pour les opérations reconnues comme faisant partie de l'API publique (voir
+[`publicApiAnnotations`](#publicapiannotations) /
+[`whiteListOnAnnotations`](#whitelistonannotations)). Utile pour des problématiques transverses à la
+plateforme (authentification au niveau de la gateway, limitation de débit) qui ne concernent que la
+surface exposée publiquement. `defaultErrors` continue de s'appliquer à toutes les opérations sans
+condition, indépendamment de cette configuration ; une entrée ici peut ajouter un nouveau code de statut
+ou surcharger un code déjà défini par `defaultErrors`, uniquement pour les opérations publiques.
+
+```xml
+<defaultErrorsForPublicApis>
+{
+  "429": {
+    "$ref": "#/components/responses/TooManyRequests"
+  }
+}
+</defaultErrorsForPublicApis>
+```
+
+### securitySchemes
+
+- Type : `json string`
+
+Objet JSON brut fusionné tel quel dans `components.securitySchemes`. Les définitions de schémas de
+sécurité sont souvent construites à l'exécution à partir de la configuration applicative (URL de
+token, flux OAuth activés) plutôt que déclarées sur une classe annotée : dans ce cas, l'analyse des
+annotations `@SecurityScheme`/`@SecuritySchemes` ne trouve rien. Cette configuration permet au projet
+de fournir les définitions de schémas qu'il connaît déjà au moment du build. Elle est fusionnée
+par-dessus tout ce qui a été découvert via l'analyse des annotations (et peut donc le surcharger).
+
+```xml
+<securitySchemes>
+{
+  "OAUTH2": {
+    "type": "oauth2",
+    "flows": {
+      "clientCredentials": {
+        "tokenUrl": "https://example.com/oauth/token"
+      }
+    }
+  }
+}
+</securitySchemes>
 ```
 
 ### tag
@@ -587,6 +658,61 @@ Valeur à utiliser pour l’extension des descriptions d’énumération.
 - Valeur par défaut : `false`
 
 Utilise la description du projet maven en tant que description de la doc OpenAPI. La description est héritée des parents si non définie localement.
+
+### hiddenAnnotations
+
+- Type : `string list`
+- Présence : `optionnelle`
+
+Permet de configurer les annotations qui déclenchent l'exclusion d'éléments / d'endpoints de l'API de la documentation générée.
+La configuration accepte une liste de noms qualifiés d'annotations.
+Si elle est renseignée, elle remplace les valeurs par défaut suivantes :
+
+- io.swagger.v3.oas.annotations.Hidden
+- springfox.documentation.annotations.ApiIgnore
+- org.eclipse.microprofile.openapi.annotations.Hidden
+
+### jacksonPolymorphism
+
+- Type : `string`
+- Valeur par défaut : `NONE`
+
+Manière de documenter une hiérarchie de classes annotée avec `@JsonTypeInfo(use = NAME, include = PROPERTY)` et `@JsonSubTypes`. Les interfaces et les autres configurations de `@JsonTypeInfo` sont toujours documentées comme des classes classiques.
+
+Les valeurs possibles sont :
+* `NONE` : la hiérarchie est documentée comme des classes classiques
+* `ALL_OF` : le parent porte le `discriminator` et chaque sous-type l'étend via `allOf`, voir [Models with Polymorphism Support](https://spec.openapis.org/oas/v3.0.3#models-with-polymorphism-support). Une entrée `mapping` n'est écrite que pour un identifiant de type qui n'est pas le nom de son schéma.
+* `ONE_OF` : le parent est le `oneOf` de ses sous-types, qui sont des schémas autonomes, voir [Discriminator Object](https://spec.openapis.org/oas/v3.0.3#discriminator-object). Un parent instanciable est documenté comme une classe classique.
+
+```xml
+<jacksonPolymorphism>ONE_OF</jacksonPolymorphism>
+```
+
+### publicApiAnnotations
+
+- Type : `string list`
+- Présence : `optionnelle`
+
+Lorsque cette configuration contient une liste non vide de noms qualifiés d'annotations, chaque opération
+documentée dont la méthode Java correspondante porte au moins l'une de ces annotations reçoit l'extension
+`x-public-api: true` dans la spécification générée. Les opérations qui ne correspondent pas ne reçoivent
+aucun champ de ce type (jamais `false`) : le marqueur n'est présent que là où il est vrai.
+
+Contrairement à [`whiteListOnAnnotations`](#whitelistonannotations), cette configuration n'exclut jamais
+rien de la documentation. Elle se contente de marquer les opérations au sein d'une spécification unique et
+complète, afin qu'un humain ou un outil (par exemple une règle Spectral) puisse distinguer les opérations
+publiques des opérations internes sans avoir à consulter le code source.
+
+Lorsque `whiteListOnAnnotations` ou `publicApiAnnotations` est configuré (celui qui s'applique), la
+surcharge de tags propre à une opération via `@Operation(tags = {...})` n'est prise en compte que pour
+les opérations reconnues comme faisant partie de l'API publique de cette manière ; dans le cas contraire,
+le tag habituel basé sur la classe est utilisé, comme si aucun de ces paramètres n'était configuré.
+
+```xml
+<publicApiAnnotations>
+	<annotation>com.mycompany.annotations.PublicApi</annotation>
+</publicApiAnnotations>
+```
 
 ## javadocConfiguration
 
