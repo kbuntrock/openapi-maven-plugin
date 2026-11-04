@@ -416,16 +416,21 @@ public class Schema {
 	 * it is the author's unambiguous intent, and Swagger/springdoc-openapi treats it the same way. {@code AUTO}
 	 * (the annotation's default) or a class that has no {@code requiredMode} attribute at all (older Swagger Core
 	 * versions) intentionally falls through to that existing heuristic instead of forcing "not required".
+	 * <p>
+	 * The deprecated {@code @Schema(required = true)} is still honored when {@code requiredMode} is not explicit,
+	 * so projects that have not migrated yet keep their required properties. {@code required = false} is its
+	 * default value and cannot be told apart from an absent attribute, so it never forces "not required".
+	 * </p>
 	 */
 	private static void applyRequiredModeIfExplicit(MergedAnnotation schemaAnnotation, Property property) {
-		schemaAnnotation.getValue("requiredMode").ifPresent(requiredMode -> {
-			final String modeName = requiredMode.toString();
-			if("REQUIRED".equals(modeName)) {
-				property.setRequired(true);
-			} else if("NOT_REQUIRED".equals(modeName)) {
-				property.setRequired(false);
-			}
-		});
+		final String modeName = schemaAnnotation.getValue("requiredMode").map(Object::toString).orElse(null);
+		if("REQUIRED".equals(modeName)) {
+			property.setRequired(true);
+		} else if("NOT_REQUIRED".equals(modeName)) {
+			property.setRequired(false);
+		} else if(Boolean.TRUE.equals(schemaAnnotation.getValue("required").orElse(null))) {
+			property.setRequired(true);
+		}
 	}
 
 	private static void setPropertyDescriptionFromJavadocIfEmpty(JavadocWrapper javadocWrapper, Property property) {

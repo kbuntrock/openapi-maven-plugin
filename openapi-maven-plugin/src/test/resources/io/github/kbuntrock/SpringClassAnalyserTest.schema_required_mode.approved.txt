@@ -53,6 +53,7 @@ components:
         - beanValidationOnly
         - explicitlyRequired
         - bothSignalsAgree
+        - deprecatedRequired
       type: object
       properties:
         defaultValue:
@@ -69,6 +70,10 @@ components:
           type: string
         bothSignalsAgree:
           description: Both signals agree
+          type: string
+        deprecatedRequired:
+          type: string
+        requiredModeOverridesDeprecatedRequired:
           type: string
         explicitFormat:
           description: An explicit format the Java type alone can't express
