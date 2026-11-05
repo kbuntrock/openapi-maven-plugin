@@ -27,6 +27,14 @@ public class SchemaRequiredModeDto {
 	@NotBlank
 	public String bothSignalsAgree;
 
+	@SuppressWarnings("deprecation")
+	@Schema(required = true)
+	public String deprecatedRequired;
+
+	@SuppressWarnings("deprecation")
+	@Schema(required = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+	public String requiredModeOverridesDeprecatedRequired;
+
 	@Schema(format = "email", description = "An explicit format the Java type alone can't express")
 	public String explicitFormat;
 
