@@ -33,6 +33,7 @@ import io.github.kbuntrock.resources.endpoint.jackson.JacksonJsonPropertyControl
 import io.github.kbuntrock.resources.endpoint.map.MapController;
 import io.github.kbuntrock.resources.endpoint.multipartformdata.MultipartFormDataController;
 import io.github.kbuntrock.resources.endpoint.nesting.NestedDtosController;
+import io.github.kbuntrock.resources.endpoint.jspecify.JSpecifyController;
 import io.github.kbuntrock.resources.endpoint.nullable.NullableController;
 import io.github.kbuntrock.resources.endpoint.nullable.NullableGettersSettersController;
 import io.github.kbuntrock.resources.endpoint.number.NumberController;
@@ -779,6 +780,24 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	@Test
 	public void nullable_getters_setters_default_non_nullable() throws MojoExecutionException, MojoFailureException, IOException {
 		final DocumentationMojo mojo = createBasicMojo(NullableGettersSettersController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		commonApiConfiguration.setDefaultNonNullableFields(true);
+		mojo.setApiConfiguration(commonApiConfiguration);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void jspecify() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(JSpecifyController.class.getCanonicalName());
+		mojo.setApiConfiguration(new CommonApiConfiguration());
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void jspecify_default_non_nullable() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(JSpecifyController.class.getCanonicalName());
 		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
 		commonApiConfiguration.setDefaultNonNullableFields(true);
 		mojo.setApiConfiguration(commonApiConfiguration);

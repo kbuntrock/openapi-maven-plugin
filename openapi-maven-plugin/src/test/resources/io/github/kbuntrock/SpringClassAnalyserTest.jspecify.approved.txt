@@ -1,0 +1,112 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: JSpecifyController
+paths:
+  /jspecify/no-scope:
+    get:
+      tags:
+        - JSpecifyController
+      operationId: getNoScope
+      responses:
+        "200":
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/NoScopeDto"
+  /jspecify/null-marked:
+    get:
+      tags:
+        - JSpecifyController
+      operationId: getNullMarked
+      responses:
+        "200":
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/NullMarkedDto"
+  /jspecify/package-marked:
+    get:
+      tags:
+        - JSpecifyController
+      operationId: getPackageMarked
+      responses:
+        "200":
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PackageMarkedDto"
+components:
+  schemas:
+    InheritedScopeNestedDto:
+      type: object
+      properties:
+        deepNestedDefaultValue:
+          type: string
+    NoScopeDto:
+      required:
+        - nonNullValue
+        - nonNullOnGetterValue
+        - nonNullOnSetterValue
+      type: object
+      properties:
+        defaultValue:
+          type: string
+        nullableValue:
+          type: string
+        nonNullValue:
+          type: string
+        nonNullOnGetterValue:
+          type: string
+        nonNullOnSetterValue:
+          type: string
+    NullMarkedDto:
+      required:
+        - defaultValue
+        - primitiveValue
+      type: object
+      properties:
+        defaultValue:
+          type: string
+        nullableValue:
+          type: string
+        primitiveValue:
+          type: integer
+          format: int32
+        nested:
+          $ref: "#/components/schemas/NullUnmarkedNestedDto"
+    NullUnmarkedNestedDto:
+      required:
+        - nestedNonNullValue
+      type: object
+      properties:
+        nestedDefaultValue:
+          type: string
+        nestedNonNullValue:
+          type: string
+        deepNested:
+          $ref: "#/components/schemas/InheritedScopeNestedDto"
+    PackageMarkedDto:
+      required:
+        - packageMarkedDefaultValue
+      type: object
+      properties:
+        packageMarkedDefaultValue:
+          type: string
+        packageMarkedNullableValue:
+          type: string
+        unmarked:
+          $ref: "#/components/schemas/PackageMarkedUnmarkedDto"
+    PackageMarkedUnmarkedDto:
+      type: object
+      properties:
+        unmarkedDefaultValue:
+          type: string

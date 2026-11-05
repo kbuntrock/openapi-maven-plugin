@@ -107,6 +107,10 @@ Inscrit une description par défaut sur les retours code HTTP 200 lorsqu'aucune 
 
 Si true, tous les champs sans indication explicite (annotation ou "Optional") sont considérés comme requis.
 
+Les portées de nullité [JSpecify](https://jspecify.dev/) sont prioritaires sur ce paramètre. Un champ sans annotation nullable / non nullable est :
+- **requis** si sa portée la plus proche (méthode getter ou setter, classe déclarante, classe englobante, package ou module) est annotée avec `org.jspecify.annotations.NullMarked` ;
+- **non requis** si sa portée la plus proche est annotée avec `org.jspecify.annotations.NullUnmarked`.
+
 ### nonNullableAnnotation
 
 - Type : `string list`
@@ -119,6 +123,7 @@ Liste d'annotations définissant les champs **requis**. Si présente, écrase la
 - javax.validation.constraints.NotNull
 - javax.validation.constraints.NotBlank
 - javax.validation.constraints.NotEmpty
+- org.jspecify.annotations.NonNull
 
 ### nullableAnnotation
 
@@ -128,6 +133,7 @@ Liste d'annotations définissant les champs **requis**. Si présente, écrase la
 Liste d'annotations définissant les champs **non requis**. Si présente, écrase la liste par défaut suivante :
 - jakarta.annotation.Nullable
 - javax.annotation.Nullable
+- org.jspecify.annotations.Nullable
 
 ### pathEnhancement
 
