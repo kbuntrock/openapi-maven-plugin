@@ -107,6 +107,10 @@ Default success description if no javadoc is found.
 
 If true, all fields without an explicit indication (annotation or optionally wrapped) are considered "required".
 
+[JSpecify](https://jspecify.dev/) nullness scopes take precedence over this setting. A field without a nullable / non nullable annotation is:
+- **required** if its closest scope (getter or setter method, declaring class, enclosing class, package or module) is annotated with `org.jspecify.annotations.NullMarked`;
+- **not required** if its closest scope is annotated with `org.jspecify.annotations.NullUnmarked`.
+
 ### nonNullableAnnotation
 
 - Type : `string list`
@@ -119,6 +123,7 @@ List of annotations defining **required** fields. If present, override the follo
 - javax.validation.constraints.NotNull
 - javax.validation.constraints.NotBlank
 - javax.validation.constraints.NotEmpty
+- org.jspecify.annotations.NonNull
 
 ### nullableAnnotation
 
@@ -128,6 +133,7 @@ List of annotations defining **required** fields. If present, override the follo
 List of annotations defining **non required** fields. If present, override the following default values:
 - jakarta.annotation.Nullable
 - javax.annotation.Nullable
+- org.jspecify.annotations.Nullable
 
 ### pathEnhancement
 

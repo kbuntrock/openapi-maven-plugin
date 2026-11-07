@@ -26,6 +26,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.Size;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedType;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -452,15 +456,33 @@ public class Schema {
 	}
 
 	private void extractConstraints(DataObject dataObject, final BeanDefinition beanDefinition, final Property property) {
+		// Type-use annotations (ex: JSpecify @Nullable / @NonNull) are not exposed as declaration annotations
 		List<Annotation> annotations = new ArrayList<>();
+		Member scopeMember = null;
 		if(beanDefinition.hasField()) {
-			annotations.addAll(Arrays.asList(beanDefinition.getField().getAnnotated().getAnnotations()));
+			final Field field = beanDefinition.getField().getAnnotated();
+			annotations.addAll(Arrays.asList(field.getAnnotations()));
+			annotations.addAll(Arrays.asList(field.getAnnotatedType().getAnnotations()));
+			scopeMember = field;
 		}
 		if(beanDefinition.hasGetter()) {
-			annotations.addAll(Arrays.asList(beanDefinition.getGetter().getAnnotated().getAnnotations()));
+			final Method getter = beanDefinition.getGetter().getAnnotated();
+			annotations.addAll(Arrays.asList(getter.getAnnotations()));
+			annotations.addAll(Arrays.asList(getter.getAnnotatedReturnType().getAnnotations()));
+			if(scopeMember == null) {
+				scopeMember = getter;
+			}
 		}
 		if(beanDefinition.hasSetter()) {
-			annotations.addAll(Arrays.asList(beanDefinition.getSetter().getAnnotated().getAnnotations()));
+			final Method setter = beanDefinition.getSetter().getAnnotated();
+			annotations.addAll(Arrays.asList(setter.getAnnotations()));
+			final AnnotatedType[] parameterTypes = setter.getAnnotatedParameterTypes();
+			if(parameterTypes.length == 1) {
+				annotations.addAll(Arrays.asList(parameterTypes[0].getAnnotations()));
+			}
+			if(scopeMember == null) {
+				scopeMember = setter;
+			}
 		}
 
 		final Size size = findAnnotationByClass(annotations, Size.class);
@@ -476,7 +498,7 @@ public class Schema {
 		} else if(context.getNullableConfiguration().hasNullableAnnotation(annotations)) {
 			property.setRequired(false);
 		} else {
-			property.setRequired(context.getNullableConfiguration().isDefaultNonNullableFields());
+			property.setRequired(context.getNullableConfiguration().isDefaultNonNullable(scopeMember));
 		}
 
 		if(Flow.INPUT_OUTPUT == dataObject.getFlow()) {
