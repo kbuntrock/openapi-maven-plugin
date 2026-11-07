@@ -504,8 +504,12 @@ Define a list of java objects not referenced by a documented endpoint, but which
 - Type : `string`
 - Required : `false`
 
-Canonical name of an annotation defined in your project. It will allow you to override the response type of a endpoint.
-Useful for JaxRS or JakartaRS project using the "Response" class (this class can't be generically typed).
+Canonical name of an annotation defined in your project. It will allow you to override the response type of an endpoint.
+It is supported for Spring MVC, JAX-RS and Jakarta REST projects. It is useful, for instance, for:
+
+- JAX-RS or Jakarta REST methods returning the "Response" class (this class can't be generically typed);
+- methods returning `void` and writing their body directly into the response (e.g. a file download through
+  `HttpServletResponse`): without the annotation, such a method is documented without any response content.
 
 ```xml
 <customResponseTypeAnnotation>io.github.kbuntrock.resources.endpoint.jaxrs.ResponseType</customResponseTypeAnnotation>
@@ -516,6 +520,7 @@ This annotation have to implement a function "Class value()".
 Example: 
 
 ```java
+@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface ResponseType {
 
@@ -534,6 +539,31 @@ public Response getAccount() {
 	// ...
 }
 ```
+
+Spring MVC file download returning `void`: the annotation type is documented, using the endpoint `produces` media
+type (a `byte[]` is documented as `type: string`, `format: binary`).
+
+```java
+@ResponseType(byte[].class)
+@GetMapping(value = "/files/{id}", produces = "application/octet-stream")
+public void download(@PathVariable String id, HttpServletResponse response) throws IOException {
+	// write the file into response.getOutputStream()
+}
+```
+
+```yaml
+responses:
+  "200":
+    description: successful operation
+    content:
+      application/octet-stream:
+        schema:
+          type: string
+          format: binary
+```
+
+The same endpoint can also be documented with the Swagger `@ApiResponse` / `@Content` annotations, without any plugin
+configuration: see [Documenting a file download from a `void` method](./advanced_topics/swagger_annotations.md#documenting-a-file-download-from-a-void-method).
 
 ### openapiModels
 

@@ -52,12 +52,40 @@ public abstract class AbstractLibraryReader {
 
 	protected final OpenApiTypeResolver openApiTypeResolver;
 
+	/**
+	 * Annotation configured through {@code customResponseTypeAnnotation}, overriding the documented response type of the
+	 * methods it annotates. {@code null} when the option is not configured.
+	 */
+	private Class<?> customResponseTypeAnnotation;
+
 	public AbstractLibraryReader(final ApiContext context, final ApiConfiguration apiConfiguration,
 		final OpenApiTypeResolver openApiTypeResolver) {
 		this.context = context;
 		this.apiConfiguration = apiConfiguration;
 		this.openApiTypeResolver = openApiTypeResolver;
 		this.genericityResolver = new GenericityResolver(context);
+		initCustomResponseTypeAnnotation();
+	}
+
+	private void initCustomResponseTypeAnnotation() {
+		final String annotationName = apiConfiguration.getCustomResponseTypeAnnotation();
+		if(annotationName == null) {
+			return;
+		}
+		try {
+			customResponseTypeAnnotation = context.getClassLoaderHelper().getByName(annotationName);
+			try {
+				final Method responseAnnotationMethod = customResponseTypeAnnotation.getMethod("value");
+				if(responseAnnotationMethod.getReturnType() != Class.class) {
+					throw new RuntimeException("Annotation " + annotationName + " does not declare a method called value()");
+				}
+			} catch(final NoSuchMethodException e) {
+				throw new RuntimeException(
+					"Annotation " + annotationName + " does not declare a method value() returning a Class");
+			}
+		} catch(final ClassNotFoundException e) {
+			throw new RuntimeException("Could not load annotation class " + annotationName);
+		}
 	}
 
 	/**
@@ -87,6 +115,10 @@ public abstract class AbstractLibraryReader {
 
 	/**
 	 * Resolve the response {@link DataObject} for a method, honoring library-specific return wrappers and excluding non-documentable responses.
+	 * <p>
+	 * The void and documentability checks apply to the type resolved by {@link #readResponseMethodType}, so a void method
+	 * annotated with the {@code customResponseTypeAnnotation} is documented with the annotation type.
+	 * </p>
 	 *
 	 * @param clazz
 	 *            declaring class
@@ -98,23 +130,31 @@ public abstract class AbstractLibraryReader {
 	 */
 	protected DataObject readResponseObject(final Class<?> clazz, final Method method,
 		final MergedAnnotations mergedAnnotations) {
-		final Class<?> returnType = method.getReturnType();
-		if(Void.class == returnType || Void.TYPE == returnType || !openApiTypeResolver.canResponseBeDocumented(returnType)) {
+		final Type responseType = readResponseMethodType(method, mergedAnnotations);
+		// Any non-Class type can only be the method generic return type, whose erasure is the declared return type.
+		final Class<?> responseClass = responseType instanceof Class ? (Class<?>) responseType : method.getReturnType();
+		if(Void.class == responseClass || Void.TYPE == responseClass
+			|| !openApiTypeResolver.canResponseBeDocumented(responseClass)) {
 			return null;
 		}
 
-		DataObject dataObject = new DataObject(
-			genericityResolver.resolve(clazz, readResponseMethodType(method, mergedAnnotations)), context,
-			Flow.OUTPUT);
+		DataObject dataObject = new DataObject(genericityResolver.resolve(clazz, responseType), context, Flow.OUTPUT);
 		dataObject = computeFrameworkReturnObject(dataObject);
 		context.getLogger().debug(dataObject.toString());
 		return dataObject;
 	}
 
 	/**
-	 * Read the generic method return type, possibly overridden by library-specific behavior.
+	 * Read the documented response type of a method: the {@code value()} of the {@code customResponseTypeAnnotation} when
+	 * the method carries it, the generic method return type otherwise.
 	 */
 	protected Type readResponseMethodType(final Method method, final MergedAnnotations mergedAnnotations) {
+		if(customResponseTypeAnnotation != null) {
+			final MergedAnnotation merged = mergedAnnotations.get(customResponseTypeAnnotation.getCanonicalName());
+			if(merged.isPresent()) {
+				return (Class<?>) merged.getValue("value").get();
+			}
+		}
 		return method.getGenericReturnType();
 	}
 
@@ -330,6 +370,10 @@ public abstract class AbstractLibraryReader {
 		Optional<MergedAnnotation> optionalContent = Arrays.stream(contentArray).findFirst();
 		if(optionalContent.isPresent()) {
 			final MergedAnnotation content = optionalContent.get();
+			final String mediaType = content.getString("mediaType");
+			if(!StringUtils.isEmpty(mediaType)) {
+				operationResponse.setMediaType(mediaType);
+			}
 			final MergedAnnotation schema = content.getAnnotation("schema");
 			if(schema.isPresent()) {
 				final Class<?> implementation = schema.getClass("implementation");

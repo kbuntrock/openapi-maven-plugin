@@ -1,0 +1,81 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: VoidFileDownloadController
+paths:
+  /void-file-download/explicit-media-type/{id}:
+    get:
+      tags:
+        - VoidFileDownloadController
+      operationId: downloadWithExplicitMediaType
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The file content
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+  /void-file-download/media-type-precedence/{id}:
+    get:
+      tags:
+        - VoidFileDownloadController
+      operationId: downloadWithMediaTypeOverridingProduces
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The PDF report
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+  /void-file-download/produces-fallback/{id}:
+    get:
+      tags:
+        - VoidFileDownloadController
+      operationId: downloadWithProducesFallback
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The file content
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+  /void-file-download/undocumented/{id}:
+    get:
+      tags:
+        - VoidFileDownloadController
+      operationId: downloadUndocumented
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation

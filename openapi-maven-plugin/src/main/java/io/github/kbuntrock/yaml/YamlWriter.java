@@ -555,6 +555,7 @@ public class YamlWriter {
 				}
 
 				// Add swagger documented responses
+				boolean defaultContentReplaced = false;
 				for(final OperationResponse operationResponse : endpoint.getOperationAnnotationInfo().getResponses()) {
 					// Check if response code is already documented, if so, we merge the attributes
 					Response annotatedResponse = null;
@@ -571,8 +572,21 @@ public class YamlWriter {
 						annotatedResponse.setDescription(operationResponse.getDescription());
 					}
 					if(operationResponse.getDataObject() != null) {
+						// An explicit content describes the whole body of the response generated from the method
+						// signature: it replaces that content instead of documenting a second, conflicting body
+						// next to it. Cleared only once so that several @ApiResponse on the same code still add up.
+						if(annotatedResponse == response && !defaultContentReplaced) {
+							annotatedResponse.getContent().clear();
+							defaultContentReplaced = true;
+						}
 						final Content responseContent = Content.fromDataObject(operationResponse.getDataObject(), tagLibrary);
-						if(apiConfiguration.isDefaultProduceConsumeGuessing()) {
+						if(operationResponse.getMediaType() != null) {
+							annotatedResponse.getContent().put(operationResponse.getMediaType(), responseContent);
+						} else if(endpoint.getResponseFormats() != null) {
+							for(final String format : endpoint.getResponseFormats()) {
+								annotatedResponse.getContent().put(format, responseContent);
+							}
+						} else if(apiConfiguration.isDefaultProduceConsumeGuessing()) {
 							annotatedResponse.getContent()
 								.put(ProduceConsumeUtils.getDefaultValue(operationResponse.getDataObject()), responseContent);
 						} else {

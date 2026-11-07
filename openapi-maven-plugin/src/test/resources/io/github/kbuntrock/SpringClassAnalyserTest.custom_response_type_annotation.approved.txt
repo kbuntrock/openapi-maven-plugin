@@ -1,0 +1,82 @@
+---
+openapi: 3.0.3
+info:
+  title: My Project
+  version: 10.5.36
+servers:
+  - url: ""
+tags:
+  - name: CustomResponseTypeSpringController
+paths:
+  /custom-response-type/overridden-return-type:
+    get:
+      tags:
+        - CustomResponseTypeSpringController
+      operationId: overriddenReturnType
+      responses:
+        "200":
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/KeyAndPasswordDto"
+  /custom-response-type/void-download/{id}:
+    get:
+      tags:
+        - CustomResponseTypeSpringController
+      operationId: voidDownload
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+  /custom-response-type/void-not-annotated/{id}:
+    get:
+      tags:
+        - CustomResponseTypeSpringController
+      operationId: voidNotAnnotated
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+  /custom-response-type/with-api-response/{id}:
+    get:
+      tags:
+        - CustomResponseTypeSpringController
+      operationId: withApiResponse
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The PDF report
+          content:
+            application/pdf:
+              schema:
+                $ref: "#/components/schemas/KeyAndPasswordDto"
+components:
+  schemas:
+    KeyAndPasswordDto:
+      type: object
+      properties:
+        key:
+          type: string
+        newPassword:
+          type: string

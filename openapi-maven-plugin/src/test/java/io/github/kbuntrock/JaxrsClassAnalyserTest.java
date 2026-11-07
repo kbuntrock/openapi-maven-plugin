@@ -8,6 +8,7 @@ import io.github.kbuntrock.resources.endpoint.account.AccountJaxrsController;
 import io.github.kbuntrock.resources.endpoint.ignore.JakartaIgnoreController;
 import io.github.kbuntrock.resources.endpoint.ignore.JavaxIgnoreController;
 import io.github.kbuntrock.resources.endpoint.jaxrs.ResponseJaxrsController;
+import io.github.kbuntrock.resources.endpoint.jaxrs.VoidResponseTypeJaxrsController;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
@@ -83,6 +84,26 @@ public class JaxrsClassAnalyserTest extends AbstractTest {
 	public void response_jaxrs_jakarta() throws MojoFailureException, MojoExecutionException, IOException {
 
 		DocumentationMojo mojo = createBasicMojo(ResponseJaxrsController.class.getCanonicalName());
+		mojo.getApis().get(0).setLibrary(Library.JAKARTA_RS.name());
+		mojo.getApiConfiguration().setCustomResponseTypeAnnotation("io.github.kbuntrock.resources.endpoint.jaxrs.ResponseType");
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void void_response_type_jaxrs_javax() throws MojoFailureException, MojoExecutionException, IOException {
+
+		DocumentationMojo mojo = createBasicMojo(VoidResponseTypeJaxrsController.class.getCanonicalName());
+		mojo.getApis().get(0).setLibrary(Library.JAVAX_RS.name());
+		mojo.getApiConfiguration().setCustomResponseTypeAnnotation("io.github.kbuntrock.resources.endpoint.jaxrs.ResponseType");
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void void_response_type_jaxrs_jakarta() throws MojoFailureException, MojoExecutionException, IOException {
+
+		DocumentationMojo mojo = createBasicMojo(VoidResponseTypeJaxrsController.class.getCanonicalName());
 		mojo.getApis().get(0).setLibrary(Library.JAKARTA_RS.name());
 		mojo.getApiConfiguration().setCustomResponseTypeAnnotation("io.github.kbuntrock.resources.endpoint.jaxrs.ResponseType");
 
