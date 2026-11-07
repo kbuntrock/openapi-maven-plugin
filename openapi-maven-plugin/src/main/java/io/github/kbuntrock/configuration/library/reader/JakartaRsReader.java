@@ -15,7 +15,6 @@ import org.apache.maven.plugin.MojoFailureException;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,7 +25,6 @@ public class JakartaRsReader extends AbstractLibraryReader {
 	public static final String BEAN_PARAM_CNAME = "jakarta.ws.rs.BeanParam";
 	public static final String HttpServletRequest_CNAME = "jakarta.servlet.http.HttpServletRequest";
 	private Optional<Class> jakartaNotNull;
-	private Class responseAnnotation;
 
 	public JakartaRsReader(final ApiContext context, final ApiConfiguration apiConfiguration,
 		final OpenApiTypeResolver openApiTypeResolver) {
@@ -37,29 +35,6 @@ public class JakartaRsReader extends AbstractLibraryReader {
 	private void initClasses() {
 		// For the validation constraint, there should be no problem if the dependency is not present.
 		jakartaNotNull = context.getClassLoaderHelper().tryToGetByName(NOT_NULL_CNAME);
-		initCustomResponseAnnotation(apiConfiguration);
-	}
-
-	private void initCustomResponseAnnotation(final ApiConfiguration apiConfiguration) {
-
-		if(apiConfiguration.getCustomResponseTypeAnnotation() != null) {
-			final String annotationName = apiConfiguration.getCustomResponseTypeAnnotation();
-			try {
-				responseAnnotation = context.getClassLoaderHelper().getByName(annotationName);
-				try {
-					final Method responseAnnotationMethod = responseAnnotation.getMethod("value");
-					if(responseAnnotationMethod.getReturnType() != Class.class) {
-						throw new RuntimeException("Annotation " + annotationName + " does not declare a method called value()");
-					}
-				} catch(final NoSuchMethodException e) {
-					throw new RuntimeException(
-						"Annotation " + annotationName + " does not declare a method value() returning a Class");
-				}
-			} catch(final ClassNotFoundException e) {
-				throw new RuntimeException("Could not load annotation class " + annotationName);
-			}
-
-		}
 	}
 
 	@Override
@@ -243,17 +218,6 @@ public class JakartaRsReader extends AbstractLibraryReader {
 	@Override
 	protected int readResponseCode(final MergedAnnotations mergedAnnotations) {
 		return 200;
-	}
-
-	@Override
-	protected Type readResponseMethodType(final Method method, final MergedAnnotations mergedAnnotations) {
-		if(responseAnnotation != null) {
-			MergedAnnotation merged = mergedAnnotations.get(responseAnnotation.getCanonicalName());
-			if(merged.isPresent()) {
-				return (Class) merged.getValue("value").get();
-			}
-		}
-		return method.getGenericReturnType();
 	}
 
 	private enum JakartaRsHttpVerb {

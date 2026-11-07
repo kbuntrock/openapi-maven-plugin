@@ -500,7 +500,11 @@ Définie une liste d'objets (classe java) qui seront à inclure dans le schema, 
 - Présence : `optionelle`
 
 Nom canonique d'une annotation définie dans votre projet qui permettra de surcharger le type de réponse envoyé par un endpoint.
-Utile pour les projets JaxRS ou JakartaRS utilisant l'objet "Response", qui ne peut pas être génériquement typé.
+Elle est prise en charge pour les projets Spring MVC, JAX-RS et Jakarta REST. Elle est utile, par exemple, pour :
+
+- les méthodes JAX-RS ou Jakarta REST retournant l'objet "Response", qui ne peut pas être génériquement typé ;
+- les méthodes retournant `void` et écrivant directement le corps de la réponse (par exemple un téléchargement de
+  fichier via `HttpServletResponse`) : sans l'annotation, une telle méthode est documentée sans contenu de réponse.
 
 ```xml
 <customResponseTypeAnnotation>io.github.kbuntrock.resources.endpoint.jaxrs.ResponseType</customResponseTypeAnnotation>
@@ -511,6 +515,7 @@ Cette annotation doit implémenter une fonction "Class value()".
 Exemple :
 
 ```java
+@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface ResponseType {
 
@@ -529,6 +534,31 @@ public Response getAccount() {
 	// ...
 }
 ```
+
+Téléchargement de fichier Spring MVC retournant `void` : le type de l'annotation est documenté, avec le media type du
+`produces` de l'endpoint (un `byte[]` est documenté en `type: string`, `format: binary`).
+
+```java
+@ResponseType(byte[].class)
+@GetMapping(value = "/files/{id}", produces = "application/octet-stream")
+public void download(@PathVariable String id, HttpServletResponse response) throws IOException {
+	// écriture du fichier dans response.getOutputStream()
+}
+```
+
+```yaml
+responses:
+  "200":
+    description: successful operation
+    content:
+      application/octet-stream:
+        schema:
+          type: string
+          format: binary
+```
+
+Le même endpoint peut aussi être documenté avec les annotations Swagger `@ApiResponse` / `@Content`, sans aucune
+configuration du plugin : voir [Documenter un téléchargement de fichier depuis une méthode `void`](./advanced_topics/swagger_annotations.md#documenter-un-téléchargement-de-fichier-depuis-une-méthode-void).
 
 ### openapiModels
 

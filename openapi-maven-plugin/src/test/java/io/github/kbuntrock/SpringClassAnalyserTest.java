@@ -52,6 +52,7 @@ import io.github.kbuntrock.resources.endpoint.spring.ResponseEntityUnparametrize
 import io.github.kbuntrock.resources.endpoint.standaloneapiresponse.StandaloneApiResponseController;
 import io.github.kbuntrock.resources.endpoint.standalonerequestbody.StandaloneRequestBodyController;
 import io.github.kbuntrock.resources.endpoint.time.TimeController;
+import io.github.kbuntrock.resources.endpoint.customresponsetype.CustomResponseTypeSpringController;
 import io.github.kbuntrock.resources.endpoint.uuid.UuidController;
 import io.github.kbuntrock.resources.endpoint.voidfiledownload.VoidFileDownloadController;
 import io.github.kbuntrock.resources.implementation.account.AccountControllerImpl;
@@ -1109,6 +1110,26 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	public void void_file_download_documented_with_api_response()
 		throws MojoExecutionException, MojoFailureException, IOException {
 		final DocumentationMojo mojo = createBasicMojo(VoidFileDownloadController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		mojo.setApiConfiguration(commonApiConfiguration);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void custom_response_type_annotation() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(CustomResponseTypeSpringController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		commonApiConfiguration.setCustomResponseTypeAnnotation("io.github.kbuntrock.resources.endpoint.jaxrs.ResponseType");
+		mojo.setApiConfiguration(commonApiConfiguration);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void custom_response_type_annotation_not_configured()
+		throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(CustomResponseTypeSpringController.class.getCanonicalName());
 		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
 		mojo.setApiConfiguration(commonApiConfiguration);
 

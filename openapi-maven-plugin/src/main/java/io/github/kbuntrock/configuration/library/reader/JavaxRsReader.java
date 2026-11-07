@@ -15,43 +15,18 @@ import org.apache.maven.plugin.MojoFailureException;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class JavaxRsReader extends AbstractLibraryReader {
 
 	private Optional<Class> jakartaNotNull;
-	private Class responseAnnotation;
 
 	public JavaxRsReader(final ApiContext context, final ApiConfiguration apiConfiguration,
 		final OpenApiTypeResolver openApiTypeResolver) {
 		super(context, apiConfiguration, openApiTypeResolver);
 		// For the validation constraint, there should be no problem if the dependency is not present.
 		jakartaNotNull = context.getClassLoaderHelper().tryToGetByName(JakartaRsReader.NOT_NULL_CNAME);
-		initCustomResponseAnnotation(apiConfiguration);
-	}
-
-	private void initCustomResponseAnnotation(final ApiConfiguration apiConfiguration) {
-
-		if(apiConfiguration.getCustomResponseTypeAnnotation() != null) {
-			final String annotationName = apiConfiguration.getCustomResponseTypeAnnotation();
-			try {
-				responseAnnotation = context.getClassLoaderHelper().getByName(annotationName);
-				try {
-					final Method responseAnnotationMethod = responseAnnotation.getMethod("value");
-					if(responseAnnotationMethod.getReturnType() != Class.class) {
-						throw new RuntimeException("Annotation " + annotationName + " does not declare a method called value()");
-					}
-				} catch(final NoSuchMethodException e) {
-					throw new RuntimeException(
-						"Annotation " + annotationName + " does not declare a method value() returning a Class");
-				}
-			} catch(final ClassNotFoundException e) {
-				throw new RuntimeException("Could not load annotation class " + annotationName);
-			}
-
-		}
 	}
 
 	@Override
@@ -256,16 +231,5 @@ public class JavaxRsReader extends AbstractLibraryReader {
 		public String getAnnotationClass() {
 			return annotationClass;
 		}
-	}
-
-	@Override
-	protected Type readResponseMethodType(final Method method, final MergedAnnotations mergedAnnotations) {
-		if(responseAnnotation != null) {
-			MergedAnnotation merged = mergedAnnotations.get(responseAnnotation.getCanonicalName());
-			if(merged.isPresent()) {
-				return (Class) merged.getValue("value").get();
-			}
-		}
-		return method.getGenericReturnType();
 	}
 }
