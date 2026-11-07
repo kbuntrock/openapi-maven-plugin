@@ -572,7 +572,13 @@ public class YamlWriter {
 					}
 					if(operationResponse.getDataObject() != null) {
 						final Content responseContent = Content.fromDataObject(operationResponse.getDataObject(), tagLibrary);
-						if(apiConfiguration.isDefaultProduceConsumeGuessing()) {
+						if(operationResponse.getMediaType() != null) {
+							annotatedResponse.getContent().put(operationResponse.getMediaType(), responseContent);
+						} else if(endpoint.getResponseFormats() != null) {
+							for(final String format : endpoint.getResponseFormats()) {
+								annotatedResponse.getContent().put(format, responseContent);
+							}
+						} else if(apiConfiguration.isDefaultProduceConsumeGuessing()) {
 							annotatedResponse.getContent()
 								.put(ProduceConsumeUtils.getDefaultValue(operationResponse.getDataObject()), responseContent);
 						} else {

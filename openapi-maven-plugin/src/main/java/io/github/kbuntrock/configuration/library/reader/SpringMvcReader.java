@@ -488,11 +488,11 @@ public class SpringMvcReader extends AbstractLibraryReader {
 				body.get().setFormats(Arrays.asList(consumes));
 			}
 		}
-		if(endpoint.getResponseObject() != null) {
-			final String[] produces = requestMappingMergedAnnotation.getStringArray("produces");
-			if(produces.length > 0) {
-				endpoint.setResponseFormats(Arrays.asList(produces));
-			}
+		// Read even for a void method: an explicit @ApiResponse may document a body written directly
+		// to the servlet response, and falls back on these formats when it declares no media type.
+		final String[] produces = requestMappingMergedAnnotation.getStringArray("produces");
+		if(produces.length > 0) {
+			endpoint.setResponseFormats(Arrays.asList(produces));
 		}
 	}
 

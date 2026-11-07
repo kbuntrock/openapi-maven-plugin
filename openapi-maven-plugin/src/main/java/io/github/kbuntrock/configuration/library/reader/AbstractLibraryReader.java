@@ -330,6 +330,10 @@ public abstract class AbstractLibraryReader {
 		Optional<MergedAnnotation> optionalContent = Arrays.stream(contentArray).findFirst();
 		if(optionalContent.isPresent()) {
 			final MergedAnnotation content = optionalContent.get();
+			final String mediaType = content.getString("mediaType");
+			if(!StringUtils.isEmpty(mediaType)) {
+				operationResponse.setMediaType(mediaType);
+			}
 			final MergedAnnotation schema = content.getAnnotation("schema");
 			if(schema.isPresent()) {
 				final Class<?> implementation = schema.getClass("implementation");

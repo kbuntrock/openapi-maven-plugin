@@ -223,7 +223,9 @@ public class JavaxRsReader extends AbstractLibraryReader {
 				body.get().setFormats(Arrays.asList(consumes));
 			}
 		}
-		if(endpoint.getResponseObject() != null && producesMergedAnnotation.isPresent()) {
+		// Read even for a void method: an explicit @ApiResponse may document a body written directly
+		// to the response, and falls back on these formats when it declares no media type.
+		if(producesMergedAnnotation.isPresent()) {
 			final String[] produces = producesMergedAnnotation.getStringArray("value");
 			if(produces.length > 0) {
 				endpoint.setResponseFormats(Arrays.asList(produces));

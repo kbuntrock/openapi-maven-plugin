@@ -20,6 +20,7 @@ Supported annotations and fields currently are:
 |  | `description` | `String` | Description of the response |
 |  | `content` | `Content[]` | Response content definitions |
 | `Content` | `schema` | `Schema` | Schema of the content |
+|  | `mediaType` | `String` | Media type of the content (defaults to the endpoint `produces` formats) |
 | `Schema` | `implementation` | `Class<?>` | Implementation class of the schema |
 |  | `description` | `String` | Description of the schema |
 |  | `example` | `String` | Example value |
@@ -90,3 +91,49 @@ public class ErrorDto {
 	private String sessionId;
 }
 ```
+
+## Documenting a file download from a `void` method
+
+An endpoint can return `void` and write the file directly into the `HttpServletResponse`. Since nothing in the
+method signature describes the response body, the plugin documents a `200` response **without content** for it. It
+does not guess anything from the `void` return type or from the `HttpServletResponse` parameter.
+
+To document the body, declare it explicitly with `@ApiResponse` and `@Content`. A `byte[]` schema is documented as
+`type: string`, `format: binary`:
+
+```java
+@ApiResponse(responseCode = "200", description = "The file content",
+    content = @Content(mediaType = "application/octet-stream", schema = @Schema(implementation = byte[].class)))
+@GetMapping(value = "/files/{id}", produces = "application/octet-stream")
+public void download(@PathVariable String id, HttpServletResponse response) throws IOException {
+    // write the file into response.getOutputStream()
+}
+```
+
+```yaml
+responses:
+  "200":
+    description: The file content
+    content:
+      application/octet-stream:
+        schema:
+          type: string
+          format: binary
+```
+
+The media type of a documented response is resolved in this order:
+
+1. the `mediaType` of the `@Content` annotation;
+2. otherwise, the formats declared by the endpoint: `produces` of Spring's `@RequestMapping` (and its variants such as
+   `@GetMapping`), or the JAX-RS / Jakarta REST `@Produces` annotation;
+3. otherwise, the default behaviour: a media type guessed from the schema when `defaultProduceConsumeGuessing` is
+   enabled, `*/*` if not.
+
+:::info
+Only the first `@Content` of an `@ApiResponse` is used; additional ones are ignored with a warning.
+:::
+
+:::tip
+Alternatively, return a `ResponseEntity<Resource>` (Spring) instead of writing into the `HttpServletResponse`. The
+response body is then part of the method signature and is documented without any Swagger annotation.
+:::

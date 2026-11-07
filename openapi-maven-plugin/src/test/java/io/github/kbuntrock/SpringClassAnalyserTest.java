@@ -53,6 +53,7 @@ import io.github.kbuntrock.resources.endpoint.standaloneapiresponse.StandaloneAp
 import io.github.kbuntrock.resources.endpoint.standalonerequestbody.StandaloneRequestBodyController;
 import io.github.kbuntrock.resources.endpoint.time.TimeController;
 import io.github.kbuntrock.resources.endpoint.uuid.UuidController;
+import io.github.kbuntrock.resources.endpoint.voidfiledownload.VoidFileDownloadController;
 import io.github.kbuntrock.resources.implementation.account.AccountControllerImpl;
 import io.github.kbuntrock.utils.OpenApiTypeResolver;
 import io.github.kbuntrock.yaml.YamlWriter;
@@ -1098,6 +1099,16 @@ public class SpringClassAnalyserTest extends AbstractTest {
 	@Test
 	public void standalone_api_response_annotation() throws MojoExecutionException, MojoFailureException, IOException {
 		final DocumentationMojo mojo = createBasicMojo(StandaloneApiResponseController.class.getCanonicalName());
+		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
+		mojo.setApiConfiguration(commonApiConfiguration);
+
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void void_file_download_documented_with_api_response()
+		throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(VoidFileDownloadController.class.getCanonicalName());
 		final CommonApiConfiguration commonApiConfiguration = new CommonApiConfiguration();
 		mojo.setApiConfiguration(commonApiConfiguration);
 
