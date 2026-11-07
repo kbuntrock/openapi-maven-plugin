@@ -39,10 +39,8 @@ public class CustomResponseTypeSpringController {
 		response.getOutputStream().write(new byte[0]);
 	}
 
-	// Both the custom annotation and an explicit @ApiResponse(200) with @Content. The existing YamlWriter merge rules
-	// produce a single "200" response: the description comes from @ApiResponse, and the content holds both entries,
-	// "application/octet-stream" (annotation type + "produces") and "application/pdf" (@Content). Would the @Content
-	// declare no media type, it would fall back on "produces" and replace the annotation-based entry.
+	// Both the custom annotation and an explicit @ApiResponse(200) with @Content: the explicit content replaces the one
+	// generated from the annotation type, so only "application/pdf" is documented.
 	@ResponseType(byte[].class)
 	@ApiResponse(responseCode = "200", description = "The PDF report", content = @Content(mediaType = "application/pdf", schema = @Schema(implementation = KeyAndPasswordDto.class)))
 	@GetMapping(value = "/with-api-response/{id}", produces = "application/octet-stream")

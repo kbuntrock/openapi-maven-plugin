@@ -129,6 +129,9 @@ The media type of a documented response is resolved in this order:
 3. otherwise, the default behaviour: a media type guessed from the schema when `defaultProduceConsumeGuessing` is
    enabled, `*/*` if not.
 
+When an `@ApiResponse` with a content targets the success response generated from the method signature (`200`, or
+the `@ResponseStatus` code), its content **replaces** the generated one instead of being added next to it.
+
 :::info
 Only the first `@Content` of an `@ApiResponse` is used; additional ones are ignored with a warning.
 :::

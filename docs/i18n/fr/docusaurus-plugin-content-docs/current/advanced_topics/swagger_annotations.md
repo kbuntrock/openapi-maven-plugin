@@ -129,6 +129,9 @@ Le media type d'une réponse documentée est déterminé dans cet ordre :
 3. sinon, le comportement par défaut : un media type déduit du schéma si `defaultProduceConsumeGuessing` est activé,
    `*/*` dans le cas contraire.
 
+Lorsqu'une `@ApiResponse` avec un contenu cible la réponse de succès générée à partir de la signature de la méthode
+(`200`, ou le code de `@ResponseStatus`), son contenu **remplace** le contenu généré au lieu de s'y ajouter.
+
 :::info
 Seule la première annotation `@Content` d'une `@ApiResponse` est prise en compte ; les suivantes sont ignorées avec un
 avertissement.

@@ -68,10 +68,6 @@ paths:
         "200":
           description: The PDF report
           content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
             application/pdf:
               schema:
                 $ref: "#/components/schemas/KeyAndPasswordDto"
