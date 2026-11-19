@@ -398,20 +398,41 @@ public class Schema {
 		final MergedAnnotation schemaAnnotation = mergedAnnotations
 			.get("io.swagger.v3.oas.annotations.media.Schema");
 		if(schemaAnnotation.isPresent()) {
-			String swaggerDescription = schemaAnnotation.getString("description");
-			if(!StringUtils.isEmpty(swaggerDescription)) {
-				property.setDescription(swaggerDescription);
-			}
-			String swaggerExample = schemaAnnotation.getString("example");
-			if(!StringUtils.isEmpty(swaggerExample)) {
-				property.setExample(swaggerExample);
-			}
-			String swaggerFormat = schemaAnnotation.getString("format");
-			if(!StringUtils.isEmpty(swaggerFormat)) {
-				property.setFormat(swaggerFormat);
-			}
-			applyRequiredModeIfExplicit(schemaAnnotation, property);
+			applySchemaAnnotationAttributes(schemaAnnotation, property);
+			return;
 		}
+
+		// An array-typed property is commonly documented with @ArraySchema instead of a bare @Schema.
+		// Its nested arraySchema() attribute is itself a @Schema describing the array-level property
+		// (as opposed to schema(), which describes the array's items). Only the required/requiredMode
+		// signal is meaningful at this level: description/example/format on arraySchema() describe the
+		// array node itself, which real-world specs (and swagger-core's own resolution) leave to the
+		// nested items schema() instead - propagating them here would introduce fields real tooling
+		// never emits for an array-typed property.
+		final MergedAnnotation arraySchemaAnnotation = mergedAnnotations
+			.get("io.swagger.v3.oas.annotations.media.ArraySchema");
+		if(arraySchemaAnnotation.isPresent()) {
+			final MergedAnnotation nestedArraySchema = arraySchemaAnnotation.getAnnotation("arraySchema");
+			if(nestedArraySchema.isPresent()) {
+				applyRequiredModeIfExplicit(nestedArraySchema, property);
+			}
+		}
+	}
+
+	private static void applySchemaAnnotationAttributes(MergedAnnotation schemaAnnotation, Property property) {
+		String swaggerDescription = schemaAnnotation.getString("description");
+		if(!StringUtils.isEmpty(swaggerDescription)) {
+			property.setDescription(swaggerDescription);
+		}
+		String swaggerExample = schemaAnnotation.getString("example");
+		if(!StringUtils.isEmpty(swaggerExample)) {
+			property.setExample(swaggerExample);
+		}
+		String swaggerFormat = schemaAnnotation.getString("format");
+		if(!StringUtils.isEmpty(swaggerFormat)) {
+			property.setFormat(swaggerFormat);
+		}
+		applyRequiredModeIfExplicit(schemaAnnotation, property);
 	}
 
 	/**
