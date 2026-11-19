@@ -429,6 +429,14 @@ public abstract class AbstractLibraryReader {
 				operationRequestBody.setDataObject(new DataObject(implementation, context, Flow.INPUT));
 			}
 		}
+
+		// Swagger's @RequestBody#required() defaults to false, same ambiguity as description/content
+		// above - only an explicit true is an unambiguous signal of intent, so that's the only value
+		// propagated here. Leaving it unset (null) when false keeps this annotation-driven path from
+		// adding spec churn (an explicit "required": false) to every existing consumer of it.
+		if(requestBodyAnnotation.getBoolean("required")) {
+			operationRequestBody.setRequired(true);
+		}
 		return operationRequestBody;
 	}
 

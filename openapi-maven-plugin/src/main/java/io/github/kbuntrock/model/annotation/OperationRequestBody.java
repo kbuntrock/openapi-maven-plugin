@@ -7,6 +7,7 @@ public class OperationRequestBody {
 	private String description;
 	private String mediaType;
 	private DataObject dataObject;
+	private Boolean required;
 
 	public String getDescription() {
 		return description;
@@ -30,5 +31,13 @@ public class OperationRequestBody {
 
 	public void setDataObject(DataObject dataObject) {
 		this.dataObject = dataObject;
+	}
+
+	public Boolean getRequired() {
+		return required;
+	}
+
+	public void setRequired(Boolean required) {
+		this.required = required;
 	}
 }

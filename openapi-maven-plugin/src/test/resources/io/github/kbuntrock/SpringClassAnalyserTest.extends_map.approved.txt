@@ -40,6 +40,7 @@ paths:
                 type: integer
                 format: int64
         description: some map
+        required: true
       responses:
         "200":
           description: successful operation

@@ -41,6 +41,7 @@ paths:
               file:
                 contentType: application/octet-stream
         description: a time in the "execute" case
+        required: true
       responses:
         "204":
           description: successful operation

@@ -39,6 +39,7 @@ paths:
             schema:
               $ref: "#/components/schemas/AccountJacksonDto"
         description: the account to be created
+        required: true
       responses:
         "200":
           description: successful operation

@@ -48,6 +48,7 @@ paths:
               type: object
               additionalProperties:
                 $ref: "#/components/schemas/AccountDto"
+        required: true
       responses:
         "200":
           description: successful operation
@@ -67,6 +68,7 @@ paths:
               type: object
               additionalProperties:
                 type: string
+        required: true
       responses:
         "200":
           description: successful operation

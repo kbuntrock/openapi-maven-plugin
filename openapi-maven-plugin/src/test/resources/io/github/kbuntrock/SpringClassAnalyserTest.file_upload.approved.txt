@@ -33,6 +33,7 @@ paths:
                   items:
                     type: string
                     format: binary
+        required: true
       responses:
         "200":
           description: successful operation
@@ -69,6 +70,7 @@ paths:
                 file:
                   type: string
                   format: binary
+        required: true
       responses:
         "200":
           description: successful operation
@@ -99,6 +101,7 @@ paths:
                   items:
                     type: string
                     format: binary
+        required: false
       responses:
         "200":
           description: successful operation
@@ -131,6 +134,7 @@ paths:
                 file:
                   type: string
                   format: binary
+        required: true
       responses:
         "200":
           description: successful operation

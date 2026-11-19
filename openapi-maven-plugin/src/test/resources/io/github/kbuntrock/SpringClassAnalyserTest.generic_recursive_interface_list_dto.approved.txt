@@ -36,6 +36,7 @@ paths:
                   type: string
                 wrapped:
                   $ref: "#/components/schemas/AccountDto"
+        required: true
       responses:
         "200":
           description: successful operation

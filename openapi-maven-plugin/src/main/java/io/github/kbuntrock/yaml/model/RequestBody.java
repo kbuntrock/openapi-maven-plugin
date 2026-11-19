@@ -12,6 +12,9 @@ public class RequestBody {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String description;
 
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private Boolean required;
+
 	public Map<String, Content> getContent() {
 		return content;
 	}
@@ -22,5 +25,13 @@ public class RequestBody {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public Boolean getRequired() {
+		return required;
+	}
+
+	public void setRequired(Boolean required) {
+		this.required = required;
 	}
 }

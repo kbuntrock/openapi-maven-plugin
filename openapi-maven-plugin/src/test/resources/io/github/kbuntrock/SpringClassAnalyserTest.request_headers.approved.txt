@@ -40,6 +40,7 @@ paths:
                   type: string
                   format: binary
         description: the provided file
+        required: true
       responses:
         "200":
           description: "OK if upload in success, KO otherwise"
