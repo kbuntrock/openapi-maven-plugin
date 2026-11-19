@@ -97,6 +97,7 @@ paths:
                         type: string
                     hasNext:
                       type: boolean
+        required: true
       responses:
         "200":
           description: successful operation
@@ -191,6 +192,7 @@ paths:
                         $ref: "#/components/schemas/AccountDto"
                     hasNext:
                       type: boolean
+        required: true
       responses:
         "200":
           description: successful operation

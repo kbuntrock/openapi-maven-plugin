@@ -45,6 +45,7 @@ paths:
                   additionalProperties:
                     $ref: "#/components/schemas/OrderJacksonDto"
         description: the input object
+        required: false
       responses:
         "200":
           description: successful operation
@@ -67,6 +68,7 @@ paths:
                   additionalProperties:
                     $ref: "#/components/schemas/ResumeJacksonDto"
         description: the input object to create a resume
+        required: false
       responses:
         "200":
           description: successful operation

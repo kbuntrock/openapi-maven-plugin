@@ -415,6 +415,11 @@ public class YamlWriter {
 					operation.setRequestBody(requestBody);
 
 					final ParameterObject body = bodies.get(0);
+					// Threads through the same required flag already resolved for every other
+					// parameter kind (e.g. a plain Spring @RequestBody defaults to required=true) -
+					// previously computed but never propagated into the emitted spec at all, since
+					// RequestBody had no field to hold it.
+					requestBody.setRequired(body.isRequired());
 					final Content requestBodyContent = isFormData(bodies)
 						? Content.fromMultipartBodies(bodies, tagLibrary)
 						: Content.fromDataObject(body, tagLibrary);
@@ -455,6 +460,9 @@ public class YamlWriter {
 					} else {
 						final RequestBody requestBody = new RequestBody();
 						operation.setRequestBody(requestBody);
+						// The body as a whole is required if any one of its parts is - a part marked
+						// required can't be satisfied by omitting the body entirely.
+						requestBody.setRequired(bodyParts.stream().anyMatch(ParameterObject::isRequired));
 						final Content requestBodyContent = Content.fromMultipartFormData(bodyParts, methodJavadoc, tagLibrary);
 						requestBody.getContent().put("multipart/form-data", requestBodyContent);
 					}
@@ -472,6 +480,7 @@ public class YamlWriter {
 					if(operationRequestBody.getDescription() != null) {
 						requestBody.setDescription(operationRequestBody.getDescription());
 					}
+					requestBody.setRequired(operationRequestBody.getRequired());
 					// "content" is mandatory in an OpenAPI request body: without a schema, still declare the
 					// media type with an empty media type object (as springdoc does).
 					final Content requestBodyContent = operationRequestBody.getDataObject() != null

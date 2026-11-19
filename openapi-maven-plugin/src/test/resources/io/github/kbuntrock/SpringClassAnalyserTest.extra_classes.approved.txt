@@ -21,6 +21,7 @@ paths:
               items:
                 type: integer
                 format: int64
+        required: true
       responses:
         "200":
           description: successful operation

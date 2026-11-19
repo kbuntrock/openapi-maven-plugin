@@ -37,6 +37,7 @@ paths:
             schema:
               $ref: "#/components/schemas/SimpleUserDto"
         description: a dto representing a SimpleUserDto
+        required: true
       responses:
         "200":
           description: true or false
