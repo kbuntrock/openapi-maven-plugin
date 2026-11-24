@@ -16,6 +16,7 @@ import io.github.kbuntrock.resources.endpoint.enumeration.jackson.EnumFieldAsVal
 import io.github.kbuntrock.resources.endpoint.enumeration.jackson.EnumFunctionAsValueController;
 import io.github.kbuntrock.resources.endpoint.enumeration.jackson.EnumTooMuchAsValueController;
 import io.github.kbuntrock.resources.endpoint.jackson.JacksonPolymorphismController;
+import io.github.kbuntrock.resources.endpoint.jackson.JacksonPolymorphismGenericController;
 import io.github.kbuntrock.resources.endpoint.jackson.inputoutput.JacksonController1;
 import io.github.kbuntrock.resources.endpoint.jackson.inputoutput.JacksonController2;
 import io.github.kbuntrock.resources.endpoint.jackson.inputoutput.JacksonController3;
@@ -238,8 +239,29 @@ public class JacksonAnalyserTest extends AbstractTest {
 	}
 
 	@Test
+	public void polymorphism_one_of_with_a_generic_root() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(JacksonPolymorphismGenericController.class.getCanonicalName());
+		mojo.getApiConfiguration().setJacksonPolymorphism(JacksonPolymorphism.ONE_OF);
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
+	public void polymorphism_all_of_with_a_generic_root() throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(JacksonPolymorphismGenericController.class.getCanonicalName());
+		mojo.getApis().get(0).setJacksonPolymorphism(JacksonPolymorphism.ALL_OF);
+		checkGenerationResult(mojo.documentProject());
+	}
+
+	@Test
 	public void polymorphism_is_disabled_by_default() throws MojoExecutionException, MojoFailureException, IOException {
 		final DocumentationMojo mojo = createBasicMojo(JacksonPolymorphismController.class.getCanonicalName());
+		assertThat(FileUtils.readFileToString(mojo.documentProject().get(0), UTF_8)).doesNotContain("discriminator");
+	}
+
+	@Test
+	public void polymorphism_is_disabled_by_default_with_a_generic_root()
+		throws MojoExecutionException, MojoFailureException, IOException {
+		final DocumentationMojo mojo = createBasicMojo(JacksonPolymorphismGenericController.class.getCanonicalName());
 		assertThat(FileUtils.readFileToString(mojo.documentProject().get(0), UTF_8)).doesNotContain("discriminator");
 	}
 

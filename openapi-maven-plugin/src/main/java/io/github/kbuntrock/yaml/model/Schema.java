@@ -171,7 +171,7 @@ public class Schema {
 				tagLibrary);
 			uniqueItems = dataObject.getUniqueItems();
 
-		} else if(!mainReference && dataObject.isReferenceObject()) {
+		} else if(!mainReference && (dataObject.isReferenceObject() || dataObject.isPolymorphicReferenceObject(context))) {
 			final DataObject referenceDataObject = tagLibrary.getClassToSchemaObject()
 				.get(dataObject.getJavaClass());
 			if(referenceDataObject == null) {

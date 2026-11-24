@@ -153,7 +153,7 @@ public class TagLibrary {
 			}
 		}
 		// Reference objects are candidates for top-level schemas. Non-map references are then inspected for nested types.
-		if(dataObject.isReferenceObject()) {
+		if(dataObject.isReferenceObject() || dataObject.isPolymorphicReferenceObject(context)) {
 			DataObject schemaObject = schemaObjects.get(dataObject);
 			if(schemaObject == null
 				|| (schemaObject.getFlow() != Flow.INPUT_OUTPUT && dataObject.getFlow() != schemaObject.getFlow())) {
