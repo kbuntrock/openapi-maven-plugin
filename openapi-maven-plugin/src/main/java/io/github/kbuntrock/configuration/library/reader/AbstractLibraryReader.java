@@ -486,7 +486,16 @@ public abstract class AbstractLibraryReader {
 	private void setSwaggerAnnotationPropertiesOnParameter(ParameterObject parameter, MergedAnnotation parameterAnn) {
 		final ParameterObject data = buildParameter(parameterAnn);
 		if(StringUtils.isNotBlank(data.getName())) {
-			parameter.setName(data.getName());
+			if(ParameterLocation.PATH == parameter.getLocation() && StringUtils.isNotBlank(parameter.getName())
+				&& !parameter.getName().equals(data.getName())) {
+				// OpenAPI 3 requires a path parameter's name to match its path template segment, so
+				// honoring a mismatched @Parameter(name = ...) here would produce an invalid spec.
+				context.getLogger().warn("Ignoring @Parameter(name = \"" + data.getName()
+					+ "\") on path parameter '" + parameter.getName()
+					+ "': overriding a path parameter's name would make it mismatch its path template segment.");
+			} else {
+				parameter.setName(data.getName());
+			}
 		}
 
 		parameter.setDescription(data.getDescription());

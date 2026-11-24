@@ -52,4 +52,13 @@ public class EntityAnnotationWithParametersResource {
 		@Parameter(description = "Trigger of the alarms", example = "rule47") @PathVariable("trigger") @PathParam("trigger") String triggerParam) {
 		return ResponseEntity.ok(new ResponseEntityWithAnnotations());
 	}
+
+	@Operation(summary = "Search alarms by stage id")
+	@RequestMapping(value = "/search/alarm/stage/{stageId}", method = RequestMethod.GET)
+	@GET
+	@Path("/search/alarm/stage/{stageId}")
+	public ResponseEntity<ResponseEntityWithAnnotations> searchStage(
+		@Parameter(name = "Stage ID", description = "Workflow stage identifier") @PathVariable @PathParam("stageId") String stageId) {
+		return ResponseEntity.ok(new ResponseEntityWithAnnotations());
+	}
 }

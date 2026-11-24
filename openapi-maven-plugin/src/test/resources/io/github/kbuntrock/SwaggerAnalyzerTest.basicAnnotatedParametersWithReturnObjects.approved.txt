@@ -63,6 +63,26 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ResponseEntityWithAnnotations"
+  /api/search/alarm/stage/{stageId}:
+    get:
+      tags:
+        - EntityAnnotationWithParametersResource
+      operationId: searchStage
+      summary: Search alarms by stage id
+      parameters:
+        - name: stageId
+          description: Workflow stage identifier
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ResponseEntityWithAnnotations"
   /api/search/alarm/trigger/{trigger}:
     get:
       tags:
