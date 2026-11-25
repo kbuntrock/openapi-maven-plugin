@@ -1,0 +1,48 @@
+---
+openapi: 3.0.3
+info:
+  title: Project using jackson
+  version: v1.0
+servers:
+  - url: ""
+tags:
+  - name: JacksonPolymorphismGenericController
+paths:
+  /api/generic-pets:
+    get:
+      tags:
+        - JacksonPolymorphismGenericController
+      operationId: JacksonPolymorphismGenericController.getPets
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GenericPet"
+      x-operation-name: getPets
+components:
+  schemas:
+    GenericCat:
+      allOf:
+        - $ref: "#/components/schemas/GenericPet"
+        - type: object
+    GenericDog:
+      allOf:
+        - $ref: "#/components/schemas/GenericPet"
+        - type: object
+    GenericPet:
+      required:
+        - attribute
+        - petType
+      type: object
+      properties:
+        attribute: {}
+        petType:
+          type: string
+      discriminator:
+        propertyName: petType
+        mapping:
+          dog: "#/components/schemas/GenericDog"

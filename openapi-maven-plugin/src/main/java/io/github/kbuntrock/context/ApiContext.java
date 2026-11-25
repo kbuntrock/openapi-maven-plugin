@@ -19,7 +19,9 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
 import java.lang.annotation.Annotation;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class ApiContext {
 
@@ -30,6 +32,7 @@ public final class ApiContext {
 	private NullableConfiguration nullableConfiguration;
 	private OpenApiTypeResolver openApiTypeResolver;
 	private ObjectMapper schemaObjectMapper;
+	private final Map<Class<?>, Optional<PolymorphicHierarchy>> polymorphicHierarchies = new ConcurrentHashMap<>();
 	private HiddenConfiguration hiddenConfiguration;
 
 	private MergeAnnotationsHelper mergeAnnotationsHelper;
@@ -118,8 +121,13 @@ public final class ApiContext {
 	 */
 	public PolymorphicHierarchy getPolymorphicHierarchy(final Class<?> clazz) {
 		final JacksonPolymorphism polymorphism = apiConfiguration.getJacksonPolymorphism();
-		return polymorphism == JacksonPolymorphism.NONE ? null
-			: PolymorphicHierarchy.find(clazz, schemaObjectMapper, polymorphism == JacksonPolymorphism.ONE_OF);
+		if(polymorphism == JacksonPolymorphism.NONE) {
+			return null;
+		}
+		return polymorphicHierarchies.computeIfAbsent(clazz,
+			key -> Optional
+				.ofNullable(PolymorphicHierarchy.find(key, schemaObjectMapper, polymorphism == JacksonPolymorphism.ONE_OF)))
+			.orElse(null);
 	}
 
 	public class SpecializedAnnotationIntrospector extends JacksonAnnotationIntrospector {

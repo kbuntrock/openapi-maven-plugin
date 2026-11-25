@@ -28,7 +28,8 @@ import java.util.stream.Collectors;
  * <p>
  * Notes:
  * - Deduplication is done upstream using {@link #getSignature()} which encodes class + generic arguments.
- * - {@link #isReferenceObject()} helps decide whether this object should appear under components/schemas.
+ * - {@link #isReferenceObject()} and {@link #isPolymorphicReferenceObject(ApiContext)} help decide whether this
+ * object should appear under components/schemas.
  * - {@link #getContextualType(Type)} applies generic substitutions using the current context.
  */
 public class DataObject {
@@ -324,8 +325,21 @@ public class DataObject {
 	}
 
 	/**
-	 * Generically typed objects cannot be emitted directly in the schema section; they should be expanded
-	 * in the content/response sections where their type arguments are known.
+	 * A generically typed polymorphic root is documented in the schema section like any other reference object:
+	 * its type arguments are known at the reference site, and the hierarchy is described once.
+	 *
+	 * @param context
+	 *            the api context, which knows the configured polymorphism documentation
+	 * @return true if the object is a generically typed polymorphic root that should get its own schema entry
+	 */
+	public boolean isPolymorphicReferenceObject(final ApiContext context) {
+		return isGenericallyTypedObject() && context.getPolymorphicHierarchy(javaClass) != null;
+	}
+
+	/**
+	 * Generically typed objects are expanded inline in the content/response sections, where their type arguments
+	 * are known. The only exception is a generically typed polymorphic root, documented in the schema section
+	 * like any other reference object.
 	 *
 	 * @return true if the object must be described inline (content/response), not as a named schema
 	 */
