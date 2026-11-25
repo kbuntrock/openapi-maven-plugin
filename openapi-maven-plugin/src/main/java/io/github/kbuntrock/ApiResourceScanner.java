@@ -76,7 +76,7 @@ public class ApiResourceScanner {
 	 * Scan configured locations for REST controllers and build the {@link TagLibrary}.
 	 * <p>
 	 * Steps:
-	 * - For each location, configure ClassGraph with the plugin class loader, enable class/method/annotation info,
+	 * - For each location, configure ClassGraph with the project class loader, enable class/method/annotation info,
 	 * and scope the scan to a package or a single class depending on the location.
 	 * - From the scan, collect classes annotated with any configured tag annotations.
 	 * - Apply class-level white/black lists, then analyse each class with {@link JavaClassAnalyser}.

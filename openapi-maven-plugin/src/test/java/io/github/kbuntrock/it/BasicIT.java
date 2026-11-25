@@ -1,6 +1,7 @@
 package io.github.kbuntrock.it;
 
 import static com.soebes.itf.extension.assertj.MavenITAssertions.assertThat;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.soebes.itf.extension.assertj.MavenExecutionResultAssert;
 import com.soebes.itf.jupiter.extension.*;
@@ -10,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 
 /**
@@ -98,6 +100,25 @@ public class BasicIT {
 				".yml")) {
 			assertThat(generatedFileStream).hasSameContentAs(resourceFileStream);
 		}
+	}
+
+	/**
+	 * The plugin realm is shared by every module of a reactor. Two modules that do not depend on each other and scan
+	 * the same package prefix must each document only their own controllers.
+	 */
+	@MavenTest
+	@MavenGoal("compile")
+	public void multi_module_no_classpath_leak(final MavenExecutionResult result) throws IOException {
+		assertThat(result).isSuccessful();
+
+		final File projectDirectory = result.getMavenProjectResult().getTargetProjectDirectory().toFile();
+		final String firstSpec = FileUtils.readFileToString(
+			new File(projectDirectory, "module-first/target/spec-open-api.yml"), UTF_8);
+		final String secondSpec = FileUtils.readFileToString(
+			new File(projectDirectory, "module-second/target/spec-open-api.yml"), UTF_8);
+
+		assertThat(firstSpec).contains("/first").doesNotContain("/second");
+		assertThat(secondSpec).contains("/second").doesNotContain("/first");
 	}
 
 }
