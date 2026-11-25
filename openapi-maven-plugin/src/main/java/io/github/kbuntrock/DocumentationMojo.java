@@ -24,13 +24,13 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.rtinfo.RuntimeInformation;
-import org.codehaus.plexus.classworlds.realm.ClassRealm;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -139,12 +139,15 @@ public class DocumentationMojo extends AbstractMojo {
 
 			context.initLogger(getLog());
 			// Prepare the class loader
-			ClassLoader projectClassLoader = createProjectDependenciesClassLoader();
-			context.initClassLoader(projectClassLoader);
+			try(URLClassLoader projectClassLoader = createProjectDependenciesClassLoader()) {
+				context.initClassLoader(projectClassLoader);
 
-			// Validate the configuration, parse the javadoc, parse the compiled code, and write the documentation.
-			// This is the method to call in unit tests
-			documentProject();
+				// Validate the configuration, parse the javadoc, parse the compiled code, and write the documentation.
+				// This is the method to call in unit tests
+				documentProject();
+			} catch(final IOException ex) {
+				context.getLogger().warn("Cannot close the project dependencies classloader", ex);
+			}
 
 			context.getLogger().info("Openapi spec generation took " + (System.currentTimeMillis() - debut) + "ms.");
 
@@ -322,15 +325,18 @@ public class DocumentationMojo extends AbstractMojo {
 	 * Creates a classloader for the classes and dependencies of the project.
 	 * <p>
 	 * For more information, see https://maven.apache.org/guides/mini/guide-maven-classloading.html<br/>
-	 * The plugin's {@link ClassRealm} is reused and augmented with the project's compile and runtime classpath
-	 * elements so that project classes can be loaded while scanning.
+	 * The plugin class realm is shared by every execution of the plugin in a Maven session, such as the modules of a
+	 * reactor build. The project's compile and runtime classpath elements are therefore loaded by a child classloader
+	 * dedicated to this execution, so that a scan never sees the classes of another module. Parent-first delegation
+	 * keeps resolving the types shared with the plugin (such as Jackson or javax.validation annotations) to the
+	 * plugin's classes.
 	 * </p>
 	 *
-	 * @return the classloader to use
+	 * @return the classloader to use, to be closed once the documentation is written
 	 * @throws MojoExecutionException
 	 *             if classpath elements cannot be resolved or URLs cannot be created
 	 */
-	private ClassLoader createProjectDependenciesClassLoader() throws MojoExecutionException {
+	private URLClassLoader createProjectDependenciesClassLoader() throws MojoExecutionException {
 		try {
 			final List<URL> pathUrls = new ArrayList<>();
 			for(final String compileClasspathElements : project.getCompileClasspathElements()) {
@@ -343,14 +349,7 @@ public class DocumentationMojo extends AbstractMojo {
 			final URL[] urlsForClassLoader = pathUrls.toArray(new URL[pathUrls.size()]);
 			context.getLogger().debug("urls for URLClassLoader: " + Arrays.asList(urlsForClassLoader));
 
-			// Using a separate ClassWorld/ClassRealm for the project would complicate scanning because
-			// plugin classes could not load project types directly. Instead, we augment the plugin ClassRealm
-			// with the project's classpath URLs so both sets of classes are visible during scanning.
-			final ClassRealm classRealm = (ClassRealm) DocumentationMojo.class.getClassLoader();
-			for(final URL url : urlsForClassLoader) {
-				classRealm.addURL(url);
-			}
-			return classRealm;
+			return new URLClassLoader(urlsForClassLoader, DocumentationMojo.class.getClassLoader());
 		} catch(final DependencyResolutionRequiredException | MalformedURLException ex) {
 			throw new MojoExecutionException("Cannot create project dependencies classloader", ex);
 		}
